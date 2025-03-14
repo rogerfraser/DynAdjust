@@ -3,7 +3,7 @@
 [![docker build](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml/badge.svg)](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml)
 [![codacy badge](https://img.shields.io/codacy/grade/a3944cda0c72445f8a13b1f82b64f714)](https://app.codacy.com/gh/icsm-au/DynAdjust/dashboard)
 [![cii best practices](https://img.shields.io/badge/cii%20best%20practices-passing-success)](https://bestpractices.coreinfrastructure.org/projects/4894)
-[![coveralls status](https://img.shields.io/coveralls/github/icsm-au/DynAdjust)](https://coveralls.io/github/icsm-au/DynAdjust)
+[![coveralls status](https://img.shields.io/coveralls/github/GeoscienceAustralia/DynAdjust)](https://coveralls.io/github/GeoscienceAustralia/DynAdjust)
 [![codecov status](https://img.shields.io/codecov/c/github/icsm-au/dynadjust)](https://codecov.io/gh/icsm-au/DynAdjust)
 [![documentation (user's guide)](https://img.shields.io/badge/docs-usersguide-blue.svg)](https://github.com/geoscienceaustralia/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 [![gitHub license](https://img.shields.io/badge/license-Apache-blue.svg)](https://raw.githubusercontent.com/geoscienceaustralia/DynAdjust/master/LICENSE)
