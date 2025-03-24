@@ -126,24 +126,24 @@ const char* const WGS84_G1674_c =	"7662";
 const char* const WGS84_G1762_c =	"7664";
 const char* const WGS84_G2139_c =	"9753";
 
-const char* const AGD66_epoch =		"1.1.1966";
-const char* const AGD84_epoch =		"1.1.1984";
-const char* const GDA94_epoch =		"1.1.1994";
-const char* const GDA2020_epoch =	"1.1.2020";
-const char* const ITRF2020_epoch =	"1.1.2020";
-const char* const ITRF2014_epoch =	"1.1.2010";
-const char* const ITRF2008_epoch =	"1.1.2008";
-const char* const ITRF2005_epoch =	"1.1.2005";
-const char* const ITRF2000_epoch =	"1.1.2000";
-const char* const ITRF1997_epoch =	"1.1.1997";
-const char* const ITRF1996_epoch =	"1.1.1996";
-const char* const ITRF1994_epoch =	"1.1.1994";
-const char* const ITRF1993_epoch =	"1.1.1993";
-const char* const ITRF1992_epoch =	"1.1.1992";
-const char* const ITRF1991_epoch =	"1.1.1991";
-const char* const ITRF1990_epoch =	"1.1.1990";
-const char* const ITRF1989_epoch =	"1.1.1989";
-const char* const ITRF1988_epoch =	"1.1.1988";
+const char* const AGD66_epoch =		"01.01.1966";
+const char* const AGD84_epoch =		"01.01.1984";
+const char* const GDA94_epoch =		"01.01.1994";
+const char* const GDA2020_epoch =	"01.01.2020";
+const char* const ITRF2020_epoch =	"01.01.2020";
+const char* const ITRF2014_epoch =	"01.01.2010";
+const char* const ITRF2008_epoch =	"01.01.2008";
+const char* const ITRF2005_epoch =	"01.01.2005";
+const char* const ITRF2000_epoch =	"01.01.2000";
+const char* const ITRF1997_epoch =	"01.01.1997";
+const char* const ITRF1996_epoch =	"01.01.1996";
+const char* const ITRF1994_epoch =	"01.01.1994";
+const char* const ITRF1993_epoch =	"01.01.1993";
+const char* const ITRF1992_epoch =	"01.01.1992";
+const char* const ITRF1991_epoch =	"01.01.1991";
+const char* const ITRF1990_epoch =	"01.01.1990";
+const char* const ITRF1989_epoch =	"01.01.1989";
+const char* const ITRF1988_epoch =	"01.01.1988";
 
 // epochs for WGS84 are not the reference epoch, but rather, 
 // the starting date from which the respective WGS realisation 
