@@ -15,9 +15,10 @@
 SET (PKG_MGR_PATH_INCLUDE /usr/include)
 
 # SET THE ROOT DIRECTORY WHERE XSD++ IS INSTALLED
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+IF (APPLE)
   # Apple
-  SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
+  #SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
+  SET(XSD_INCLUDE_DIR /opt/homebrew/include/xsd/)
 
 ELSEIF (UNIX)
   
@@ -43,7 +44,7 @@ FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
       ${XSD_INCLUDE_DIR}
 )
 
-message (STATUS "xsd include directory is: ${XSD_INCLUDE_DIR}/xsd")
+message (STATUS "XSD include directory is: ${XSD_INCLUDE_DIR}/xsd")
 
 IF (EXISTS ${XSD_INCLUDE_DIR})
     SET (XSD_FOUND TRUE )

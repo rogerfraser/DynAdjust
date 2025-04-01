@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __import_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 		{
 			p.i.imp_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "imp");
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE, p.i.imp_file);
@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __reftran_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 		
 		// end time
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __geoid_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __segment_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __adjust_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 
 		// end time

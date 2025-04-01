@@ -29,12 +29,13 @@
 	#endif
 #endif
 
+#include <cstdint>
+#include <cstring>		// memset
 #include <map>
 #include <queue>
-#include <vector>
-#include <string>
-#include <cstring>		// memset
 #include <stdio.h>
+#include <string>
+#include <vector>
 
 #ifdef UINT32
 #undef UINT32
@@ -47,6 +48,8 @@
 typedef unsigned int	UINT32, *PUINT32;
 typedef const PUINT32	PUINT32_const;
 typedef unsigned short	UINT16, *PUINT16;
+
+typedef uint32_t        index_t;
 
 #ifndef INT_MIN
 #define INT_MIN -2147483648
@@ -554,7 +557,7 @@ typedef struct stn_t {
 		memset(description, '\0', sizeof(description));
 		// GDA2020, lat, long, height
 		memset(epsgCode, '\0', sizeof(epsgCode));
-		sprintf(epsgCode, "7843");
+		snprintf(epsgCode, sizeof(epsgCode), "7843");
 		memset(epoch, '\0', sizeof(epoch));
 		memset(plate, '\0', sizeof(plate));
 	}
@@ -615,7 +618,7 @@ typedef struct binary_file_meta {
 		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {}
 	binary_file_meta (const std::string& app_name) 
 		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {
-			sprintf(modifiedBy, "%s", app_name.c_str());
+            snprintf(modifiedBy, sizeof(modifiedBy), "%s", app_name.c_str());
 	}
 	~binary_file_meta() {
 		if (inputFileMeta != NULL)

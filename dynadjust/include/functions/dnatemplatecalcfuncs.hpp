@@ -30,14 +30,14 @@
 	#endif
 #endif
 
-#include <algorithm>
+//#include <algorithm>
 #include <numeric>
-#include <functional>
-#include <sstream>
-#include <string>
-#include <vector>
+//#include <functional>
+//#include <sstream>
+//#include <string>
+//#include <vector>
 #include <math.h>
-#include <iostream>
+//#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
@@ -80,7 +80,7 @@ template <typename T, typename U, typename iterator>
 T average(const iterator begin, const iterator end, U& sum)
 {
 	U n(static_cast<UINT32>(std::distance(begin, end)));
-	sum = accumulate(begin, end, 0);
+	sum = std::accumulate(begin, end, 0);
 	return static_cast<T>(sum) / n;
 }
 

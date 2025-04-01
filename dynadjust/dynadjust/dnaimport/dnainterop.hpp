@@ -29,8 +29,6 @@
 #endif
 #endif
 
-#include <mkl.h>
-
 #include <exception>
 #include <system_error>
 #include <stdexcept>

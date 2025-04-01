@@ -313,11 +313,11 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 
 	// compute weighted "measured minus computed"
 	matrix_2d At_Vinv_m(v_designR_.at(block).columns(), 1);
-	At_Vinv_m.multiply_mkl(v_AtVinvR_.at(block), "N", v_measMinusCompR_.at(block), "N");
+	At_Vinv_m.multiply(v_AtVinvR_.at(block), "N", v_measMinusCompR_.at(block), "N");
 
 	// Solve corrections from normal equations
 	v_correctionsR_.at(block).redim(v_designR_.at(block).columns(), 1);
-	v_correctionsR_.at(block).multiply_mkl(v_normalsR_.at(block), "N", At_Vinv_m, "N");
+	v_correctionsR_.at(block).multiply(v_normalsR_.at(block), "N", At_Vinv_m, "N");
 
 #ifdef _MS_COMPILER_
 #pragma region debug_output

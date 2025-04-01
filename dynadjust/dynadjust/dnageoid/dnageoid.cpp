@@ -725,7 +725,7 @@ void dna_geoid_interpolation::LoadBinaryStationFile(const std::string& bstnfileN
 
 void dna_geoid_interpolation::WriteBinaryStationFile(const std::string& bstnfileName)
 {
-	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
+	snprintf(bst_meta_.modifiedBy, sizeof(bst_meta_.modifiedBy), "%s", __BINARY_NAME__);
 	bst_meta_.geoid = true;
 	
 	try {

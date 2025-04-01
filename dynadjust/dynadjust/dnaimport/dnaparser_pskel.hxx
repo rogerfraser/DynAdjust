@@ -47,6 +47,7 @@
 //
 // End prologue.
 
+#define XSD_AUTO_PTR std::unique_ptr
 #include <xsd/cxx/config.hxx>
 
 //#if (XSD_INT_VERSION != 3030000L)

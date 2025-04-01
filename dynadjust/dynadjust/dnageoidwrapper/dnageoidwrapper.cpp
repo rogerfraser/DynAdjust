@@ -1070,7 +1070,7 @@ int main(int argc, char* argv[])
 		
 	if (!p.n.geo_file.empty())
 	{
-		sprintf(dnageoFile, "%s", p.n.geo_file.c_str());
+		snprintf(dnageoFile, sizeof(dnageoFile), "%s", p.n.geo_file.c_str());
 		geoFileptr = dnageoFile;
 	}
 		

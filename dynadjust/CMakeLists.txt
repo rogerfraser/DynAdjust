@@ -1,204 +1,359 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required(VERSION 3.15)
+project(dynadjust VERSION 1.2.8)
 
-project (dynadjust)
+option(BUILD_TESTING "Enable testing" OFF)
+option(BUILD_STATIC "Build static binaries in the 'static' directory" ON)
+option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
+option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
+option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" ON)
 
-set (DYNADJUST_VERSION "1.2.8")
-
-if (BUILD_TESTING)
-    enable_testing()
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif (BUILD_TESTING)
+# Fix Boost 1.70+ issue with CMake 3.14+
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
-#set(CMAKE_VERBOSE_MAKEFILE ON)
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 
-message (" ")
-message ("===========================================================================")
-message ("Configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) build using cmake...")
-message (" ")
+message("")
+message("=====================================================================")
+message("Configuring DynAdjust ${PROJECT_VERSION} ${CMAKE_BUILD_TYPE} Build")
+message("=====================================================================")
+message("")
+
+if(BUILD_TESTING)
+    message(STATUS "Testing enabled (BUILD_TESTING=ON)")
+    include(CTest)
+    enable_testing()
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
+
+if (BUILD_STATIC)
+    message(STATUS "Static building enabled (BUILD_STATIC=ON)")
+else()
+    message(STATUS "Static building disabled (BUILD_STATIC=OFF)")
+endif()
 
 if(UNIX)
-   set(DNA_PROGRAM_PREFIX "dna")
-endif(UNIX)
+    set(DNA_PROGRAM_PREFIX "dna")
+endif()
 
-set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+# ----------------------------------------------------------------------------
+# C++ standard
+# ----------------------------------------------------------------------------
+
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
-
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 
-# ignore warnings if the return type of a function has a 
-# type qualifier such as const (e.g. std::exception::what())
-add_definitions(-Wno-ignored-qualifiers)
+# ----------------------------------------------------------------------------
+# Compiler flags
+# ----------------------------------------------------------------------------
 
-# default CXX flags
-if (BUILD_TESTING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")    # turn off warnings for unit testing and code coverage
-else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-endif (BUILD_TESTING)
+# ignore BOOST warning for the moment
+add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
+add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
+add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
-# Debug CXX flags (GCC 4.8 introduced -Og for superior debugging experience. For older versions, use -O0)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
+add_compile_options(-Wno-ignored-qualifiers)
+add_compile_options(-Wno-deprecated-declarations)
 
-# If testing, then include coverage and turn off optimisations for release builds
-if (BUILD_TESTING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftest-coverage")
+if(BUILD_TESTING)
+    add_compile_options(-w)
+endif()
+
+if(APPLE)
+    add_compile_options(-Werror -ferror-limit=1)
+    #add_compile_options(-Wno-unguarded-availability-new)
+    #add_compile_options(-Wno-deprecated-declarations)
+endif()
+
+# Debug flags
+if (NOT BUILD_STATIC AND NOT APPLE)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
+endif()
+
+# Coverage if testing
+if(NOT BUILD_STATIC AND NOT APPLE)
+    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-endif (BUILD_TESTING)
+endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
+# Linker flags
+if(APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
 else()
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
 endif()
 
-message (STATUS "Looking for xerces-c...")
-find_package (XercesC COMPONENTS xerces-c REQUIRED)
-if (NOT XERCESC_FOUND )
-   set (DNA_BUILD_ERROR 1)
-   set (XERCES_FIND_ERROR 1)
-   message (SEND_ERROR "Cannot find XercesC library")
-else ()
-   message (STATUS "xerces-c seems to be installed correctly.")
-endif ()
-message (" ")
+# ----------------------------------------------------------------------------
+# XercesC
+# ----------------------------------------------------------------------------
 
-message (STATUS "Looking for xsd headers...")
-find_package (XSD REQUIRED)
-if (NOT XSD_FOUND )
-   set (DNA_BUILD_ERROR 1)
-   set (XSD_FIND_ERROR 1)
-   message (SEND_ERROR "Cannot find XSD library")
-else ()
-   message (STATUS "xsd headers seem to be installed correctly.")
-endif ()
-message (" ")
+find_package(XercesC REQUIRED)
+message(STATUS "Found XercesC (Version ${XercesC_VERSION})")
 
-message (STATUS "Looking for boost...")
-set (Boost_USE_MULTITHREADED ON)
-set (BOOST_MIN_VERSION "1.58.0")
-find_package (Boost ${BOOST_MIN_VERSION} COMPONENTS system filesystem timer thread program_options REQUIRED)
-if (NOT Boost_FOUND )
-   set (DNA_BUILD_ERROR 1)
-   set (BOOST_FIND_ERROR 1)
-   message (SEND_ERROR "Cannot find Boost library components")
-else ()
-   message (STATUS "boost seems to be installed correctly.")
-endif ()
-message (" ")
+# ----------------------------------------------------------------------------
+# XSD
+# ----------------------------------------------------------------------------
 
-message (STATUS "Looking for intel math kernel library (mkl)...")
-find_package(MKL CONFIG REQUIRED PATHS $ENV{MKLROOT})
+add_compile_definitions(XSD_CXX11) # Tell XSD to use C++11 and later
+find_package(XSD REQUIRED)
+message(STATUS "Found XSD (${XSD_INCLUDE_DIR})")
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib)
-    find_library(MKL_INTEL_ILP64 mkl_intel_ilp64 PATHS ${MKL_ROOT}/lib/intel64)
-    find_library(MKL_INTEL_THREAD NAMES mkl_intel_thread PATHS ${MKL_ROOT}/lib/intel64)
-    find_library(MKL_INTEL_CORE NAMES mkl_core PATHS ${MKL_ROOT}/lib/intel64)
-else()
-    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64)
-    find_library(MKL_INTEL_ILP64 mkl_intel_ilp64 PATHS ${MKL_ROOT}/lib/intel64)
-    find_library(MKL_INTEL_THREAD NAMES mkl_intel_thread PATHS ${MKL_ROOT}/lib/intel64)
-    find_library(MKL_INTEL_CORE NAMES mkl_core PATHS ${MKL_ROOT}/lib/intel64)
-endif()
+# ----------------------------------------------------------------------------
+# Boost
+# ----------------------------------------------------------------------------
 
-if( NOT IOMP5_LIB )
-    set(DNA_BUILD_ERROR 1)
-    set (IOMP5_FIND_ERROR 1)
-    message(SEND_ERROR "Cannot find iomp5 library")
-endif()
+find_package(Boost 1.58.0 CONFIG REQUIRED
+    COMPONENTS system filesystem timer thread program_options)
+message(STATUS "Found Boost version: ${Boost_VERSION}")
 
-if( NOT MKL_INTEL_ILP64 )
-    set(DNA_BUILD_ERROR 1)
-    set (MKL_INTEL_ILP64_FIND_ERROR 1)
-    message(SEND_ERROR "Cannot find mkl_intel_ilp64 library")
-endif()
+# ----------------------------------------------------------------------------
+# Set up libraries
+# ----------------------------------------------------------------------------
 
-if( NOT MKL_INTEL_THREAD )
-    set(DNA_BUILD_ERROR 1)
-    set (MKL_INTEL_THREAD_FIND_ERROR 1)
-    message(SEND_ERROR "Cannot find mkl_intel_thread library")
-endif()
+set(DNA_LIBRARIES
+    ${Boost_LIBRARIES}
+    XercesC::XercesC
+)
 
-if( NOT MKL_INTEL_CORE )
-    set(DNA_BUILD_ERROR 1)
-    set (MKL_INTEL_CORE_FIND_ERROR 1)
-    message(SEND_ERROR "Cannot find mkl_intel_core library")
-endif()
+# ----------------------------------------------------------------------------
+# Math libraries
+# ----------------------------------------------------------------------------
 
 find_package(OpenMP)
 
-if (OpenMP_CXX_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-else()
-    set(DNA_BUILD_ERROR 1)
-    set (OPENMP_CORE_FIND_ERROR 1)
-    message(SEND_ERROR "Cannot find openmp library")
+if(OpenMP_CXX_FOUND)
+    if (APPLE AND NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
+        message(STATUS "libomp not found (install with `brew install libomp`)")
+        set(USE_OPENMP_MAC OFF)
+    else()
+        set(USE_OPENMP_MAC ON)
+    endif()
+
+    if (APPLE AND USE_OPENMP_MAC)
+        message(STATUS "Enabled OpenMP on MacOS using libomp")
+        add_compile_options(-Xpreprocessor -fopenmp)
+        add_link_options(-L/opt/homebrew/lib)
+        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+    else()
+        message(STATUS "Enabled OpenMP")
+        add_compile_options(${OpenMP_CXX_FLAGS})
+        add_link_options(${OpenMP_CXX_FLAGS})
+        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+        #list(APPEND DNA_LIBRARIES OpenMP::OpenMP_CXX)
+    endif()
 endif()
 
-set (DNA_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARY} ${MKL_INTEL_ILP64} ${MKL_INTEL_THREAD} ${MKL_INTEL_CORE} ${IOMP5_LIB} OpenMP::OpenMP_CXX)
+if(APPLE)
+    if(USE_OPENBLAS)
+        message(STATUS "Using OpenBLAS + LAPACKE on MacOS")
+        find_package(BLAS REQUIRED)
+        find_package(LAPACK REQUIRED)
+        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    else()
+        find_library(ACCELERATE_LIB Accelerate)
+        if(NOT ACCELERATE_LIB)
+            message(FATAL_ERROR "Cannot find Apple Accelerate framework.")
+        else()
+            message(STATUS "Found Accelerate framework for fast linear algebra")
+            add_compile_options("-DACCELERATE_NEW_LAPACK")
+        endif()
+        list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
+    endif()
 
-message (STATUS "DynAdjust library dependencies:")
-message (STATUS ${DNA_LIBRARIES})
-message (" ")
+elseif(WIN32)
+    if(USE_MKL)
+        message(STATUS "Searching for Intel MKL on Windows...")
+        find_package(MKL REQUIRED)
+        if(MKL_FOUND)
+            list(APPEND DNA_LIBRARIES ${MKL_LIBRARIES})
+        else()
+            message(FATAL_ERROR "Intel MKL not found on Windows.")
+        endif()
+    else()
+        message(STATUS "Using OpenBLAS + LAPACKE on Windows...")
+        find_package(BLAS REQUIRED)
+        find_package(LAPACK REQUIRED)
+        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    endif()
 
-include_directories( ${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${MKL_ROOT}/include ${XERCESC_INCLUDE_DIR} ${XSD_INCLUDE_DIR})
+elseif(UNIX)
+    if (USE_MKL)
+        add_compile_options("-DMKL_LP64")
+        set(BLA_VENDOR Intel10_64lp)
+    else()
+        set(BLA_PREFER_PKGCONFIG YES)
+        set(BLA_VENDOR OpenBLAS)
+    endif()
 
-if (DNA_BUILD_ERROR)
-    message (" ")
-    message (STATUS "**********************************************")
-    message (STATUS "Cannot build DynaAjust ${DYNADJUST_VERSION}.  Missing components:")
+    if (BUILD_STATIC)
+        set(BLA_STATIC ON)
+    endif()
 
-    if (XERCES_FIND_ERROR)
-        message (STATUS "  xerces-c")
-    endif ()
-    if (XSD_FIND_ERROR)
-        message (STATUS "  xsd headers")
-    endif ()
-    if (BOOST_FIND_ERROR)
-        message (STATUS "  boost")
-    endif ()
-    if (MKL_FIND_ERROR)
-        message (STATUS "  mkl")
-    endif ()
-    if (IOMP5_FIND_ERROR)
-        message (STATUS "  iomp5")
-    endif ()
-    
-    message (" ")
-    message (FATAL_ERROR "Build terminating.")
-endif ()
+    find_package(BLAS REQUIRED)
 
-message (STATUS "Configuring import")
-add_subdirectory (dynadjust/dnaimportwrapper)
+    find_package(LAPACK REQUIRED)
 
-message (STATUS "Configuring reftran")
-add_subdirectory (dynadjust/dnareftranwrapper)
+    find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
 
-message (STATUS "Configuring segment")
-add_subdirectory (dynadjust/dnasegmentwrapper)
+    if ("${LAPACK_LIBRARIES}" MATCHES "libmkl")
+        message(STATUS "Using Intel MKL for fast linear algebra")
+        set(USE_MKL ON)
+    else()
+        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGSK})")
+        #include_directories("/usr/include/x86_64-linux-gnu/")
+    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    endif()
 
-message (STATUS "Configuring geoid")
-add_subdirectory (dynadjust/dnageoidwrapper)
+endif()
 
-message (STATUS "Configuring adjust")
-add_subdirectory (dynadjust/dnaadjustwrapper)
+message(STATUS "DynAdjust library dependencies: ${DNA_LIBRARIES}")
 
-message (STATUS "Configuring plot")
-add_subdirectory (dynadjust/dnaplotwrapper)
+# ----------------------------------------------------------------------------
+# Static build  (i.e., no dependencies on shared libraries)
+# ----------------------------------------------------------------------------
 
-message (STATUS "Configuring dynadjust")
-add_subdirectory (dynadjust/dynadjust)
+if(BUILD_STATIC)
+    message("")
+    message("=====================================================================")
+    message("Static build configuration")
+    message("=====================================================================")
+    message("")
+
+    add_compile_options("-DXERCES_STATIC_LIBRARY")
+    add_compile_options(-O3)
+
+    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+
+    if (UNIX AND NOT APPLE)
+    	list(APPEND DNA_LIBRARIES "gfortran" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    	list(APPEND DNA_LIBRARIES "quadmath" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    	list(APPEND DNA_LIBRARIES "openblas" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    endif()
+
+    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+
+    # Find the static library equivalents
+    set(STATIC_LIBS_LIST "")
+    set(DNA_LIB_LIST ${DNA_LIBRARIES})
+    list(REMOVE_DUPLICATES DNA_LIB_LIST)
+    foreach(lib ${DNA_LIB_LIST})
+        get_filename_component(libdir ${lib} DIRECTORY)
+        get_filename_component(libname ${lib} NAME_WE)
+        string(REGEX REPLACE "-l" "" libname ${libname})
+        string(REGEX REPLACE "^Boost::" "boost_" libname ${libname})
+        string(REGEX REPLACE "^XercesC::XercesC" "xerces-c" libname ${libname})
+        string(REGEX REPLACE "^lib" "" libname ${libname})
+        if(libname)
+            if(NOT (libname STREQUAL "m" OR 
+                    libname STREQUAL "dl" OR 
+                    libname MATCHES "^-W*" OR 
+                    #libname STREQUAL "xerces-c" OR
+                    libname STREQUAL "Accelerate"))
+                message(CHECK_START "Finding static '${lib}'")
+                find_library(STATIC_LIB_${libname}
+                    NAMES lib${libname}.a lib${libname}_nonshared.a
+                    PATHS ${libdir})
+                if (${STATIC_LIB_${libname}} MATCHES "NOTFOUND")
+                    message(CHECK_FAIL "Not Found: 'lib${libname}.a'")
+                else()
+                    message(CHECK_PASS "Found")
+                    list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
+                endif()
+            else()
+                #message(STATUS "Finding static '${lib}' - Skipped")
+            endif()
+        endif()
+    endforeach()
+
+    message("")
+    message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/static)
+
+    if(APPLE)
+        message(STATUS "Using macOS-specific settings for static binaries")
+        # On macOS, we'll create dynamically linked binaries with maximum compatibility
+        set(CMAKE_MACOSX_RPATH ON)
+
+        # Use a more recent deployment target to avoid LAPACK availability issues
+        # as *new* Accelerate framework available from macOS 13.3+
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "15.0" CACHE STRING "Minimum macOS version" FORCE)
+        add_compile_options("-mmacosx-version-min=15.0")
+    endif()
+
+    message("")
+    message("---------------------------------------------------------------------")
+    message("")
+endif()
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${XercesC_INCLUDE_DIRS}
+    ${XSD_INCLUDE_DIRS}
+)
+
+# ----------------------------------------------------------------------------
+# Subdirectories
+# ----------------------------------------------------------------------------
+
+
+message(STATUS "Configuring import...")
+add_subdirectory(dynadjust/dnaimportwrapper)
+
+message(STATUS "Configuring reftran...")
+add_subdirectory(dynadjust/dnareftranwrapper)
+
+message(STATUS "Configuring segment...")
+add_subdirectory(dynadjust/dnasegmentwrapper)
+
+message(STATUS "Configuring geoid...")
+add_subdirectory(dynadjust/dnageoidwrapper)
+
+message(STATUS "Configuring plot...")
+add_subdirectory(dynadjust/dnaplotwrapper)
+
+message(STATUS "Configuring dynadjust...")
+add_subdirectory(dynadjust/dynadjust)
+
+message(STATUS "Configuring adjust...")
+add_subdirectory(dynadjust/dnaadjustwrapper)
+
+# ----------------------------------------------------------------------------
+# Static build info
+# ----------------------------------------------------------------------------
+
+
+if(BUILD_STATIC)
+    message("")
+    message(" **")
+    message(" * Static binaries will be available in `static` subdirectory *")
+    message("                                                             **")
+    message("")
+endif()
+
+
+# ----------------------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------------------
 
 if (BUILD_TESTING)
-    message ("  ")
-    message (STATUS "Configuring tests")
+    message("=====================================================================")
+    message("Testing enabled (BUILD_TESTING=ON)")
+    message("=====================================================================")
+    message("")
+    message(STATUS "Setting up tests...")
 
     # Create symbolic links
     add_custom_target(import_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaimportwrapper> dnaimport)
@@ -206,7 +361,7 @@ if (BUILD_TESTING)
     add_custom_target(reftran_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnareftranwrapper> dnareftran)
     add_custom_target(segment_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnasegmentwrapper> dnasegment)
     add_custom_target(adjust_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaadjustwrapper> dnaadjust)
-    
+
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous, phased-block 1, phased, staged)
     add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
@@ -216,7 +371,7 @@ if (BUILD_TESTING)
 
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
-    
+
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
     add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
     add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
@@ -230,7 +385,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-gnss-network-verb COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --verbose 5)
     add_test (NAME adjust-gnss-network-staged-a COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --create-stage-files --output-adj-msr --output-adj-gnss-units 2 --sort-adj-msr-field 4)
     add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --purge-stage-files --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
-    
+
     # 2. urban network (phased-sequential)
     add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --flag-unused-stations)
     add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
@@ -241,7 +396,7 @@ if (BUILD_TESTING)
     add_test (NAME plot-urban-network-02 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --phased --label-sta --label-constraints --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5 --block-number 2 --alternate-name)
     add_test (NAME plot-urban-seg-stn COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-stn)
     add_test (NAME plot-urban-seg-msr COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-msr)
-    
+
     # 3. urban network (transform to GDA2020, phased-concurrent)
     add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
@@ -302,7 +457,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-frame-misc-25 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G1762)")
     add_test (NAME imp-frame-misc-26 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G2139)")
     add_test (NAME imp-frame-misc-27 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (transit)")
-    
+
     # 5. dynadjust project mode
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
@@ -374,7 +529,7 @@ if (BUILD_TESTING)
     add_test (NAME ref-gnss12-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1996)
     add_test (NAME ref-gnss13-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1997)
     add_test (NAME ref-gnss14-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2020)
-    
+
     # gda2020 
     add_test (NAME gda2020-param-01 COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020)
     add_test (NAME gda2020-param-02 COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94)
@@ -826,7 +981,7 @@ if (BUILD_TESTING)
     add_test (NAME adj-discont-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> discont --constraint "ALIC,CCC")
     add_test (NAME imp-discont-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --export-xml)
     add_test (NAME imp-discont-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2000 --override-input-ref-frame ./discontstn.xml ./discontmsr.xml --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
-    
+
     # 11. measurements to stations sorting
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
 
@@ -968,7 +1123,7 @@ if (BUILD_TESTING)
     add_test (NAME segment-misc-08 COMMAND $<TARGET_FILE:dnasegmentwrapper> contig --contiguous-blocks 0)
     add_test (NAME import-misc-08a COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-block-stn-msr 1 --export-dna)
     add_test (NAME import-misc-08b COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-contiguous-stn-msr 0 --export-dna)
-    
+
     # 14. Exceptions
     ### IMPORT ###
     # no options
@@ -1028,8 +1183,8 @@ if (BUILD_TESTING)
     add_test (NAME reftran-no-model-option COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2014" -e "31.12.9999" --plate-model-option)
     # no help module
     add_test (NAME reftran-no-help COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module cplusplus)
-    
-    
+
+
     set_tests_properties(
         reftran-no-option reftran-invalid-option reftran-no-project reftran-no-name reftran-no-bst-bms 
         reftran-bad-frame reftran-bad-epoch reftran-no-discont-file reftran-no-euler-file
@@ -1053,7 +1208,7 @@ if (BUILD_TESTING)
     add_test (NAME geoid-no-help COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module cplusplus)
     # no geoid file
     add_test (NAME geoid-no-gsb COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g nogridfile.gsb)
-    
+
     set_tests_properties(
         geoid-no-option geoid-invalid-option geoid-no-project geoid-no-std-options geoid-no-input-file geoid-no-bst geoid-no-help geoid-no-gsb
         PROPERTIES WILL_FAIL TRUE)
@@ -1081,7 +1236,7 @@ if (BUILD_TESTING)
     add_test (NAME segment-all-ignored-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> allignored)
     # no help module
     add_test (NAME segment-no-help COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module cplusplus)
-    
+
     set_tests_properties(
         segment-no-option segment-invalid-option segment-no-project segment-no-bst-bms segment-no-net-02 segment-no-help
         segment-no-opt-arg-01 segment-no-opt-arg-02 segment-no-opt-arg-03 segment-no-opt-arg-04 segment-no-opt-arg-05
@@ -1113,7 +1268,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-no-constraint COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "236300210,AAA")
     # all measurements ignored
     add_test (NAME adjust-all-ignored-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> allignored)
-    
+
     set_tests_properties(
         adjust-no-option adjust-invalid-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg 
         adjust-no-memmap-02 adjust-no-stn-exists adjust-no-constraint adjust-all-ignored-01
@@ -1143,7 +1298,7 @@ if (BUILD_TESTING)
     add_test (NAME plot-no-cor COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --correction-arrows)
     add_test (NAME plot-no-apu COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --error-ellipses)
     add_test (NAME plot-no-plate COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --plate ./noplate.file)
-    
+
     set_tests_properties(
         plot-no-option plot-invalid-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
         plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu plot-no-plate 
@@ -1170,8 +1325,7 @@ if (BUILD_TESTING)
         dyna-no-project dyna-name-proj-mismatch
         PROPERTIES WILL_FAIL TRUE)
 
-    
-    
+
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
@@ -1186,9 +1340,19 @@ if (BUILD_TESTING)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
 
+    message (STATUS "Finished setting up tests")
+    message ("")
+    message ("")
+    message (" **")
+    message (" * To run tests, type `ctest`")
+    message ("   To run a specific test, type `ctest -R <testname>`")
+    message ("   To run all tests in parallel, type `ctest -j <number>`")
+    message ("   Note: Some tests depend on others and might fail in parallel.  *")
+    message ("                                                                 **")
+    message ("")
+    message("---------------------------------------------------------------------")
 endif ()
 
-message (" ")
-message ("===========================================================================")
-message ("Finished configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}).")
-message (" ")
+message ("")
+message ("")
+
