@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  VCPKG_PACKAGES: curl
+  VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
 
 jobs:
   build_windows:
@@ -30,16 +30,16 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
-          echo $(cat $GITHUB_ENV)
+          cat $GITHUB_ENV >&2
     
       - name: Cache vcpkg
         id: cache-vcpkg
         uses: actions/cache@v3
         with:
           path: |
-            ./vcpkg
+            ./vcpkg/vcpkg.exe
+            ./vcpkg/installed
             # ./vcpkg/downloads
-            # ./vcpkg/installed
           key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Prepare vcpkg
@@ -59,9 +59,13 @@ jobs:
         run: |
           echo Installing packages: %VCPKG_PACKAGES%
           .\vcpkg\vcpkg.exe install %VCPKG_PACKAGES% --triplet=x64-windows
-          .\vcpkg\vcpkg.exe integrate install
       
       - name: List installed packages
         shell: cmd
         run: |
           .\vcpkg\vcpkg.exe list
+
+      - name: Integrate vpkg
+        shell: cmd
+        run: |
+          .\vcpkg\vcpkg.exe integrate install
