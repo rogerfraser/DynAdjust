@@ -1,81 +1,143 @@
 name: Build release (Windows)
 
-on: 
-  push: 
+on:
+  push:
     branches: [master]
-  pull_request: 
+  pull_request:
     branches: [master]
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: ./dynadjust/dynadjust_1_02_04.sln
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release  
-  # Platform to build.
+  BUILD_CONFIGURATION: Release
   ARCH: x64
-  
   VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
   CS_XSD_INSTALL_FOLDER: xsd/xsd-4.0.0-i686-windows/libxsd
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+  WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0ba263f5-de00-4e91-a780-fdb9e131c1e8/intel-oneapi-hpc-toolkit-2025.1.0.665_offline.exe
+  WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-dpcpp-common
+  CACHE_NUMBER: 4
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2  
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\Program Files (x86)\Intel\oneAPI\setvars-vcvarsall.bat
+            C:\Program Files (x86)\Intel\oneAPI\compiler
+          key: install-${{ env.CACHE_NUMBER }}-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-compiler-${{ hashFiles('**/scripts/cache_exclude_windows.sh') }}
 
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          Write-Host "Installing Intel OneAPI..."
+          # Set URL and COMPONENTS from environment variables
+          $url = $env:WINDOWS_HPCKIT_URL
+          $components = $env:WINDOWS_CPP_COMPONENTS
+          $tempExe = Join-Path $env:TEMP "webimage.exe"
+          
+          # Download the installer with retry logic
+          $maxRetries = 5
+          $retryDelay = 5
+          $attempt = 0
+          do {
+              try {
+                  Write-Host "Downloading installer from $url (attempt $($attempt+1))..."
+                  Invoke-WebRequest -Uri $url -OutFile $tempExe -ErrorAction Stop
+                  break
+              } catch {
+                  $attempt++
+                  if ($attempt -ge $maxRetries) {
+                      throw "Failed to download file after $maxRetries attempts"
+                  }
+                  Write-Host "Download failed, retrying in $retryDelay seconds..."
+                  Start-Sleep -Seconds $retryDelay
+              }
+          } while ($true)
+          
+          # Execute the downloaded installer to extract files
+          Write-Host "Extracting installer..."
+          $installerArgs = "-s -x -f webimage_extracted --log extract.log"
+          $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
+          if ($proc.ExitCode -ne 0) {
+              throw "Installer execution failed with exit code $($proc.ExitCode)"
+          }
+          
+          # Delete the installer file
+          Remove-Item $tempExe -Force
+          
+          # Build bootstrapper arguments based on whether COMPONENTS is empty
+          if ([string]::IsNullOrEmpty($components)) {
+              $bootstrapArgs = "-s --action install --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          } else {
+              $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          }
+          
+          # Execute the bootstrapper
+          Write-Host "Running bootstrapper..."
+          $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
+          if (-Not (Test-Path $bootstrapperPath)) {
+              throw "Bootstrapper not found at $bootstrapperPath"
+          }
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+          if ($procBootstrap.ExitCode -ne 0) {
+              throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
+          }
+          
+          # Clean up extracted files
+          Remove-Item -Recurse -Force "webimage_extracted"
+      
+      - name: Find solution file
+        id: find_sln
+        shell: powershell
+        run: |
+          $sln = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.sln -Recurse | Select-Object -First 1
+          if (-not $sln) { Write-Error "Solution file not found" }
+          Write-Host "Solution file: $($sln.FullName)"
+          echo "::set-output name=sln::$($sln.FullName)"
 
-    - name: Cache vcpkg packages
-      uses: actions/cache@v2
-      id: cache
-      with:
-          path: ${{env.VCPKG_INSTALL_FOLDER}}
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Restore NuGet packages
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: nuget restore "${{ steps.find_sln.outputs.sln }}"
+
+      - name: Cache vcpkg packages
+        uses: actions/cache@v2
+        id: cache-vcpkg
+        with:
+          path: ${{ env.VCPKG_INSTALL_FOLDER }}
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('.github/workflows/msvc_build.yml') }}
-    
-    # Install prerequisites available from vcpkg
-    - name: Install vcpkg prerequisites
-      shell: cmd
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: |
-        vcpkg update
-        vcpkg install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options --triplet=${{env.ARCH}}-windows
-        vcpkg install 7zip --triplet=${{env.ARCH}}-windows
-        vcpkg install xerces-c --triplet=${{env.ARCH}}-windows
-        vcpkg integrate install
-        vcpkg list
-    
-    # Install Codesynthesis xsd (not available from vcpkg)
-    - name: Download xsd
-      uses: carlosperate/download-file-action@v1.0.3
-      id: download-xsd
-      with:
-        file-url: 'https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip'
-        file-name: 'xsd-4.0.0-i686-windows.zip'
-        location: './'
-    
-    - name: Install xsd
-      shell: cmd
-      run: 7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
-    
-    # Build Dynadjust using msbuild
-    - name: Build DynAdjust
-      shell: cmd
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: |
-        set DEPS_DIR=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows/include
-        set XSD_DIR=%GITHUB_WORKSPACE%/${{env.CS_XSD_INSTALL_FOLDER}}
-        set SLN_DIR=%GITHUB_WORKSPACE%/dynadjust
-        set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%PATH%
-        echo %PATH%
-    #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
+
+      - name: Install vcpkg prerequisites
+        shell: cmd
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          vcpkg update
+          vcpkg install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options openblas 7zip xerces-c --triplet=%ARCH%-windows
+          vcpkg integrate install
+          vcpkg list
+
+      - name: Download and install xsd
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://www.codesynthesis.com/download/xsd/latest/windows/i686/xsd-latest-i686-windows.zip" -OutFile "./xsd-latest-i686-windows.zip"
+          Write-Host "Extracting xsd..."
+          & "7z" x "xsd-latest-i686-windows.zip" -y -o"./xsd"
+
+      - name: Build DynAdjust
+        shell: cmd
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: |
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set DEPS_DIR=%VCPKG_INSTALL_FOLDER%\%ARCH%-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set PATH=%DEPS_DIR%;%XSD_DIR%;%PATH%
+          echo %PATH%
+          msbuild /m /p:Configuration=%BUILD_CONFIGURATION% /p:Platform=%ARCH% /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
