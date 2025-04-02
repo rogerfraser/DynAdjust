@@ -21,6 +21,9 @@ jobs:
         with:
           clang-format: true
 
+      - name: Check clang-format version
+        run: clang-format --version
+
       - name: Check formatting in repo
         id: fmt
         continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
@@ -32,7 +35,7 @@ jobs:
             -exec bash -c '
               f="$1"
               echo "Processing file: $f"
-              diff=$(clang-format --fallback-style=LLVM --style=file $f | diff $f - | head -1)
+              diff=$(clang-format --fallback-style=LLVM --style=file $f | diff -q $f -)
               if [ -n "$diff" ]; then
                 echo "::warning file=$f::Formatting issues found"
                 echo "- $f" >> /tmp/clang_format_errors.txt
