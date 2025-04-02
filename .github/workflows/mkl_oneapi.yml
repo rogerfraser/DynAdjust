@@ -1,52 +1,76 @@
-# Copied and adapted from https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
-# SPDX-FileCopyrightText: 2020 Intel Corporation
-#
-# SPDX-License-Identifier: MIT
+# Test script 
 
-name: Build intel mkl
+# See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
 
-on: push
+name: Testing
+
+on:
+  workflow_dispatch:
 
 env:
-  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17978/w_BaseKit_p_2021.3.0.3221_offline.exe
-  WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17940/w_HPCKit_p_2021.3.0.3227_offline.exe
-  WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
-  
-jobs:
-  build_intel_mkl:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-    - uses: actions/checkout@v2
-    - name: cache install
-      id: cache-install
-      uses: actions/cache@v2
-      with:
-        path: C:\Program Files (x86)\Intel\oneAPI\compiler
-        key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-compiler-${{ hashFiles('**/scripts/cache_exclude_windows.sh') }}
-        
-    - name: install
-      if: steps.cache-install.outputs.cache-hit != 'true'
-      run: resources/install_mkl_windows.bat $WINDOWS_HPCKIT_URL $WINDOWS_CPP_COMPONENTS
-      
-    - name: build
-      run: resources/build_mkl_windows.bat c++ 2017_build_tools
-      
-    - name: exclude unused files from cache
-      if: steps.cache-install.outputs.cache-hit != 'true'
-      shell: bash
-      run: resources/cache_exclude_windows.sh
+  VCPKG_PACKAGES: boost-program-options openblas
 
-    # Delete the following if you don't want to save install logs
-    - name: Saving install logs
-      if: steps.cache-install.outputs.cache-hit != 'true'
-      uses: actions/upload-artifact@v2
-      with:
-        name: InstallLogs_${{ github.job }}
-        path: |
-          extract.log
-          bootstrapper*
-          installer*
-        retention-days: 7
+jobs:
+  build_windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get number of cores
+        shell: bash
+        run: |
+          WMIC CPU Get -Format:List
+          WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
+          echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
+
+      - name: Hash vcpkg package names
+        shell: bash
+        run: |
+          echo "VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed s/ /_/g | md5)" >> $GITHUB_ENV
+
+      - name: Print GitHub environment
+        shell: bash
+        run: |
+          echo "GitHub environment:" 
+          cat $GITHUB_ENV
+    
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./vcpkg
+            # ./vcpkg/downloads
+            # ./vcpkg/installed
+          key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
+
+      - name: Prepare vcpkg
+        shell: powershell
+        run: |
+          # https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
+          # Checkout if needed
+          if (-not (Test-Path ./vcpkg)) {
+            Write-Host "Cloning vcpkg repository..."
+            git clone https://github.com/microsoft/vcpkg ./vcpkg
+          } else {
+            Write-Host "vcpkg repository folder already exists."
+          }
+          # Bootstrap if needed
+          if (-not (Test-Path (Join-Path ./vcpkg 'vcpkg.exe'))) {
+            Write-Host "Bootstrapping vcpkg..."
+            & (Join-Path ./vcpkg 'bootstrap-vcpkg.bat') -disableMetrics
+          } else {
+            Write-Host "vcpkg.exe already exists; skipping bootstrap."
+          }
+
+      - name: Install vcpkg prerequisites
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          echo Installing packages: %VCPKG_PACKAGES%
+          .\vcpkg\vcpkg.exe install %VCPKG_PACKAGES% --triplet=x64-windows
+          .\vcpkg\vcpkg.exe integrate install
+      
+      - name: List installed packages
+        shell: cmd
+        run: |
+          .\vcpkg\vcpkg.exe list
