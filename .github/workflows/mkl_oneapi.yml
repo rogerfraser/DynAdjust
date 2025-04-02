@@ -46,7 +46,7 @@ jobs:
         shell: powershell
         run: |
           # https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
-          if (-not (Test-Path './vcpkg/vcpkg.exe'))) {
+          if (-not (Test-Path './vcpkg/vcpkg.exe')) {
             git clone https://github.com/microsoft/vcpkg ./vcpkg
             ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
           } else {
