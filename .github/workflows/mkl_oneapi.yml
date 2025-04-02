@@ -25,7 +25,7 @@ jobs:
       - name: Hash vcpkg package names
         shell: bash
         run: |
-          echo "VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed s/ /_/g | md5)" >> $GITHUB_ENV
+          echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
       - name: Print GitHub environment
         shell: bash
