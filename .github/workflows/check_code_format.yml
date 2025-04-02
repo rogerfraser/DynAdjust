@@ -26,17 +26,13 @@ jobs:
         continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "Checking formatting in repo"
-          # Remove any previous error file.
           rm -f /tmp/clang_format_errors.txt
 
-          # Find and process files using -exec.
           find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
             -exec bash -c '
               f="$1"
               echo "Processing file: $f"
-              diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff "$f" -)
-              echo "DEBUG: diff result for $f:"
-              echo "$diff"
+              diff=$(clang-format --fallback-style=LLVM --style=file $f | diff $f - | head -1)
               if [ -n "$diff" ]; then
                 echo "::warning file=$f::Formatting issues found"
                 echo "- $f" >> /tmp/clang_format_errors.txt
