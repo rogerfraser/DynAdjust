@@ -33,12 +33,18 @@ jobs:
           else
             STYLE=LLVM
           fi
+          echo "Using clang-format style: $STYLE"
           files=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
+          echo "Found files:"
+          echo "$files"
           ret=0
           for f in $files; do
+            echo "Processing file: $f"
             diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
             if [ -n "$diff" ]; then
               echo "::warning file=$f::Formatting issues found"
+              echo "Diff for $f:"
+              echo "$diff"
               ERRORS="${ERRORS}\n- $f"
               ret=1
             fi
