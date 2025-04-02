@@ -31,16 +31,28 @@ jobs:
           echo "Checking formatting in repo"
           rm -f /tmp/clang_format_errors.txt
 
-          find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
-            -exec bash -c '
-              f="$1"
-              echo "Processing file: $f"
-              diff=$(clang-format --fallback-style=LLVM --style=file $f | diff -q $f -)
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "Pull request detected. Running clang-format on changed files only."
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+            changed=$(git diff --name-only "$base_sha" "$head_sha" | grep -E '\.(cpp|h|hpp)$' || true)
+          else
+            echo "Non-PR event. Running clang-format on all files."
+            changed=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
+          fi
+
+          echo "Changed files:"
+          echo "$changed"
+
+          echo "$changed" | while IFS= read -r f; do
+            if [ -n "$f" ]; then
+              diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff -q "$f" -)
               if [ -n "$diff" ]; then
-                echo "::warning file=$f::Formatting issues found"
+                echo "::warning file=$f::Formatting issues in $f"
                 echo "- $f" >> /tmp/clang_format_errors.txt
               fi
-            ' bash {} \;
+            fi
+          done
 
           ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
           echo "DEBUG: Accumulated errors:"
@@ -50,6 +62,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           echo "DEBUG: Contents of GITHUB_OUTPUT file:" 
           cat "$GITHUB_OUTPUT"
+
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             exit 0
           else
@@ -72,33 +85,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: msg
-            });
-
-      - name: Create Annotations for Formatting Issues
-        if: ${{ github.event_name == 'workflow_dispatch' && steps.fmt.outputs.errors != '' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const errors = `${{ steps.fmt.outputs.errors }}`.trim()
-              .split('\n')
-              .filter(e => e);
-            if (errors.length === 0) return;
-            github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Check code formatting',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: 'failure',
-              output: {
-                title: 'Formatting Issues',
-                summary: `Formatting issues detected in the following files:\n${errors.join('\n')}`,
-                annotations: errors.map(f => ({
-                  path: f.replace(/^- /, ''),
-                  start_line: 1,
-                  end_line: 1,
-                  annotation_level: 'failure',
-                  message: 'Formatting issues found'
-                }))
-              }
             });
