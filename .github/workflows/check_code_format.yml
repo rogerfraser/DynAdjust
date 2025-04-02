@@ -2,9 +2,9 @@ name: Check code formatting
 
 on:
   workflow_dispatch:
-#  pull_request:
-#    branches:
-#      - main
+  pull_request:
+    branches:
+      - main
 
 env:
   BUILD_TYPE: Debug
@@ -17,35 +17,56 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install clang-format
-        uses: aminya/setup-cpp@v1.1.1
+        uses: aminya/setup-cpp@v1
         with:
-          clangformat: 19.1.6
+          clang-format: true
 
-      - name: Check formatting in dynadjust
+      - name: Check clang-format version
+        run: clang-format --version
+
+      - name: Check formatting in repo
         id: fmt
+        continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "Checking formatting in dynadjust"
-          ERRORS=""
-          # Use .clang-format if present, otherwise default to LLVM style.
-          if [ -f .clang-format ]; then
-            STYLE=file
+          echo "Checking formatting in repo"
+          rm -f /tmp/clang_format_errors.txt
+
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "Pull request detected. Running clang-format on changed files only."
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+            changed=$(git diff --name-only "$base_sha" "$head_sha" | grep -E '\.(cpp|h|hpp)$' || true)
           else
-            STYLE=LLVM
+            echo "Non-PR event. Running clang-format on all files."
+            changed=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
           fi
-          files=$(find dynadjust -type f \( -name '*.cpp' -o -name '*.h' \))
-          ret=0
-          for f in $files; do
-            diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
-            if [ -n "$diff" ]; then
-              echo "::warning file=$f::Formatting issues found"
-              ERRORS="${ERRORS}\n- $f"
-              ret=1
+
+          # Process each file and check formatting
+          printf '%s\n' "$changed" | while IFS= read -r f; do
+            if [ -n "$f" ]; then
+              if ! clang-format -Werror --dry-run --ferror-limit=1 "$f" 2>/dev/null; then
+                echo "::warning file=$f::Formatting issues in $f"
+                echo "- $f" >> /tmp/clang_format_errors.txt
+              fi
             fi
           done
+
+          ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          #exit $ret
+          echo "DEBUG: Contents of GITHUB_OUTPUT file:" 
+          cat "$GITHUB_OUTPUT"
+
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            exit 0
+          else
+            if [ -n "$ERRORS" ]; then
+              exit 1
+            else
+              exit 0
+            fi
+          fi
 
       - name: Post comment on PR
         if: ${{ github.event_name == 'pull_request' && steps.fmt.outputs.errors != '' }}
@@ -53,37 +74,10 @@ jobs:
         with:
           script: |
             const err = `${{ steps.fmt.outputs.errors }}`;
-            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:${err}`;
+            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:\n${err}`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: msg
-            });
-
-      - name: Create Annotations for Formatting Issues
-        if: ${{ github.event_name == 'workflow_dispatch' && steps.fmt.outputs.errors != '' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const errors = `${{ steps.fmt.outputs.errors }}`.trim().split('\n').filter(e => e);
-            if (errors.length === 0) return;
-            github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Check code formatting',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: 'failure',
-              output: {
-                title: 'Formatting Issues',
-                summary: `Formatting issues detected in the following files:\n${errors.join('\n')}`,
-                annotations: errors.map(file => ({
-                  path: file.replace(/^- /, ''),
-                  start_line: 1,
-                  end_line: 1,
-                  annotation_level: 'failure',
-                  message: 'Formatting issues found'
-                }))
-              }
             });
