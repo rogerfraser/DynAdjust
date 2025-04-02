@@ -1,12 +1,8 @@
 name: Build release (Windows)
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
   workflow_dispatch:
-
+  
 env:
   BUILD_CONFIGURATION: Release
   ARCH: x64
@@ -21,7 +17,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -110,7 +106,7 @@ jobs:
         run: nuget restore "${{ steps.find_sln.outputs.sln }}"
 
       - name: Cache vcpkg packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-vcpkg
         with:
           path: ${{ env.VCPKG_INSTALL_FOLDER }}
