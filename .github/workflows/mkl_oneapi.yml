@@ -15,12 +15,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Get number of cores
+      - name: Set number of cores
         shell: bash
         run: |
           WMIC CPU Get -Format:List
           WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
           echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
+          echo "VCPKG_MAX_CONCURRENCY=$(cat ncores)" >> $GITHUB_ENV
 
       - name: Hash vcpkg package names
         shell: bash
