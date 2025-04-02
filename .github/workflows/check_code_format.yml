@@ -47,6 +47,7 @@ jobs:
           # Process each file using a while loop with printf to handle filenames correctly.
           printf '%s\n' "$changed" | while IFS= read -r f; do
             if [ -n "$f" ]; then
+              echo "checking $f"
               diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff -q "$f" -)
               if [ -n "$diff" ]; then
                 echo "::warning file=$f::Formatting issues in $f"
