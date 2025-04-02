@@ -2,9 +2,9 @@ name: Check code formatting
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   branches:
-  #     - main
+  pull_request:
+    branches:
+      - main
 
 env:
   BUILD_TYPE: Debug
@@ -41,9 +41,6 @@ jobs:
             changed=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
           fi
 
-          echo "Changed files:"
-          echo "$changed"
-
           # Process each file and check formatting
           printf '%s\n' "$changed" | while IFS= read -r f; do
             if [ -n "$f" ]; then
@@ -55,8 +52,6 @@ jobs:
           done
 
           ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
-          echo "DEBUG: Accumulated errors:"
-          echo "$ERRORS"
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
