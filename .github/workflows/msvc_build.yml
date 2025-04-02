@@ -1,105 +1,131 @@
-name: Check code formatting
+name: Build release (Windows)
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   branches:
-  #     - main
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_CONFIGURATION: Release
+  ARCH: x64
+  VCPKG_ROOT: ./vcpkg
+  VCPKG_INSTALL_FOLDER: ./vcpkg/installed
+  CS_XSD_INSTALL_FOLDER: xsd/xsd-4.0.0-i686-windows/libxsd
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+  WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0ba263f5-de00-4e91-a780-fdb9e131c1e8/intel-oneapi-hpc-toolkit-2025.1.0.665_offline.exe
+  WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-dpcpp-common
+  CACHE_NUMBER: 4
 
 jobs:
-  format_check:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Install clang-format
-        uses: aminya/setup-cpp@v1
-        with:
-          clang-format: true
-
-      - name: Check formatting in repo
-        id: fmt
-        continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Install vcpkg
+        shell: powershell
         run: |
-          echo "Checking formatting in repo"
-          # Remove any previous error file.
-          rm -f /tmp/clang_format_errors.txt
+          if (-not (Test-Path "./vcpkg")) {
+              Write-Host "Cloning vcpkg repository..."
+              git clone https://github.com/microsoft/vcpkg.git
+              Write-Host "Bootstrapping vcpkg..."
+              & .\vcpkg\bootstrap-vcpkg.bat
+          } else {
+              Write-Host "vcpkg is already installed."
+          }
 
-          # Find and process files using -exec.
-          find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
-            -exec bash -c '
-              f="$1"
-              echo "Processing file: $f"
-              diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff "$f" -)
-              echo "DEBUG: diff result for $f:"
-              echo "$diff"
-              if [ -n "$diff" ]; then
-                echo "::warning file=$f::Formatting issues found"
-                echo "- $f" >> /tmp/clang_format_errors.txt
-              fi
-            ' bash {} \;
-
-          ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
-          echo "DEBUG: Accumulated errors:"
-          echo "$ERRORS"
-          echo "errors<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$ERRORS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "DEBUG: Contents of GITHUB_OUTPUT file:" 
-          cat "$GITHUB_OUTPUT"
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            exit 0
-          else
-            if [ -n "$ERRORS" ]; then
-              exit 1
-            else
-              exit 0
-            fi
-          fi
-
-      - name: Post comment on PR
-        if: ${{ github.event_name == 'pull_request' && steps.fmt.outputs.errors != '' }}
-        uses: actions/github-script@v6
+      - name: Cache vcpkg packages
+        uses: actions/cache@v3
+        id: cache-vcpkg
         with:
-          script: |
-            const err = `${{ steps.fmt.outputs.errors }}`;
-            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:\n${err}`;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: msg
-            });
+          path: ${{ env.VCPKG_INSTALL_FOLDER }}
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('.github/workflows/msvc_build.yml') }}
 
-      - name: Create Annotations for Formatting Issues
-        if: ${{ github.event_name == 'workflow_dispatch' && steps.fmt.outputs.errors != '' }}
-        uses: actions/github-script@v6
+      - name: Install vcpkg prerequisites
+        shell: cmd
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          .\vcpkg\vcpkg.exe update
+          .\vcpkg\vcpkg.exe install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options openblas 7zip xerces-c curl --triplet=%ARCH%-windows
+          .\vcpkg\vcpkg.exe integrate install
+          .\vcpkg\vcpkg.exe list
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v3
         with:
-          script: |
-            const errors = `${{ steps.fmt.outputs.errors }}`.trim()
-              .split('\n')
-              .filter(e => e);
-            if (errors.length === 0) return;
-            github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Check code formatting',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: 'failure',
-              output: {
-                title: 'Formatting Issues',
-                summary: `Formatting issues detected in the following files:\n${errors.join('\n')}`,
-                annotations: errors.map(f => ({
-                  path: f.replace(/^- /, ''),
-                  start_line: 1,
-                  end_line: 1,
-                  annotation_level: 'failure',
-                  message: 'Formatting issues found'
-                }))
-              }
-            });
+          path: |
+            C:\Program Files (x86)\Intel\oneAPI\setvars-vcvarsall.bat
+            C:\Program Files (x86)\Intel\oneAPI\compiler
+          key: install-${{ env.CACHE_NUMBER }}-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-compiler-${{ hashFiles('**/scripts/cache_exclude_windows.sh') }}
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          Write-Host "Installing Intel OneAPI..."
+          $url = $env:WINDOWS_HPCKIT_URL
+          $components = $env:WINDOWS_CPP_COMPONENTS
+          $tempExe = Join-Path $env:TEMP "webimage.exe"
+          
+          Write-Host "Downloading installer from $url..."
+          curl.exe -L $url -o $tempExe
+          
+          Write-Host "Extracting installer..."
+          $installerArgs = "-s -x -f webimage_extracted --log extract.log"
+          $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
+          if ($proc.ExitCode -ne 0) {
+              throw "Installer execution failed with exit code $($proc.ExitCode)"
+          }
+          
+          Remove-Item $tempExe -Force
+          
+          if ([string]::IsNullOrEmpty($components)) {
+              $bootstrapArgs = "-s --action install --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          } else {
+              $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          }
+          
+          Write-Host "Running bootstrapper..."
+          $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
+          if (-Not (Test-Path $bootstrapperPath)) {
+              throw "Bootstrapper not found at $bootstrapperPath"
+          }
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+          if ($procBootstrap.ExitCode -ne 0) {
+              throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
+          }
+          
+          Remove-Item -Recurse -Force "webimage_extracted"
+
+      - name: Find solution file
+        id: find_sln
+        shell: powershell
+        run: |
+          $sln = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter *.sln -Recurse | Select-Object -First 1
+          if (-not $sln) { Write-Error "Solution file not found" }
+          Write-Host "Solution file: $($sln.FullName)"
+          echo "::set-output name=sln::$($sln.FullName)"
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Restore NuGet packages
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: nuget restore "${{ steps.find_sln.outputs.sln }}"
+
+      - name: Download and install xsd
+        shell: powershell
+        run: |
+          curl.exe -L "https://www.codesynthesis.com/download/xsd/latest/windows/i686/xsd-latest-i686-windows.zip" -o "./xsd-latest-i686-windows.zip"
+          Write-Host "Extracting xsd..."
+          & "7z" x "xsd-latest-i686-windows.zip" -y -o"./xsd"
+
+      - name: Build DynAdjust
+        shell: cmd
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: |
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set DEPS_DIR=%VCPKG_INSTALL_FOLDER%\%ARCH%-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set PATH=%DEPS_DIR%;%XSD_DIR%;%PATH%
+          echo %PATH%
+          msbuild /m /p:Configuration=%BUILD_CONFIGURATION% /p:Platform=%ARCH% /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
