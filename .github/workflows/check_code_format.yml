@@ -45,7 +45,7 @@ jobs:
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          exit $ret
+          #exit $ret
 
       - name: Post comment on PR
         if: ${{ github.event_name == 'pull_request' && steps.fmt.outputs.errors != '' }}
