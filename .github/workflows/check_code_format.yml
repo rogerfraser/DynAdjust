@@ -41,10 +41,10 @@ jobs:
           for f in $files; do
             echo "Processing file: $f"
             diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
+            echo "DEBUG: diff result for $f:"
+            echo "$diff"
             if [ -n "$diff" ]; then
               echo "::warning file=$f::Formatting issues found"
-              echo "Diff for $f:"
-              echo "$diff"
               ERRORS="${ERRORS}\n- $f"
               ret=1
             fi
@@ -52,6 +52,8 @@ jobs:
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          echo "DEBUG: Contents of GITHUB_OUTPUT file:" 
+          cat $GITHUB_OUTPUT
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             exit 0
           else
