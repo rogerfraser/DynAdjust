@@ -21,10 +21,11 @@ jobs:
         with:
           clangformat: 19.1.6
 
-      - name: Check formatting in dynadjust
+      - name: Check formatting in repo
         id: fmt
+        continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "Checking formatting in dynadjust"
+          echo "Checking formatting in repo"
           ERRORS=""
           # Use .clang-format if present, otherwise default to LLVM style.
           if [ -f .clang-format ]; then
@@ -32,7 +33,7 @@ jobs:
           else
             STYLE=LLVM
           fi
-          files=$(find dynadjust -type f \( -name '*.cpp' -o -name '*.h' \))
+          files=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
           ret=0
           for f in $files; do
             diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
@@ -45,7 +46,11 @@ jobs:
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          #exit $ret
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            exit 0
+          else
+            exit $ret
+          fi
 
       - name: Post comment on PR
         if: ${{ github.event_name == 'pull_request' && steps.fmt.outputs.errors != '' }}
@@ -66,7 +71,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const errors = `${{ steps.fmt.outputs.errors }}`.trim().split('\n').filter(e => e);
+            const errors = `${{ steps.fmt.outputs.errors }}`.trim()
+              .split('\n')
+              .filter(e => e);
             if (errors.length === 0) return;
             github.rest.checks.create({
               owner: context.repo.owner,
@@ -78,8 +85,8 @@ jobs:
               output: {
                 title: 'Formatting Issues',
                 summary: `Formatting issues detected in the following files:\n${errors.join('\n')}`,
-                annotations: errors.map(file => ({
-                  path: file.replace(/^- /, ''),
+                annotations: errors.map(f => ({
+                  path: f.replace(/^- /, ''),
                   start_line: 1,
                   end_line: 1,
                   annotation_level: 'failure',
