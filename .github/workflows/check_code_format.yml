@@ -26,8 +26,7 @@ jobs:
         run: |
           echo "Checking formatting in dynadjust"
           ERRORS=""
-          # Determine clang-format style: use .clang-format if available,
-          # otherwise default to LLVM style.
+          # Use .clang-format if present, otherwise default to LLVM style.
           if [ -f .clang-format ]; then
             STYLE=file
           else
@@ -38,7 +37,7 @@ jobs:
           for f in $files; do
             diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
             if [ -n "$diff" ]; then
-              echo "Formatting issues found in $f"
+              echo "::warning file=$f::Formatting issues found"
               ERRORS="${ERRORS}\n- $f"
               ret=1
             fi
@@ -60,4 +59,31 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: msg
+            });
+
+      - name: Create Annotations for Formatting Issues
+        if: ${{ github.event_name == 'workflow_dispatch' && steps.fmt.outputs.errors != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const errors = `${{ steps.fmt.outputs.errors }}`.trim().split('\n').filter(e => e);
+            if (errors.length === 0) return;
+            github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Check code formatting',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: 'failure',
+              output: {
+                title: 'Formatting Issues',
+                summary: `Formatting issues detected in the following files:\n${errors.join('\n')}`,
+                annotations: errors.map(file => ({
+                  path: file.replace(/^- /, ''),
+                  start_line: 1,
+                  end_line: 1,
+                  annotation_level: 'failure',
+                  message: 'Formatting issues found'
+                }))
+              }
             });
