@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   # pull_request:
   #   branches:
-  #    - main
+  #     - main
 
 env:
   BUILD_TYPE: Debug
@@ -26,38 +26,39 @@ jobs:
         continue-on-error: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "Checking formatting in repo"
-          ERRORS=""
-          # Use .clang-format if present, otherwise default to LLVM style.
-          if [ -f .clang-format ]; then
-            STYLE=file
-          else
-            STYLE=LLVM
-          fi
-          echo "Using clang-format style: $STYLE"
-          files=$(find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \))
-          echo "Found files:"
-          echo "$files"
-          ret=0
-          for f in $files; do
-            echo "Processing file: $f"
-            diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
-            echo "DEBUG: diff result for $f:"
-            echo "$diff"
-            if [ -n "$diff" ]; then
-              echo "::warning file=$f::Formatting issues found"
-              ERRORS="${ERRORS}\n- $f"
-              ret=1
-            fi
-          done
+          # Remove any previous error file.
+          rm -f /tmp/clang_format_errors.txt
+
+          # Find and process files using -exec.
+          find . -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
+            -exec bash -c '
+              f="$1"
+              echo "Processing file: $f"
+              diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff "$f" -)
+              echo "DEBUG: diff result for $f:"
+              echo "$diff"
+              if [ -n "$diff" ]; then
+                echo "::warning file=$f::Formatting issues found"
+                echo "- $f" >> /tmp/clang_format_errors.txt
+              fi
+            ' bash {} \;
+
+          ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
+          echo "DEBUG: Accumulated errors:"
+          echo "$ERRORS"
           echo "errors<<EOF" >> $GITHUB_OUTPUT
           echo -e "$ERRORS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           echo "DEBUG: Contents of GITHUB_OUTPUT file:" 
-          cat $GITHUB_OUTPUT
+          cat "$GITHUB_OUTPUT"
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             exit 0
           else
-            exit $ret
+            if [ -n "$ERRORS" ]; then
+              exit 1
+            else
+              exit 0
+            fi
           fi
 
       - name: Post comment on PR
@@ -66,7 +67,7 @@ jobs:
         with:
           script: |
             const err = `${{ steps.fmt.outputs.errors }}`;
-            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:${err}`;
+            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:\n${err}`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
