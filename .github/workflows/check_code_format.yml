@@ -44,7 +44,8 @@ jobs:
           echo "Changed files:"
           echo "$changed"
 
-          echo "$changed" | while IFS= read -r f; do
+          # Process each file using a while loop with printf to handle filenames correctly.
+          printf '%s\n' "$changed" | while IFS= read -r f; do
             if [ -n "$f" ]; then
               diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff -q "$f" -)
               if [ -n "$diff" ]; then
