@@ -45,13 +45,7 @@ jobs:
           echo "$changed"
 
           printf '%s\n' "$changed" | while IFS= read -r f; do
-            echo "checking $f"
-            # diff=$(clang-format --fallback-style=LLVM --style=file "$f" | diff -q "$f" -)
-            diff=$(clang-format ${f} | diff -q ${f} -)
-            if [ -n "$diff" ]; then
-              echo "::warning file=${f}::Formatting issues in ${f}"
-              echo "- ${f}" >> /tmp/clang_format_errors.txt
-            fi
+            clang-format --verbose --dry-run --ferror-limit=1 ${f}
           done
 
           ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
