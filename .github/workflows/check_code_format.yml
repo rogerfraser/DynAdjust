@@ -1,0 +1,63 @@
+name: Check code formatting
+
+on:
+  workflow_dispatch:
+#  pull_request:
+#    branches:
+#      - main
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  format_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install clang-format
+        uses: aminya/setup-cpp@v1.1.1
+        with:
+          clangformat: 19.1.6
+
+      - name: Check formatting in dynadjust
+        id: fmt
+        run: |
+          echo "Checking formatting in dynadjust"
+          ERRORS=""
+          # Determine clang-format style: use .clang-format if available,
+          # otherwise default to LLVM style.
+          if [ -f .clang-format ]; then
+            STYLE=file
+          else
+            STYLE=LLVM
+          fi
+          files=$(find dynadjust -type f \( -name '*.cpp' -o -name '*.h' \))
+          ret=0
+          for f in $files; do
+            diff=$(clang-format -style=$STYLE "$f" | diff "$f" -)
+            if [ -n "$diff" ]; then
+              echo "Formatting issues found in $f"
+              ERRORS="${ERRORS}\n- $f"
+              ret=1
+            fi
+          done
+          echo "errors<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$ERRORS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          exit $ret
+
+      - name: Post comment on PR
+        if: ${{ github.event_name == 'pull_request' && steps.fmt.outputs.errors != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const err = `${{ steps.fmt.outputs.errors }}`;
+            const msg = `### Code Formatting Issues\nThe following files do not adhere to the clang-format style:${err}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: msg
+            });
