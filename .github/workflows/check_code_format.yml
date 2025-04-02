@@ -44,6 +44,8 @@ jobs:
           echo "Changed files:"
           echo "$changed"
 
+          cd dynadjust
+
           # Process each file using a while loop with printf to handle filenames correctly.
           printf '%s\n' "$changed" | while IFS= read -r f; do
             if [ -n "$f" ]; then
