@@ -9,6 +9,7 @@ on:
 
 env:
   VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
+  VCPKG_ROOT: ./vcpkg
 
 jobs:
   build_windows:
@@ -31,7 +32,7 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
-          cat $GITHUB_ENV >&2
+          echo $(cat $GITHUB_ENV) >&2
     
       - name: Cache vcpkg
         id: cache-vcpkg
