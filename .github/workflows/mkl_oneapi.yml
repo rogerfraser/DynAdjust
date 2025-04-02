@@ -32,8 +32,8 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
-          echo "Environment:" >> $GITHUB_STEP_SUMMARY
-          cat $GITHUB_ENV >> $GITHUB_STEP_SUMMARY
+          echo "Environment:" >> "$GITHUB_OUTPUT"
+          cat $GITHUB_ENV >> "$GITHUB_OUTPUT"
     
       - name: Cache vcpkg
         id: cache-vcpkg
