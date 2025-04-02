@@ -44,8 +44,14 @@ jobs:
           echo "Changed files:"
           echo "$changed"
 
+          # Process each file and check formatting
           printf '%s\n' "$changed" | while IFS= read -r f; do
-            clang-format --verbose --dry-run --ferror-limit=1 ${f}
+            if [ -n "$f" ]; then
+              if ! clang-format -Werror --dry-run --ferror-limit=1 "$f" 2>/dev/null; then
+                echo "::warning file=$f::Formatting issues in $f"
+                echo "- $f" >> /tmp/clang_format_errors.txt
+              fi
+            fi
           done
 
           ERRORS=$(cat /tmp/clang_format_errors.txt 2>/dev/null)
