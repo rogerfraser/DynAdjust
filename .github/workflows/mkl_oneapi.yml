@@ -32,8 +32,9 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
+          cat "$GITHUB_ENV" > envfile
           echo "Workflow settings:" >> $GITHUB_STEP_SUMMARY
-          for env in $(echo $GITHUB_ENV); do 
+          for env in $(cat envfile); do 
             echo ${env}
             echo "- ${env}" >> $GITHUB_STEP_SUMMARY
           done          
