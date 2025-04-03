@@ -1,6 +1,5 @@
 # Test script 
 
-# See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
 
 name: Testing
 
@@ -9,6 +8,11 @@ on:
 
 env:
   VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
+  # VCPKG_PACKAGES: boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options openblas 7zip xerces-c curl
+  
+  # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+  
   VCPKG_ROOT: ./vcpkg
 
 jobs:
@@ -28,16 +32,6 @@ jobs:
         shell: bash
         run: |
           echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-
-      - name: Print GitHub environment
-        shell: bash
-        run: |
-          cat "$GITHUB_ENV" > envfile
-          echo "Workflow settings:" >> $GITHUB_STEP_SUMMARY
-          for env in $(cat envfile); do 
-            echo ${env}
-            echo "- ${env}" >> $GITHUB_STEP_SUMMARY
-          done          
           
       - name: Cache vcpkg
         id: cache-vcpkg
@@ -76,3 +70,40 @@ jobs:
         shell: cmd
         run: |
           .\vcpkg\vcpkg.exe integrate install
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v3
+        with:
+          path: |
+            "C:\Program Files (x86)\Intel"
+          key: ${{ env.WINDOWS_BASEKIT_URL }}
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          Write-Host "Installing Intel OneAPI..."
+          $url = $env:WINDOWS_BASEKIT_URL
+          $components = $env:WINDOWS_CPP_COMPONENTS
+          $tempExe = Join-Path $env:TEMP "webimage.exe"
+          
+          Write-Host "Downloading installer from $url..."
+          curl.exe -L $url -o $tempExe
+          
+          Write-Host "Extracting installer..."
+          $installerArgs = "-s -x -f webimage_extracted --log extract.log"
+          $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
+          Remove-Item $tempExe -Force
+          
+          $bootstrapArgs = "-s --action install --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          Write-Host "Running bootstrapper..."
+          $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
+          if (-Not (Test-Path $bootstrapperPath)) {
+              throw "Bootstrapper not found at $bootstrapperPath"
+          }
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+          if ($procBootstrap.ExitCode -ne 0) {
+              throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
+          }          
+          Remove-Item -Recurse -Force "webimage_extracted"
