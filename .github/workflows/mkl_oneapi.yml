@@ -41,9 +41,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ./vcpkg
-            # ./vcpkg/installed
-            # ./vcpkg/downloads
+            ${{ env.VCPKG_ROOT }}
+            # ${{ env.VCPKG_ROOT }}/installed
+            # ${{ env.VCPKG_ROOT }}/downloads
           key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Cache restore Intel OneAPI
@@ -58,9 +58,9 @@ jobs:
         shell: powershell
         run: |
           # See https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
-          if (-not (Test-Path './vcpkg/vcpkg.exe')) {
-            git clone https://github.com/microsoft/vcpkg ./vcpkg
-            ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if (-not (Test-Path '${{ env.VCPKG_ROOT }}/vcpkg.exe')) {
+            git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
+            ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat -disableMetrics
           } else {
             Write-Host "vcpkg.exe already exists; skipping bootstrap."
           }
@@ -76,7 +76,7 @@ jobs:
         shell: cmd
         run: |
           .\vcpkg\vcpkg.exe list
-          tree .\vcpkg /a
+          tree .\vcpkg\installed\ /a
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
