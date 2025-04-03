@@ -7,8 +7,8 @@ on:
 
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-  #VCPKG_PACKAGES: boost xerces-c curl
-  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
+  VCPKG_PACKAGES: curl
+  #VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
   VCPKG_BINARY_SOURCES: "clear"
   VCPKG_ROOT: ./vcpkg
   
@@ -36,9 +36,9 @@ jobs:
           
       - name: Cache restore vcpkg
         id: cache-vcpkg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: ${{ env.VCPKG_ROOT }}
+          path: "${{ env.GITHUB_WORKSPACE }}/${{ env.VCPKG_ROOT }}"
           key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Cache restore Intel OneAPI
@@ -67,6 +67,10 @@ jobs:
       - name: List installed packages
         shell: powershell
         run: ${{ env.VCPKG_ROOT }}/vcpkg.exe list
+
+      - name: Disk usage installed packages
+        shell: bash
+        run: du -h -d1 "${{ env.GITHUB_WORKSPACE }}/${{ env.VCPKG_ROOT }}" | sort -h
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -102,24 +106,24 @@ jobs:
           }          
           # Remove-Item -Recurse -Force "webimage_extracted"
           
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      # - name: Add MSBuild to PATH
+      #   uses: microsoft/setup-msbuild@v2
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # - name: Checkout code
+      #   uses: actions/checkout@v3
 
-      - name: Find solution file
-        id: find_sln
-        shell: bash
-        working-directory: "${{ env.GITHUB_WORKSPACE }}"
-        run: |
-          sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
-          if [ -z "$sln" ]; then
-            echo "Solution file not found" >&2
-            exit 1
-          fi
-          echo "Solution file: $sln"
-          echo "sln=$sln" >> "$GITHUB_OUTPUT"
+      # - name: Find solution file
+      #   id: find_sln
+      #   shell: bash
+      #   working-directory: "${{ env.GITHUB_WORKSPACE }}"
+      #   run: |
+      #     sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
+      #     if [ -z "$sln" ]; then
+      #       echo "Solution file not found" >&2
+      #       exit 1
+      #     fi
+      #     echo "Solution file: $sln"
+      #     echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
       # - name: Build DynAdjust
       #   shell: cmd
@@ -135,6 +139,7 @@ jobs:
       #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
+        working-directory: "${{ env.GITHUB_WORKSPACE }}"
         shell: bash
         run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
       
