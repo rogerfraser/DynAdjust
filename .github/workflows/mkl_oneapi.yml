@@ -68,10 +68,7 @@ jobs:
           ${VCPKG_ROOT}/vcpkg.exe install ${VCPKG_PACKAGES} --triplet=x64-windows
       
       - name: List installed packages
-        shell: bash
-        run: |
-          ${VCPKG_ROOT}/vcpkg.exe list
-          tree.exe ${VCPKG_ROOT}\installed\ /a
+        run: ${VCPKG_ROOT}/vcpkg.exe list
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
