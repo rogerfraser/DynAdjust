@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.VCPKG_ROOT }}
-          key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
+          key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Cache restore Intel OneAPI
         id: cache-oneapi
