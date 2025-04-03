@@ -117,6 +117,8 @@ jobs:
           TREE "C:\Program Files (x86)\Intel\oneAPI" /F
 
       - name: Check environment variables
+        shell: cmd
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
         run: |
           call "C:\PROGRAM FILES (X86)\INTEL\ONEAPI\setvars-vcvarsall.bat"
           .\vcpkg\vcpkg.exe integrate install
