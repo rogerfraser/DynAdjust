@@ -154,13 +154,22 @@ jobs:
           Select-Object -ExpandProperty Name |
           Write-Output
 
-      - name: Find 
+      - name: Find vcvars64.bat
+        shell: powershell
+        run: |
+          $loc = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio" `
+            -Filter vcvars64.bat -Recurse -ErrorAction SilentlyContinue | `
+            Sort-Object LastWriteTime -Descending | `
+            Select-Object -First 1
+          Write-Host "Found vcvars64.bat at: $($loc.FullName)"
+          "VCVARSBAT=$($loc.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append          
 
       - name: Build DynAdjust
         shell: cmd
         working-directory: "./src"
         run: |
           rem call /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+          echo ${{ env.VCVARSBAT }}
           %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           %comspec% /k %ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat
           rem ..\vcpkg\vcpkg.exe integrate install
