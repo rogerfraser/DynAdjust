@@ -154,11 +154,15 @@ jobs:
           Select-Object -ExpandProperty Name |
           Write-Output
 
+      - name: Find 
+
       - name: Build DynAdjust
         shell: cmd
         working-directory: "./src"
         run: |
-          call %ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat
+          rem call /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+          %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          %comspec% /k %ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat
           rem ..\vcpkg\vcpkg.exe integrate install
           set MKL_INC=%MKLROOT%\include
           set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
