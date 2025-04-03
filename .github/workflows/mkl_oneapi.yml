@@ -32,7 +32,11 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
-          echo "This is a test" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow settings:" >> $GITHUB_STEP_SUMMARY
+          for env in $(cat $GITHUB_ENV); do 
+            echo ${env}
+            echo "- ${env}" >> $GITHUB_STEP_SUMMARY
+          done          
           
       - name: Cache vcpkg
         id: cache-vcpkg
