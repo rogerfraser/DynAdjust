@@ -123,6 +123,8 @@ jobs:
           
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '[16.4,16.5)'
 
       - name: Checkout code
         uses: actions/checkout@v3
