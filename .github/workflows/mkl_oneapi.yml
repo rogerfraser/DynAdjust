@@ -7,7 +7,7 @@ on:
 
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-  VCPKG_PACKAGES: curl
+  VCPKG_PACKAGES: curl xerces-c
   #VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
   VCPKG_BINARY_SOURCES: "clear"
   VCPKG_ROOT: ./vcpkg
@@ -62,7 +62,15 @@ jobs:
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         shell: powershell
-        run: ${{ env.VCPKG_ROOT }}/vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
+        run: |
+          ${{ env.VCPKG_ROOT }}/vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.git
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/buildtrees
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/ports
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/downloads
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.github
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/docs
+          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/versions
       
       - name: List installed packages
         shell: powershell
