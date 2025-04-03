@@ -115,3 +115,16 @@ jobs:
           Remove-Item -Recurse -Force "webimage_extracted"
           
           TREE "C:\Program Files (x86)\Intel\oneAPI" /F
+
+      - name: Check environment variables
+        run: |
+          call "C:\PROGRAM FILES (X86)\INTEL\ONEAPI\setvars-vcvarsall.bat"
+          .\vcpkg\vcpkg.exe integrate install
+          cmake --version
+          ninja --version
+          type "C:\PROGRAM FILES (X86)\INTEL\ONEAPI\setvars-vcvarsall.bat"
+          echo "MKL_INC"
+          echo %MKL_INC%
+          echo "INCLUDE"
+          echo %INCLUDE%
+
