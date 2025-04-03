@@ -32,7 +32,7 @@ jobs:
       - name: Print GitHub environment
         shell: bash
         run: |
-          echo "Environment:" >> $GITHUB_OUTPUT
+          echo "This is a test" >> $GITHUB_STEP_SUMMARY
           
       - name: Cache vcpkg
         id: cache-vcpkg
