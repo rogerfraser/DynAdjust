@@ -124,11 +124,13 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          path: "src"
 
       - name: Find solution file
         id: find_sln
         shell: bash
-        working-directory: "${{ env.GITHUB_WORKSPACE }}"
+        working-directory: "${{ env.GITHUB_WORKSPACE }}/src"
         run: |
           sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
           if [ -z "$sln" ]; then
@@ -140,7 +142,7 @@ jobs:
 
       # - name: Build DynAdjust
       #   shell: cmd
-      #   working-directory: "${{ env.GITHUB_WORKSPACE }}"
+      #   working-directory: "${{ env.GITHUB_WORKSPACE }}/src"
       #   run: |
       #     call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
       #     .\vcpkg\vcpkg.exe integrate install
