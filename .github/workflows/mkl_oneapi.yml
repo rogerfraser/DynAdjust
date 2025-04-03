@@ -107,6 +107,7 @@ jobs:
           get-content components
 
           Write-Host "Running bootstrapper..."
+          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
           $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
           if ($procBootstrap.ExitCode -ne 0) {
               throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
