@@ -127,6 +127,7 @@ jobs:
           .\vcpkg\vcpkg.exe integrate install
           echo "INCLUDE="
           echo %INCLUDE%
+          tree ".\vcpkg\installed" /F
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -144,10 +145,17 @@ jobs:
           echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
       - name: Build DynAdjust
-        shell: bash
+        shell: cmd
         working-directory: "${{ env.GITHUB_WORKSPACE }}"
         run: |
-          echo "INCLUDE: $INCLUDE"
-          msbuild /m /p:Configuration=${BUILD_CONFIGURATION} /p:Platform=${ARCH} /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
-
+          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+          .\vcpkg\vcpkg.exe integrate install
+          set MKL_INC=%MKLROOT%\include
+          set INCLUDE=%INCLUDE%;%MKL_INC%
+          set DEPS_DIR=%VCPKG_INSTALL_FOLDER%\%ARCH%-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set PATH=%DEPS_DIR%;%XSD_DIR%;%PATH%;%MKL_INC%
+          echo %MKL_INC%
+          echo %INCLUDE%
+          msbuild /m /p:Configuration=%BUILD_CONFIGURATION% /p:Platform=%ARCH% /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
       
