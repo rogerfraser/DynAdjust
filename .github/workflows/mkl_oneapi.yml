@@ -125,12 +125,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          path: "src"
+          path: "./src"
 
       - name: Find solution file
         id: find_sln
         shell: bash
-        working-directory: "${{ env.GITHUB_WORKSPACE }}/src"
+        working-directory: "./src"
         run: |
           sln=$(find . -type f -name "*.sln" | head -n 1)
           if [ -z "$sln" ]; then
@@ -142,7 +142,7 @@ jobs:
 
       # - name: Build DynAdjust
       #   shell: cmd
-      #   working-directory: "${{ env.GITHUB_WORKSPACE }}/src"
+      #   working-directory: "./src"
       #   run: |
       #     call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
       #     .\vcpkg\vcpkg.exe integrate install
@@ -154,7 +154,6 @@ jobs:
       #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
-        working-directory: "${{ env.GITHUB_WORKSPACE }}"
         shell: bash
         run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
       
