@@ -36,13 +36,21 @@ jobs:
           
       - name: Cache vcpkg
         id: cache-vcpkg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./vcpkg/vcpkg.exe
             ./vcpkg/installed
             # ./vcpkg/downloads
           key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\Program Files (x86)\Intel\oneAPI
+          key: ${{ env.ONEAPI_HASH }}
 
       - name: Prepare vcpkg
         shell: powershell
@@ -71,14 +79,6 @@ jobs:
         shell: cmd
         run: |
           .\vcpkg\vcpkg.exe integrate install
-
-      - name: Cache Intel OneAPI
-        id: cache-oneapi
-        uses: actions/cache@v3
-        with:
-          path: |
-            C:\Program Files (x86)\Intel\oneAPI
-          key: ${{ env.ONEAPI_HASH }}
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -116,14 +116,38 @@ jobs:
           
           TREE "C:\Program Files (x86)\Intel\oneAPI" /F
 
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
       - name: Check environment variables
         shell: cmd
         working-directory: ${{ env.GITHUB_WORKSPACE }}
         run: |
           call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
           .\vcpkg\vcpkg.exe integrate install
-          echo "MKL_INC"
-          echo %MKL_INC%
-          echo "INCLUDE"
+          echo "INCLUDE="
           echo %INCLUDE%
 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Find solution file
+        id: find_sln
+        shell: bash
+        run: |
+          sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
+          if [ -z "$sln" ]; then
+            echo "Solution file not found" >&2
+            exit 1
+          fi
+          echo "Solution file: $sln"
+          echo "sln=$sln" >> "$GITHUB_OUTPUT"
+
+      - name: Build DynAdjust
+        shell: bash
+        working-directory: "${{ env.GITHUB_WORKSPACE }}"
+        run: |
+          echo "INCLUDE: $INCLUDE"
+          msbuild /m /p:Configuration=${BUILD_CONFIGURATION} /p:Platform=${ARCH} /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+
+      
