@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           echo "Workflow settings:" >> $GITHUB_STEP_SUMMARY
-          for env in $(cat $GITHUB_ENV); do 
+          for env in $(echo $GITHUB_ENV); do 
             echo ${env}
             echo "- ${env}" >> $GITHUB_STEP_SUMMARY
           done          
