@@ -146,6 +146,13 @@ jobs:
           echo "Solution file: $sln"
           echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
+      - name: Find Windows SDKs Installed
+        shell: powershell
+        run: |
+          Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -Directory |
+          Select-Object -ExpandProperty Name |
+          Write-Output
+
       - name: Build DynAdjust
         shell: cmd
         working-directory: "./src"
@@ -157,7 +164,7 @@ jobs:
           set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
           set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
           set UseEnv=true
-          msbuild /m "${{ steps.find_sln.outputs.sln }}"
+          msbuild "${{ steps.find_sln.outputs.sln }}" /t:driver:Build /p:Configuration=Release /p:Platform=x64
 
       - name: List directories
         shell: bash
