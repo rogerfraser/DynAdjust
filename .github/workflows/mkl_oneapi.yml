@@ -7,8 +7,8 @@ on:
 
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-  VCPKG_PACKAGES: curl xerces-c
-  #VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
+  #VCPKG_PACKAGES: curl xerces-c
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
   VCPKG_BINARY_SOURCES: "clear"
   VCPKG_ROOT: ./vcpkg
   
@@ -114,37 +114,37 @@ jobs:
           }          
           # Remove-Item -Recurse -Force "webimage_extracted"
           
-      # - name: Add MSBuild to PATH
-      #   uses: microsoft/setup-msbuild@v2
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
 
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # - name: Find solution file
-      #   id: find_sln
-      #   shell: bash
-      #   working-directory: "${{ env.GITHUB_WORKSPACE }}"
-      #   run: |
-      #     sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
-      #     if [ -z "$sln" ]; then
-      #       echo "Solution file not found" >&2
-      #       exit 1
-      #     fi
-      #     echo "Solution file: $sln"
-      #     echo "sln=$sln" >> "$GITHUB_OUTPUT"
+      - name: Find solution file
+        id: find_sln
+        shell: bash
+        working-directory: "${{ env.GITHUB_WORKSPACE }}"
+        run: |
+          sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
+          if [ -z "$sln" ]; then
+            echo "Solution file not found" >&2
+            exit 1
+          fi
+          echo "Solution file: $sln"
+          echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
-      # - name: Build DynAdjust
-      #   shell: cmd
-      #   working-directory: "${{ env.GITHUB_WORKSPACE }}"
-      #   run: |
-      #     call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
-      #     .\vcpkg\vcpkg.exe integrate install
-      #     set MKL_INC=%MKLROOT%\include
-      #     set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
-      #     set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-      #     set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
-      #     set UseEnv=true
-      #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+      - name: Build DynAdjust
+        shell: cmd
+        working-directory: "${{ env.GITHUB_WORKSPACE }}"
+        run: |
+          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+          .\vcpkg\vcpkg.exe integrate install
+          set MKL_INC=%MKLROOT%\include
+          set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
+          set UseEnv=true
+          msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
         working-directory: "${{ env.GITHUB_WORKSPACE }}"
