@@ -130,16 +130,16 @@ jobs:
           echo "Solution file: $sln"
           echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
-      - name: Build DynAdjust
-        shell: cmd
-        working-directory: "${{ env.GITHUB_WORKSPACE }}"
-        run: |
-          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
-          .\vcpkg\vcpkg.exe integrate install
-          set MKL_INC=%MKLROOT%\include
-          set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
-          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
-          set UseEnv=true
-          msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+      # - name: Build DynAdjust
+      #   shell: cmd
+      #   working-directory: "${{ env.GITHUB_WORKSPACE }}"
+      #   run: |
+      #     call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+      #     .\vcpkg\vcpkg.exe integrate install
+      #     set MKL_INC=%MKLROOT%\include
+      #     set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
+      #     set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+      #     set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
+      #     set UseEnv=true
+      #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
       
