@@ -7,8 +7,8 @@ on:
 
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-  # VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c curl
-  VCPKG_PACKAGES: boost "xerces-c[core]" curl
+  #VCPKG_PACKAGES: boost xerces-c curl
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options "xerces-c[core]"
   
   # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
