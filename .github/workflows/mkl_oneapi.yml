@@ -62,16 +62,16 @@ jobs:
           
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-        shell: cmd
+        shell: bash
         run: |
-          echo Installing packages: %VCPKG_PACKAGES%
-          .\vcpkg\vcpkg.exe install %VCPKG_PACKAGES% --triplet=x64-windows
+          echo Installing packages: ${VCPKG_PACKAGES}
+          ${VCPKG_ROOT}/vcpkg.exe install ${VCPKG_PACKAGES} --triplet=x64-windows
       
       - name: List installed packages
-        shell: cmd
+        shell: bash
         run: |
-          .\vcpkg\vcpkg.exe list
-          tree .\vcpkg\installed\ /a
+          ${VCPKG_ROOT}/vcpkg.exe list
+          tree.exe ${VCPKG_ROOT}\installed\ /a
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -140,5 +140,6 @@ jobs:
       #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
+        shell: bash
         run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
       
