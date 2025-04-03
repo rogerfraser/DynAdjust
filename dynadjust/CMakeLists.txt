@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
-project(dynadjust VERSION 1.2.8)
+project(dynadjust VERSION 1.2.9)
 
 option(BUILD_TESTING "Enable testing" OFF)
-option(BUILD_STATIC "Build static binaries in the 'static' directory" ON)
+option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
 option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
-option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" ON)
+option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
@@ -96,7 +96,7 @@ endif()
 # ----------------------------------------------------------------------------
 
 find_package(XercesC REQUIRED)
-message(STATUS "Found XercesC (Version ${XercesC_VERSION})")
+message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 
 # ----------------------------------------------------------------------------
 # XSD
@@ -120,7 +120,7 @@ message(STATUS "Found Boost version: ${Boost_VERSION}")
 
 set(DNA_LIBRARIES
     ${Boost_LIBRARIES}
-    XercesC::XercesC
+    ${XercesC_LIBRARIES}
 )
 
 # ----------------------------------------------------------------------------
