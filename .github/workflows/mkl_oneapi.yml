@@ -155,19 +155,17 @@ jobs:
           Write-Output
 
       - name: Build DynAdjust
-        shell: powershell
+        shell: cmd
         working-directory: "./src"
         run: |
-          # Run the Intel MKL environment setup batch file
-          cmd /c "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          # ..\vcpkg\vcpkg.exe integrate install
-          $env:MKL_INC = "$env:MKLROOT\include"
-          $env:DEPS_DIR = "$env:VCPKG_ROOT\installed\x64-windows\include"
-          $env:XSD_DIR = "$env:GITHUB_WORKSPACE\$env:CS_XSD_INSTALL_FOLDER"
-          $env:INCLUDE = "$env:DEPS_DIR;$env:XSD_DIR;$env:MKL_INC;$env:INCLUDE"
-          $env:UseEnv = "true"
-          $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
-          $msbuild "${{ steps.find_sln.outputs.sln }}" /p:Configuration=Release /p:Platform=x64
+          call %ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat
+          rem ..\vcpkg\vcpkg.exe integrate install
+          set MKL_INC=%MKLROOT%\include
+          set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
+          set UseEnv=true
+          msbuild /p:Configuration=Release /p:Platform=x64 ${{ steps.find_sln.outputs.sln }}
           
       - name: List directories
         shell: bash
