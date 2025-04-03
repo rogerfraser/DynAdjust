@@ -86,7 +86,7 @@ jobs:
         run: |
           Write-Host "Installing Intel OneAPI..."
           $url = $env:WINDOWS_BASEKIT_URL
-          $components = $env:WINDOWS_CPP_COMPONENTS
+          $components = "intel.oneapi.win.mkl.devel"
           $tempExe = Join-Path $env:TEMP "webimage.exe"
           
           Write-Host "Downloading installer from $url..."
@@ -97,7 +97,7 @@ jobs:
           $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
           Remove-Item $tempExe -Force
           
-          $bootstrapArgs = "-s --action install --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
           Write-Host "Running bootstrapper..."
           $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
           if (-Not (Test-Path $bootstrapperPath)) {
