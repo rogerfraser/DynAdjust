@@ -8,7 +8,7 @@ on:
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
   #VCPKG_PACKAGES: boost xerces-c curl
-  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options "xerces-c[core]"
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
   VCPKG_BINARY_SOURCES: "clear"
   VCPKG_ROOT: ./vcpkg
   
