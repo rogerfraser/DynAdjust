@@ -36,7 +36,7 @@ jobs:
           
       - name: Cache restore vcpkg
         id: cache-vcpkg
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ${{ env.VCPKG_ROOT }}
           key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
@@ -138,4 +138,7 @@ jobs:
       #     set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
       #     set UseEnv=true
       #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+
+      - name: List directories
+        run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
       
