@@ -83,7 +83,7 @@ jobs:
           du -h -d1 ${{ env.VCPKG_ROOT }} | sort -h
           echo ""
           echo "Intel oneAPI:"
-          du -h -d4 "C:\Program Files (x86)\Intel\oneAPI/mkl" | sort -h
+          du -h -d5 "C:\Program Files (x86)\Intel\oneAPI/mkl" | sort -h
           echo ""
           ls -l ${{ env.VCPKG_ROOT }}/installed/x64-windows/include/boost/
 
@@ -155,13 +155,11 @@ jobs:
           Write-Output
 
       - name: Find vcvars64.bat
-        shell: powershell
+        shell: bash
         run: |
-          $loc = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio" `
-            -Filter vcvars64.bat -Recurse -ErrorAction SilentlyContinue | `
-            Select-Object -First 1
-          Write-Host "Found vcvars64.bat at: $($loc.FullName)"
-          "VCVARSBAT=$($loc.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append          
+          loc=$(find "C:\Program Files\Microsoft Visual Studio" -type f -name "vcvars64.bat" | head -n 1)
+          echo "Found at ${loc}"
+          echo "VCVARSBAT=${loc}" >> "$GITHUB_ENV"
 
       - name: Build DynAdjust
         shell: cmd
