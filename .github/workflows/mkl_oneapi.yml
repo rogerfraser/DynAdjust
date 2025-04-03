@@ -120,11 +120,8 @@ jobs:
         shell: cmd
         working-directory: ${{ env.GITHUB_WORKSPACE }}
         run: |
-          call "C:\PROGRAM FILES (X86)\INTEL\ONEAPI\setvars-vcvarsall.bat"
+          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
           .\vcpkg\vcpkg.exe integrate install
-          cmake --version
-          ninja --version
-          type "C:\PROGRAM FILES (X86)\INTEL\ONEAPI\setvars-vcvarsall.bat"
           echo "MKL_INC"
           echo %MKL_INC%
           echo "INCLUDE"
