@@ -1,29 +1,29 @@
 # Test script 
 
-
 name: Testing
 
 on:
   workflow_dispatch:
 
 env:
-  VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-  # VCPKG_PACKAGES: boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options openblas 7zip xerces-c curl
+  # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c curl
   
   # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
   
-  VCPKG_ROOT: ./vcpkg
 
 jobs:
   build_windows:
     runs-on: windows-latest
+    env:
+      VCPKG_ROOT: ./vcpkg
 
     steps:
       - name: Set number of cores
         shell: bash
         run: |
-          # WMIC CPU Get -Format:List
+          # Get number of cores
           WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
           echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
           echo "VCPKG_MAX_CONCURRENCY=$(cat ncores)" >> $GITHUB_ENV
@@ -55,7 +55,7 @@ jobs:
       - name: Prepare vcpkg
         shell: powershell
         run: |
-          # https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
+          # See https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
           if (-not (Test-Path './vcpkg/vcpkg.exe')) {
             git clone https://github.com/microsoft/vcpkg ./vcpkg
             ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
@@ -74,11 +74,6 @@ jobs:
         shell: cmd
         run: |
           .\vcpkg\vcpkg.exe list
-
-      - name: Integrate vpkg
-        shell: cmd
-        run: |
-          .\vcpkg\vcpkg.exe integrate install
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -112,22 +107,10 @@ jobs:
           if ($procBootstrap.ExitCode -ne 0) {
               throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
           }          
-          Remove-Item -Recurse -Force "webimage_extracted"
+          # Remove-Item -Recurse -Force "webimage_extracted"
           
-          TREE "C:\Program Files (x86)\Intel\oneAPI" /F
-
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
-
-      - name: Check environment variables
-        shell: cmd
-        working-directory: ${{ env.GITHUB_WORKSPACE }}
-        run: |
-          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
-          .\vcpkg\vcpkg.exe integrate install
-          echo "INCLUDE="
-          echo %INCLUDE%
-          tree ".\vcpkg\installed" /F
 
       - name: Checkout code
         uses: actions/checkout@v3
