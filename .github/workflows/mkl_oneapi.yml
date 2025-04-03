@@ -121,9 +121,9 @@ jobs:
           }          
           # Remove-Item -Recurse -Force "webimage_extracted"
           
-      - uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-        with:
-          sdk-version: 26100
+      # - uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+      #   with:
+      #     sdk-version: 26100
       
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
