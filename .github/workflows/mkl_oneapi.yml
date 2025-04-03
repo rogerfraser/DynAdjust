@@ -83,7 +83,7 @@ jobs:
           du -h -d1 ${{ env.VCPKG_ROOT }} | sort -h
           echo ""
           echo "Intel oneAPI:"
-          du -h -d2 "C:\Program Files (x86)\Intel\oneAPI"
+          du -h -d3 "C:\Program Files (x86)\Intel\oneAPI"
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -140,18 +140,18 @@ jobs:
           echo "Solution file: $sln"
           echo "sln=$sln" >> "$GITHUB_OUTPUT"
 
-      # - name: Build DynAdjust
-      #   shell: cmd
-      #   working-directory: "./src"
-      #   run: |
-      #     call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
-      #     .\vcpkg\vcpkg.exe integrate install
-      #     set MKL_INC=%MKLROOT%\include
-      #     set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
-      #     set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-      #     set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
-      #     set UseEnv=true
-      #     msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+      - name: Build DynAdjust
+        shell: cmd
+        working-directory: "./src"
+        run: |
+          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+          .\vcpkg\vcpkg.exe integrate install
+          set MKL_INC=%MKLROOT%\include
+          set DEPS_DIR=%VCPKG_ROOT%\installed\%ARCH%-windows\include
+          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
+          set UseEnv=true
+          msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
         shell: bash
