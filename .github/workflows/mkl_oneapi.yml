@@ -34,7 +34,7 @@ jobs:
           echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           
-      - name: Cache vcpkg
+      - name: Cache restore vcpkg
         id: cache-vcpkg
         uses: actions/cache@v4
         with:
@@ -44,7 +44,7 @@ jobs:
             # ./vcpkg/downloads
           key: ${{ runner.os }}-${{ env.VCPKG_HASH }}
 
-      - name: Cache Intel OneAPI
+      - name: Cache restore Intel OneAPI
         id: cache-oneapi
         uses: actions/cache@v4
         with:
@@ -135,6 +135,7 @@ jobs:
       - name: Find solution file
         id: find_sln
         shell: bash
+        working-directory: "${{ env.GITHUB_WORKSPACE }}"
         run: |
           sln=$(find "$GITHUB_WORKSPACE" -type f -name "*.sln" | head -n 1)
           if [ -z "$sln" ]; then
@@ -151,11 +152,8 @@ jobs:
           call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
           .\vcpkg\vcpkg.exe integrate install
           set MKL_INC=%MKLROOT%\include
-          set INCLUDE=%INCLUDE%;%MKL_INC%
           set DEPS_DIR=%VCPKG_INSTALL_FOLDER%\%ARCH%-windows\include
           set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-          set PATH=%DEPS_DIR%;%XSD_DIR%;%PATH%;%MKL_INC%
-          echo %MKL_INC%
-          echo %INCLUDE%
+          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
           msbuild /m /p:Configuration=%BUILD_CONFIGURATION% /p:Platform=%ARCH% /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
       
