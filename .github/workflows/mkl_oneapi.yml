@@ -151,13 +151,13 @@ jobs:
         working-directory: "./src"
         run: |
           call "%ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          ..\vcpkg\vcpkg.exe integrate install
+          rem ..\vcpkg\vcpkg.exe integrate install
           set MKL_INC=%MKLROOT%\include
           set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
           set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
           set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
           set UseEnv=true
-          msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+          msbuild /m "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
         shell: bash
