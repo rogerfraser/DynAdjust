@@ -83,9 +83,9 @@ jobs:
           du -h -d1 ${{ env.VCPKG_ROOT }} | sort -h
           echo ""
           echo "Intel oneAPI:"
-          du -h -d3 "C:\Program Files (x86)\Intel\oneAPI/mkl"
+          du -h -d4 "C:\Program Files (x86)\Intel\oneAPI/mkl" | sort -h
           echo ""
-          ls -l ${{ env.VCPKG_ROOT }}/installed/x64-windows/include/
+          ls -l ${{ env.VCPKG_ROOT }}/installed/x64-windows/include/boost/
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -146,7 +146,7 @@ jobs:
         shell: cmd
         working-directory: "./src"
         run: |
-          call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+          call "%ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat"
           .\vcpkg\vcpkg.exe integrate install
           set MKL_INC=%MKLROOT%\include
           set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
