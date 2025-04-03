@@ -97,19 +97,20 @@ jobs:
           $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
           Remove-Item $tempExe -Force
           
-          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-          Write-Host "Running bootstrapper..."
           $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
           if (-Not (Test-Path $bootstrapperPath)) {
               throw "Bootstrapper not found at $bootstrapperPath"
           }
+
+          Write-Host "Listing available components..."
           $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
           get-content components
 
+          Write-Host "Running bootstrapper..."
           $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
           if ($procBootstrap.ExitCode -ne 0) {
               throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
           }          
           Remove-Item -Recurse -Force "webimage_extracted"
           
-          TREE C:\Program Files (x86)\Intel\oneAPI /F
+          TREE "C:\Program Files (x86)\Intel\oneAPI" /F
