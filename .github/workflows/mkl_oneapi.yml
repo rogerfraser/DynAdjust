@@ -76,7 +76,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            "C:\Program Files (x86)\Intel"
+            C:\Program Files (x86)\Intel\oneAPI
           key: ${{ env.WINDOWS_BASEKIT_URL }}
 
       - name: Install Intel OneAPI
