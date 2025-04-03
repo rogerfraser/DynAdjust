@@ -38,7 +38,7 @@ jobs:
         id: cache-vcpkg
         uses: actions/cache@v4
         with:
-          path: "${{ env.GITHUB_WORKSPACE }}/${{ env.VCPKG_ROOT }}"
+          path: ${{ env.VCPKG_ROOT }}
           key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Cache restore Intel OneAPI
@@ -70,7 +70,7 @@ jobs:
 
       - name: Disk usage installed packages
         shell: bash
-        run: du -h -d1 "${{ env.GITHUB_WORKSPACE }}/${{ env.VCPKG_ROOT }}" | sort -h
+        run: du -h -d1 ${{ env.VCPKG_ROOT }} | sort -h
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
