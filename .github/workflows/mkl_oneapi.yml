@@ -125,8 +125,8 @@ jobs:
       #   with:
       #     sdk-version: 26100
       
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      # - name: Add MSBuild to PATH
+      #   uses: microsoft/setup-msbuild@v2
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -155,18 +155,19 @@ jobs:
           Write-Output
 
       - name: Build DynAdjust
-        shell: cmd
+        shell: powershell
         working-directory: "./src"
         run: |
-          call "%ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          rem ..\vcpkg\vcpkg.exe integrate install
-          set MKL_INC=%MKLROOT%\include
-          set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
-          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
-          set UseEnv=true
+          # Run the Intel MKL environment setup batch file
+          cmd /c '"%ProgramFiles(x86)%\Intel\oneAPI\mkl\2025.1\env\vars.bat"'
+          # ..\vcpkg\vcpkg.exe integrate install
+          $env:MKL_INC = "$env:MKLROOT\include"
+          $env:DEPS_DIR = "$env:VCPKG_ROOT\installed\x64-windows\include"
+          $env:XSD_DIR = "$env:GITHUB_WORKSPACE\$env:CS_XSD_INSTALL_FOLDER"
+          $env:INCLUDE = "$env:DEPS_DIR;$env:XSD_DIR;$env:MKL_INC;$env:INCLUDE"
+          $env:UseEnv = "true"
           msbuild "${{ steps.find_sln.outputs.sln }}" /p:Configuration=Release /p:Platform=x64
-
+          
       - name: List directories
         shell: bash
         run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
