@@ -19,6 +19,7 @@ jobs:
     runs-on: windows-latest
     env:
       VCPKG_ROOT: ./vcpkg
+      VCPKG_BINARY_SOURCES: "clear"
 
     steps:
       - name: Set number of cores
