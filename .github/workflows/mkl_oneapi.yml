@@ -157,7 +157,7 @@ jobs:
           set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
           set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
           set UseEnv=true
-          msbuild /m /p:PlatformToolset=v143 /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
+          msbuild /m /p:"VCBuildAdditionalOptions= /useenv" "${{ steps.find_sln.outputs.sln }}"
 
       - name: List directories
         shell: bash
