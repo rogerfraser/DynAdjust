@@ -140,8 +140,8 @@ jobs:
         run: vcpkg.exe integrate install
 
       - name: Set INCLUDE path
-        shell: cmd
-        run: set INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;%INCLUDE%
+        shell: bash
+        run: cat "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
 
       - name: Print INCLUDE path
         shell: cmd
