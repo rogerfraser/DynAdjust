@@ -20,6 +20,17 @@ jobs:
     runs-on: windows-latest
     steps:
 
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: "[16.11,16.12)"
+          msbuild-architecture: x64
+          
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: "./src"
+
       - name: Set number of cores
         shell: bash
         run: |
@@ -125,17 +136,6 @@ jobs:
       #   with:
       #     sdk-version: 26100
       
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          vs-version: "[16.11,16.12)"
-          msbuild-architecture: x64
-          
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          path: "./src"
-
       - name: Find solution file
         id: find_sln
         shell: bash
