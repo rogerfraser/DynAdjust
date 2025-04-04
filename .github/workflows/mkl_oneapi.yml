@@ -136,6 +136,13 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      - name: vcpkg integrate
+        run: vcpkg.exe integrate install
+
+      - name: Print INCLUDE path
+        shell: cmd
+        run: set INCLUDE
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
