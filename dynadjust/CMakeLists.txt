@@ -60,8 +60,8 @@ add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
-add_compile_options(-Wno-ignored-qualifiers)
-add_compile_options(-Wno-deprecated-declarations)
+# add_compile_options(-Wno-ignored-qualifiers)
+# add_compile_options(-Wno-deprecated-declarations)
 
 if(BUILD_TESTING)
     add_compile_options(-w)
