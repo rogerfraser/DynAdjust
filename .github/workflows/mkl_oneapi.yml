@@ -151,15 +151,13 @@ jobs:
     
       - name: Build with CMake
         working-directory: "./src"
-        shell: bash
+        shell: cmd
         run: |
-          call /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          
+          %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
           cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake \
                 -G Ninja \
                 dynadjust
           ninja
-          # msbuild ? 
           cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake \
                 -G "Visual Studio 17 2022" \
                 -A x64 \
