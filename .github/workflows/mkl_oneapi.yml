@@ -158,7 +158,7 @@ jobs:
         shell: cmd
         working-directory: "./src"
         run: |
-          rem ..\vcpkg\vcpkg.exe integrate install
+          ..\vcpkg\vcpkg.exe integrate install
           %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
           set PATH=%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin;%PATH%
