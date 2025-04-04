@@ -156,7 +156,7 @@ void dna_reftran::IdentifyStationPlate()
 
 			if (boost::geometry::within(point, platePolygon))
 			{
-				sprintf(stn_it->plate, "%s", _it_plates->first.c_str());
+				snprintf(stn_it->plate, sizeof(stn_it->plate), "%s", _it_plates->first.c_str());
 				//cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << std::endl;
 			}	
 		}
@@ -569,9 +569,9 @@ void dna_reftran::WriteBinaryStationFile(const std::string& bstfileName)
 	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
-	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
-	sprintf(bst_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bst_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	snprintf(bst_meta_.modifiedBy, sizeof(bst_meta_.modifiedBy), "%s", __BINARY_NAME__);
+	snprintf(bst_meta_.epsgCode, sizeof(bst_meta_.epsgCode), "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+	snprintf(bst_meta_.epoch, sizeof(bst_meta_.epoch), "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bst_meta_.reftran = true;
 
 	try {
@@ -603,9 +603,9 @@ void dna_reftran::WriteBinaryMeasurementFile(const std::string& bmsfileName)
 	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
-	sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
-	sprintf(bms_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
+	snprintf(bms_meta_.epsgCode, sizeof(bms_meta_.epsgCode), "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+	snprintf(bms_meta_.epoch, sizeof(bms_meta_.epoch), "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bms_meta_.reftran = true;
 
 	try {
@@ -1479,8 +1479,8 @@ void dna_reftran::TransformStationRecords(const std::string& newFrame, const std
 			TransformStation(stn_it, datumFrom, transformationParameters);
 
 			// d. Update meta
-			sprintf(stn_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-			sprintf(stn_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+			snprintf(stn_it->epsgCode, sizeof(stn_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+			snprintf(stn_it->epoch, sizeof(stn_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 			transformationPerformed_ = true;
 			m_stnsTransformed++;
 		}
@@ -1741,21 +1741,21 @@ void dna_reftran::TransformMeasurement_GX(it_vmsr_t& msr_it, const CDnaDatum& da
 		msr_it->term1 = coordinates2_mod.get(0, 0) - coordinates1_mod.get(0, 0);
 		//TRACE("\nTransformed baseline\n");
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		
 		// Y
 		msr_it->term1 = coordinates2_mod.get(1, 0) - coordinates1_mod.get(1, 0);
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Z
 		msr_it->term1 = coordinates2_mod.get(2, 0) - coordinates1_mod.get(2, 0);
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 
 		// skip covariances until next baseline
 		if (covariance_count > 0)
@@ -1832,18 +1832,18 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 		
 		// Assign 'transformed' elements
 		msr_it->term1 = coordinates_mod.get(0, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Y
 		msr_it->term1 = coordinates_mod.get(1, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Z
 		msr_it->term1 = coordinates_mod.get(2, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 
 		// skip covariances until next point		
 		if (covariance_count > 0)

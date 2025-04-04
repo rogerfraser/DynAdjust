@@ -294,7 +294,7 @@ const char* const NTV2_SUB_NAME = "sub-grid-name";
 const char* const NTV2_CREATED = "creation-date";
 const char* const NTV2_UPDATED = "update-date";
 
-const char* const MAP_FILE = "map-file";
+const char* const DNA_MAP_FILE = "map-file";
 const char* const ASL_FILE = "asl-file";
 const char* const AML_FILE = "aml-file";
 const char* const DST_FILE = "dst-file";

@@ -1,0 +1,30 @@
+BasedOnStyle: LLVM
+Language: Cpp
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+PointerAlignment: Left
+SortIncludes: true
+ReflowComments: true
+IndentCaseLabels: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeCtorInitializerColon: false
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  IndentBraces: false
+  BeforeElse: false
+  BeforeCatch: false
+  #IndentPPDirectives: BeforeHash
+AlignAfterOpenBracket: Align
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+PenaltyExcessCharacter: 100
+PenaltyReturnTypeOnItsOwnLine: 1
