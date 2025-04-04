@@ -16,7 +16,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# set(CMAKE_VERBOSE_MAKEFILE ON)
+set (DYNADJUST_VERSION "1.2.9")
 
 message("")
 message("=====================================================================")
