@@ -136,8 +136,8 @@ jobs:
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v2
 
-      # - name: vcpkg integrate
-      #   run: vcpkg.exe integrate install
+      - name: vcpkg integrate
+        run: vcpkg.exe integrate install
 
       # - name: Set environment variables
       #   shell: bash
@@ -154,7 +154,7 @@ jobs:
         working-directory: "./src"
         shell: bash
         run: |
-          ls
+          cmake -G Ninja dynadjust
         
       
       # - name: Find solution file
