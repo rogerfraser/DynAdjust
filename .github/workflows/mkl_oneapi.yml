@@ -158,14 +158,14 @@ jobs:
         working-directory: "./src"
         shell: bash
         run: |
-          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake `
-                -G Ninja `
+          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake \
+                -G Ninja \
                 dynadjust
           ninja
           # msbuild ? 
-          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake `
-                -G "Visual Studio 17 2022" `
-                -A x64 `
+          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake \
+                -G "Visual Studio 17 2022" \
+                -A x64 \
                 dynadjust
           cmake --build . --config Release
         
