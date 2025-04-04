@@ -140,10 +140,12 @@ jobs:
         run: vcpkg.exe integrate install
 
       - name: Set INCLUDE path
-        run: set INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;%INCLUDE%
+        run: |
+          set INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;%INCLUDE%
 
       - name: Print INCLUDE path
-        run: set INCLUDE
+        run: |
+          set INCLUDE
 
       - name: Checkout code
         uses: actions/checkout@v3
