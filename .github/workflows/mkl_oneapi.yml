@@ -133,33 +133,40 @@ jobs:
           Select-Object -ExpandProperty Name |
           Write-Output
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      # - name: Add msbuild to PATH
+      #   uses: microsoft/setup-msbuild@v2
 
-      - name: vcpkg integrate
-        run: vcpkg.exe integrate install
+      # - name: vcpkg integrate
+      #   run: vcpkg.exe integrate install
 
-      - name: Set environment variables
-        shell: bash
-        run: |
-          echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
-          echo "UseEnv=true" >> "$GITHUB_ENV"
+      # - name: Set environment variables
+      #   shell: bash
+      #   run: |
+      #     echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
+      #     echo "UseEnv=true" >> "$GITHUB_ENV"
 
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           path: "./src"        
-      
-      - name: Find solution file
-        working-directory: "./src"
-        id: find_sln
-        shell: bash
-        run: echo "sln=$(find . -type f -name "*.sln" | head -n 1)" >> "$GITHUB_OUTPUT"
 
-      - name: Build DynAdjust
+      - name: Build with CMake
         working-directory: "./src"
-        # run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
-        run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -property:Configuration=Release          
+        shell: bash
+        run: |
+          ls
+        
+      
+      # - name: Find solution file
+      #   working-directory: "./src"
+      #   id: find_sln
+      #   shell: bash
+      #   run: echo "sln=$(find . -type f -name "*.sln" | head -n 1)" >> "$GITHUB_OUTPUT"
+
+      # - name: Build DynAdjust
+      #   working-directory: "./src"
+      #   # run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
+      #   run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -property:Configuration=Release          
 
       # - name: Build DynAdjust
       #   shell: cmd
@@ -180,7 +187,7 @@ jobs:
           
       #     msbuild /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 ${{ steps.find_sln.outputs.sln }}
           
-      - name: List directories
-        shell: bash
-        run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
+      # - name: List directories
+      #   shell: bash
+      #   run: ls -la ${{ env.VCPKG_ROOT }} || echo "VCPKG_ROOT=${{ env.VCPKG_ROOT }} does not exist."      
       
