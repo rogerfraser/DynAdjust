@@ -141,7 +141,7 @@ jobs:
 
       - name: Set INCLUDE path
         shell: bash
-        run: cat "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
+        run: echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
 
       - name: Print INCLUDE path
         shell: cmd
