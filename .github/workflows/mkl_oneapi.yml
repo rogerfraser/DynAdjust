@@ -139,13 +139,11 @@ jobs:
       - name: vcpkg integrate
         run: vcpkg.exe integrate install
 
-      - name: Set INCLUDE path
+      - name: Set environment variables
         shell: bash
-        run: echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
-
-      - name: Print INCLUDE path
-        shell: cmd
-        run: set INCLUDE
+        run: |
+          echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
+          echo "UseEnv=true" >> "$GITHUB_ENV"
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -160,7 +158,8 @@ jobs:
 
       - name: Build DynAdjust
         working-directory: "./src"
-        run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
+        # run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
+        run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -property:Configuration=Release          
 
       # - name: Build DynAdjust
       #   shell: cmd
