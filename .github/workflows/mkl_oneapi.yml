@@ -8,9 +8,8 @@ on:
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
   #VCPKG_PACKAGES: curl xerces-c
-  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c vcpkg-tool-ninja
   VCPKG_BINARY_SOURCES: "clear"
-  VCPKG_ROOT: ./vcpkg
   
   # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
@@ -38,7 +37,7 @@ jobs:
         id: cache-vcpkg
         uses: actions/cache@v4
         with:
-          path: ${{ env.VCPKG_ROOT }}
+          path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
           key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
 
       - name: Cache restore Intel OneAPI
@@ -48,44 +47,44 @@ jobs:
           path: C:\Program Files (x86)\Intel\oneAPI
           key: ${{ env.ONEAPI_HASH }}
 
-      - name: Prepare vcpkg
-        shell: powershell
-        run: |
-          # See https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
-          if (-not (Test-Path '${{ env.VCPKG_ROOT }}/vcpkg.exe')) {
-            git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
-            ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat -disableMetrics
-          } else {
-            Write-Host "vcpkg.exe already exists; skipping bootstrap."
-          }
+      # - name: Prepare vcpkg
+      #   shell: powershell
+      #   run: |
+      #     # See https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
+      #     if (-not (Test-Path '${{ env.VCPKG_ROOT }}/vcpkg.exe')) {
+      #       git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
+      #       ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat -disableMetrics
+      #     } else {
+      #       Write-Host "vcpkg.exe already exists; skipping bootstrap."
+      #     }
           
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         shell: powershell
         run: |
-          ${{ env.VCPKG_ROOT }}/vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.git
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/buildtrees
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/ports
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/downloads
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.github
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/docs
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/versions
+          vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.git
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/buildtrees
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/ports
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/downloads
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.github
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/docs
+          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/versions
       
       - name: List installed packages
         shell: powershell
-        run: ${{ env.VCPKG_ROOT }}/vcpkg.exe list
+        run: vcpkg.exe list
 
       - name: Disk usage installed packages
         shell: bash
         run: |
           echo "vcpkg:"
-          du -h -d1 ${{ env.VCPKG_ROOT }} | sort -h
+          du -h -d1 ${{ env.VCPKG_INSTALLATION_ROOT }} | sort -h
           echo ""
           echo "Intel oneAPI:"
           du -h -d5 "C:\Program Files (x86)\Intel\oneAPI/mkl" | sort -h
           echo ""
-          ls -l ${{ env.VCPKG_ROOT }}/installed/x64-windows/include/boost/
+          ls -l ${{ env.VCPKG_INSTALLATION_ROOT }}/installed/x64-windows/include/boost/
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -121,10 +120,6 @@ jobs:
           }          
           # Remove-Item -Recurse -Force "webimage_extracted"
           
-      # - uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-      #   with:
-      #     sdk-version: 26100
-      
       - name: Find Windows SDKs Installed
         shell: powershell
         run: |
@@ -133,9 +128,8 @@ jobs:
           Select-Object -ExpandProperty Name |
           Write-Output
 
-      - name: Install ninja
-        run: |
-          choco install ninja
+      # - name: Install ninja
+      #   run: choco install ninja
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -143,11 +137,11 @@ jobs:
       - name: vcpkg integrate
         run: vcpkg.exe integrate install
 
-      - name: Set environment variables
-        shell: bash
-        run: |
-          echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
-          echo "UseEnv=true" >> "$GITHUB_ENV"
+      # - name: Set environment variables
+      #   shell: bash
+      #   run: |
+      #     echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
+      #     echo "UseEnv=true" >> "$GITHUB_ENV"
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -158,27 +152,27 @@ jobs:
         working-directory: "./src"
         shell: bash
         run: |
-          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake \
+          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake \
                 -G Ninja \
                 dynadjust
           ninja
           # msbuild ? 
-          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake \
+          cmake -D CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake \
                 -G "Visual Studio 17 2022" \
                 -A x64 \
                 dynadjust
           cmake --build . --config Release
         
-      - name: Find solution file
-        working-directory: "./src"
-        id: find_sln
-        shell: bash
-        run: echo "sln=$(find . -type f -name "*.sln" | head -n 1)" >> "$GITHUB_OUTPUT"
+      # - name: Find solution file
+      #   working-directory: "./src"
+      #   id: find_sln
+      #   shell: bash
+      #   run: echo "sln=$(find . -type f -name "*.sln" | head -n 1)" >> "$GITHUB_OUTPUT"
 
-      - name: Build DynAdjust
-        working-directory: "./src"
-        # run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
-        run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -property:Configuration=Release          
+      # - name: Build DynAdjust
+      #   working-directory: "./src"
+      #   # run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
+      #   run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -property:Configuration=Release          
 
       # - name: Build DynAdjust
       #   shell: cmd
