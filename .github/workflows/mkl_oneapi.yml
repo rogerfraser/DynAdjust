@@ -17,16 +17,16 @@ env:
   
 jobs:
   build_windows:
-    runs-on: windows-2025
+    runs-on: windows-latest
     steps:
 
-      - name: Set number of cores
-        shell: bash
-        run: |
-          # Get number of cores
-          WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
-          echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
-          echo "VCPKG_MAX_CONCURRENCY=$(cat ncores)" >> $GITHUB_ENV
+      # - name: Set number of cores
+      #   shell: bash
+      #   run: |
+      #     # Get number of cores
+      #     WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
+      #     echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
+      #     echo "VCPKG_MAX_CONCURRENCY=$(cat ncores)" >> $GITHUB_ENV
 
       - name: Generate cache triggers
         shell: bash
@@ -132,6 +132,10 @@ jobs:
           Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -Directory |
           Select-Object -ExpandProperty Name |
           Write-Output
+
+      - name: Install ninja
+        run: |
+          choco install ninja
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
