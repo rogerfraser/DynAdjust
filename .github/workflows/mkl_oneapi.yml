@@ -9,7 +9,7 @@ env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
   #VCPKG_PACKAGES: curl xerces-c
   VCPKG_PACKAGES: boost-process boost-iostreams boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c vcpkg-tool-ninja
-  VCPKG_INSTALLATION_ROOT: C:\vcpkg
+  VCPKG_INSTALLATION_ROOT: C:/vcpkg
   VCPKG_BINARY_SOURCES: "clear"
   
   # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
