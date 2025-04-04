@@ -125,19 +125,6 @@ jobs:
       #   with:
       #     sdk-version: 26100
       
-      - name: Find solution file
-        id: find_sln
-        shell: bash
-        working-directory: "./src"
-        run: |
-          sln=$(find . -type f -name "*.sln" | head -n 1)
-          if [ -z "$sln" ]; then
-            echo "Solution file not found" >&2
-            exit 1
-          fi
-          echo "Solution file: $sln"
-          echo "sln=$sln" >> "$GITHUB_OUTPUT"
-
       - name: Find Windows SDKs Installed
         shell: powershell
         run: |
@@ -154,6 +141,12 @@ jobs:
         with:
           path: "./src"        
       
+      - name: Find solution file
+        working-directory: "./src"
+        id: find_sln
+        shell: bash
+        run: echo "sln=$(find . -type f -name "*.sln" | head -n 1)" >> "$GITHUB_OUTPUT"
+
       - name: Build DynAdjust
         working-directory: "./src"
         run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
