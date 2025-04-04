@@ -139,8 +139,10 @@ jobs:
       - name: vcpkg integrate
         run: vcpkg.exe integrate install
 
+      - name: Set INCLUDE path
+        run: set INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;%INCLUDE%
+
       - name: Print INCLUDE path
-        shell: cmd
         run: set INCLUDE
 
       - name: Checkout code
