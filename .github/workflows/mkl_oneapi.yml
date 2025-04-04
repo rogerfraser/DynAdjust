@@ -64,13 +64,11 @@ jobs:
         shell: powershell
         run: |
           vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.git
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/buildtrees
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/downloads
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/.github
-          Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/docs
-          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/ports
-          # Remove-Item -Recurse -Force ${{ env.VCPKG_ROOT }}/versions
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
       
       - name: List installed packages
         shell: powershell
