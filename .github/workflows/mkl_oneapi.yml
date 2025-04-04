@@ -125,11 +125,11 @@ jobs:
       #   with:
       #     sdk-version: 26100
       
-      # - name: Add MSBuild to PATH
-      #   uses: microsoft/setup-msbuild@v2
-      #   with:
-      #     vs-version: "[16.11,16.12)"
-      #     msbuild-architecture: x64
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: "[16.11,16.12)"
+          msbuild-architecture: x64
           
       - name: Checkout code
         uses: actions/checkout@v3
@@ -162,15 +162,18 @@ jobs:
         working-directory: "./src"
         run: |
           ..\vcpkg\vcpkg.exe integrate install
-          %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          rem %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          rem set INCLUDE="C:\Program Files (x86)\Windows Kits\10\Include";"C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0";%INCLUDE%
+          
           %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          set INCLUDE="C:\Program Files (x86)\Windows Kits\10\Include";"C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0";%INCLUDE%
+
           set PATH=%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin;%PATH%
           set MKL_INC=%MKLROOT%\include
           set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
           set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
           set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
           set UseEnv=true
+          
           msbuild /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 ${{ steps.find_sln.outputs.sln }}
           
       - name: List directories
