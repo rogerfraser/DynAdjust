@@ -20,17 +20,6 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          vs-version: "[16.11,16.12)"
-          msbuild-architecture: x64
-          
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          path: "./src"
-
       - name: Set number of cores
         shell: bash
         run: |
@@ -157,24 +146,36 @@ jobs:
           Select-Object -ExpandProperty Name |
           Write-Output
 
-      - name: Build DynAdjust
-        shell: cmd
-        working-directory: "./src"
-        run: |
-          ..\vcpkg\vcpkg.exe integrate install
-          rem %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          rem set INCLUDE="C:\Program Files (x86)\Windows Kits\10\Include";"C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0";%INCLUDE%
-          
-          %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
 
-          set PATH=%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin;%PATH%
-          set MKL_INC=%MKLROOT%\include
-          set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
-          set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
-          set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
-          set UseEnv=true
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: "./src"        
+      
+      - name: Build DynAdjust
+        working-directory: "./src"
+        run: msbuild ${{ steps.find_sln.outputs.sln }} -t:rebuild -verbosity:diag -property:Configuration=Release          
+
+      # - name: Build DynAdjust
+      #   shell: cmd
+      #   working-directory: "./src"
+      #   run: |
+      #     ..\vcpkg\vcpkg.exe integrate install
+      #     rem %comspec% /k "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      #     rem set INCLUDE="C:\Program Files (x86)\Windows Kits\10\Include";"C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0";%INCLUDE%
           
-          msbuild /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 ${{ steps.find_sln.outputs.sln }}
+      #     %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+
+      #     set PATH=%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin;%PATH%
+      #     set MKL_INC=%MKLROOT%\include
+      #     set DEPS_DIR=${{ env.VCPKG_ROOT }}\installed\x64-windows\include
+      #     set XSD_DIR=%GITHUB_WORKSPACE%\%CS_XSD_INSTALL_FOLDER%
+      #     set INCLUDE=%DEPS_DIR%;%XSD_DIR%;%MKL_INC%;%INCLUDE%
+      #     set UseEnv=true
+          
+      #     msbuild /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 ${{ steps.find_sln.outputs.sln }}
           
       - name: List directories
         shell: bash
