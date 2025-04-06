@@ -78,11 +78,11 @@ if (NOT BUILD_STATIC AND NOT APPLE)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
 endif()
 
-# Coverage if testing
-if(NOT BUILD_STATIC AND NOT APPLE)
-    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-endif()
+## Coverage if testing
+#if(NOT BUILD_STATIC AND NOT APPLE)
+#    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+#endif()
 
 # Linker flags
 if(APPLE)
@@ -180,7 +180,15 @@ elseif(WIN32)
     else()
         message(STATUS "Using OpenBLAS + LAPACKE on Windows...")
         find_package(BLAS REQUIRED)
+        add_link_options(${BLAS_LINKER_FLAGS})
+        message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
+        message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+
         find_package(LAPACK REQUIRED)
+        add_link_options(${LAPACK_LINKER_FLAGS})
+        message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
+        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+
         list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
 
