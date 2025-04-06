@@ -171,10 +171,10 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		//   Block   Junction stns  Inner stns  Measurements  Total stns  
 
-		sprintf(format_spec_netid, "%%%d%s", NETID, "lu");
-		sprintf(format_spec_junct, "%%%d%s", JUNCT, "lu");
-		sprintf(format_spec_inner, "%%%d%s", INNER, "lu");
-		sprintf(format_spec_measr, "%%%d%s", MEASR, "lu");
+		snprintf(format_spec_netid, sizeof(format_spec_netid), "%%%d%s", NETID, "lu");
+		snprintf(format_spec_junct, sizeof(format_spec_junct), "%%%d%s", JUNCT, "lu");
+		snprintf(format_spec_inner, sizeof(format_spec_inner), "%%%d%s", INNER, "lu");
+		snprintf(format_spec_measr, sizeof(format_spec_measr), "%%%d%s", MEASR, "lu");
 		
 		
 		UINT32 t;

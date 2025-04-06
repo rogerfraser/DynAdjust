@@ -146,7 +146,7 @@ void dna_io_base::writeVersion(std::ofstream& file_stream)
 	file_stream.write(const_cast<char *>(version_header), identifier_field_width); 
 	
 	// write version, with safeguard against overwriting by substr
-	sprintf(versionField, "%*s", identifier_field_width, m_strVersion.substr(0, identifier_field_width).c_str());
+	snprintf(versionField, sizeof(versionField), "%*s", identifier_field_width, m_strVersion.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(versionField), identifier_field_width); 
 		
 }
@@ -182,7 +182,7 @@ void dna_io_base::writeDate(std::ofstream& file_stream)
 	file_stream.write(const_cast<char *>(create_date_header), identifier_field_width); 
 	
 	// write creation date, with safeguard against overwriting by substr
-	sprintf(dateField, "%*s", identifier_field_width, m_strDate.substr(0, identifier_field_width).c_str());
+	snprintf(dateField, sizeof(dateField), "%*s", identifier_field_width, m_strDate.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(dateField), identifier_field_width); 
 		
 }
@@ -212,7 +212,7 @@ void dna_io_base::writeApp(std::ofstream& file_stream)
 	file_stream.write(const_cast<char *>(create_by_header), identifier_field_width); 
 	
 	// write application, with safeguard against overwriting by substr
-	sprintf(appField, "%*s", identifier_field_width, m_strApp.substr(0, identifier_field_width).c_str());
+	snprintf(appField, sizeof(appField), "%*s", identifier_field_width, m_strApp.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(appField), identifier_field_width); 
 		
 }

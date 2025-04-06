@@ -460,7 +460,7 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 
 void dna_adjust::UpdateBinaryFiles()
 {
-	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
+	snprintf(bst_meta_.modifiedBy, sizeof(bst_meta_.modifiedBy), "%s", __BINARY_NAME__);
 	bst_meta_.reduced = true;
 
 	try {
@@ -472,7 +472,7 @@ void dna_adjust::UpdateBinaryFiles()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 
-	sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
+	snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
 	bms_meta_.reduced = true;
 
 	try {
@@ -1991,7 +1991,7 @@ void dna_adjust::UpdateNormals_X(const UINT32& block, it_vmsr_t& _it_msr, UINT32
 			// multiply the components to form covariance
 			// for stations stn1 and stn2
 			//tmp.multiply(tmp1, tmp2);
-			tmp.multiply_mkl(tmp1, "N", tmp2, "N");
+			tmp.multiply(tmp1, "N", tmp2, "N");
 			// Now add covariances to normals
 			normals->blockadd(stn1, stn2,		
 				tmp, 0, 0, 3, 3);
@@ -7359,7 +7359,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 			// multiply the components to form covariance
 			// for stations stn1 and stn2
 			//tmp0.multiply(tmp1, tmp2);
-			tmp0.multiply_mkl(tmp1, "N", tmp2, "N");
+			tmp0.multiply(tmp1, "N", tmp2, "N");
 			// Now add covariances to normals
 			v_normals_.at(block).blockadd(stn1, stn2,		
 				tmp0, 0, 0, 3, 3);
@@ -7438,7 +7438,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 
 			// Update bms record
 			(*_it_msr)->term1 = x;
-			sprintf((*_it_msr)->coordType, XYZ_type);
+			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
 			(*_it_msr)->station3 = LLH_type_i;
@@ -7483,7 +7483,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		{
 			// Update bms record
 			(*_it_msr)->term1 = y;
-			sprintf((*_it_msr)->coordType, XYZ_type);
+			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
 			(*_it_msr)->station3 = LLH_type_i;
@@ -7528,7 +7528,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		{
 			// Update bms record
 			(*_it_msr)->term1 = z;
-			sprintf((*_it_msr)->coordType, XYZ_type);
+			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
 			(*_it_msr)->station3 = LLH_type_i;
@@ -7811,10 +7811,10 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 				S->put(i, i, sqrt(v_normals_.at(block).get(i, i)));
 			// 2. Scale Normals to reduce the diagonal elements of Normals to unity
 			//SN->multiply(*S, v_normals_.at(block));
-			SN->multiply_mkl(*S, "N", v_normals_.at(block), "N");
+			SN->multiply(*S, "N", v_normals_.at(block), "N");
 			
 			//v_normals_.at(block).multiply(*SN, *S);
-			v_normals_.at(block).multiply_mkl(*SN, "N", *S, "N");
+			v_normals_.at(block).multiply(*SN, "N", *S, "N");
 		}
 		//////////////////
 	
@@ -7836,10 +7836,10 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		if (projectSettings_.a.scale_normals_to_unity)
 		{
 			//SN->multiply(*S, v_normals_.at(block));
-			SN->multiply_mkl(*S, "N", v_normals_.at(block), "N");
+			SN->multiply(*S, "N", v_normals_.at(block), "N");
 
 			//v_normals_.at(block).multiply(*SN, *S);
-			v_normals_.at(block).multiply_mkl(*SN, "N", *S, "N");
+			v_normals_.at(block).multiply(*SN, "N", *S, "N");
 
 			delete S;
 			delete SN;
@@ -7858,11 +7858,11 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 	
 	// compute weighted "measured minus computed"
 	matrix_2d At_Vinv_m(v_design_.at(block).columns(), 1);
-	At_Vinv_m.multiply_mkl(v_AtVinv_.at(block), "N", v_measMinusComp_.at(block), "N");
+	At_Vinv_m.multiply(v_AtVinv_.at(block), "N", v_measMinusComp_.at(block), "N");
 	
 	// Solve corrections from normal equations
 	v_corrections_.at(block).redim(v_design_.at(block).columns(), 1);
-	v_corrections_.at(block).multiply_mkl(v_normals_.at(block), "N", At_Vinv_m, "N");
+	v_corrections_.at(block).multiply(v_normals_.at(block), "N", At_Vinv_m, "N");
 
 #ifdef _MS_COMPILER_
 #pragma region debug_output
@@ -9417,7 +9417,7 @@ void dna_adjust::FormInverseVarianceMatrix(matrix_2d* vmat, bool LOWER_IS_CLEARE
 	case Cholesky_mkl:
 	default:
 		// Inversion using Intel MKL
-		vmat->choleskyinverse_mkl(LOWER_IS_CLEARED);
+		vmat->cholesky_inverse(LOWER_IS_CLEARED);
 		break;
 	// choleskyinverse broke once the storage order of the matrix buffer was
 	// changed from row-wise to column wise.
@@ -9480,10 +9480,10 @@ void dna_adjust::ComputeChiSquare_XY(const it_vmsr_t& _it_msr, UINT32& measureme
 	matrix_2d rt_Vinv_r(1, 1);
 	
 	//rt_Vinv.multiply(rt, V);
-	rt_Vinv.multiply_mkl(r, "T", V, "N");
+	rt_Vinv.multiply(r, "T", V, "N");
 
 	//rt_Vinv_r.multiply(rt_Vinv, r);
-	rt_Vinv_r.multiply_mkl(rt_Vinv, "N", r, "N");
+	rt_Vinv_r.multiply(rt_Vinv, "N", r, "N");
 
 	chiSquared_ += rt_Vinv_r.get(0, 0);
 	measurement_index += variance_dim;
@@ -12830,7 +12830,7 @@ void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_r
 	CopyClusterMsr<vmsr_t>(bmsBinaryRecords_, _it_msr, y_msr);
 	
 	it_vmsr_t _it_y_msr(y_msr.begin());
-	sprintf(_it_y_msr->coordType, LLH_type);
+	snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
 
 	UINT32 cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
 	matrix_2d mpositions(cluster_count * 3, 1);
@@ -13666,7 +13666,7 @@ void dna_adjust::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
 	CopyClusterMsr<vmsr_t>(bmsBinaryRecords_, _it_msr, y_msr);
 	
 	it_vmsr_t _it_y_msr(y_msr.begin());
-	sprintf(_it_y_msr->coordType, LLH_type);
+	snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
 	
 	UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
 	matrix_2d mpositions(cluster_count * 3, 1);
@@ -14731,7 +14731,7 @@ void dna_adjust::ApplyAdditionalConstraints()
 		}
 
 		// set constraint
-		sprintf(bstBinaryRecords_.at(it_stnmap_range.first->second).stationConst, (constraint).c_str());
+		snprintf(bstBinaryRecords_.at(it_stnmap_range.first->second).stationConst, STN_CONST_WIDTH, "%s", (constraint).c_str());
 	}
 }
 	

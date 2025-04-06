@@ -775,7 +775,7 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const std::s
   			break;
 		}
 	}
-	else if (boost::iequals(var, MAP_FILE))
+	else if (boost::iequals(var, DNA_MAP_FILE))
 	{
 		if (val.empty())
 			return;

@@ -59,7 +59,7 @@ void dna_adjust::PrepareMappedRegions(const UINT32& block)
 }
 	
 
-void dna_adjust::SetRegionOffsets(const UINT32& block, const UINT16 file_count, ...)
+void dna_adjust::SetRegionOffsets(const UINT32& block, const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -148,7 +148,7 @@ void dna_adjust::SetRegionOffset(vmat_file_map& file_map)
 }
 	
 
-void dna_adjust::DeserialiseBlockFromMappedFile(const UINT32& block, const UINT16 file_count, ...)
+void dna_adjust::DeserialiseBlockFromMappedFile(const UINT32& block, const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -237,7 +237,7 @@ void dna_adjust::DeserialiseBlockFromMappedFile(const UINT32& block, const UINT1
 	va_end(vlist);
 }
 
-void dna_adjust::SerialiseBlockToMappedFile(const UINT32& block, const UINT16 file_count, ...)
+void dna_adjust::SerialiseBlockToMappedFile(const UINT32& block, const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -320,7 +320,7 @@ void dna_adjust::SerialiseBlockToMappedFile(const UINT32& block, const UINT16 fi
 }
 	
 
-void dna_adjust::ReserveBlockMapRegions(const UINT16 file_count, ...)
+void dna_adjust::ReserveBlockMapRegions(const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -383,7 +383,7 @@ void dna_adjust::ReserveBlockMapRegions(const UINT16 file_count, ...)
 }
 	
 
-void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
+void dna_adjust::OpenStageFileStreams(const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -543,7 +543,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 	}
 }
 	
-void dna_adjust::SetMapRegions(const UINT16 file_count, ...)
+void dna_adjust::SetMapRegions(const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -726,7 +726,7 @@ void dna_adjust::SetMapRegions(const UINT16 file_count, ...)
 }
 	
 
-void dna_adjust::PrepareMemoryMapRegions(const UINT32& block, const UINT16 file_count, ...)
+void dna_adjust::PrepareMemoryMapRegions(const UINT32& block, const int file_count, ...)
 {
 	if (file_count == 0)
 	{
@@ -894,7 +894,7 @@ void dna_adjust::SerialiseBlockToDisk(const UINT32& block)
 }
 	
 
-void dna_adjust::UnloadBlock(const UINT32& block, const UINT16 file_count, ...)
+void dna_adjust::UnloadBlock(const UINT32& block, const int file_count, ...)
 {
 	if (file_count == 0)
 	{

@@ -212,10 +212,10 @@ void dna_import::InitialiseDatum(const std::string& reference_frame, const std::
 	//  * After all files have been loaded, InitialiseDatum is called again to set the metadata.
 	//  * import does not attempt to reconcile multiple default datums and epochs found across the input
 	//    files. It will however produce a warning when something different to the default is discovered.
-	sprintf(bst_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bms_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bst_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());	
+    snprintf(bst_meta_.epsgCode, sizeof(bst_meta_.epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+    snprintf(bms_meta_.epsgCode, sizeof(bms_meta_.epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+    snprintf(bst_meta_.epoch, sizeof(bst_meta_.epoch), "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+    snprintf(bms_meta_.epoch, sizeof(bms_meta_.epoch), "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 }
 	
 
@@ -309,8 +309,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 			fileEpsg = m_strProjectDefaultEpsg;
 		
 		// record the file's default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-		sprintf(input_file_meta->epoch, "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	}
 	// SNX
 	else if (strncmp(first_chars, "%=SNX", 5) == 0)
@@ -325,8 +325,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 
 		// Since SINEX files do not permit recording of reference frame within the file, set
 		// the frame to the default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
-		sprintf(input_file_meta->epoch, "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
 
 		if (firstFile)
 		{
@@ -355,8 +355,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 			fileEpsg = m_strProjectDefaultEpsg;
 
 		// record the file's default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
-		sprintf(input_file_meta->epoch, "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 		
 		SignalComplete();
 	}
@@ -382,7 +382,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	}
 	
 	// Populate metadata
-	sprintf(input_file_meta->filename, "%s", fileName.c_str());
+    snprintf(input_file_meta->filename, sizeof(input_file_meta->filename), "%s", fileName.c_str());
 	if (*stnCount > 0 && *msrCount > 0)
 		input_file_meta->datatype = stn_msr_data;
 	else if (*stnCount > 0)
@@ -4812,7 +4812,7 @@ void dna_import::SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeas
 	dna_io_bms bms;
 
 	try {
-		sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
+        snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
 		bms_meta_.binCount = m_binaryRecordCount;
 		bms_meta_.inputFileCount = bms.create_msr_input_file_meta(vinput_file_meta, &(bms_meta_.inputFileMeta));
 		bms_meta_.reftran = false;
@@ -4832,7 +4832,7 @@ void dna_import::SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStat
 	dna_io_bst bst;
 	
 	try {
-		sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
+        snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
 		bst_meta_.binCount = static_cast<UINT32>(vStations->size());
 		bst_meta_.inputFileCount = bst.create_stn_input_file_meta(vinput_file_meta, &(bst_meta_.inputFileMeta));
 		bst_meta_.reduced = true;
