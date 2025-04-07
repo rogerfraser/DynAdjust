@@ -172,6 +172,7 @@ elseif(WIN32)
     if(USE_MKL)
         add_compile_options("-DMKL_LP64")
         set(BLA_VENDOR Intel10_64lp)
+        message(STATUS "Using MKL for fast linear algebra (${BLA_VENDOR})")
     endif()
 
     find_package(BLAS REQUIRED)
