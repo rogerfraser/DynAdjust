@@ -152,6 +152,12 @@ jobs:
           #       dynadjust
           # ninja
           
+      - name: Find file
+        working-directory: "./src"
+        id: find_sln
+        shell: bash
+        run: echo "$(find C:/Program Files (x86)/Intel/oneAPI/ -type f -name "mkl.h" | head -n 1)"
+
       - name: Build with CMake
         working-directory: "./src"
         shell: cmd
@@ -160,7 +166,7 @@ jobs:
           call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"     
           call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
           echo MKLROOT=%MKLROOT%
-          cmake -D USE_MKL=ON -D MKLROOT=%MKLROOT% -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
+          cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
           cmake --build . --config Release
         
       # - name: Find solution file
