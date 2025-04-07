@@ -185,7 +185,10 @@ elseif(WIN32)
     message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
     message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
 
-    find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
+    if(NOT USE_MKL)
+        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
+        include_directories(${BLAS_INCLUDE_DIRS})
+    endif()
 
     list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
@@ -225,7 +228,6 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${XercesC_INCLUDE_DIRS}
     ${XSD_INCLUDE_DIRS}
-    ${BLAS_INCLUDE_DIRS}
 )
 
 # ----------------------------------------------------------------------------
