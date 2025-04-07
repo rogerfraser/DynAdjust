@@ -3,7 +3,7 @@ project(dynadjust VERSION 1.2.9)
 
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
-option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
+option(USE_MKL "Use Intel MKL (Linux and Windows)" ON)
 option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
 option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
@@ -170,29 +170,23 @@ if(APPLE)
 
 elseif(WIN32)
     if(USE_MKL)
-        message(STATUS "Searching for Intel MKL on Windows...")
-        find_package(MKL REQUIRED)
-        if(MKL_FOUND)
-            list(APPEND DNA_LIBRARIES ${MKL_LIBRARIES})
-        else()
-            message(FATAL_ERROR "Intel MKL not found on Windows.")
-        endif()
-    else()
-        message(STATUS "Using OpenBLAS + LAPACKE on Windows...")
-        find_package(BLAS REQUIRED)
-        add_link_options(${BLAS_LINKER_FLAGS})
-        message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
-        message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-
-        find_package(LAPACK REQUIRED)
-        add_link_options(${LAPACK_LINKER_FLAGS})
-        message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
-        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
-
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
-
-        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        add_compile_options("-DMKL_LP64")
+        set(BLA_VENDOR Intel10_64lp)
     endif()
+
+    find_package(BLAS REQUIRED)
+    add_link_options(${BLAS_LINKER_FLAGS})
+    message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
+    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+
+    find_package(LAPACK REQUIRED)
+    add_link_options(${LAPACK_LINKER_FLAGS})
+    message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
+    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+
+    find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
+
+    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 elseif(UNIX)
     if (USE_MKL)
