@@ -8,7 +8,7 @@ on:
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
   #VCPKG_PACKAGES: curl xerces-c
-  VCPKG_PACKAGES: boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c vcpkg-tool-ninja openblas lapack cblas
+  VCPKG_PACKAGES: boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c vcpkg-tool-ninja
   VCPKG_INSTALLATION_ROOT: C:/vcpkg
   VCPKG_BINARY_SOURCES: "clear"
   
@@ -117,7 +117,7 @@ jobs:
           if ($procBootstrap.ExitCode -ne 0) {
               throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
           }          
-          # Remove-Item -Recurse -Force "webimage_extracted"
+          Remove-Item -Recurse -Force "webimage_extracted"
           
       # - name: Find Windows SDKs Installed
       #   shell: powershell
@@ -157,10 +157,10 @@ jobs:
         shell: cmd
         run: |
           echo CMAKE_PREFIX_PATH
-          tree /f /a "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\"          
+          tree /f /a "C:\Program Files (x86)\Intel\oneAPI\"          
           %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
           type "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
-          echo CMAKE_PREFIX_PATH
+          echo MKLROOT
           cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
           cmake --build . --config Release
         
