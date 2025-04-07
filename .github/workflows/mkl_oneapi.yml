@@ -156,9 +156,9 @@ jobs:
         working-directory: "./src"
         shell: cmd
         run: |
-          tree /f /a "C:\Program Files (x86)\Intel\oneAPI\"          
-          %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"          
-          %comspec% /k "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\env\vars.bat"          
+          rem tree /f /a "C:\Program Files (x86)\Intel\oneAPI\"          
+          call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"     
+          call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
           echo MKLROOT=%MKLROOT%
           cmake -D USE_MKL=ON -D MKLROOT=%MKLROOT% -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
           cmake --build . --config Release
