@@ -189,6 +189,8 @@ elseif(WIN32)
         message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
         message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
 
+        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/include C:/vcpkg/installed/x64-windows/debug/include /REQUIRED)
+
         list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
 
@@ -215,13 +217,21 @@ elseif(UNIX)
         message(STATUS "Using Intel MKL for fast linear algebra")
         set(USE_MKL ON)
     else()
-        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGSK})")
+        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
     	list(APPEND DNA_LIBRARIES "cblas" "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
 
 endif()
 
 message(STATUS "DynAdjust library dependencies: ${DNA_LIBRARIES}")
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${XercesC_INCLUDE_DIRS}
+    ${XSD_INCLUDE_DIRS}
+    ${BLAS_INCLUDE_DIRS}
+)
 
 # ----------------------------------------------------------------------------
 # Static build  (i.e., no dependencies on shared libraries)
@@ -303,13 +313,6 @@ if(BUILD_STATIC)
     message("---------------------------------------------------------------------")
     message("")
 endif()
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
-    ${XercesC_INCLUDE_DIRS}
-    ${XSD_INCLUDE_DIRS}
-)
 
 # ----------------------------------------------------------------------------
 # Subdirectories
