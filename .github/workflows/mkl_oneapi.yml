@@ -156,7 +156,7 @@ jobs:
         working-directory: "./src"
         id: find_sln
         shell: bash
-        run: find C:/Program Files (x86)/Intel/oneAPI/ -type f -name "mkl.h"
+        run: find "C:/Program Files (x86)/Intel/oneAPI/" -type f -name "mkl.h"
 
       - name: Build with CMake
         working-directory: "./src"
