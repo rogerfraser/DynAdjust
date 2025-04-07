@@ -152,10 +152,10 @@ jobs:
           #       dynadjust
           # ninja
           
-       - name: Find cblas.h file
-         id: find_sln
-         shell: bash
-         run: find C:/vcpkg/installed/ -type f -name "cblas.h"
+      - name: Find cblas.h file
+        id: find_sln
+        shell: bash
+        run: find C:/vcpkg/installed/ -type f -name "cblas.h"
 
       #- name: Build with CMake
       #  working-directory: "./src"
