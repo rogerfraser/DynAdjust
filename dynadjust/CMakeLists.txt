@@ -189,7 +189,7 @@ elseif(WIN32)
         message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
         message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
 
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/include C:/vcpkg/installed/x64-windows/debug/include /REQUIRED)
+        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
 
         list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
