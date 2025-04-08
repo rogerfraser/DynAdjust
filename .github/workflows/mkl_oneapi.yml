@@ -163,8 +163,8 @@ jobs:
         shell: cmd
         run: |
           vcpkg.exe integrate install
-          call /K ""C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat""
-          call /K ""C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat""
+          call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
+          call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
           echo MKLROOT=%MKLROOT%
           echo INCLUDE=%INCLUDE%
           set UseEnv=true
