@@ -151,13 +151,15 @@ jobs:
           #       -G Ninja \
           #       dynadjust
           # ninja
-          
-      - name: Find file
+  
+      - name: Download and install xsd
         working-directory: "./src"
-        id: find_sln
-        shell: bash
-        run: find "C:/Program Files (x86)/Intel/oneAPI/" -type f -name "mkl.h"
-
+        shell: powershell
+        run: |
+          curl.exe -L "https://www.codesynthesis.com/download/xsd/latest/windows/i686/xsd-latest-i686-windows.zip" -o "./xsd-latest-i686-windows.zip"
+          Write-Host "Extracting xsd..."
+          & "7z" x "xsd-latest-i686-windows.zip" -y -o"./xsd"
+          
       - name: Build with CMake
         working-directory: "./src"
         shell: cmd
