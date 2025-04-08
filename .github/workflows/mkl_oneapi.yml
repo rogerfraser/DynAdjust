@@ -159,7 +159,7 @@ jobs:
           curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
           tar zxvf libxsd-4.2.0.tar.gz
           mv libxsd-4.2.0/xsd .
-          echo "XSDROOT=$(pwd)" >> "$GITHUB_ENV"
+          echo "XSDROOT=$(pwd)/libxsd-4.2.0" >> "$GITHUB_ENV"
           
       - name: Build with CMake
         working-directory: "./src"
