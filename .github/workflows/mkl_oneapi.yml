@@ -174,8 +174,8 @@ jobs:
           echo MKLROOT=%MKLROOT%
           echo INCLUDE=%INCLUDE%
           set UseEnv=true
-          #cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
-          #cmake --build . --config Release
+          cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
+          cmake --build . --config Release
         
       # - name: Find solution file
       #   working-directory: "./src"
