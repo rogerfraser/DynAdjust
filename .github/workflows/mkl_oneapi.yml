@@ -159,21 +159,23 @@ jobs:
           curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
           tar zxvf libxsd-4.2.0.tar.gz
           mv libxsd-4.2.0/xsd .
+          tree /f /a
+          echo "XSDROOT=$(pwd)" >> "$GITHUB_ENV"
           
-      - name: Build with CMake
-        working-directory: "./src"
-        shell: cmd
-        run: |
-          vcpkg.exe integrate install
-          call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
-          call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-          set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
-          set INCLUDE=.;%VPKG_INCLUDE%;%INCLUDE%
-          echo MKLROOT=%MKLROOT%
-          echo INCLUDE=%INCLUDE%
-          set UseEnv=true
-          cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
-          cmake --build . --config Release
+      #- name: Build with CMake
+      #  working-directory: "./src"
+      #  shell: cmd
+      #  run: |
+      #    vcpkg.exe integrate install
+      #    call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
+      #    call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+      #    set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
+      #    set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
+      #    echo MKLROOT=%MKLROOT%
+      #    echo INCLUDE=%INCLUDE%
+      #    set UseEnv=true
+      #    cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
+      #    cmake --build . --config Release
         
       # - name: Find solution file
       #   working-directory: "./src"
