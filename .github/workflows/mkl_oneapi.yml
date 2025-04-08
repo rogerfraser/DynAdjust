@@ -8,7 +8,7 @@ on:
 env:
   # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
   #VCPKG_PACKAGES: curl xerces-c
-  VCPKG_PACKAGES: boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options xerces-c vcpkg-tool-ninja
+  VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
   VCPKG_INSTALLATION_ROOT: C:/vcpkg
   VCPKG_BINARY_SOURCES: "clear"
   
@@ -167,6 +167,8 @@ jobs:
           vcpkg.exe integrate install
           call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
           call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+          set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
+          set INCLUDE=xsd;%VPKG_INCLUDE%:%INCLUDE%
           echo MKLROOT=%MKLROOT%
           echo INCLUDE=%INCLUDE%
           set UseEnv=true
