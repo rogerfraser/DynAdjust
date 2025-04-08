@@ -154,11 +154,11 @@ jobs:
   
       - name: Download and install xsd
         working-directory: "./src"
-        shell: powershell
+        shell: bash
         run: |
-          curl.exe -L "https://www.codesynthesis.com/download/xsd/latest/windows/i686/xsd-latest-i686-windows.zip" -o "./xsd-latest-i686-windows.zip"
-          Write-Host "Extracting xsd..."
-          & "7z" x "xsd-latest-i686-windows.zip" -y -o"./xsd"
+          curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
+          tar zxvf libxsd-4.2.0.tar.gz
+          mv libxsd-4.2.0/xsd .
           
       - name: Build with CMake
         working-directory: "./src"
