@@ -162,10 +162,12 @@ jobs:
         working-directory: "./src"
         shell: cmd
         run: |
-          rem tree /f /a "C:\Program Files (x86)\Intel\oneAPI\"          
-          call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"     
-          call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"          
+          vcpkg.exe integrate install
+          call /K ""C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat""
+          call /K ""C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat""
           echo MKLROOT=%MKLROOT%
+          echo INCLUDE=%INCLUDE%
+          set UseEnv=true
           cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
           cmake --build . --config Release
         
