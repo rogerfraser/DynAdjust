@@ -54,6 +54,29 @@ jobs:
         with:
           ref: test-workflow
 
+      - name: Check library dependencies
+        run: |
+          echo "/usr/lib/x86_64-linux-gnu/libboost_system.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libboost_system.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libboost_filesystem.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libboost_filesystem.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libboost_timer.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libboost_timer.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libboost_thread.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libboost_thread.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libboost_program_options.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libboost_program_options.a | grep "NEEDED"
+          echo "/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a"
+          readelf -a /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libpthread.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libpthread.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/liblapacke.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/liblapacke.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libopenblas.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libopenblas.a | grep "NEEDED"
+          echo "/usr/lib/x86_64-linux-gnu/libxerces-c.a"
+          readelf -a /usr/lib/x86_64-linux-gnu/libxerces-c.a | grep "NEEDED"
+
       - name: Build with CMake
         run: |
           cmake -D BUILD_STATIC=ON dynadjust
