@@ -45,7 +45,9 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev cmake
+        run: |
+          sudo apt update
+          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev cmake
 
       - uses: actions/checkout@v4
         with:
