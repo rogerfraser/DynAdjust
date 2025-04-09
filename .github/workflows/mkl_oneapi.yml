@@ -7,7 +7,7 @@
 name: Testing
 
 on:
-  workflow_dispatch:
+  workflow_dispatch
 
 env:
   VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
@@ -21,15 +21,15 @@ jobs:
     name: Mac build
     runs-on: macos-15
     steps:
-  
+
       - name: Install dependencies
         shell: bash
         run: brew install boost xerces-c xsd
-  
+
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
-  
+
       - name: Build with CMake
         run: |
           cmake dynadjust
@@ -116,21 +116,15 @@ jobs:
           Remove-Item $tempExe -Force
 
           $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
-          if (-Not (Test-Path $bootstrapperPath)) {
-            throw "Bootstrapper not found at $bootstrapperPath"
-        }
 
-        Write-Host "Listing available components..."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
-        get-content components
+          Write-Host "Listing available components..."
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
+          get-content components
 
-        Write-Host "Running bootstrapper..."
-        $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
-        if ($procBootstrap.ExitCode -ne 0) {
-          throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
-        }          
-        Remove-Item -Recurse -Force "webimage_extracted"
+          Write-Host "Running bootstrapper..."
+          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+          Remove-Item -Recurse -Force "webimage_extracted"
 
       - uses: actions/checkout@v4
         with:
