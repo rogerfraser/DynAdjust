@@ -42,13 +42,16 @@ jobs:
   build_linux_static:
     name: Linux build (static)
     runs-on: ubuntu-latest
+    env:
+      PKGS: >
+        xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
+        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+
     steps:
 
       - name: Install dependencies
         shell: bash
-        run: |
-          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev \
-          libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+        run: sudo apt-get install -y  ${{ env.PKGS }}
 
       - uses: actions/checkout@v4
         with:
@@ -76,6 +79,16 @@ jobs:
           ls -l /usr/lib/x86_64-linux-gnu/libopenblas.a
           echo "/usr/lib/x86_64-linux-gnu/libxerces-c.a"
           ls -l /usr/lib/x86_64-linux-gnu/libxerces-c.a
+
+      - name: Build static xerces
+        run: |
+          XERCES_VERSION=3.2.4
+          curl -L -O https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-${XERCES_VERSION}.tar.bz2 
+          bzip2 -dc xerces-c-${XERCES_VERSION}.tar.bz2 | tar xvf - 
+          cd xerces-c-${XERCES_VERSION} 
+          PKG_CONFIG="pkg-config --static" ./configure --without-curl --without-icu --enable-static --disable-shared 
+          make -j2 
+          sudo make install 
 
       - name: Build with CMake
         run: |
