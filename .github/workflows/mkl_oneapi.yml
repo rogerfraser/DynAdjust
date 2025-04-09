@@ -17,8 +17,8 @@ env:
 
 jobs:
 
-  build_linux:
-    name: Linux build
+  build_linux_dyn:
+    name: Linux build (dynamic lib)
     runs-on: ubuntu-latest
     steps:
 
@@ -35,12 +35,12 @@ jobs:
       - name: Build with CMake
         run: |
           cmake dynadjust 
-          make
+          make -j2
           ls
 
 
-  build_mac:
-    name: Mac build
+  build_mac_dyn:
+    name: Mac build (dynamic lib)
     runs-on: macos-15
     steps:
 
@@ -58,9 +58,32 @@ jobs:
           make -j2
           ls
 
+  build_mac_static:
+    name: Mac build (static)
+    runs-on: macos-15
+    steps:
 
-  build_windows:
-    name: Windows build
+      - name: Install dependencies
+        shell: bash
+        run: brew install boost xerces-c xsd
+
+      - uses: actions/checkout@v4
+        with:
+          ref: test-workflow
+
+      - name: Build with CMake
+        run: |
+          cmake -D BUILD_STATIC dynadjust
+          make -j2
+          ls
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dynadjust-macos-static
+          path: ./static/
+
+  build_windows_dyn:
+    name: Windows build (dynamic lib)
     runs-on: windows-latest
     steps:
 
@@ -189,5 +212,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: windows-dynlibs
+        name: dynadjust-windows-dynlibs
         path: ./release/
