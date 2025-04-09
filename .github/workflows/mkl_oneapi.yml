@@ -10,9 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  WINDOWS_BASEKIT_URL: >
-    https://registrationcenter-download.intel.com/akdlm/IRC_NAS/
-    487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
 
 jobs:
 
