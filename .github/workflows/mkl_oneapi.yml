@@ -44,8 +44,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt update
-          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev cmake
+          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev
 
       - uses: actions/checkout@v4
         with:
@@ -53,7 +52,6 @@ jobs:
 
       - name: Build with CMake
         run: |
-          ls /usr/local/share/cmake-3.31/Modules/
           cmake --debug-find  dynadjust 
           make -j
           ls

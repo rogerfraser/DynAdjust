@@ -193,21 +193,21 @@ elseif(WIN32)
     list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 elseif(UNIX)
-    if (USE_MKL)
-        add_compile_options("-DMKL_LP64")
-        set(BLA_VENDOR Intel10_64lp)
-    else()
-        #set(BLA_PREFER_PKGCONFIG YES)
-        set(BLA_VENDOR OpenBLAS)
-    endif()
+    #if (USE_MKL)
+    #    add_compile_options("-DMKL_LP64")
+    #    set(BLA_VENDOR Intel10_64lp)
+    #else()
+    #    #set(BLA_PREFER_PKGCONFIG YES)
+    #    set(BLA_VENDOR OpenBLAS)
+    #endif()
 
     if (BUILD_STATIC)
         set(BLA_STATIC ON)
     endif()
 
-    find_package(BLAS REQUIRED HINTS /usr/lib/x86_64-linux-gnu)
+    find_package(BLAS REQUIRED)
 
-    find_package(LAPACK REQUIRED HINTS /usr/lib/x86_64-linux-gnu)
+    find_package(LAPACK REQUIRED)
 
     find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
 
