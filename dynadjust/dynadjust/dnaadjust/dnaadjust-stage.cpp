@@ -567,7 +567,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_normals_r:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			normalsR_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			normalsR_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				normalsR_map_.vblockMapRegions_.begin(), 
 				normalsR_map_.vblockMapRegions_.end(), 
@@ -580,7 +580,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_meas_minus_comp:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			measMinusComp_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			measMinusComp_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				measMinusComp_map_.vblockMapRegions_.begin(), 
 				measMinusComp_map_.vblockMapRegions_.end(), 
@@ -593,7 +593,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_estimated_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			estimatedStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			estimatedStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				estimatedStations_map_.vblockMapRegions_.begin(), 
 				estimatedStations_map_.vblockMapRegions_.end(), 
@@ -606,7 +606,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_original_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			originalStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			originalStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				originalStations_map_.vblockMapRegions_.begin(), 
 				originalStations_map_.vblockMapRegions_.end(), 
@@ -619,7 +619,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_rigorous_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			rigorousStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			rigorousStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				rigorousStations_map_.vblockMapRegions_.begin(), 
 				rigorousStations_map_.vblockMapRegions_.end(), 
@@ -632,7 +632,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_junction_vars:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionVariances_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			junctionVariances_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				junctionVariances_map_.vblockMapRegions_.begin(), 
 				junctionVariances_map_.vblockMapRegions_.end(), 
@@ -645,7 +645,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_junction_vars_f:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionVariancesFwd_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			junctionVariancesFwd_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				junctionVariancesFwd_map_.vblockMapRegions_.begin(), 
 				junctionVariancesFwd_map_.vblockMapRegions_.end(), 
@@ -658,7 +658,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_junction_ests_f:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionEstimatesFwd_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			junctionEstimatesFwd_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				junctionEstimatesFwd_map_.vblockMapRegions_.begin(), 
 				junctionEstimatesFwd_map_.vblockMapRegions_.end(), 
@@ -671,7 +671,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_junction_ests_r:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionEstimatesRev_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			junctionEstimatesRev_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				junctionEstimatesRev_map_.vblockMapRegions_.begin(), 
 				junctionEstimatesRev_map_.vblockMapRegions_.end(), 
@@ -684,7 +684,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_rigorous_vars:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			rigorousVariances_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			rigorousVariances_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				rigorousVariances_map_.vblockMapRegions_.begin(), 
 				rigorousVariances_map_.vblockMapRegions_.end(), 
@@ -697,7 +697,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_prec_adj_msrs:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			precAdjMsrs_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			precAdjMsrs_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				precAdjMsrs_map_.vblockMapRegions_.begin(), 
 				precAdjMsrs_map_.vblockMapRegions_.end(), 
@@ -710,7 +710,7 @@ void dna_adjust::SetMapRegions(const int file_count, ...)
 		case sf_corrections:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			corrections_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			corrections_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			for_each(
 				corrections_map_.vblockMapRegions_.begin(), 
 				corrections_map_.vblockMapRegions_.end(), 
@@ -750,84 +750,84 @@ void dna_adjust::PrepareMemoryMapRegions(const UINT32& block, const int file_cou
 		case sf_normals_r:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			normalsR_map_.CreateFileMapping();				// File path set in OpenStageFileStreams
+			normalsR_map_.CreateFileMap();				// File path set in OpenStageFileStreams
 			normalsR_map_.MapRegion(block);
 
 			break;
 		case sf_meas_minus_comp:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			measMinusComp_map_.CreateFileMapping();			// File path set in OpenStageFileStreams
+			measMinusComp_map_.CreateFileMap();			// File path set in OpenStageFileStreams
 			measMinusComp_map_.MapRegion(block);
 		
 			break;
 		case sf_estimated_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			estimatedStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			estimatedStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			estimatedStations_map_.MapRegion(block);
 		
 			break;
 		case sf_original_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			originalStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			originalStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			originalStations_map_.MapRegion(block);
 		
 			break;
 		case sf_rigorous_stns:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			rigorousStations_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			rigorousStations_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			rigorousStations_map_.MapRegion(block);
 		
 			break;
 		case sf_junction_vars:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionVariances_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			junctionVariances_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			junctionVariances_map_.MapRegion(block);
 		
 			break;
 		case sf_junction_vars_f:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionVariancesFwd_map_.CreateFileMapping();	// File path set in OpenStageFileStreams
+			junctionVariancesFwd_map_.CreateFileMap();	// File path set in OpenStageFileStreams
 			junctionVariancesFwd_map_.MapRegion(block);
 		
 			break;
 		case sf_junction_ests_f:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionEstimatesFwd_map_.CreateFileMapping();	// File path set in OpenStageFileStreams
+			junctionEstimatesFwd_map_.CreateFileMap();	// File path set in OpenStageFileStreams
 			junctionEstimatesFwd_map_.MapRegion(block);
 		
 			break;
 		case sf_junction_ests_r:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			junctionEstimatesRev_map_.CreateFileMapping();	// File path set in OpenStageFileStreams
+			junctionEstimatesRev_map_.CreateFileMap();	// File path set in OpenStageFileStreams
 			junctionEstimatesRev_map_.MapRegion(block);
 		
 			break;
 		case sf_rigorous_vars:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			rigorousVariances_map_.CreateFileMapping();		// File path set in OpenStageFileStreams
+			rigorousVariances_map_.CreateFileMap();		// File path set in OpenStageFileStreams
 			rigorousVariances_map_.MapRegion(block);
 		
 			break;
 		case sf_prec_adj_msrs:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			precAdjMsrs_map_.CreateFileMapping();			// File path set in OpenStageFileStreams
+			precAdjMsrs_map_.CreateFileMap();			// File path set in OpenStageFileStreams
 			precAdjMsrs_map_.MapRegion(block);
 		
 			break;
 		case sf_corrections:
 
 			// Create file map, and associate the regions with the normals blocks in the file
-			corrections_map_.CreateFileMapping();			// File path set in OpenStageFileStreams
+			corrections_map_.CreateFileMap();			// File path set in OpenStageFileStreams
 			corrections_map_.MapRegion(block);
 
 			break;
