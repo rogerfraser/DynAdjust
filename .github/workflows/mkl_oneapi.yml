@@ -57,25 +57,25 @@ jobs:
       - name: Check library dependencies
         run: |
           echo "/usr/lib/x86_64-linux-gnu/libboost_system.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libboost_system.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libboost_system.a
           echo "/usr/lib/x86_64-linux-gnu/libboost_filesystem.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libboost_filesystem.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libboost_filesystem.a
           echo "/usr/lib/x86_64-linux-gnu/libboost_timer.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libboost_timer.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libboost_timer.a
           echo "/usr/lib/x86_64-linux-gnu/libboost_thread.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libboost_thread.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libboost_thread.a
           echo "/usr/lib/x86_64-linux-gnu/libboost_program_options.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libboost_program_options.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libboost_program_options.a
           echo "/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a"
-          readelf -a /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a | grep "NEEDED"
+          ls -l /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a
           echo "/usr/lib/x86_64-linux-gnu/libpthread.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libpthread.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libpthread.a
           echo "/usr/lib/x86_64-linux-gnu/liblapacke.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/liblapacke.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/liblapacke.a
           echo "/usr/lib/x86_64-linux-gnu/libopenblas.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libopenblas.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libopenblas.a
           echo "/usr/lib/x86_64-linux-gnu/libxerces-c.a"
-          readelf -a /usr/lib/x86_64-linux-gnu/libxerces-c.a | grep "NEEDED"
+          ls -l /usr/lib/x86_64-linux-gnu/libxerces-c.a
 
       - name: Build with CMake
         run: |
