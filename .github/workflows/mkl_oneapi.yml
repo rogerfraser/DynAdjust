@@ -73,7 +73,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake -D BUILD_STATIC dynadjust
+          cmake -D BUILD_STATIC=ON dynadjust
           make -j2
           ls
 
