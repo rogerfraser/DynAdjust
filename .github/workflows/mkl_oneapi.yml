@@ -175,10 +175,31 @@ jobs:
           cmake --build . --config Release
           dir dynadjust\dynadjust\Release\
 
+      - name: Collate artifacts
+        shell: bash
+        run: |
+          mkdir -p release
+          cp ./src/dynadjust/dnageoid/Release/* ./release/
+          cp ./src/dynadjust/dnageoidwrapper/Release/* ./release/
+          cp ./src/dynadjust/dnaimport/Release/* release/
+          cp ./src/dynadjust/dnaimportwrapper/Release/* ./release/
+          cp ./src/dynadjust/dnaplot/Release/* ./release/
+          cp ./src/dynadjust/dnaplotwrapper/Release/* ./release/
+          cp ./src/dynadjust/dnareftran/Release/* ./release/
+          cp ./src/dynadjust/dnareftranwrapper/Release/* ./release/
+          cp ./src/dynadjust/dnasegment/Release/* ./release/
+          cp ./src/dynadjust/dnasegmentwrapper/Release/* ./release/
+          cp ./src/dynadjust/dynadjust/Release/* ./release/
+          mv ./release/geoid.exe ./release/dnageoid.exe
+          mv ./release/import.exe ./release/dnaimport.exe
+          mv ./release/plot.exe ./release/dnaplot.exe
+          mv ./release/reftran.exe ./release/dnareftran.exe
+          mv ./release/segment.exe ./release/dnasegment.exe
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-dynlibs
-          path: ./src/dynadjust/dynadjust/Release/
+          path: ./release/
 
         
       # - name: Find solution file
