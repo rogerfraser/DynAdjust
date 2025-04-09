@@ -197,7 +197,7 @@ elseif(UNIX)
         add_compile_options("-DMKL_LP64")
         set(BLA_VENDOR Intel10_64lp)
     else()
-        set(BLA_PREFER_PKGCONFIG YES)
+        #set(BLA_PREFER_PKGCONFIG YES)
         set(BLA_VENDOR OpenBLAS)
     endif()
 
