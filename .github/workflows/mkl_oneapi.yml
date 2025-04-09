@@ -196,7 +196,7 @@ jobs:
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
         set UseEnv=true
         cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
-        cmake --build --config Release --parallel 2 .
+        cmake --build %cd% --config Release --parallel 2
         dir
 
     - name: Collate artifacts
