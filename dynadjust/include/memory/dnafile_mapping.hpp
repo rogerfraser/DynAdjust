@@ -87,7 +87,7 @@ public:
 	void addblockMapRegion(const block_map_t& map);
 
 	void setnewFilePath(const std::string& filePath, bool remove_mapped_file);
-	void CreateFileMapping();
+	void CreateFileMap();
 	void MapRegion(const UINT32 block);
 
 	inline FileMapPtr getFileMapPtr() const { return file_map_ptr_; }
