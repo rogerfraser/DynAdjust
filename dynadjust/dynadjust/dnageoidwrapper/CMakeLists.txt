@@ -91,5 +91,5 @@ if(BUILD_STATIC)
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/static")
     
   # Install to the static directory
-  install(TARGETS ${STATIC_TARGET_NAME} DESTINATION static STRIP)
+  install(TARGETS ${STATIC_TARGET_NAME} DESTINATION static)
 endif()
