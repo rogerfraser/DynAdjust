@@ -64,11 +64,11 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - name: Generate cache triggers
-        shell: bash
-        run: |
-          echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-          echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+    - name: Generate cache triggers
+      shell: bash
+      run: |
+        echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+        echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
     - name: Cache vcpkg
       id: cache-vcpkg
