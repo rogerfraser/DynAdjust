@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev
+        run: sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev libopenblas-dev cmake
 
       - uses: actions/checkout@v4
         with:
@@ -59,8 +59,6 @@ jobs:
 
       - name: Build with CMake
         run: |
-          #export CPLUS_INCLUDE_PATH=./libxsd-4.2.0/:$CPLUS_INCLUDE_PATH
-          #export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
           cmake dynadjust
           make -j
           ls
