@@ -162,30 +162,24 @@ jobs:
         run: |
           mkdir -p release
           mkdir -p release/DynAdjust-Windows
-          cp ./src/dynadjust/dnageoid/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnageoid/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnageoidwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnageoidwrapper/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaimport/Release/*.dll release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaimport/Release/*.exe release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaimportwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaimportwrapper/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaplot/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaplot/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaplotwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaplotwrapper/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnareftran/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnareftran/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnareftranwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnareftranwrapper/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnasegment/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnasegment/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnasegmentwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnasegmentwrapper/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaadjust/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaadjust/Release/*.exe ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaadjustwrapper/Release/*.dll ./release/DynAdjust-Windows/
-          cp ./src/dynadjust/dnaadjustwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnageoid/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnageoidwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnageoidwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaimport/Release/*.dll release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaimportwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaimportwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaplot/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaplotwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaplotwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnareftran/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnareftranwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnareftranwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnasegment/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnasegmentwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnasegmentwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaadjust/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaadjustwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp -f ./src/dynadjust/dnaadjustwrapper/Release/*.exe ./release/DynAdjust-Windows/
           mv ./release/DynAdjust-Windows/geoid.exe   ./release/DynAdjust-Windows/dnageoid.exe
           mv ./release/DynAdjust-Windows/import.exe  ./release/DynAdjust-Windows/dnaimport.exe
           mv ./release/DynAdjust-Windows/plot.exe    ./release/DynAdjust-Windows/dnaplot.exe
