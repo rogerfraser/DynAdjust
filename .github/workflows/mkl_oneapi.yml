@@ -9,7 +9,9 @@ on:
   workflow_dispatch:
 
 env:
-  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+  WINDOWS_BASEKIT_URL: >
+    https://registrationcenter-download.intel.com/akdlm/IRC_NAS/
+    487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
 
 jobs:
 
@@ -119,12 +121,17 @@ jobs:
         }
 
         Write-Host "Listing available components..."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList `
+                         "--list-components" -NoNewWindow -Wait -PassThru `
+                         -RedirectStandardOutput components
         get-content components
 
         Write-Host "Running bootstrapper..."
-        $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+        $bootstrapArgs = "-s --action install --components=$components --eula=accept `
+                         -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 `
+                         -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs `
+                         -NoNewWindow -Wait -PassThru
         if ($procBootstrap.ExitCode -ne 0) {
           throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
         }          
