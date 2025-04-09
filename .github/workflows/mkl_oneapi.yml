@@ -17,25 +17,27 @@ env:
 
 jobs:
 
-  #  build_mac:
-  #    runs-on: macos-15
-  #    steps:
-  #
-  #      - name: Install dependencies
-  #        shell: bash
-  #        run: brew install boost xerces-c xsd
-  #
-  #      - uses: actions/checkout@v4
-  #        with:
-  #          ref: test-workflow
-  #
-  #      - name: Build with CMake
-  #        run: |
-  #          cmake dynadjust
-  #          make -j2
-  #          ls
+  build_mac:
+    name: Mac build
+    runs-on: macos-15
+    steps:
+  
+      - name: Install dependencies
+        shell: bash
+        run: brew install boost xerces-c xsd
+  
+      - uses: actions/checkout@v4
+        with:
+          ref: test-workflow
+  
+      - name: Build with CMake
+        run: |
+          cmake dynadjust
+          make -j2
+          ls
 
   build_linux:
+    name: Linux build
     runs-on: ubuntu-latest
     steps:
 
@@ -49,12 +51,6 @@ jobs:
         with:
           ref: test-workflow
 
-          #      - name: Download and install xsd
-          #        shell: bash
-          #        run: |
-          #          curl -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
-          #          tar zxvf libxsd-4.2.0.tar.gz
-
       - name: Build with CMake
         run: |
           ls /usr/local/share/cmake-3.31/Modules/
@@ -63,6 +59,7 @@ jobs:
           ls
 
   build_windows:
+    name: Windows build
     runs-on: windows-latest
     steps:
 
