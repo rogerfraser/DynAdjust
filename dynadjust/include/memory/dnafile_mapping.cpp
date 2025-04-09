@@ -123,7 +123,7 @@ void vmat_file_map::setnewFilePath(const std::string& filePath, bool remove_mapp
 }
 	
 
-void vmat_file_map::CreateFileMapping() 
+void vmat_file_map::CreateFileMap() 
 {
 	file_map_ptr_.reset(new boost::interprocess::file_mapping(filePath_.c_str(), boost::interprocess::read_write));
 }
