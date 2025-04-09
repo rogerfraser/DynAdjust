@@ -59,8 +59,8 @@ jobs:
 
       - name: Build with CMake
         run: |
-#          export CPLUS_INCLUDE_PATH=./libxsd-4.2.0/:$CPLUS_INCLUDE_PATH
-#          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+          #export CPLUS_INCLUDE_PATH=./libxsd-4.2.0/:$CPLUS_INCLUDE_PATH
+          #export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
           cmake dynadjust
           make -j
           ls
