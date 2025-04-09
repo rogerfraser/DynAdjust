@@ -14,7 +14,7 @@ env:
     https://registrationcenter-download.intel.com/akdlm/IRC_NAS/
     487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
   VCPKG_PACKAGES: >
-    boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem
+    boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem 
     boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
   VCPKG_INSTALLATION_ROOT: C:/vcpkg
   VCPKG_BINARY_SOURCES: "clear"
@@ -94,7 +94,7 @@ jobs:
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         shell: powershell
         run: |
-          vcpkg.exe install ${{ env.VCPKG_PACKAGES }} --triplet=x64-windows
+          vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
