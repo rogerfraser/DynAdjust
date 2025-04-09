@@ -39,6 +39,28 @@ jobs:
           ls
 
 
+  build_linux_static:
+    name: Linux build (static)
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev \
+          libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+
+      - uses: actions/checkout@v4
+        with:
+          ref: test-workflow
+
+      - name: Build with CMake
+        run: |
+          cmake -D BUILD_STATIC=ON dynadjust
+          make -j2
+          ls
+
+
   build_mac_dyn:
     name: Mac build (dynamic lib)
     runs-on: macos-15
