@@ -62,11 +62,11 @@ jobs:
           make -j
           ls
 
-        build_windows:
-          runs-on: windows-latest
-        steps:
+  build_windows:
+    runs-on: windows-latest
+    steps:
 
-          - name: Generate cache triggers
+      - name: Generate cache triggers
         shell: bash
         run: |
           echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
@@ -121,19 +121,19 @@ jobs:
           $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
           if (-Not (Test-Path $bootstrapperPath)) {
             throw "Bootstrapper not found at $bootstrapperPath"
-          }
+        }
 
-          Write-Host "Listing available components..."
-          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
-          get-content components
+        Write-Host "Listing available components..."
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
+        get-content components
 
-          Write-Host "Running bootstrapper..."
-          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
-          if ($procBootstrap.ExitCode -ne 0) {
-            throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
-          }          
-          Remove-Item -Recurse -Force "webimage_extracted"
+        Write-Host "Running bootstrapper..."
+        $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+        if ($procBootstrap.ExitCode -ne 0) {
+          throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
+        }          
+        Remove-Item -Recurse -Force "webimage_extracted"
 
       - uses: actions/checkout@v4
         with:
