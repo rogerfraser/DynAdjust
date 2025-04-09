@@ -40,14 +40,22 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: sudo apt-get install -y boost xerces-c xsd
+        run: sudo apt-get install -y libboost-dev libxerces-c-dev
 
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
 
+      - name: Download and install xsd
+        working-directory: "./src"
+        shell: bash
+        run: |
+          curl -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
+          tar zxvf libxsd-4.2.0.tar.gz
+
       - name: Build with CMake
         run: |
+          export CPLUS_INCLUDE_PATH=./libxsd-4.2.0/:$CPLUS_INCLUDE_PATH
           cmake dynadjust
           make -j
           ls
