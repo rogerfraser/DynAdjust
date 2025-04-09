@@ -20,28 +20,20 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      # - name: Set number of cores
-      #   shell: bash
-      #   run: |
-      #     # Get number of cores
-      #     WMIC CPU Get NumberOfLogicalProcessors | head -2 | tail -1 > ncores
-      #     echo "NCORES=$(cat ncores)" >> $GITHUB_ENV
-      #     echo "VCPKG_MAX_CONCURRENCY=$(cat ncores)" >> $GITHUB_ENV
-
       - name: Generate cache triggers
         shell: bash
         run: |
           echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           
-      - name: Cache restore vcpkg
+      - name: Cache vcpkg
         id: cache-vcpkg
         uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
           key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
 
-      - name: Cache restore Intel OneAPI
+      - name: Cache Intel OneAPI
         id: cache-oneapi
         uses: actions/cache@v4
         with:
@@ -119,39 +111,11 @@ jobs:
           }          
           Remove-Item -Recurse -Force "webimage_extracted"
           
-      # - name: Find Windows SDKs Installed
-      #   shell: powershell
-      #   run: |
-      #     Write-Host "Installed Windows SDKs:"
-      #     Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -Directory |
-      #     Select-Object -ExpandProperty Name |
-      #     Write-Output
-
-      # - name: Install ninja
-      #   run: choco install ninja
-
-      # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v2
-
-      # - name: vcpkg integrate
-      #   run: vcpkg.exe integrate install
-
-      # - name: Set environment variables
-      #   shell: bash
-      #   run: |
-      #     echo "INCLUDE=${{ env.VCPKG_ROOT }}\installed\x64-windows\include;${INCLUDE}" >> "$GITHUB_ENV"
-      #     echo "UseEnv=true" >> "$GITHUB_ENV"
-
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
           path: "./src"
 
-          # cmake -D CMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" \
-          #       -G Ninja \
-          #       dynadjust
-          # ninja
-  
       - name: Download and install xsd
         working-directory: "./src"
         shell: bash
@@ -169,32 +133,44 @@ jobs:
           set XSDROOT=%cd%\libxsd-4.2.0
           set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
           set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
-          echo INCLUDE=%INCLUDE%
           set UseEnv=true
           cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
           cmake --build . --config Release
-          dir dynadjust\dynadjust\Release\
 
       - name: Collate artifacts
         shell: bash
         run: |
           mkdir -p release
-          cp ./src/dynadjust/dnageoid/Release/* ./release/
-          cp ./src/dynadjust/dnageoidwrapper/Release/* ./release/
-          cp ./src/dynadjust/dnaimport/Release/* release/
-          cp ./src/dynadjust/dnaimportwrapper/Release/* ./release/
-          cp ./src/dynadjust/dnaplot/Release/* ./release/
-          cp ./src/dynadjust/dnaplotwrapper/Release/* ./release/
-          cp ./src/dynadjust/dnareftran/Release/* ./release/
-          cp ./src/dynadjust/dnareftranwrapper/Release/* ./release/
-          cp ./src/dynadjust/dnasegment/Release/* ./release/
-          cp ./src/dynadjust/dnasegmentwrapper/Release/* ./release/
-          cp ./src/dynadjust/dynadjust/Release/* ./release/
-          mv ./release/geoid.exe ./release/dnageoid.exe
-          mv ./release/import.exe ./release/dnaimport.exe
-          mv ./release/plot.exe ./release/dnaplot.exe
-          mv ./release/reftran.exe ./release/dnareftran.exe
-          mv ./release/segment.exe ./release/dnasegment.exe
+          mkdir -p release/DynAdjust-Windows
+          cp ./src/dynadjust/dnageoid/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnageoid/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnageoidwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnageoidwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaimport/Release/*.dll release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaimport/Release/*.exe release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaimportwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaimportwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaplot/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaplot/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaplotwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaplotwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnareftran/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnareftran/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnareftranwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnareftranwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnasegment/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnasegment/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnasegmentwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnasegmentwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaadjust/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaadjust/Release/*.exe ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaadjustwrapper/Release/*.dll ./release/DynAdjust-Windows/
+          cp ./src/dynadjust/dnaadjustwrapper/Release/*.exe ./release/DynAdjust-Windows/
+          mv ./release/DynAdjust-Windows/geoid.exe   ./release/DynAdjust-Windows/dnageoid.exe
+          mv ./release/DynAdjust-Windows/import.exe  ./release/DynAdjust-Windows/dnaimport.exe
+          mv ./release/DynAdjust-Windows/plot.exe    ./release/DynAdjust-Windows/dnaplot.exe
+          mv ./release/DynAdjust-Windows/reftran.exe ./release/DynAdjust-Windows/dnareftran.exe
+          mv ./release/DynAdjust-Windows/segment.exe ./release/DynAdjust-Windows/dnasegment.exe
 
       - uses: actions/upload-artifact@v4
         with:
