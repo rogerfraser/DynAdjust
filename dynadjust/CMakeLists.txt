@@ -205,9 +205,9 @@ elseif(UNIX)
         set(BLA_STATIC ON)
     endif()
 
-    find_package(BLAS REQUIRED)
+    find_package(BLAS REQUIRED HINTS /usr/lib/x86_64-linux-gnu)
 
-    find_package(LAPACK REQUIRED)
+    find_package(LAPACK REQUIRED HINTS /usr/lib/x86_64-linux-gnu)
 
     find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
 
