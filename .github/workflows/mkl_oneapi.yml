@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: brew install boost xerces-c
+        run: brew install boost xerces-c xsd
 
       - uses: actions/checkout@v4
         with:
@@ -34,24 +34,24 @@ jobs:
           make -j
           ls
 
-#  build_linux:
-#    runs-on: ubuntu-latest
-#    steps:
-#
-#      - name: Install dependencies
-#        shell: bash
-#        run: sudo apt-get install -y boost xerces-c
-#
-#      - uses: actions/checkout@v4
-#        with:
-#          ref: test-workflow
-#
-#      - name: Build with CMake
-#        run: |
-#          cmake dynadjust
-#          make -j
-#          ls
-#
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install dependencies
+        shell: bash
+        run: sudo apt-get install -y boost xerces-c xsd
+
+      - uses: actions/checkout@v4
+        with:
+          ref: test-workflow
+
+      - name: Build with CMake
+        run: |
+          cmake dynadjust
+          make -j
+          ls
+
 #  build_windows:
 #    runs-on: windows-latest
 #
