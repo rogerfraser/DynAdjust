@@ -1,11 +1,16 @@
 # Test script 
-
+#
+# TODO:
+# VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
+# See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
 name: Testing
 
 on:
   workflow_dispatch:
 
- 
+env:
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+
 jobs:
 
   build_mac:
@@ -15,7 +20,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: homebrew install boost xerces-c
-          
+
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
@@ -25,7 +30,7 @@ jobs:
           cmake dynadjust
           make -j
           ls
- 
+
   build_linux:
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +38,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: sudo apt-get install -y boost xerces-c
-          
+
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
@@ -46,23 +51,22 @@ jobs:
 
   build_windows:
     runs-on: windows-latest
+
     env:
-      # VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
       VCPKG_PACKAGES: >
-        boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread
-        boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
+        boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem
+        boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: C:/vcpkg
       VCPKG_BINARY_SOURCES: "clear"
-      # See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
-      WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
-     steps:
+
+    steps:
 
       - name: Generate cache triggers
         shell: bash
         run: |
           echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-          
+
       - name: Cache vcpkg
         id: cache-vcpkg
         uses: actions/cache@v4
@@ -77,17 +81,6 @@ jobs:
           path: C:\Program Files (x86)\Intel\oneAPI
           key: intel-oneapi-${{ env.ONEAPI_HASH }}
 
-      # - name: Prepare vcpkg
-      #   shell: powershell
-      #   run: |
-      #     # See https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg
-      #     if (-not (Test-Path '${{ env.VCPKG_ROOT }}/vcpkg.exe')) {
-      #       git clone https://github.com/microsoft/vcpkg ${{ env.VCPKG_ROOT }}
-      #       ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat -disableMetrics
-      #     } else {
-      #       Write-Host "vcpkg.exe already exists; skipping bootstrap."
-      #     }
-          
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         shell: powershell
@@ -98,21 +91,10 @@ jobs:
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
           Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
-      
+
       - name: List installed packages
         shell: powershell
         run: vcpkg.exe list
-
-      # - name: Disk usage installed packages
-      #   shell: bash
-      #   run: |
-      #     echo "vcpkg:"
-      #     du -h -d1 "${{ env.VCPKG_INSTALLATION_ROOT }}" | sort -h
-      #     echo ""
-      #     echo "Intel oneAPI:"
-      #     du -h -d5 "C:\Program Files (x86)\Intel\oneAPI/mkl" | sort -h
-      #     echo ""
-      #     ls -l "${{ env.VCPKG_INSTALLATION_ROOT }}/installed/x64-windows/include/boost/"
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -122,32 +104,32 @@ jobs:
           $url = $env:WINDOWS_BASEKIT_URL
           $components = "intel.oneapi.win.mkl.devel"
           $tempExe = Join-Path $env:TEMP "webimage.exe"
-          
+
           Write-Host "Downloading installer from $url..."
           curl.exe -L $url -o $tempExe
-          
+
           Write-Host "Extracting installer..."
           $installerArgs = "-s -x -f webimage_extracted --log extract.log"
           $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
           Remove-Item $tempExe -Force
-          
+
           $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
           if (-Not (Test-Path $bootstrapperPath)) {
-              throw "Bootstrapper not found at $bootstrapperPath"
-          }
+            throw "Bootstrapper not found at $bootstrapperPath"
+        }
 
-          Write-Host "Listing available components..."
-          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
-          get-content components
+        Write-Host "Listing available components..."
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
+        get-content components
 
-          Write-Host "Running bootstrapper..."
-          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
-          if ($procBootstrap.ExitCode -ne 0) {
-              throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
-          }          
-          Remove-Item -Recurse -Force "webimage_extracted"
-          
+        Write-Host "Running bootstrapper..."
+        $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+        if ($procBootstrap.ExitCode -ne 0) {
+          throw "Bootstrapper installation failed with exit code $($procBootstrap.ExitCode)"
+        }          
+        Remove-Item -Recurse -Force "webimage_extracted"
+
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
@@ -159,7 +141,7 @@ jobs:
         run: |
           curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
           tar zxvf libxsd-4.2.0.tar.gz
-          
+
       - name: Build with CMake
         working-directory: "./src"
         shell: cmd
