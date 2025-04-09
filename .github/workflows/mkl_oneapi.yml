@@ -21,23 +21,23 @@ env:
 
 jobs:
 
-  build_mac:
-    runs-on: macos-15
-    steps:
-
-      - name: Install dependencies
-        shell: bash
-        run: brew install boost xerces-c xsd
-
-      - uses: actions/checkout@v4
-        with:
-          ref: test-workflow
-
-      - name: Build with CMake
-        run: |
-          cmake dynadjust
-          make -j2
-          ls
+#  build_mac:
+#    runs-on: macos-15
+#    steps:
+#
+#      - name: Install dependencies
+#        shell: bash
+#        run: brew install boost xerces-c xsd
+#
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: test-workflow
+#
+#      - name: Build with CMake
+#        run: |
+#          cmake dynadjust
+#          make -j2
+#          ls
 
   build_linux:
     runs-on: ubuntu-latest
