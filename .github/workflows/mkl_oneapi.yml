@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: homebrew install boost xerces-c
+        run: brew install boost xerces-c
 
       - uses: actions/checkout@v4
         with:
