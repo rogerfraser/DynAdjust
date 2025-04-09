@@ -61,6 +61,7 @@ jobs:
 
       - name: Build with CMake
         run: |
+          ls /usr/local/share/cmake-3.31/Modules/
           cmake --debug-find  dynadjust 
           make -j
           ls
