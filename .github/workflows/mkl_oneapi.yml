@@ -57,29 +57,6 @@ jobs:
         with:
           ref: test-workflow
 
-      - name: Check library dependencies
-        run: |
-          echo "/usr/lib/x86_64-linux-gnu/libboost_system.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libboost_system.a
-          echo "/usr/lib/x86_64-linux-gnu/libboost_filesystem.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libboost_filesystem.a
-          echo "/usr/lib/x86_64-linux-gnu/libboost_timer.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libboost_timer.a
-          echo "/usr/lib/x86_64-linux-gnu/libboost_thread.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libboost_thread.a
-          echo "/usr/lib/x86_64-linux-gnu/libboost_program_options.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libboost_program_options.a
-          echo "/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a"
-          ls -l /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.a
-          echo "/usr/lib/x86_64-linux-gnu/libpthread.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libpthread.a
-          echo "/usr/lib/x86_64-linux-gnu/liblapacke.a"
-          ls -l /usr/lib/x86_64-linux-gnu/liblapacke.a
-          echo "/usr/lib/x86_64-linux-gnu/libopenblas.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libopenblas.a
-          echo "/usr/lib/x86_64-linux-gnu/libxerces-c.a"
-          ls -l /usr/lib/x86_64-linux-gnu/libxerces-c.a
-
       - name: Build static xerces
         run: |
           XERCES_VERSION=3.2.4
