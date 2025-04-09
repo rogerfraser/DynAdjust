@@ -61,7 +61,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake dynadjust
+          cmake --debug-find  dynadjust 
           make -j
           ls
 
