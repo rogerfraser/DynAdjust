@@ -67,6 +67,12 @@ jobs:
           make -j2
           ls
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dynadjust-linux-static
+          path: ./static/
+
+
 
   build_mac_dyn:
     name: Mac build (dynamic lib)
@@ -86,11 +92,6 @@ jobs:
           cmake dynadjust
           make -j2
           ls
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dynadjust-linux-static
-          path: ./static/
 
 
   build_mac_static:
@@ -121,13 +122,10 @@ jobs:
     name: Windows build (dynamic lib)
     runs-on: windows-latest
     env:
-      VCPKG_PACKAGES: >
-        boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem
-        boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
-      WINDOWS_BASEKIT_URL: >
-        https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
+      WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
     
     steps:
 
