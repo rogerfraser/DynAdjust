@@ -65,12 +65,17 @@ jobs:
         run: |
           cmake -D BUILD_STATIC=ON dynadjust
           make -j2
-          ls
+
+      - name: Prepare artifacts
+        run: |
+          for f in ./static/*; do strip $f; done
+          mkdir -p ./zip/dynadjust-linux-static
+          mv ./static/* ./zip/dynadjust-linux-static
 
       - uses: actions/upload-artifact@v4
         with:
           name: dynadjust-linux-static
-          path: ./static/
+          path: ./zip/
 
 
 
