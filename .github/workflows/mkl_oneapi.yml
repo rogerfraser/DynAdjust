@@ -1,10 +1,11 @@
-# Test script 
+# Compile and build binaries
 #
-# TODO:
-# VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static
-# See URLs at https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
+# TODO: Add static build for Windows using VCPKG_PACKAGES: xerces-c:x86-windows-static curl:x86-windows-static ...
+#
+# For updated Intel OneAPI URLs, see:
+# https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
 
-name: Testing
+name: Build binaries (Linux, Mac, Windows)
 
 on:
   workflow_dispatch
@@ -14,14 +15,17 @@ jobs:
   build_linux_dyn:
     name: Linux build (dynamic lib)
     runs-on: ubuntu-latest
+    env:
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
+        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+
     steps:
 
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt-get install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev \
-          libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
-
+          sudo apt-get install -y ${{ env.PKGS }}
       - uses: actions/checkout@v4
         with:
           ref: test-workflow
@@ -45,7 +49,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: sudo apt-get install -y  ${{ env.PKGS }}
+        run: sudo apt-get install -y ${{ env.PKGS }}
 
       - uses: actions/checkout@v4
         with:
@@ -122,6 +126,7 @@ jobs:
         with:
           name: dynadjust-macos-static
           path: ./static/
+
 
   build_windows_dyn:
     name: Windows build (dynamic lib)
