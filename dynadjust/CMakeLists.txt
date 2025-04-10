@@ -143,6 +143,11 @@ if(OpenMP_CXX_FOUND)
         add_compile_options(-Xpreprocessor -fopenmp)
         add_link_options(-L/opt/homebrew/lib)
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+    elseif(MSVC)
+        message(STATUS "Enabled OpenMP for MSVC")
+        add_compile_options(${OpenMP_CXX_FLAGS})
+        # Don't add OpenMP flags as link options for MSVC
+        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
     else()
         message(STATUS "Enabled OpenMP")
         add_compile_options(${OpenMP_CXX_FLAGS})
@@ -244,7 +249,15 @@ if(BUILD_STATIC)
     message("")
 
     add_compile_options("-DXERCES_STATIC_LIBRARY")
-    add_compile_options(-O3)
+    
+    # Set optimization flags based on compiler
+    if(MSVC)
+        # Use MSVC-specific optimization flags
+        add_compile_options(/O2)
+    else()
+        # Use GCC/Clang optimization flags
+        add_compile_options(-O3)
+    endif()
 
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")

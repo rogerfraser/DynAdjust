@@ -86,7 +86,9 @@ if(BUILD_STATIC)
     endif()
   elseif(WIN32)
     # On Windows with MSVC
-    target_link_options(${STATIC_TARGET_NAME} PRIVATE /MT)
+    if(MSVC)
+      set_property(TARGET ${STATIC_TARGET_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    endif()
   endif()
   
   # Set the output name to be the same as the dynamic version
