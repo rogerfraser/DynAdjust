@@ -272,41 +272,43 @@ if(BUILD_STATIC)
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
 
-    # Find the static library equivalents
-    set(STATIC_LIBS_LIST "")
-    set(DNA_LIB_LIST ${DNA_LIBRARIES})
-    list(REMOVE_DUPLICATES DNA_LIB_LIST)
-    foreach(lib ${DNA_LIB_LIST})
-        get_filename_component(libdir ${lib} DIRECTORY)
-        get_filename_component(libname ${lib} NAME_WE)
-        string(REGEX REPLACE "-l" "" libname ${libname})
-        string(REGEX REPLACE "^Boost::" "boost_" libname ${libname})
-        string(REGEX REPLACE "^XercesC::XercesC" "xerces-c" libname ${libname})
-        string(REGEX REPLACE "^lib" "" libname ${libname})
-        if(libname)
-            if(NOT (libname STREQUAL "m" OR 
-                    libname STREQUAL "dl" OR 
-                    libname MATCHES "^-W*" OR 
-                    #libname STREQUAL "xerces-c" OR
-                    libname STREQUAL "Accelerate"))
-                message(CHECK_START "Finding static '${lib}'")
-                find_library(STATIC_LIB_${libname}
-                    NAMES lib${libname}.a lib${libname}_nonshared.a
-                    PATHS ${libdir})
-                if (${STATIC_LIB_${libname}} MATCHES "NOTFOUND")
-                    message(CHECK_FAIL "Not Found: 'lib${libname}.a'")
+    if (UNIX)
+        # Find the static library equivalents
+        set(STATIC_LIBS_LIST "")
+        set(DNA_LIB_LIST ${DNA_LIBRARIES})
+        list(REMOVE_DUPLICATES DNA_LIB_LIST)
+        foreach(lib ${DNA_LIB_LIST})
+            get_filename_component(libdir ${lib} DIRECTORY)
+            get_filename_component(libname ${lib} NAME_WE)
+            string(REGEX REPLACE "-l" "" libname ${libname})
+            string(REGEX REPLACE "^Boost::" "boost_" libname ${libname})
+            string(REGEX REPLACE "^XercesC::XercesC" "xerces-c" libname ${libname})
+            string(REGEX REPLACE "^lib" "" libname ${libname})
+            if(libname)
+                if(NOT (libname STREQUAL "m" OR 
+                        libname STREQUAL "dl" OR 
+                        libname MATCHES "^-W*" OR 
+                        #libname STREQUAL "xerces-c" OR
+                        libname STREQUAL "Accelerate"))
+                    message(CHECK_START "Finding static '${lib}'")
+                    find_library(STATIC_LIB_${libname}
+                        NAMES lib${libname}.a lib${libname}_nonshared.a
+                        PATHS ${libdir})
+                    if (${STATIC_LIB_${libname}} MATCHES "NOTFOUND")
+                        message(CHECK_FAIL "Not Found: 'lib${libname}.a'")
+                    else()
+                        message(CHECK_PASS "Found")
+                        list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
+                    endif()
                 else()
-                    message(CHECK_PASS "Found")
-                    list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
+                    #message(STATUS "Finding static '${lib}' - Skipped")
                 endif()
-            else()
-                #message(STATUS "Finding static '${lib}' - Skipped")
             endif()
-        endif()
-    endforeach()
+        endforeach()
 
-    message("")
-    message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+        message("")
+        message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+    endif()
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/static)
 
