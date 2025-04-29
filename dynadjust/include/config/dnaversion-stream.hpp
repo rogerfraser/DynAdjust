@@ -103,7 +103,7 @@ void output_build(T& stream, bool PAD=false)
 		// asctime function. This macro is always defined.
 		__TIME__;		
 	if (strlen(__COMPILER__) > 2)
-		stream <<  " (" << __COMPILER__ << " " << __COMPILER_VERSION__ << ")";
+		stream <<  " - " << __COMPILER__ << " " << __COMPILER_VERSION__ << "";
 }
 
 #endif  // DNAVERSION_HPP
