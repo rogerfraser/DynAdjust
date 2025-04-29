@@ -642,6 +642,8 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
+        std::lock_guard<boost::mutex> lock(import_file_mutex);
+
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
 		dna_io_snx snx;
 		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
