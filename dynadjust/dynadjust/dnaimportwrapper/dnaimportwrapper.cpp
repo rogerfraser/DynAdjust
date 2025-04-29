@@ -1831,7 +1831,7 @@ int main(int argc, char* argv[])
 		// different directories to where import is run from, causing errors 
 		// because DynaML.xsd cannot be found.
 		boost::filesystem::path currentPath(boost::filesystem::current_path());
-		boost::filesystem::current_path(boost::filesystem::path(projectSettings_.g.input_folder));
+		boost::filesystem::current_path(boost::filesystem::path(p.g.input_folder));
 
 		// Import all data as-is.
 		// All filtering is performed later below
