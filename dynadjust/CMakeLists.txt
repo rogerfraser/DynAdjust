@@ -3,7 +3,7 @@ project(dynadjust VERSION 1.2.9)
 
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
-option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
+option(USE_MKL "Use Intel MKL (Linux and Windows)" ON)
 option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
 option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
@@ -60,17 +60,18 @@ add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
-# add_compile_options(-Wno-ignored-qualifiers)
-# add_compile_options(-Wno-deprecated-declarations)
+# These don't work with MSVC
+#add_compile_options(-Wno-ignored-qualifiers)
+#add_compile_options(-Wno-deprecated-declarations)
 
 if(BUILD_TESTING)
     add_compile_options(-w)
 endif()
 
 if(APPLE)
-    add_compile_options(-Werror -ferror-limit=1)
-    #add_compile_options(-Wno-unguarded-availability-new)
-    #add_compile_options(-Wno-deprecated-declarations)
+    #add_compile_options(-Werror -ferror-limit=1)
+    add_compile_options(-Wno-unguarded-availability-new)
+    add_compile_options(-Wno-deprecated-declarations)
 endif()
 
 # Debug flags
@@ -78,18 +79,18 @@ if (NOT BUILD_STATIC AND NOT APPLE)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
 endif()
 
-# Coverage if testing
-if(NOT BUILD_STATIC AND NOT APPLE)
-    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-endif()
+## Coverage if testing
+#if(NOT BUILD_STATIC AND NOT APPLE)
+#    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+#endif()
 
-# Linker flags
-if(APPLE)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
-else()
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
-endif()
+## Linker flags
+#if(APPLE)
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
+#else()
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+#endif()
 
 # ----------------------------------------------------------------------------
 # XercesC
@@ -142,6 +143,11 @@ if(OpenMP_CXX_FOUND)
         add_compile_options(-Xpreprocessor -fopenmp)
         add_link_options(-L/opt/homebrew/lib)
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+    elseif(MSVC)
+        message(STATUS "Enabled OpenMP for MSVC")
+        add_compile_options(${OpenMP_CXX_FLAGS})
+        # Don't add OpenMP flags as link options for MSVC
+        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
     else()
         message(STATUS "Enabled OpenMP")
         add_compile_options(${OpenMP_CXX_FLAGS})
@@ -170,28 +176,36 @@ if(APPLE)
 
 elseif(WIN32)
     if(USE_MKL)
-        message(STATUS "Searching for Intel MKL on Windows...")
-        find_package(MKL REQUIRED)
-        if(MKL_FOUND)
-            list(APPEND DNA_LIBRARIES ${MKL_LIBRARIES})
-        else()
-            message(FATAL_ERROR "Intel MKL not found on Windows.")
-        endif()
-    else()
-        message(STATUS "Using OpenBLAS + LAPACKE on Windows...")
-        find_package(BLAS REQUIRED)
-        find_package(LAPACK REQUIRED)
-        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    endif()
-
-elseif(UNIX)
-    if (USE_MKL)
         add_compile_options("-DMKL_LP64")
         set(BLA_VENDOR Intel10_64lp)
-    else()
-        set(BLA_PREFER_PKGCONFIG YES)
-        set(BLA_VENDOR OpenBLAS)
+        message(STATUS "Using MKL for fast linear algebra (${BLA_VENDOR})")
     endif()
+
+    find_package(BLAS REQUIRED)
+    add_link_options(${BLAS_LINKER_FLAGS})
+    message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
+    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+
+    find_package(LAPACK REQUIRED)
+    add_link_options(${LAPACK_LINKER_FLAGS})
+    message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
+    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+
+    if(NOT USE_MKL)
+        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
+        include_directories(${BLAS_INCLUDE_DIRS})
+    endif()
+
+    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
+elseif(UNIX)
+    #if (USE_MKL)
+    #    add_compile_options("-DMKL_LP64")
+    #    set(BLA_VENDOR Intel10_64lp)
+    #else()
+    #    #set(BLA_PREFER_PKGCONFIG YES)
+    #    set(BLA_VENDOR OpenBLAS)
+    #endif()
 
     if (BUILD_STATIC)
         set(BLA_STATIC ON)
@@ -207,13 +221,21 @@ elseif(UNIX)
         message(STATUS "Using Intel MKL for fast linear algebra")
         set(USE_MKL ON)
     else()
-        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGSK})")
-    	list(APPEND DNA_LIBRARIES "cblas" "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
+        #list(APPEND DNA_LIBRARIES "cblas" "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
 
 endif()
 
 message(STATUS "DynAdjust library dependencies: ${DNA_LIBRARIES}")
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${XercesC_INCLUDE_DIRS}
+    ${XSD_INCLUDE_DIRS}
+)
 
 # ----------------------------------------------------------------------------
 # Static build  (i.e., no dependencies on shared libraries)
@@ -227,7 +249,15 @@ if(BUILD_STATIC)
     message("")
 
     add_compile_options("-DXERCES_STATIC_LIBRARY")
-    add_compile_options(-O3)
+    
+    # Set optimization flags based on compiler
+    if(MSVC)
+        # Use MSVC-specific optimization flags
+        add_compile_options(/O2)
+    else()
+        # Use GCC/Clang optimization flags
+        add_compile_options(-O3)
+    endif()
 
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
@@ -242,41 +272,43 @@ if(BUILD_STATIC)
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
 
-    # Find the static library equivalents
-    set(STATIC_LIBS_LIST "")
-    set(DNA_LIB_LIST ${DNA_LIBRARIES})
-    list(REMOVE_DUPLICATES DNA_LIB_LIST)
-    foreach(lib ${DNA_LIB_LIST})
-        get_filename_component(libdir ${lib} DIRECTORY)
-        get_filename_component(libname ${lib} NAME_WE)
-        string(REGEX REPLACE "-l" "" libname ${libname})
-        string(REGEX REPLACE "^Boost::" "boost_" libname ${libname})
-        string(REGEX REPLACE "^XercesC::XercesC" "xerces-c" libname ${libname})
-        string(REGEX REPLACE "^lib" "" libname ${libname})
-        if(libname)
-            if(NOT (libname STREQUAL "m" OR 
-                    libname STREQUAL "dl" OR 
-                    libname MATCHES "^-W*" OR 
-                    #libname STREQUAL "xerces-c" OR
-                    libname STREQUAL "Accelerate"))
-                message(CHECK_START "Finding static '${lib}'")
-                find_library(STATIC_LIB_${libname}
-                    NAMES lib${libname}.a lib${libname}_nonshared.a
-                    PATHS ${libdir})
-                if (${STATIC_LIB_${libname}} MATCHES "NOTFOUND")
-                    message(CHECK_FAIL "Not Found: 'lib${libname}.a'")
+    if (UNIX)
+        # Find the static library equivalents
+        set(STATIC_LIBS_LIST "")
+        set(DNA_LIB_LIST ${DNA_LIBRARIES})
+        list(REMOVE_DUPLICATES DNA_LIB_LIST)
+        foreach(lib ${DNA_LIB_LIST})
+            get_filename_component(libdir ${lib} DIRECTORY)
+            get_filename_component(libname ${lib} NAME_WE)
+            string(REGEX REPLACE "-l" "" libname ${libname})
+            string(REGEX REPLACE "^Boost::" "boost_" libname ${libname})
+            string(REGEX REPLACE "^XercesC::XercesC" "xerces-c" libname ${libname})
+            string(REGEX REPLACE "^lib" "" libname ${libname})
+            if(libname)
+                if(NOT (libname STREQUAL "m" OR 
+                        libname STREQUAL "dl" OR 
+                        libname MATCHES "^-W*" OR 
+                        #libname STREQUAL "xerces-c" OR
+                        libname STREQUAL "Accelerate"))
+                    message(CHECK_START "Finding static '${lib}'")
+                    find_library(STATIC_LIB_${libname}
+                        NAMES lib${libname}.a lib${libname}_nonshared.a
+                        PATHS ${libdir})
+                    if (${STATIC_LIB_${libname}} MATCHES "NOTFOUND")
+                        message(CHECK_FAIL "Not Found: 'lib${libname}.a'")
+                    else()
+                        message(CHECK_PASS "Found")
+                        list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
+                    endif()
                 else()
-                    message(CHECK_PASS "Found")
-                    list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
+                    #message(STATUS "Finding static '${lib}' - Skipped")
                 endif()
-            else()
-                #message(STATUS "Finding static '${lib}' - Skipped")
             endif()
-        endif()
-    endforeach()
+        endforeach()
 
-    message("")
-    message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+        message("")
+        message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+    endif()
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/static)
 
@@ -295,13 +327,6 @@ if(BUILD_STATIC)
     message("---------------------------------------------------------------------")
     message("")
 endif()
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
-    ${XercesC_INCLUDE_DIRS}
-    ${XSD_INCLUDE_DIRS}
-)
 
 # ----------------------------------------------------------------------------
 # Subdirectories

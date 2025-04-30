@@ -80,7 +80,9 @@ if(BUILD_STATIC)
     endif()
   elseif(WIN32)
     # On Windows with MSVC
-    target_link_options(${STATIC_TARGET_NAME} PRIVATE /MT)
+    if(MSVC)
+      set_property(TARGET ${STATIC_TARGET_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    endif()
   endif()
   
   # Set the output name to be the same as the dynamic version
@@ -92,5 +94,5 @@ if(BUILD_STATIC)
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/static")
     
   # Install to the static directory
-  install(TARGETS ${STATIC_TARGET_NAME} DESTINATION static STRIP)
+  install(TARGETS ${STATIC_TARGET_NAME} DESTINATION static)
 endif()
