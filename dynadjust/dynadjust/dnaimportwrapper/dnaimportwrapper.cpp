@@ -1826,11 +1826,20 @@ int main(int argc, char* argv[])
 	// Import data as normal
 	else
 	{
+		// Change current directory to the import folder
+		// A hack to circumvent the problem caused by importing DynaML files in 
+		// different directories to where import is run from, causing errors 
+		// because DynaML.xsd cannot be found.
+		boost::filesystem::path currentPath(boost::filesystem::current_path());
+		boost::filesystem::current_path(boost::filesystem::path(p.g.input_folder));
+
 		// Import all data as-is.
 		// All filtering is performed later below
 		if (ImportDataFiles(parserDynaML, &vStations, &vMeasurements, &vstationsTotal, &vmeasurementsTotal,
 			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
+
+		current_path(currentPath);
 	}
 
 	epsgCode = epsgCodeFromName<UINT32>(p.i.reference_frame);

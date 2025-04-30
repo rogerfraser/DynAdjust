@@ -397,6 +397,8 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
 							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile, std::string* success_msg)
 {
+    // Lock before parsing the file
+    import_file_mutex.lock();
 
 	parseStatus_ = PARSE_SUCCESS;
 	_filespecifiedreferenceframe = false;
@@ -404,13 +406,6 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 	
 	try
 	{
-		// Change current directory to the import folder
-		// A hack to circumvent the problem caused by importing DynaML files in 
-		// different directories to where import is run from, causing errors 
-		// because DynaML.xsd cannot be found.
-		boost::filesystem::path currentPath(boost::filesystem::current_path());
-		boost::filesystem::current_path(boost::filesystem::path(projectSettings_.g.input_folder));
-
 		// Instantiate individual parsers.
 		DnaXmlFormat_pimpl DnaXmlFormat_p(ifsInputFILE_,		// pass file stream to enable progress to be calculated
 			clusterID,											// pass cluster ID so that a unique number can be retained across multiple files
@@ -472,6 +467,10 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 		DnaXmlFormat_p.pre();
 		doc_p.parse (*ifsInputFILE_);
 		DnaXmlFormat_p.post_DnaXmlFormat (vStations, vMeasurements);
+
+        // unlock after parsing
+        import_file_mutex.unlock();
+
 		SignalComplete();
 		*clusterID = DnaXmlFormat_p.CurrentClusterID();
 		*stnCount = DnaXmlFormat_p.NumStationsRead();
@@ -556,7 +555,6 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 		else if (!vMeasurements->empty())
 			m_idt = msr_data;
 
-		current_path(currentPath);
 	}
 	catch (const std::ios_base::failure& f)
 	{
