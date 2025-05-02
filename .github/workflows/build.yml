@@ -342,7 +342,6 @@ jobs:
 
     - uses: actions/checkout@v4
       with:
-        ref: test-workflow
         path: "./src"
 
     - name: Download and install xsd
