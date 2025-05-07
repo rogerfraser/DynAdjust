@@ -5233,7 +5233,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	if (projectSettings_.g.verbose > 5)
-		debug_file << std::endl << "Std dev " << std::scientific << std::setprecision(16) << _it_msr->term2 << " (" << std::fixed << std::setprecision(2) << Seconds(sqrt(_it_msr->term2)) << " boost::posix_time::seconds)" << std::endl;
+		debug_file << std::endl << "Std dev " << std::scientific << std::setprecision(16) << _it_msr->term2 << " (" << std::fixed << std::setprecision(2) << Seconds(sqrt(_it_msr->term2)) << " seconds)" << std::endl;
 	
 	_it_msr++;
 
@@ -5260,7 +5260,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 			AV.put(a, a+1, _it_msr->term2);
 
 			if (projectSettings_.g.verbose > 5)
-				debug_file << "Std dev " << std::scientific << std::setprecision(16) << _it_msr->term2 << " (" << std::fixed << std::setprecision(2) << Seconds(sqrt(_it_msr->term2)) << " boost::posix_time::seconds)" << std::endl;
+				debug_file << "Std dev " << std::scientific << std::setprecision(16) << _it_msr->term2 << " (" << std::fixed << std::setprecision(2) << Seconds(sqrt(_it_msr->term2)) << " seconds)" << std::endl;
 
 			if (a+1 == angle_count)
 				break;
@@ -5272,8 +5272,8 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 		if (projectSettings_.g.verbose > 6)
 		{
 			debug_file << std::endl << "Directions variance matrix:" << std::endl;
-			debug_file << "A" << A << std::endl;
-			debug_file << "AV" << std::scientific << std::setprecision(16) << AV << std::endl;
+			debug_file << "A " << A << std::endl;
+			debug_file << "AV " << std::scientific << std::setprecision(16) << AV << std::endl;
 		}
 
 		// AVAT for correlated angles will not be a fully populated matrix, but a 
@@ -5297,7 +5297,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 		SetDirectionsVarianceMatrix(_it_msr_first, *var_dirn);
 
 		if (projectSettings_.g.verbose > 5)
-			debug_file << "V.dxyz " << std::scientific << std::setprecision(16) << std::setw(26) << var_dirn;
+			debug_file << "V.dxyz " << std::scientific << std::setprecision(16) << std::setw(26) << *var_dirn;
 		
 		// Form inverse
 		FormInverseVarianceMatrix(var_dirn);
@@ -5311,7 +5311,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 	}
 
 	if (projectSettings_.g.verbose > 5)
-		debug_file << "Inv V.dxyz " << std::scientific << std::setprecision(16) << std::setw(26) << var_dirn;
+		debug_file << "Inv V.dxyz " << std::scientific << std::setprecision(16) << std::setw(26) << *var_dirn;
 	
 }
 
