@@ -16,7 +16,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set (DYNADJUST_VERSION "1.2.9")
+set (DYNADJUST_VERSION "1.2.8")
 
 message("")
 message("=====================================================================")
