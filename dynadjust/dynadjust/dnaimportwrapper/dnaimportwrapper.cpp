@@ -1043,23 +1043,12 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				isStaticFrame = isEpsgDatumStatic(LongFromString<UINT32>(projectEpsgCode));
 				
 				// Has the user supplied a static reference frame?  
-				// If so, set the epoch from the user-supplied static frame
+				// If so, set the epoch
 				if (p.i.user_supplied_frame && isStaticFrame)
 				{
 					p.i.epoch = referenceepochFromEpsgString<std::string>(projectEpsgCode);
 					p.r.epoch = p.i.epoch;
 				}
-				// Has the user supplied a SINEX file, but no reference frame?
-				// If so, set the epoch from the DynAdjust default datum
-				else if (!p.i.user_supplied_frame && input_file_meta.filetype == sinex)
-				{
-					// revert to epoch of the file frame
-					p.i.epoch = referenceepochFromEpsgString<std::string>(projectEpsgCode);
-					p.r.epoch = p.i.epoch;
-				}
-				// At this point, one of the following is true:
-				//  - a dynamic reference frame has been supplied
-				//  - a frame has not been supplied, in which case the file frame will be taken
 				else if (!p.i.user_supplied_epoch)
 				{
 					if (inputFileEpoch.empty())
@@ -1149,7 +1138,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					std::stringstream epochSource;
 					if (isStaticFrame)
 					{
-						epochSource << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ")." << std::endl;
+						epochSource << "  - Warning: File epoch (" << inputFileEpoch << ") will be ignored." << std::endl;
 						if (!p.g.quiet)
 							std::cout << epochSource.str();
 						*imp_file << epochSource.str();
