@@ -277,11 +277,6 @@ int main(int argc, char* argv[])
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
-	// Has the user supplied a maximum block size that is less 
-	// than the minimum block size?
-	if (p.s.min_inner_stations > p.s.max_total_stations)
-		p.s.min_inner_stations = p.s.max_total_stations;
-
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
 	
