@@ -503,7 +503,8 @@ jobs:
               -D VCPKG_TARGET_TRIPLET=x64-windows-static-md ^
               -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -D VCPKG_TARGET_TRIPLET=x64-windows-static ^
-              -G "Visual Studio 17 2022" -A x64 dynadjust
+              -G "Visual Studio 17 2022" -A x64 dynadjust ^
+              --verbose
         cmake --build %cd% --config Release --parallel %NUMBER_OF_PROCESSORS%
 
     - name: Collate artifacts
