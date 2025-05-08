@@ -112,7 +112,7 @@ jobs:
       - name: Build with CMake
         run: |
           cmake dynadjust
-          make -j2
+          make -j2 VERBOSE=1
           ls
 
 
@@ -136,7 +136,7 @@ jobs:
       - name: Build with CMake
         run: |
           cmake -D BUILD_STATIC=ON dynadjust
-          make -j2
+          make -j2 VERBOSE=1
           ls
 
       - uses: actions/upload-artifact@v4
