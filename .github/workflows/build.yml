@@ -10,6 +10,8 @@ on:
 
 jobs:
 
+#------------------------------------------------
+
   build_linux_dyn:
     name: Linux build (openblas)
     runs-on: ubuntu-latest
@@ -40,6 +42,7 @@ jobs:
           make -j2
           ls
 
+#------------------------------------------------
 
   build_linux_static:
     name: Linux build (openblas / static)
@@ -90,7 +93,7 @@ jobs:
           name: dynadjust-linux-static
           path: ./zip/
 
-
+#------------------------------------------------
 
   build_mac_dyn:
     name: Mac build (accelerate)
@@ -115,6 +118,7 @@ jobs:
           make -j2 VERBOSE=1
           ls
 
+#------------------------------------------------
 
   build_mac_static:
     name: Mac build (accelerate / static)
@@ -144,6 +148,7 @@ jobs:
           name: dynadjust-macos-static
           path: ./static/
 
+#------------------------------------------------
 
   build_windows_dyn_mkl:
     name: Windows build (mkl)
@@ -249,7 +254,6 @@ jobs:
         set UseEnv=true
         cmake -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
-        dir
 
     - name: Collate artifacts
       shell: bash
@@ -289,14 +293,14 @@ jobs:
         name: dynadjust-windows-dynlibs
         path: ./release/
 
-  
+#------------------------------------------------  
   
   build_windows_dyn_openblas:
     name: Windows build (openblas)
     runs-on: windows-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
     
@@ -356,9 +360,10 @@ jobs:
         set XSDROOT=%cd%\libxsd-4.2.0
         set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
-        cmake -D USE_MKL=OFF -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
+        cmake -D USE_MKL=OFF ^
+              -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
+              -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
-        dir
 
     - name: Collate artifacts
       shell: bash
