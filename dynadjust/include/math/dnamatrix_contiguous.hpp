@@ -56,7 +56,6 @@
 #endif
 #include <Accelerate/Accelerate.h>
 #define LAPACK_COL_MAJOR 102
-#define LAPACK_ROW_MAJOR 101
 typedef __LAPACK_int lapack_int; // Handle LP64 and ILP64
 inline lapack_int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
     if (layout != LAPACK_COL_MAJOR)
@@ -72,19 +71,10 @@ inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a,
     dpotri_(&uplo, &n, a, &lda, &info);
     return info;
 }
-#elif defined(MKL_ILP64) // Intel MKL with ILP64
-#include <mkl.h>
-#include <mkl_lapacke.h>
-typedef MKL_INT64 lapack_int;
-#elif defined(MKL_LP64) // Intel MKL with LP64
-#include <mkl.h>
-#include <mkl_lapacke.h>
-typedef MKL_INT lapack_int;
-#elif defined(_WIN32) // Windows OpenBLAS + LAPACK - No LAPACKE
-typedef int lapack_int;
+#elif defined(_WIN32) and !defined(MKL_ILP64) and !defined(MKL_LP64) // Windows - No LAPACKE and no MKL
 #include <cstdint>
+typedef int lapack_int;
 #define LAPACK_COL_MAJOR 102
-#define LAPACK_ROW_MAJOR 101
 extern "C" {
 void DPOTRF_(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
              int* INFO);
@@ -105,6 +95,14 @@ inline int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack
     DPOTRI_(&uplo, &n, a, &lda, &info);
     return static_cast<int>(info);
 }
+#elif defined(MKL_ILP64) // Linux or Windows - Intel MKL with ILP64
+#include <mkl.h>
+#include <mkl_lapacke.h>
+typedef MKL_INT64 lapack_int;
+#elif defined(MKL_LP64) // Linux or Windows - Intel MKL with LP64
+#include <mkl.h>
+#include <mkl_lapacke.h>
+typedef MKL_INT lapack_int;
 #else // LAPACKE Fallback
 #include <cblas.h>
 #include <lapacke.h>
