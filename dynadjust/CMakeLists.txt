@@ -60,6 +60,9 @@ add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
+# Quick fix for Boost.Process switching to the new v2
+add_compile_definitions(BOOST_PROCESS_VERSION=1)
+
 # These don't work with MSVC
 #add_compile_options(-Wno-ignored-qualifiers)
 #add_compile_options(-Wno-deprecated-declarations)
