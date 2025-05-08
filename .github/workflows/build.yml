@@ -498,12 +498,13 @@ jobs:
         call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
         call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
         set XSDROOT=%cd%\libxsd-4.2.0
-        set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows-static\include
-        set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
-        set UseEnv=true
-        cmake -D USE_MKL=ON -D BUILD_STATIC=ON -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D VCPKG_TARGET_TRIPLET=x64-windows-static -G "Visual Studio 17 2022" -A x64 dynadjust
-        cmake --build %cd% --config Release --parallel 2
-        dir
+        cmake -D USE_MKL=ON ^
+              -D BUILD_STATIC=ON ^
+              -D VCPKG_TARGET_TRIPLET=x64-windows-static-md ^
+              -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
+              -D VCPKG_TARGET_TRIPLET=x64-windows-static ^
+              -G "Visual Studio 17 2022" -A x64 dynadjust
+        cmake --build %cd% --config Release --parallel %NUMBER_OF_PROCESSORS%
 
     - name: Collate artifacts
       shell: bash
