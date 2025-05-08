@@ -343,18 +343,6 @@ jobs:
         curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
         tar zxvf libxsd-4.2.0.tar.gz
 
-    - name: Test MsBuild
-      shell: cmd
-      run: |
-        set PATH=%PATH%;%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin
-        msbuild.exe
-    
-    - name: Test cmake
-      shell: cmd
-      run: |
-        set PATH=%PATH%;%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin
-        cmake
-
     - name: Build with CMake
       working-directory: "./src"
       shell: cmd
