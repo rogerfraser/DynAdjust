@@ -62,7 +62,14 @@ add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
 # Quick fix for Boost.Process switching to the new v2
 add_compile_definitions(BOOST_PROCESS_VERSION=1)
-
+add_compile_options(
+    "$<$<CXX_COMPILER_ID:MSVC>:/FIboost/process/v1/system.hpp>"
+    "$<$<CXX_COMPILER_ID:MSVC>:/FIboost/process/v1/io.hpp>"
+    "$<$<CXX_COMPILER_ID:MSVC>:/FIboost/process/v1/null.hpp>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-include<boost/process/v1/system.hpp>>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-include<boost/process/v1/io.hpp>>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-include<boost/process/v1/null.hpp>>")
+    
 # These don't work with MSVC
 #add_compile_options(-Wno-ignored-qualifiers)
 #add_compile_options(-Wno-deprecated-declarations)
