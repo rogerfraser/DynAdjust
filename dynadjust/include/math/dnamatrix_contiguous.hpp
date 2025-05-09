@@ -77,23 +77,23 @@ inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a,
 typedef int lapack_int;
 #define LAPACK_COL_MAJOR 102
 extern "C" {
-void DPOTRF_(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
+void dotrf_(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
              int* INFO);
-void DPOTRI_(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
+void dpotri_(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
              int* INFO);
 }
 inline int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
     if (layout != LAPACK_COL_MAJOR)
         return -1;
     int info = 0;
-    DPOTRF_(&uplo, &n, a, &lda, &info);
+    dpotrf_(&uplo, &n, a, &lda, &info);
     return static_cast<int>(info);
 }
 inline int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
     if (layout != LAPACK_COL_MAJOR)
         return -1;
     int info = 0;
-    DPOTRI_(&uplo, &n, a, &lda, &info);
+    dpotri_(&uplo, &n, a, &lda, &info);
     return static_cast<int>(info);
 }
 #elif defined(MKL_ILP64) // Linux or Windows - Intel MKL with ILP64
