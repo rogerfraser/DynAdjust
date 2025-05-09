@@ -98,11 +98,11 @@ inline int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack
 #elif defined(MKL_ILP64) // Linux or Windows - Intel MKL with ILP64
 #include <mkl.h>
 #include <mkl_lapacke.h>
-typedef MKL_INT64 lapack_int;
+//typedef MKL_INT64 lapack_int;
 #elif defined(MKL_LP64) // Linux or Windows - Intel MKL with LP64
 #include <mkl.h>
 #include <mkl_lapacke.h>
-typedef MKL_INT lapack_int;
+//typedef MKL_INT lapack_int;
 #else // LAPACKE Fallback
 #include <cblas.h>
 #include <lapacke.h>
