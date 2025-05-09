@@ -73,6 +73,7 @@ inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a,
 }
 #elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
 #include <cstdint>
+#include <cblas.h>
 typedef int lapack_int;
 #define LAPACK_COL_MAJOR 102
 extern "C" {
