@@ -16,7 +16,7 @@ SET (PKG_MGR_PATH_INCLUDE /usr/include)
 
 IF (EXISTS ${XSDROOT})
   SET(XSD_INCLUDE_DIR ${XSDROOT})
-ELSE
+ELSE ()
     IF (APPLE)
       # Apple
       #SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
@@ -37,7 +37,7 @@ ELSE
       # Windows
       SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
     ENDIF ()  
-ENDIF()
+ENDIF ()
 
 FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
     PATH_SUFFIXES 
