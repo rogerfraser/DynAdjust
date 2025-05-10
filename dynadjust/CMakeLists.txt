@@ -158,6 +158,8 @@ if(OpenMP_CXX_FOUND)
 endif()
 
 if(APPLE)
+    message(STATUS "Looking for BLAS and LAPACK on MacOS")
+
     if(USE_OPENBLAS)
         message(STATUS "Using OpenBLAS + LAPACKE on MacOS")
         find_package(BLAS REQUIRED)
@@ -175,6 +177,8 @@ if(APPLE)
     endif()
 
 elseif(WIN32)
+    message(STATUS "Looking for BLAS and LAPACK on Windows")
+
     if(USE_MKL)
         add_compile_options("-DMKL_LP64")
         set(BLA_VENDOR Intel10_64lp)
@@ -199,6 +203,8 @@ elseif(WIN32)
     list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 elseif(UNIX)
+    message(STATUS "Looking for BLAS and LAPACK on Linux")
+
     #if (USE_MKL)
     #    add_compile_options("-DMKL_LP64")
     #    set(BLA_VENDOR Intel10_64lp)
