@@ -16,7 +16,7 @@ SET (PKG_MGR_PATH_INCLUDE /usr/include)
 
 IF (EXISTS $ENV{XSDROOT})
   message (STATUS "XSDROOT=$ENV{XSDROOT}")
-  SET(XSD_INCLUDE_DIR ${XSDROOT})
+  SET(XSD_INCLUDE_DIR ${XSDROOT}/xsd)
 ELSE ()
     IF (APPLE)
       # Apple
@@ -38,17 +38,17 @@ ELSE ()
       # Windows
       SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
     ENDIF ()  
-ENDIF ()
 
-FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
-    PATH_SUFFIXES 
-      xsd
-    PATHS 
-      ${XSD_INCLUDE_DIR}
-)
-
-message (STATUS "XSD include directory is: ${XSD_INCLUDE_DIR}/xsd")
-
-IF (EXISTS ${XSD_INCLUDE_DIR})
-    SET (XSD_FOUND TRUE )
+    FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
+        PATH_SUFFIXES 
+          xsd
+        PATHS 
+          ${XSD_INCLUDE_DIR}
+    )
+    
+    message (STATUS "XSD include directory is: ${XSD_INCLUDE_DIR}/xsd")
+    
+    IF (EXISTS ${XSD_INCLUDE_DIR})
+        SET (XSD_FOUND TRUE )
+    ENDIF ()
 ENDIF ()
