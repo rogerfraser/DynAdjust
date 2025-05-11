@@ -33,6 +33,12 @@ endif()
 
 if (BUILD_STATIC)
     message(STATUS "Static building enabled (BUILD_STATIC=ON)")
+    if (WIN32)
+        message(STATUS "Static building on Windows requires vcpkg")
+        set(VCPKG_CRT_LINKAGE dynamic)
+        set(VCPKG_LIBRARY_LINKAGE static)
+        set(VCPKG_TARGET_ARCHITECTURE x64-windows)
+    endif()
 else()
     message(STATUS "Static building disabled (BUILD_STATIC=OFF)")
 endif()
@@ -262,7 +268,7 @@ if(BUILD_STATIC)
     # Set optimization flags based on compiler
     if(MSVC)
         # Use MSVC-specific optimization flags
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
         add_compile_options(/O2)
     else()
         # Use GCC/Clang optimization flags
