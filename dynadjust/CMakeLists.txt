@@ -107,6 +107,8 @@ add_compile_definitions(XSD_CXX11) # Tell XSD to use C++11 and later
 find_package(XSD REQUIRED)
 message(STATUS "Found XSD (${XSD_INCLUDE_DIR})")
 
+include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
+
 # ----------------------------------------------------------------------------
 # Boost
 # ----------------------------------------------------------------------------
