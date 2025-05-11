@@ -362,7 +362,7 @@ jobs:
         cmake -D USE_MKL=OFF ^
               -D CMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
-        cmake --build %cd% --config Release --parallel 2 -- -clp:ShowCommandLine
+        cmake --build %cd% --config Release --parallel 2 -- /verbosity:detailed
 
     - name: Collate artifacts
       shell: bash
