@@ -76,12 +76,10 @@ inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a,
 #include <cblas.h>
 typedef int lapack_int;
 #define LAPACK_COL_MAJOR 102
-//extern "C" {
-//void dotrf(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
-//             int* INFO);
-//void dpotri(const char* UPLO, const lapack_int* N, double* A, const lapack_int* LDA,
-//             int* INFO);
-//}
+extern "C" {
+    void dpotrf_(char* uplo, int* n, double* a, int* lda, int* info);
+    void dpotri_(char* uplo, int* n, double* a, int* lda, int* info);
+}
 inline int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
     if (layout != LAPACK_COL_MAJOR)
         return -1;

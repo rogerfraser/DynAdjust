@@ -200,7 +200,7 @@ elseif(WIN32)
         include_directories(${BLAS_INCLUDE_DIRS})
     endif()
 
-    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
 elseif(UNIX)
     message(STATUS "Looking for BLAS and LAPACK on Linux")
