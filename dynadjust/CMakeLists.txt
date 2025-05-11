@@ -257,10 +257,11 @@ if(BUILD_STATIC)
     message("")
 
     add_compile_options("-DXERCES_STATIC_LIBRARY")
-    
+
     # Set optimization flags based on compiler
     if(MSVC)
         # Use MSVC-specific optimization flags
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
         add_compile_options(/O2)
     else()
         # Use GCC/Clang optimization flags
