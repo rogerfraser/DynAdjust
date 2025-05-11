@@ -256,7 +256,8 @@ if(BUILD_STATIC)
     message("=====================================================================")
     message("")
 
-    add_compile_options("-DXERCES_STATIC_LIBRARY")
+    add_definitions(-DBUILD_STATIC)
+    add_definitions(-DXERCES_STATIC_LIBRARY)
 
     # Set optimization flags based on compiler
     if(MSVC)
