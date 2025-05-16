@@ -33,6 +33,12 @@ endif()
 
 if (BUILD_STATIC)
     message(STATUS "Static building enabled (BUILD_STATIC=ON)")
+    if (WIN32)
+        message(STATUS "Static building on Windows requires vcpkg")
+        set(VCPKG_CRT_LINKAGE dynamic)
+        set(VCPKG_LIBRARY_LINKAGE static)
+        set(VCPKG_TARGET_ARCHITECTURE x64-windows)
+    endif()
 else()
     message(STATUS "Static building disabled (BUILD_STATIC=OFF)")
 endif()
@@ -107,6 +113,8 @@ add_compile_definitions(XSD_CXX11) # Tell XSD to use C++11 and later
 find_package(XSD REQUIRED)
 message(STATUS "Found XSD (${XSD_INCLUDE_DIR})")
 
+include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
+
 # ----------------------------------------------------------------------------
 # Boost
 # ----------------------------------------------------------------------------
@@ -158,6 +166,8 @@ if(OpenMP_CXX_FOUND)
 endif()
 
 if(APPLE)
+    message(STATUS "Looking for BLAS and LAPACK on MacOS")
+
     if(USE_OPENBLAS)
         message(STATUS "Using OpenBLAS + LAPACKE on MacOS")
         find_package(BLAS REQUIRED)
@@ -175,6 +185,8 @@ if(APPLE)
     endif()
 
 elseif(WIN32)
+    message(STATUS "Looking for BLAS and LAPACK on Windows")
+
     if(USE_MKL)
         add_compile_options("-DMKL_LP64")
         set(BLA_VENDOR Intel10_64lp)
@@ -196,9 +208,11 @@ elseif(WIN32)
         include_directories(${BLAS_INCLUDE_DIRS})
     endif()
 
-    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
 elseif(UNIX)
+    message(STATUS "Looking for BLAS and LAPACK on Linux")
+
     #if (USE_MKL)
     #    add_compile_options("-DMKL_LP64")
     #    set(BLA_VENDOR Intel10_64lp)
@@ -248,11 +262,13 @@ if(BUILD_STATIC)
     message("=====================================================================")
     message("")
 
-    add_compile_options("-DXERCES_STATIC_LIBRARY")
-    
+    add_definitions(-DBUILD_STATIC)
+    add_definitions(-DXERCES_STATIC_LIBRARY)
+
     # Set optimization flags based on compiler
     if(MSVC)
         # Use MSVC-specific optimization flags
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
         add_compile_options(/O2)
     else()
         # Use GCC/Clang optimization flags

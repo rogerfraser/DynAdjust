@@ -14,38 +14,41 @@
 
 SET (PKG_MGR_PATH_INCLUDE /usr/include)
 
-# SET THE ROOT DIRECTORY WHERE XSD++ IS INSTALLED
-IF (APPLE)
-  # Apple
-  #SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
-  SET(XSD_INCLUDE_DIR /opt/homebrew/include/xsd/)
-
-ELSEIF (UNIX)
-  
-  #SET(XSD_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE})
-  # Various options...
-  IF (EXISTS ${PKG_MGR_PATH_INCLUDE}/xsd)
-    # Fedora, RHEL, CentOS, early Ubuntu and modern Ubuntu
-    SET (XSD_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE})
-  ELSE ()
-    # Manual installation
-    SET (XSD_INCLUDE_DIR /opt/xsd/xsd-4.0.0-x86_64-linux-gnu/libxsd)
-  ENDIF ()
-
+IF (EXISTS $ENV{XSDROOT})
+  message (STATUS "XSDROOT=$ENV{XSDROOT}")
+  SET(XSD_INCLUDE_DIR $ENV{XSDROOT})
 ELSE ()
-  # Windows
-  SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
-ENDIF ()  
+    IF (APPLE)
+      # Apple
+      #SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
+      SET(XSD_INCLUDE_DIR /opt/homebrew/include/xsd/)
+    
+    ELSEIF (UNIX)
+      #SET(XSD_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE})
+      # Various options...
+      IF (EXISTS ${PKG_MGR_PATH_INCLUDE}/xsd)
+        # Fedora, RHEL, CentOS, early Ubuntu and modern Ubuntu
+        SET (XSD_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE})
+      ELSE ()
+        # Manual installation
+        SET (XSD_INCLUDE_DIR /opt/xsd/xsd-4.0.0-x86_64-linux-gnu/libxsd)
+      ENDIF ()
+    
+    ELSE ()
+      # Windows
+      SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
+    ENDIF ()  
 
-FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
-    PATH_SUFFIXES 
-      xsd
-    PATHS 
-      ${XSD_INCLUDE_DIR}
-)
-
-message (STATUS "XSD include directory is: ${XSD_INCLUDE_DIR}/xsd")
-
-IF (EXISTS ${XSD_INCLUDE_DIR})
-    SET (XSD_FOUND TRUE )
+    FIND_PATH(XSD_INCLUDE_DIR cxx/config.hxx
+        PATH_SUFFIXES 
+          xsd
+        PATHS 
+          ${XSD_INCLUDE_DIR}
+    )
+    
+    message (STATUS "XSD include directory is: ${XSD_INCLUDE_DIR}/xsd")
+    
+    IF (EXISTS ${XSD_INCLUDE_DIR})
+        SET (XSD_FOUND TRUE )
+    ENDIF ()
 ENDIF ()

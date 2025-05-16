@@ -27,6 +27,16 @@
 #ifndef DNAMATRIX_CONTIGUOUS_H_
 #define DNAMATRIX_CONTIGUOUS_H_
 
+#include <cstring>
+#include <include/config/dnatypes.hpp>
+#include <include/exception/dnaexception.hpp>
+#include <include/functions/dnatemplatecalcfuncs.hpp>
+#include <include/memory/dnamemory_handler.hpp>
+
+#ifdef _MSDEBUG
+#include <include/ide/trace.hpp>
+#endif
+
 // prevent conflict with std::min(...) std::max(...)
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -40,76 +50,63 @@
 #endif
 #endif
 
-#if defined(__APPLE__)
-
-/* Use the new LAPACK interface on Apple by default */
+#if defined(__APPLE__) // Apple Accelerate framework (-DACCELERATE_LAPACK_ILP64=1 for ILP64)
 #ifndef ACCELERATE_NEW_LAPACK
 #define ACCELERATE_NEW_LAPACK
 #endif
 #include <Accelerate/Accelerate.h>
-
-/* Define these missing constants on Apple */
 #define LAPACK_COL_MAJOR 102
-#define LAPACK_ROW_MAJOR 101
-
-/* The ILP64 interface can be enabled by defining ACCELERATE_LAPACK_ILP64 */
-#if defined(ACCELERATE_LAPACK_ILP64)
-typedef int64_t lapack_int;
-#else
-typedef int lapack_int;
-#endif
-
-/* We need to define the LAPACKE interface for Apple  as it currently does not
- * exist */
-
-inline int LAPACKE_dpotrf(int layout, char uplo, int n, double* a, int lda) {
-    int info = 0;
-    if (layout != CblasColMajor) {
+typedef __LAPACK_int lapack_int; // Handle LP64 and ILP64
+inline lapack_int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
+    if (layout != LAPACK_COL_MAJOR)
         return -1;
-    }
+    lapack_int info = 0;
     dpotrf_(&uplo, &n, a, &lda, &info);
     return info;
 }
-
-inline int LAPACKE_dpotri(int layout, char uplo, int n, double* a, int lda) {
-    int info = 0;
-    if (layout != CblasColMajor) {
+inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
+    if (layout != LAPACK_COL_MAJOR)
         return -1;
-    }
+    lapack_int info = 0;
     dpotri_(&uplo, &n, a, &lda, &info);
     return info;
 }
-
-#elif defined(MKL_ILP64) // Intel MKL with ILP64
-
+#elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
+#include <cstdint>
+#include <cblas.h>
+typedef int lapack_int;
+#define LAPACK_COL_MAJOR 102
+extern "C" {
+    void dpotrf_(char* uplo, int* n, double* a, int* lda, int* info);
+    void dpotri_(char* uplo, int* n, double* a, int* lda, int* info);
+}
+inline int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
+    if (layout != LAPACK_COL_MAJOR)
+        return -1;
+    int info = 0;
+    dpotrf_(&uplo, &n, a, &lda, &info);
+    return static_cast<int>(info);
+}
+inline int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
+    if (layout != LAPACK_COL_MAJOR)
+        return -1;
+    int info = 0;
+    dpotri_(&uplo, &n, a, &lda, &info);
+    return static_cast<int>(info);
+}
+#elif defined(MKL_ILP64) // Linux or Windows - Intel MKL with ILP64
 #include <mkl.h>
 #include <mkl_lapacke.h>
 //typedef MKL_INT64 lapack_int;
-
-#elif defined(MKL_LP64) // Intel MKL with LP64
-
+#elif defined(MKL_LP64) // Linux or Windows - Intel MKL with LP64
 #include <mkl.h>
 #include <mkl_lapacke.h>
 //typedef MKL_INT lapack_int;
-
-#else // Fallback to standard LAPACKE
-
+#else // LAPACKE Fallback
 #include <cblas.h>
 #include <lapacke.h>
 typedef int lapack_int;
-
 #endif
-
-#include <cstring>
-#include <include/config/dnatypes.hpp>
-#include <include/functions/dnatemplatecalcfuncs.hpp>
-#include <include/memory/dnamemory_handler.hpp>
-#include <include/exception/dnaexception.hpp>
-
-#ifdef _MSDEBUG
-#include <include/ide/trace.hpp>
-#endif
-
 
 using namespace dynadjust::memory;
 using namespace dynadjust::exception;
