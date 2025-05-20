@@ -46,7 +46,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 	columnNo = 0;
 
 	containsVelocities_ = false;
-	applyDiscontinuities_ = applyDiscontinuities;
+	applyDiscontinuities_ = (applyDiscontinuities && !stn_discontinuities->empty());
 	containsDiscontinuities_ = false;
 
 	// read header line and extract epoch
@@ -1097,7 +1097,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 	{
 		lineNo++;
 		(*snx_file)->getline(cBuf, MAX_RECORD_LENGTH);
-
+		
 		// Comments
 		if (cBuf[0] == '*')
 			continue;
@@ -1254,16 +1254,19 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 					if (containsVelocities_)
 						stn_discont /= 2;
 
-					// Is this the last occurrence?  If not, skip it
-					if (!siteOccurrence_.at(stn_discont).last_occurrence)
+					if (stn_discont < siteOccurrence_.size())
 					{
-						// skip to z component
-						col_v += 2;
-						// If this site also includes velocities, then skip to 
-						// the z component of the velocity
-						if (containsVelocities_)
-							col_v += 3;
-						continue;
+						// Is this the last occurrence?  If not, skip it
+						if (!siteOccurrence_.at(stn_discont).last_occurrence)
+						{
+							// skip to z component
+							col_v += 2;
+							// If this site also includes velocities, then skip to 
+							// the z component of the velocity
+							if (containsVelocities_)
+								col_v += 3;
+							continue;
+						}
 					}
 				}
 
