@@ -119,7 +119,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;MULTI_THREAD_ADJUST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>precompile.h</ForcedIncludeFiles>
@@ -139,7 +139,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;MULTI_THREAD_ADJUST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>precompile.h</ForcedIncludeFiles>
@@ -160,15 +160,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;MULTI_THREAD_ADJUST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>precompile.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zm280 /permissive-</AdditionalOptions>
+      <AdditionalOptions>/permissive-</AdditionalOptions>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <EnableMatrixMultiplyLibraryCall>Yes</EnableMatrixMultiplyLibraryCall>
-      <Cpp0xSupport>true</Cpp0xSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -188,11 +185,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;MULTI_THREAD_ADJUST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;BUILD_DNAADJUST_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>precompile.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zm280 /permissive-</AdditionalOptions>
+      <AdditionalOptions>/permissive-</AdditionalOptions>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
       <OpenMP>GenerateParallelCode</OpenMP>
       <Cpp0xSupport>true</Cpp0xSupport>
@@ -208,10 +205,6 @@
       </ProgramDatabaseFile>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />

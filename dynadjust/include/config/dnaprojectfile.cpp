@@ -573,7 +573,6 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 				settings_.o._cor_file += "-stage";
 
 		}
-#ifdef MULTI_THREAD_ADJUST
 		else if (settings_.a.multi_thread)
 		{
 			settings_.o._adj_file += "-mt";
@@ -585,7 +584,6 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 			if (settings_.o._init_stn_corrections)
 				settings_.o._cor_file += "-mt";
 		}
-#endif
 		break;
 	case SimultaneousMode:
 		settings_.o._adj_file += ".simult";

@@ -542,13 +542,11 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		p.a.adjust_mode = SimultaneousMode;		// default
 	else if (vm.count(MODE_PHASED_BLOCK1))
 		p.a.adjust_mode = Phased_Block_1Mode;
-#ifdef MULTI_THREAD_ADJUST
 	else if (vm.count(MODE_PHASED_MT))
 	{
 		p.a.multi_thread = 1;
 		p.a.adjust_mode = PhasedMode;
 	}
-#endif
 	else if (vm.count(MODE_PHASED))
 		p.a.adjust_mode = PhasedMode;
 	else if (vm.count(MODE_SIMULATION))
@@ -656,7 +654,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 				p.o._cor_file += "-stage";
 
 		}
-#ifdef MULTI_THREAD_ADJUST
 		else if (p.a.multi_thread)
 		{
 			p.o._adj_file += "-mt";
@@ -668,7 +665,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 			if (vm.count(OUTPUT_STN_COR_FILE))
 				p.o._cor_file += "-mt";
 		}
-#endif
 		break;
 	case SimultaneousMode:
 		p.o._adj_file += ".simult";
@@ -792,10 +788,8 @@ int main(int argc, char* argv[])
 		phased_adj_options.add_options()
 			(STAGED_ADJUSTMENT,
 				"Store adjustment matrices in memory mapped files instead of retaining data in memory.  This option decreases efficiency but may be required if there is insufficient RAM to hold an adjustment in memory.")
-#ifdef MULTI_THREAD_ADJUST
 			(MODE_PHASED_MT,
 				"Process forward, reverse and combination adjustments concurrently using all available CPU cores.")
-#endif
 			(MODE_PHASED_BLOCK1,
 				"Sequential phased adjustment mode resulting in rigorous estimates for block 1 only.")
 			;
@@ -1242,13 +1236,11 @@ int main(int argc, char* argv[])
 				}
 			}
 			
-#ifdef MULTI_THREAD_ADJUST
 			if (p.a.multi_thread)
 			{
 				std::cout << std::endl << "+ Optimised for concurrent processing via multi-threading." << std::endl << std::endl;
 				std::cout << "+ The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads.";
 			}
-#endif
 			std::cout << std::endl;
 			break;
 		case Phased_Block_1Mode:
