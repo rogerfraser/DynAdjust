@@ -119,10 +119,10 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Boost
 # ----------------------------------------------------------------------------
 
-if (BUILD_STATIC)
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_STATIC_RUNTIME ON)
-endif()
+#if (BUILD_STATIC and WIN32)
+#    set(Boost_USE_STATIC_LIBS ON)
+#    set(Boost_USE_STATIC_RUNTIME ON)
+#endif()
 
 find_package(Boost 1.58.0 CONFIG REQUIRED
     COMPONENTS system filesystem timer thread program_options)
