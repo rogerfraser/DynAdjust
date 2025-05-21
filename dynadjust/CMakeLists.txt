@@ -234,8 +234,6 @@ elseif(UNIX)
 
     find_package(LAPACK REQUIRED)
 
-    find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
-
     if ("${LAPACK_LIBRARIES}" MATCHES "libmkl")
         message(STATUS "Using Intel MKL for fast linear algebra")
         set(USE_MKL ON)
