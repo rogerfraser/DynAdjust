@@ -92,6 +92,7 @@ jobs:
 
       - name: Build with CMake
         run: |
+          source /opt/intel/oneapi/setvars.sh
           cmake dynadjust 
           make -j2
 
