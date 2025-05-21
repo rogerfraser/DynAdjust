@@ -62,7 +62,6 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v143</PlatformToolset>
-    <UseIntelIPP>false</UseIntelIPP>
     <UseInteloneMKL>Parallel</UseInteloneMKL>
     <UseILP64Interfaces1A>true</UseILP64Interfaces1A>
   </PropertyGroup>
