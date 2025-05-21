@@ -236,6 +236,7 @@ elseif(UNIX)
 
     if ("${LAPACK_LIBRARIES}" MATCHES "libmkl")
         message(STATUS "Using Intel MKL for fast linear algebra")
+        add_compile_options("-DMKL_LP64")
         set(USE_MKL ON)
     	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     else()
