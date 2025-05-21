@@ -3,7 +3,7 @@ project (dnaadjustwrapper)
 
 add_subdirectory (${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust ${CMAKE_BINARY_DIR}/dynadjust/dnaadjust)
 
-add_definitions (-DBUILD_ADJUST_EXE -DMULTI_THREAD_ADJUST)
+add_definitions (-DBUILD_ADJUST_EXE)
 
 include_directories (${PROJECT_SOURCE_DIR})
 

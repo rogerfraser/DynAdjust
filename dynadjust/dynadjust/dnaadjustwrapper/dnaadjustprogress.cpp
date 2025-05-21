@@ -324,12 +324,10 @@ void dna_adjust_progress_thread::processAdjustment()
 				ss.str("");
 				ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentIteration();
 
-	#ifdef MULTI_THREAD_ADJUST
 				if (_p->a.multi_thread && !_dnaAdj->processingCombine())
 					ss << std::left << std::setw(13) << ", adjusting...";
 				else
-	#endif
-				ss << ", block " << std::left << std::setw(6) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
+					ss << ", block " << std::left << std::setw(6) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
 						
 				sst.str("");
 				if (first_time)

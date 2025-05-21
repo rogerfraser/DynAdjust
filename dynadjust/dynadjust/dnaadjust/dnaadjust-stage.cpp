@@ -31,10 +31,8 @@ void dna_adjust::PrepareMappedRegions(const UINT32& block)
 {
 	if (projectSettings_.a.adjust_mode == SimultaneousMode)
 		return;
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 		return;
-#endif
 
 	// Set memory map region offsets for all 
 	// matrices associated with this block

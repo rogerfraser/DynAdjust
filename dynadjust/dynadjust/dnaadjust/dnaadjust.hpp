@@ -288,9 +288,7 @@ class dna_adjust {
 
     inline void SetmaxCorr(const double c) {
 
-#ifdef MULTI_THREAD_ADJUST
         boost::lock_guard<boost::mutex> lock(maxCorrMutex);
-#endif
         maxCorr_ = c;
     };
 
@@ -342,8 +340,6 @@ class dna_adjust {
     };
     /////////////////////////////
 
-#ifdef MULTI_THREAD_ADJUST
-
     concurrent_ofstream<std::string> concurrent_adj_ofstream;
 
     inline void ThreadSafeWritetoAdjFile(const std::string& s) {
@@ -365,7 +361,6 @@ class dna_adjust {
     inline void ThreadSafeWritetoDbgFile(const std::string& s) {
         concurrent_adj_ofstream.wrtie(debug_file, s);
     }
-#endif
 
     _ADJUST_STATUS_ AdjustNetwork();
 
@@ -839,12 +834,10 @@ class dna_adjust {
     void FormConstraintStationVarianceMatrix(const it_vUINT32& _it_param_stn,
                                              matrix_2d& var_cart);
 
-#ifdef MULTI_THREAD_ADJUST
     void UpdateNormalsR(const UINT32& block);
     void UpdateNormalsC(const UINT32& block);
     void CarryStnEstimatesandVariancesReverseR(const UINT32& nextBlock,
                                                const UINT32& thisBlock);
-#endif
 
     static void fillSinexExample();
 
@@ -1260,7 +1253,6 @@ class dna_adjust {
     // queue to handle notification of messages for each iteration
     concurrent_queue<UINT32> iterationQueue_;
 
-#ifdef MULTI_THREAD_ADJUST
     // ----------------------------------------------
     // Adjustment matrices for multi-threaded phased adjustment
     // These matrices are used for reverse and combine threads
@@ -1276,8 +1268,6 @@ class dna_adjust {
 
     vUINT32
         v_blockStationsR; // Stations in the current block (used for printing);
-
-#endif // MULTI_THREAD_ADJUST
 
     // Database management
     v_msr_database_id_map v_msr_db_map_;
