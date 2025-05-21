@@ -119,6 +119,11 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Boost
 # ----------------------------------------------------------------------------
 
+#if (BUILD_STATIC and WIN32)
+#    set(Boost_USE_STATIC_LIBS ON)
+#    set(Boost_USE_STATIC_RUNTIME ON)
+#endif()
+
 find_package(Boost 1.58.0 CONFIG REQUIRED
     COMPONENTS system filesystem timer thread program_options)
 message(STATUS "Found Boost version: ${Boost_VERSION}")
@@ -229,13 +234,14 @@ elseif(UNIX)
 
     find_package(LAPACK REQUIRED)
 
-    find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
-
     if ("${LAPACK_LIBRARIES}" MATCHES "libmkl")
         message(STATUS "Using Intel MKL for fast linear algebra")
+        add_compile_options("-DMKL_LP64")
         set(USE_MKL ON)
+    	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     else()
         message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
+        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
         #list(APPEND DNA_LIBRARIES "cblas" "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
