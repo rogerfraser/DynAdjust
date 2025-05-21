@@ -59,12 +59,12 @@ jobs:
 
     steps:
 
-       - name: Generate cache triggers
-         shell: bash
-         run: |
-           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
-       - name: Install dependencies
+      - name: Install dependencies
         shell: bash
         run: |
           sudo apt-get install -y ${{ env.PKGS }}
@@ -82,10 +82,10 @@ jobs:
           curl -L $LINUX_BASEKIT_URL -o install.sh
           sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
 
-       - name: Check branch name
+      - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
-          
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
