@@ -23,28 +23,21 @@
 
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <iostream>
-#if BOOST_VERSION >= 108800
-// 1.88 or newer – pull in the v1 interface manually
-#include <boost/process/v1/child.hpp>
-#include <boost/process/v1/io.hpp>
-#include <boost/process/v1/pipe.hpp>
-#include <boost/process/v1/start_dir.hpp>
-#include <boost/process/v1/system.hpp>
-namespace bp = boost::process::v1;
-#else
-// pre-1.88
+
+#if defined(__linux) || defined(sun) || defined(__unix__) ||                 \
+    defined(__APPLE__)
 #include <boost/process.hpp>
-namespace bp = boost::process;
 #endif
 
 bool run_command(const std::string& executable_path, const UINT16& quiet) {
     // use boost's platform independent code to invoke a process
-    // see https://www.boost.org/doc/libs/develop/doc/html/process.html
-    //
+    // see https://www.boost.org/doc/libs/latest/doc/html/process.html
+    //     
     // An exit code of zero means the process was successful,
     // while one different than zero indicates an error.
 
     // For windows batch files, add cmd to execute the batch file.
+
 #if defined(_WIN32) || defined(__WIN32__)
 
     STARTUPINFO startup;
@@ -70,6 +63,8 @@ bool run_command(const std::string& executable_path, const UINT16& quiet) {
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) ||                 \
     defined(__APPLE__)
+
+    namespace bp = boost::process;
 
     int return_value(0);
 

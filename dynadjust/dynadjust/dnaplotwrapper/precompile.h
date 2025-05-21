@@ -8,11 +8,6 @@
 // See https://github.com/boostorg/process/issues/161
 #define _WIN32_WINNT 0x0501
 
-#if defined(_WIN32) || defined(__WIN32__)
-#define BOOST_USE_WINDOWS_H
-#endif
-
-
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
