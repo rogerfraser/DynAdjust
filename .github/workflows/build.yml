@@ -8,11 +8,15 @@ name: Build binaries (Linux, Mac, Windows)
 on:
   workflow_dispatch
 
-jobs:
+env:
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2cbb02eb-dd4c-4058-a4ac-2e38729a8409/intel-oneapi-base-toolkit-2025.1.2.7_offline.exe
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ac050ae7-da93-4108-823d-4334de3f4ee8/intel-oneapi-base-toolkit-2025.1.2.9_offline.sh
 
+
+jobs:
 #------------------------------------------------
 
-  build_linux_dyn:
+  build_linux_dyn_openblas:
     name: Linux build (openblas)
     runs-on: ubuntu-latest
     env:
@@ -41,10 +45,60 @@ jobs:
           cmake dynadjust 
           make -j2
           ls
+          
+#------------------------------------------------
+
+  build_linux_dyn_mkl:
+    name: Linux build (mkl)
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
+        libboost-thread-dev libboost-program-options-dev
+
+    steps:
+
+       - name: Generate cache triggers
+         shell: bash
+         run: |
+           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+       - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get install -y ${{ env.PKGS }}
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v4
+        with:
+          path: /opt/intel
+          key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        run: |
+          curl -L $LINUX_BASEKIT_URL -o install.sh
+          sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
+
+       - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+          
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      - name: Build with CMake
+        run: |
+          cmake dynadjust 
+          make -j2
+
 
 #------------------------------------------------
 
-  build_linux_static:
+  build_linux_static_openblas:
     name: Linux build (openblas / static)
     runs-on: ubuntu-latest
     env:
@@ -158,7 +212,6 @@ jobs:
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
-      WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/487fd8c3-a3d8-4c22-a903-f8d54c2c57be/intel-oneapi-base-toolkit-2025.1.0.650_offline.exe
     
     steps:
 
