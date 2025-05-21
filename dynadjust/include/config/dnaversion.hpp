@@ -209,7 +209,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __BINARY_DESC__ "Automated network segmentation library"
 #endif
 
-// define BUILD_DNASEGMENT_DLL when building libdnasegment.dll
+// define BUILD_DNAADJUST_DLL when building libdnasegment.dll
 #ifdef BUILD_DNAADJUST_DLL
 #define __BINARY_NAME__ __adjust_dll_name__
 #define __BINARY_DESC__ "Geodetic network adjustment library"
