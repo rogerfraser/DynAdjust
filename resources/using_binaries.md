@@ -11,6 +11,14 @@ This document explains how to run the pre‑compiled **zip** archives we publish
 | `dynadjust-linux-openblas.zip`   | Ubuntu 22.04 +           | OpenBLAS            | dynamic   |
 | `dynadjust-linux-static.zip`     | Any modern x86‑64 Linux  | OpenBLAS            | static    |
 
+Note that we build DynAdjust in two flavours: dynamic and static.
+
+The *dynamic* build is the one most people will install on desktops. It keeps the executable small and relies on shared system libraries that are already present, distributed by the operating system, or shared across multiple software packages. That means security patches and performance upgrades (e.g., new Intel MKL version) arrive automatically through normal system updates.
+
+The *static* build moves in the opposite direction: we compile every required library directly into one self-contained binary. Nothing else has to be installed for the program to run, which is invaluable when we need to run DynAdjust in the cloud or in production as it provides an exact version for regulatory reproducibility. Because it is insulated from future changes in operating-system libraries, it gives us a deterministic, “known-good” binary that will behave identically next year even if the underlying machines, operating systems, or libraries are patched or replaced.
+
+Maintaining both variants therefore gives us flexibility: the dynamic build inherits dependency updates automatically, while the static build guarantees portability and long-term reproducibility in controlled settings.
+
 Each archive contains the six command‑line tools:
 ```
 dnaadjust   dnageoid   dnaimport   dnaplot   dnareftran   dnasegment
