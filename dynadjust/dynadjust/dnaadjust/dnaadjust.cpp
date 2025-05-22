@@ -1185,9 +1185,6 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 		}
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 5)
 	{
 		debug_file << "Variance matrix of junction station(s) ";
@@ -1195,9 +1192,6 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			debug_file << bstBinaryRecords_.at(*_it_jsl).stationName << " ";
 		debug_file << "carried forward: " << std::scientific << std::setprecision(16) << v_junctionVariances_.at(thisBlock);
 	}	
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	// 2. Perform inverse
 	FormInverseVarianceMatrix(&(v_junctionVariances_.at(thisBlock)));
@@ -1345,9 +1339,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 		}
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 5)
 	{
 		debug_file << "Variance matrix of junction station(s) ";
@@ -1355,9 +1346,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			debug_file << bstBinaryRecords_.at(*_it_jsl).stationName << " ";
 		debug_file << "carried reverse: " << std::scientific << std::setprecision(16) << v_junctionVariances_.at(thisBlock);
 	}	
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	// 2. Perform inverse
 	FormInverseVarianceMatrix(junctionVariances);
@@ -2094,14 +2082,8 @@ void dna_adjust::AddConstraintStationstoNormalsForward(const UINT32& block)
 		// compute _var_cart for this station
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 		if (projectSettings_.g.verbose > 6)
 			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2217,14 +2199,8 @@ void dna_adjust::AddConstraintStationstoNormalsSimultaneous(const UINT32& block)
 		// compute _var_cart for this station
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 		if (projectSettings_.g.verbose > 6)
 			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -3868,9 +3844,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		adj_file_mutex.unlock();
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	UINT32 i;
 	it_vUINT32 _it_stn;
 
@@ -3897,10 +3870,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		}
 		debug_file << ")" << std::endl << std::endl;
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
-
 
 	// Form Estimated Stations matrices. For phased adjustments, matrices 
 	// for junction estimates and variances carried forward and reverse 
@@ -3987,9 +3956,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		adj_file_mutex.unlock();
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 3)
 	{
 		debug_file << std::endl;
@@ -3997,10 +3963,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		debug_file << "AtVinv " << std::scientific << std::setprecision(16) << v_AtVinv_.at(block) << std::endl;
 		debug_file << "Normals " << std::scientific << std::setprecision(16) << v_normals_.at(block) << std::endl;
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
-
 }
 	
 
@@ -4387,9 +4349,6 @@ bool dna_adjust::PrepareAdjustmentCombine(const UINT32 currentBlock, UINT32& pse
 
 void dna_adjust::debug_SolutionInformation(const UINT32& currentBlock)
 {
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 0)
 	{
 		debug_file << "Block " << currentBlock + 1;
@@ -4423,17 +4382,11 @@ void dna_adjust::debug_SolutionInformation(const UINT32& currentBlock)
 		debug_file << "Normals " << std::fixed << std::setprecision(16) << v_normals_.at(currentBlock) << std::endl;
 		debug_file.flush();
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 }
 	
 
 void dna_adjust::debug_BlockInformation(const UINT32& currentBlock, const std::string& adjustment_method)
 {
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 3)
 	{
 		it_vUINT32 _it_stn;
@@ -4452,9 +4405,6 @@ void dna_adjust::debug_BlockInformation(const UINT32& currentBlock, const std::s
 		debug_file << "Block " << currentBlock + 1 << " " << adjustment_method << std::endl;
 		debug_file << "Adjustment Estimates " << std::fixed << std::setprecision(16) << v_estimatedStations_.at(currentBlock);
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 }
 	
 
@@ -7711,9 +7661,6 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 	v_corrections_.at(block).redim(v_design_.at(block).columns(), 1);
 	v_corrections_.at(block).multiply(v_normals_.at(block), "N", At_Vinv_m, "N");
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif	
 	if (projectSettings_.g.verbose > 0)
 	{
 
@@ -7762,10 +7709,6 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 			dbg_file_mutex.unlock();
 
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif	
-
 }
 	
 
@@ -9351,9 +9294,6 @@ void dna_adjust::OpenOutputFileStreams()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 0)
 	{
 		std::string debug_output_file = 
@@ -9388,9 +9328,6 @@ void dna_adjust::OpenOutputFileStreams()
 			SignalExceptionAdjustment(e.what(), 0);
 		}
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	if (projectSettings_.a.stage)
 	{

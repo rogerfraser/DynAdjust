@@ -281,9 +281,6 @@ void dna_adjust::SolveMTTry(bool COMPUTE_INVERSE, const UINT32& block)
 
 		// could not invert matrix.  throw error
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 		if (projectSettings_.g.verbose)
 		{
 			debug_file << "Block " << block + 1 << " (reverse, multi-thread)" << std::endl;
@@ -294,9 +291,6 @@ void dna_adjust::SolveMTTry(bool COMPUTE_INVERSE, const UINT32& block)
 			debug_file << "Normals " << std::fixed << std::setprecision(16) << v_normalsR_.at(block) << std::endl;
 			debug_file.flush();
 		}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 		SignalExceptionAdjustment(e.what(), block);
 	}
@@ -319,9 +313,6 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 	v_correctionsR_.at(block).redim(v_designR_.at(block).columns(), 1);
 	v_correctionsR_.at(block).multiply(v_normalsR_.at(block), "N", At_Vinv_m, "N");
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif	
 	// debug output?
 	if (projectSettings_.g.verbose > 3)
 	{
@@ -370,10 +361,6 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 		debug_file.flush();
 
 		dbg_file_mutex.unlock();
-
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif	
 
 	}
 }
