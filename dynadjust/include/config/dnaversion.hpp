@@ -43,6 +43,11 @@
 
 #endif	// _MSC_VER
 
+/* definition to expand macro then apply to pragma message */
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "=" VALUE(var)
+
 // Force WINVER and _WIN32_WINNT to be a minimum of 0x0500, which 
 // enables DynAdjust to run on Windows 2000. 
 // Other "minimum" OS values include:
@@ -296,111 +301,115 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 
 
 #if defined(__clang__)                                   // Clang compiler
-#define __COMPILER__ "Clang"
-#define __COMPILER_VERSION__ __VERSION__
+  #define __COMPILER__ "Clang"
+  #define __COMPILER_VERSION__ __VERSION__
 #elif defined(__GNUC__) || defined(__GNUG__)				// GNU GCC
-#define __COMPILER__ "GNU GCC"
-#define __COMPILER_VERSION__ __VERSION__
+  #define __COMPILER__ "GNU GCC"
+  #define __COMPILER_VERSION__ __VERSION__
 #elif defined(__SUNPRO_CC)								// Oracle Solaris
-#define __COMPILER__ "Solaris"
-#define __COMPILER_VERSION__ __SUNPRO_CC
+  #define __COMPILER__ "Solaris"
+  #define __COMPILER_VERSION__ __SUNPRO_CC
 #elif defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
-#define __COMPILER__ "Intel ICC"
-#define __COMPILER_VERSION__ boost::lexical_cast<std::string>(__INTEL_COMPILER)
+  #define __COMPILER__ "Intel ICC"
+  #define __COMPILER_VERSION__ boost::lexical_cast<std::string>(__INTEL_COMPILER)
 #elif defined(__HP_aCC)								// Oracle Solaris
-#define __COMPILER__ "HP C++"
-#define __COMPILER_VERSION__ __HP_aCC
+  #define __COMPILER__ "HP C++"
+  #define __COMPILER_VERSION__ __HP_aCC
 #elif defined(_MSC_VER)
-// https://learn.microsoft.com/en-us/cpp/overview/compiler-versions?view=msvc-170#version-macros
-#define __COMPILER__ "MSVC++"
-#if (_MSC_VER == 1100)	
-#define __COMPILER_VERSION__ "5.0"
-#elif (_MSC_VER == 1200)
-#define __COMPILER_VERSION__ "6.0"
-#elif (_MSC_VER == 1300)
-#define __COMPILER_VERSION__ "7.0"
-#elif (_MSC_VER == 1310)
-#define __COMPILER_VERSION__ "7.1, VS2003"
-#elif (_MSC_VER == 1400)
-#define __COMPILER_VERSION__ "8.0, VS2005"
-#elif (_MSC_VER == 1500)
-#define __COMPILER_VERSION__ "9.0, VS2008"
-#elif (_MSC_VER == 1600)
-#define __COMPILER_VERSION__ "10.0, VS2010"
-#elif (_MSC_VER == 1700)
-#define __COMPILER_VERSION__ "11.0, VS2012"
-#elif (_MSC_VER == 1800)
-#define __COMPILER_VERSION__ "12.0, VS2013"
-#elif (_MSC_VER == 1900)
-#define __COMPILER_VERSION__ "14.0, VS2015"
-#elif (_MSC_VER == 1910)
-#define __COMPILER_VERSION__ "14.1, VS2017"
-#elif (_MSC_VER == 1911)
-#define __COMPILER_VERSION__ "15.3, VS2017"
-#elif (_MSC_VER == 1912)
-#define __COMPILER_VERSION__ "15.5, VS2017"
-#elif (_MSC_VER == 1913)
-#define __COMPILER_VERSION__ "15.6, VS2017"
-#elif (_MSC_VER == 1914)
-#define __COMPILER_VERSION__ "15.7, VS2017"
-#elif (_MSC_VER == 1915)
-#define __COMPILER_VERSION__ "15.8, VS2017"
-#elif (_MSC_VER == 1916)
-#define __COMPILER_VERSION__ "15.9, VS2017"
-#elif (_MSC_VER == 1920)
-#define __COMPILER_VERSION__ "16.0, VS2019"
-#elif (_MSC_VER == 1921)
-#define __COMPILER_VERSION__ "16.1, VS2019"
-#elif (_MSC_VER == 1922)
-#define __COMPILER_VERSION__ "16.2, VS2019"
-#elif (_MSC_VER == 1923)
-#define __COMPILER_VERSION__ "16.3, VS2019"
-#elif (_MSC_VER == 1924)
-#define __COMPILER_VERSION__ "16.4, VS2019"
-#elif (_MSC_VER == 1925)
-#define __COMPILER_VERSION__ "16.5, VS2019"
-#elif (_MSC_VER == 1926)
-#define __COMPILER_VERSION__ "16.6, VS2019"
-#elif (_MSC_VER == 1927)
-#define __COMPILER_VERSION__ "16.7, VS2019"
-#elif (_MSC_VER == 1928)
-#define __COMPILER_VERSION__ "16.8/9, VS2019"
-#elif (_MSC_VER == 1929)
-#define __COMPILER_VERSION__ "16.10/11, VS2019"
-#elif (_MSC_VER == 1930)
-#define __COMPILER_VERSION__ "17.0, VS2022"
-#elif (_MSC_VER == 1931)
-#define __COMPILER_VERSION__ "17.1, VS2022"
-#elif (_MSC_VER == 1932)
-#define __COMPILER_VERSION__ "17.2, VS2022"
-#elif (_MSC_VER == 1933)
-#define __COMPILER_VERSION__ "17.3, VS2022"
-#elif (_MSC_VER == 1934)
-#define __COMPILER_VERSION__ "17.4, VS2022"
-#elif (_MSC_VER == 1935)
-#define __COMPILER_VERSION__ "17.5, VS2022"
-#elif (_MSC_VER == 1936)
-#define __COMPILER_VERSION__ "17.6, VS2022"
-#elif (_MSC_VER == 1937)
-#define __COMPILER_VERSION__ "17.7, VS2022"
-#elif (_MSC_VER == 1938)
-#define __COMPILER_VERSION__ "17.8, VS2022"
-#elif (_MSC_VER == 1939)
-#define __COMPILER_VERSION__ "17.9, VS2022"
-#elif (_MSC_VER == 1940)
-#define __COMPILER_VERSION__ "17.10, VS2022"
-#elif (_MSC_VER == 1941)
-#define __COMPILER_VERSION__ "17.11, VS2022"
-#elif (_MSC_VER == 1942)
-#define __COMPILER_VERSION__ "17.12, VS2022"
-#elif (_MSC_VER == 1943)
-#define __COMPILER_VERSION__ "17.13, VS2022"
-
-#elif (_MSC_VER > 1943)
-#define __COMPILER_VERSION__ _MSC_VER
-#endif
+  // https://learn.microsoft.com/en-us/cpp/overview/compiler-versions?view=msvc-170#version-macros
+  #define __COMPILER__ "MSVC++"
+  #if (_MSC_VER == 1100)	
+  #define __COMPILER_VERSION__ "5.0"
+  #elif (_MSC_VER == 1200)
+  #define __COMPILER_VERSION__ "6.0"
+  #elif (_MSC_VER == 1300)
+  #define __COMPILER_VERSION__ "7.0"
+  #elif (_MSC_VER == 1310)
+  #define __COMPILER_VERSION__ "7.1, VS2003"
+  #elif (_MSC_VER == 1400)
+  #define __COMPILER_VERSION__ "8.0, VS2005"
+  #elif (_MSC_VER == 1500)
+  #define __COMPILER_VERSION__ "9.0, VS2008"
+  #elif (_MSC_VER == 1600)
+  #define __COMPILER_VERSION__ "10.0, VS2010"
+  #elif (_MSC_VER == 1700)
+  #define __COMPILER_VERSION__ "11.0, VS2012"
+  #elif (_MSC_VER == 1800)
+  #define __COMPILER_VERSION__ "12.0, VS2013"
+  #elif (_MSC_VER == 1900)
+  #define __COMPILER_VERSION__ "14.0, VS2015"
+  #elif (_MSC_VER == 1910)
+  #define __COMPILER_VERSION__ "14.1, VS2017"
+  #elif (_MSC_VER == 1911)
+  #define __COMPILER_VERSION__ "15.3, VS2017"
+  #elif (_MSC_VER == 1912)
+  #define __COMPILER_VERSION__ "15.5, VS2017"
+  #elif (_MSC_VER == 1913)
+  #define __COMPILER_VERSION__ "15.6, VS2017"
+  #elif (_MSC_VER == 1914)
+  #define __COMPILER_VERSION__ "15.7, VS2017"
+  #elif (_MSC_VER == 1915)
+  #define __COMPILER_VERSION__ "15.8, VS2017"
+  #elif (_MSC_VER == 1916)
+  #define __COMPILER_VERSION__ "15.9, VS2017"
+  #elif (_MSC_VER == 1920)
+  #define __COMPILER_VERSION__ "16.0, VS2019"
+  #elif (_MSC_VER == 1921)
+  #define __COMPILER_VERSION__ "16.1, VS2019"
+  #elif (_MSC_VER == 1922)
+  #define __COMPILER_VERSION__ "16.2, VS2019"
+  #elif (_MSC_VER == 1923)
+  #define __COMPILER_VERSION__ "16.3, VS2019"
+  #elif (_MSC_VER == 1924)
+  #define __COMPILER_VERSION__ "16.4, VS2019"
+  #elif (_MSC_VER == 1925)
+  #define __COMPILER_VERSION__ "16.5, VS2019"
+  #elif (_MSC_VER == 1926)
+  #define __COMPILER_VERSION__ "16.6, VS2019"
+  #elif (_MSC_VER == 1927)
+  #define __COMPILER_VERSION__ "16.7, VS2019"
+  #elif (_MSC_VER == 1928)
+  #define __COMPILER_VERSION__ "16.8/9, VS2019"
+  #elif (_MSC_VER == 1929)
+  #define __COMPILER_VERSION__ "16.10/11, VS2019"
+  #elif (_MSC_VER == 1930)
+  #define __COMPILER_VERSION__ "17.0, VS2022"
+  #elif (_MSC_VER == 1931)
+  #define __COMPILER_VERSION__ "17.1, VS2022"
+  #elif (_MSC_VER == 1932)
+  #define __COMPILER_VERSION__ "17.2, VS2022"
+  #elif (_MSC_VER == 1933)
+  #define __COMPILER_VERSION__ "17.3, VS2022"
+  #elif (_MSC_VER == 1934)
+  #define __COMPILER_VERSION__ "17.4, VS2022"
+  #elif (_MSC_VER == 1935)
+  #define __COMPILER_VERSION__ "17.5, VS2022"
+  #elif (_MSC_VER == 1936)
+  #define __COMPILER_VERSION__ "17.6, VS2022"
+  #elif (_MSC_VER == 1937)
+  #define __COMPILER_VERSION__ "17.7, VS2022"
+  #elif (_MSC_VER == 1938)
+  #define __COMPILER_VERSION__ "17.8, VS2022"
+  #elif (_MSC_VER == 1939)
+  #define __COMPILER_VERSION__ "17.9, VS2022"
+  #elif (_MSC_VER == 1940)
+  #define __COMPILER_VERSION__ "17.10, VS2022"
+  #elif (_MSC_VER == 1941)
+  #define __COMPILER_VERSION__ "17.11, VS2022"
+  #elif (_MSC_VER == 1942)
+  #define __COMPILER_VERSION__ "17.12, VS2022"
+  #elif (_MSC_VER == 1943)
+  #define __COMPILER_VERSION__ "17.13, VS2022"
+  #elif (_MSC_VER == 1944)
+  #define __COMPILER_VERSION__ "17.14, VS2022"
+  
+  #elif (_MSC_VER > 1944)
+    #define __COMPILER_VERSION__ _MSC_VER
+    #pragma message("Warning: A later than recognised VC++ compiler version is being used: " VAR_NAME_VALUE(_MSC_VER))
+    #pragma message("         Time to update " VALUE(__FILE__))
+  #endif
 #else
-#define __COMPILER__ "Unknown"
+  #define __COMPILER__ "Unknown"
 #endif
 
 #endif  // DNAVERSION_HPP
