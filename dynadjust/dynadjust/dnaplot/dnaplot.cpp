@@ -2131,7 +2131,7 @@ void dna_plot::InvokeGMT()
 	gmt_plot_threads.join_all();
 }
 
-// Aggregare individual PDFs created for each block (for
+// Aggregate individual PDFs created for each block (for
 // phased adjustments only).
 void dna_plot::AggregateGMTPDFs()
 {
