@@ -24,8 +24,7 @@
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <iostream>
 
-#if defined(__linux) || defined(sun) || defined(__unix__) ||                 \
-    defined(__APPLE__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 #include <boost/process.hpp>
 #endif
 
@@ -61,8 +60,7 @@ bool run_command(const std::string& executable_path, const UINT16& quiet) {
     }
     return EXIT_SUCCESS;
 
-#elif defined(__linux) || defined(sun) || defined(__unix__) ||                 \
-    defined(__APPLE__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 
     namespace bp = boost::process;
 
