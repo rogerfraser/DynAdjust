@@ -1059,7 +1059,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				}
 				// At this point, one of the following is true:
 				//  - a dynamic reference frame has been supplied
-				//  - a frame has not been supplied, in which case the file frame will be taken
+				//  - a frame has not been supplied, in which case the file frame will be takenelse if (!p.i.user_supplied_epoch)
 				else if (!p.i.user_supplied_epoch)
 				{
 					if (inputFileEpoch.empty())

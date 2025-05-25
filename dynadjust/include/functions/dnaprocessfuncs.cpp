@@ -20,74 +20,96 @@
 //
 // Description  : Common process and fork functions
 //============================================================================
-
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <iostream>
-#if BOOST_VERSION >= 108800
-// 1.88 or newer – pull in the v1 interface manually
-#include <boost/process/v1/child.hpp>
-#include <boost/process/v1/io.hpp>
-#include <boost/process/v1/pipe.hpp>
-#include <boost/process/v1/start_dir.hpp>
-#include <boost/process/v1/system.hpp>
-namespace bp = boost::process::v1;
+#include <string>
+#include <cstdlib>
+
+// Platform detection
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    #include <windows.h>
+#elif defined(__linux__) || defined(__APPLE__) || defined(__unix__)
+    #include <sys/wait.h>
+    #include <unistd.h>
+    #include <fcntl.h>
 #else
-// pre-1.88
-#include <boost/process.hpp>
-namespace bp = boost::process;
+    #error "Unsupported platform"
 #endif
 
-bool run_command(const std::string& executable_path, const UINT16& quiet) {
-    // use boost's platform independent code to invoke a process
-    // see https://www.boost.org/doc/libs/develop/doc/html/process.html
-    //
-    // An exit code of zero means the process was successful,
-    // while one different than zero indicates an error.
-
-    // For windows batch files, add cmd to execute the batch file.
-#if defined(_WIN32) || defined(__WIN32__)
-
-    STARTUPINFO startup;
-    PROCESS_INFORMATION process;
-
-    memset(&startup, 0, sizeof(STARTUPINFO));
-    memset(&process, 0, sizeof(PROCESS_INFORMATION));
-
+bool run_command(const std::string& executable_path, bool quiet) {
+    
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    STARTUPINFO startup{};
+    PROCESS_INFORMATION process{};
     startup.cb = sizeof(STARTUPINFO);
-
-    DWORD return_code(EXIT_SUCCESS);
-    if (CreateProcess(0, (LPSTR)executable_path.c_str(), 0, 0, FALSE, 0, 0, 0,
-                      &startup, &process)) {
+    
+    HANDLE devnull = INVALID_HANDLE_VALUE;
+    if (quiet) {
+        devnull = CreateFile("NUL", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                           nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (devnull != INVALID_HANDLE_VALUE) {
+            startup.hStdOutput = devnull;
+            startup.hStdError = devnull;
+            startup.dwFlags |= STARTF_USESTDHANDLES;
+        }
+    }
+    
+    auto cmd_copy = executable_path;
+    BOOL success = CreateProcess(nullptr, cmd_copy.data(), nullptr, nullptr, 
+                               TRUE, 0, nullptr, nullptr, &startup, &process);
+    
+    DWORD return_code = EXIT_FAILURE;
+    if (success) {
         WaitForSingleObject(process.hProcess, INFINITE);
-        // Capture the return code
         GetExitCodeProcess(process.hProcess, &return_code);
         CloseHandle(process.hThread);
         CloseHandle(process.hProcess);
-
-        return (return_code == EXIT_SUCCESS);
+    } else {
+        std::cout << "\n- Error: Cannot execute " << executable_path 
+                  << "\n  Error code: " << GetLastError() << '\n';
     }
-    return EXIT_SUCCESS;
-
-#elif defined(__linux) || defined(sun) || defined(__unix__) ||                 \
-    defined(__APPLE__)
-
-    int return_value(0);
-
-    try {
-        if (quiet)
-            return_value = bp::system(executable_path, bp::std_out > bp::null);
-        else
-            return_value = bp::system(executable_path, bp::std_out > stdout);
-    } catch (const bp::process_error& e) {
-        std::cout << std::endl
-                  << "- Error: Cannot find " << executable_path << "\n"
-                  << "  " << e.what() << std::endl;
-        return EXIT_FAILURE;
+    
+    if (devnull != INVALID_HANDLE_VALUE) {
+        CloseHandle(devnull);
     }
+    
+    return (return_code == EXIT_SUCCESS);
 
-    return (return_value == EXIT_SUCCESS);
-
+#else
+    pid_t pid = fork();
+    
+    if (pid == -1) {
+        std::cout << "\n- Error: Failed to fork process for " << executable_path << '\n';
+        return false;
+    }
+    
+    if (pid == 0) {
+        // Child process
+        if (quiet) {
+            int devnull = open("/dev/null", O_WRONLY);
+            if (devnull != -1) {
+                dup2(devnull, STDOUT_FILENO);
+                dup2(devnull, STDERR_FILENO);
+                close(devnull);
+            }
+        }
+        
+        execl("/bin/sh", "sh", "-c", executable_path.c_str(), nullptr);
+        
+        // If we get here, execl failed
+        std::cout << "\n- Error: Cannot execute " << executable_path << '\n';
+        _exit(EXIT_FAILURE);
+    }
+    
+    // Parent process - wait for child
+    int status;
+    waitpid(pid, &status, 0);
+    
+    if (WIFEXITED(status)) {
+        return (WEXITSTATUS(status) == EXIT_SUCCESS);
+    }
+    
+    std::cout << "\n- Error: Process " << executable_path << " terminated abnormally\n";
+    return false;
 #endif
-
-    return EXIT_SUCCESS;
 }

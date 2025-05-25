@@ -8,8 +8,9 @@
 // See https://github.com/boostorg/process/issues/161
 #define _WIN32_WINNT 0x0501
 
-#if defined(_WIN32) || defined(__WIN32__)
-#define BOOST_USE_WINDOWS_H
+// Support MKL inverse oly if compiler is Intel
+#if defined(__ICC) || defined(__INTEL_COMPILER) // Intel compiler
+#include <mkl.h>
 #endif
 
 #include <include/config/dnaversion.hpp>

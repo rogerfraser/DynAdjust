@@ -33,9 +33,7 @@
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 
-#ifdef MULTI_THREAD_ADJUST
 #include <dynadjust/dnaadjust/dnaadjust-multi.cpp>
-#endif
 
 namespace dynadjust {
 namespace networkadjust {
@@ -44,12 +42,10 @@ boost::mutex combine_blockMutex;
 boost::mutex current_blockMutex, current_iterationMutex, maxCorrMutex;
 boost::mutex adj_file_mutex, xyz_file_mutex, dbg_file_mutex;
 
-#ifdef MULTI_THREAD_ADJUST
 // multi thread adjustment variables
 concurrent_queue<UINT32> combineAdjustmentQueue;
 concurrent_queue<UINT32> prepareAdjustmentQueue;
 boost::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
-#endif
 
 dna_adjust::dna_adjust()
 	: isPreparing_(false)
@@ -123,7 +119,6 @@ dna_adjust::dna_adjust()
 	v_parameterStationCount_.clear();
 	v_parameterStationList_.clear();
 
-#ifdef MULTI_THREAD_ADJUST
 	// multi thread (for reverse and combine passes)
 	v_designR_.clear();
 	v_measMinusCompR_.clear();
@@ -132,7 +127,6 @@ dna_adjust::dna_adjust()
 	v_estimatedStationsR_.clear();
 	v_junctionVariancesR_.clear();
 	v_normalsRC_.clear();
-#endif
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1900)
@@ -180,25 +174,19 @@ dna_adjust::~dna_adjust()
 
 UINT32 dna_adjust::CurrentIteration() const 
 { 
-#ifdef MULTI_THREAD_ADJUST
 	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
-#endif
 	return currentIteration_; 
 }
 
 UINT32& dna_adjust::incrementIteration() 
 { 
-#ifdef MULTI_THREAD_ADJUST
 	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
-#endif
 	return ++currentIteration_; 
 }
 
 void dna_adjust::initialiseIteration(const UINT32& iteration) 
 { 
-#ifdef MULTI_THREAD_ADJUST
 	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
-#endif
 	currentIteration_ = iteration; 
 }
 
@@ -402,7 +390,6 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 
 	isPreparing_ = false;
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 	{
 		try {
@@ -419,7 +406,6 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 			SignalExceptionAdjustment(ss.str(), 0);
 		}
 	}
-#endif
 
 	if (projectSettings_.a.adjust_mode == SimultaneousMode)
 		BuildSimultaneousStnAppearance();
@@ -580,7 +566,6 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 				v_normals_.at(block).zero();
 				UpdateNormals(block, false);
 				
-#ifdef MULTI_THREAD_ADJUST
 				if (projectSettings_.a.multi_thread)
 				{
 					v_estimatedStationsR_.at(block) = v_rigorousStations_.at(block);
@@ -588,7 +573,6 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 					// Update measurements-computed vector for reverse thread using new estimates
 					FillDesignNormalMeasurementsMatrices(false, block, true);
 				}
-#endif
 
 				// Back up normals.  This copy contains the contributions from all
 				// apriori measurement variances, excluding parameter station 
@@ -752,7 +736,6 @@ void dna_adjust::GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit)
 		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Matrix variables" << 
 			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
 
-#ifdef MULTI_THREAD_ADJUST	
 	if (projectSettings_.a.multi_thread)
 	{
 		tmp = 0;
@@ -784,7 +767,6 @@ void dna_adjust::GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit)
 			ss << std::left << std::setw(PRINT_VAR_PAD) << "  MT matrix variables" << 
 				std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
 	}	
-#endif	
 
 	//////////////
 
@@ -1104,10 +1086,8 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 		if (v_blockMeta_.at(block)._blockLast)
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
 
-#ifdef MULTI_THREAD_ADJUST
 		else if (projectSettings_.a.multi_thread)
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
-#endif
 	}
 	
 
@@ -1205,9 +1185,6 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 		}
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 5)
 	{
 		debug_file << "Variance matrix of junction station(s) ";
@@ -1215,9 +1192,6 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			debug_file << bstBinaryRecords_.at(*_it_jsl).stationName << " ";
 		debug_file << "carried forward: " << std::scientific << std::setprecision(16) << v_junctionVariances_.at(thisBlock);
 	}	
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	// 2. Perform inverse
 	FormInverseVarianceMatrix(&(v_junctionVariances_.at(thisBlock)));
@@ -1319,7 +1293,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 	matrix_2d* measMinusCompNext(&v_measMinusComp_.at(nextBlock));
 	matrix_2d* AtVinvNext(&v_AtVinv_.at(nextBlock));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		junctionVariances = &v_junctionVariancesR_.at(nextBlock);
@@ -1330,7 +1303,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 		measMinusCompNext = &v_measMinusCompR_.at(nextBlock);
 		AtVinvNext = &v_AtVinvR_.at(nextBlock);
 	}
-#endif
 
 	it_vUINT32 _it_jsl(v_JSL_.at(nextBlock).begin()), _it_jsl_cov;
 
@@ -1367,9 +1339,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 		}
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 5)
 	{
 		debug_file << "Variance matrix of junction station(s) ";
@@ -1377,9 +1346,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			debug_file << bstBinaryRecords_.at(*_it_jsl).stationName << " ";
 		debug_file << "carried reverse: " << std::scientific << std::setprecision(16) << v_junctionVariances_.at(thisBlock);
 	}	
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	// 2. Perform inverse
 	FormInverseVarianceMatrix(junctionVariances);
@@ -1555,14 +1521,12 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 	matrix_2d* design(&v_design_.at(block));
 	matrix_2d* AtVinv(&v_AtVinv_.at(block));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		normals = &v_normalsR_.at(block);
 		design = &v_designR_.at(block);
 		AtVinv = &v_AtVinvR_.at(block);
 	}	
-#endif
 
 	for (_it_block_msr=v_CML_.at(block).begin(); _it_block_msr!=v_CML_.at(block).end(); ++_it_block_msr)
 	{
@@ -2118,14 +2082,8 @@ void dna_adjust::AddConstraintStationstoNormalsForward(const UINT32& block)
 		// compute _var_cart for this station
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 		if (projectSettings_.g.verbose > 6)
 			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2148,10 +2106,8 @@ void dna_adjust::AddConstraintStationstoNormalsReverse(const UINT32& block, bool
 	matrix_2d var_cart(3, 3);
 	matrix_2d* normals(&v_normals_.at(block));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 		normals = &v_normalsR_.at(block);	
-#endif
 
 	for (_it_const=v_parameterStationList_.at(block).begin(),
 		_it_appear=v_paramStnAppearance_.at(block).begin(); 
@@ -2187,10 +2143,8 @@ void dna_adjust::AddConstraintStationstoNormalsCombine(const UINT32& block, bool
 	matrix_2d var_cart(3, 3);
 	matrix_2d* normals(&v_normals_.at(block));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 		normals = &v_normalsR_.at(block);	
-#endif
 
 	for (_it_const=v_parameterStationList_.at(block).begin(),
 		_it_appear=v_paramStnAppearance_.at(block).begin(); 
@@ -2245,14 +2199,8 @@ void dna_adjust::AddConstraintStationstoNormalsSimultaneous(const UINT32& block)
 		// compute _var_cart for this station
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 		if (projectSettings_.g.verbose > 6)
 			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2379,7 +2327,6 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 		if (!projectSettings_.a.report_mode)
 			adj_file << std::endl << "+ Commencing sequential phased adjustment";
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 		{	
 			if (!projectSettings_.a.report_mode)
@@ -2391,7 +2338,6 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 			AdjustPhasedMultiThread();
 			return adjustStatus_;
 		}
-#endif
 
 		if (!projectSettings_.a.report_mode)
 			adj_file << std::endl << std::endl;
@@ -3891,18 +3837,13 @@ void dna_adjust::PurgeMatricesFromDisk()
 void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_id)
 {
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread && projectSettings_.g.verbose > 2)
 	{
 		adj_file_mutex.lock();
 		adj_file << thread_id << "> Preparing block " << block + 1 << "..." << std::endl;
 		adj_file_mutex.unlock();
 	}
-#endif
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	UINT32 i;
 	it_vUINT32 _it_stn;
 
@@ -3929,10 +3870,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		}
 		debug_file << ")" << std::endl << std::endl;
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
-
 
 	// Form Estimated Stations matrices. For phased adjustments, matrices 
 	// for junction estimates and variances carried forward and reverse 
@@ -3981,11 +3918,9 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		// variances, excluding parameter station variances and junction station variances
 		v_normalsR_.at(block) = v_normals_.at(block);
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 			v_normalsRC_.at(block).redim(
 				v_normalsR_.at(block).rows(), v_normalsR_.at(block).columns());
-#endif
 
 		switch (projectSettings_.a.adjust_mode)
 		{
@@ -4014,18 +3949,13 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		return;
 	}
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread && projectSettings_.g.verbose > 2)
 	{
 		adj_file_mutex.lock();
 		adj_file << thread_id << "> Done." << std::endl;
 		adj_file_mutex.unlock();
 	}
-#endif		
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 3)
 	{
 		debug_file << std::endl;
@@ -4033,10 +3963,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		debug_file << "AtVinv " << std::scientific << std::setprecision(16) << v_AtVinv_.at(block) << std::endl;
 		debug_file << "Normals " << std::scientific << std::setprecision(16) << v_normals_.at(block) << std::endl;
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
-
 }
 	
 
@@ -4104,7 +4030,6 @@ void dna_adjust::CarryForwardJunctions(const UINT32 thisBlock, const UINT32 next
 	{
 		adj_file_mutex.lock();
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 		{	
 			adj_file << std::endl << "1> Adjusted block " << thisBlock + 1;
@@ -4113,7 +4038,6 @@ void dna_adjust::CarryForwardJunctions(const UINT32 thisBlock, const UINT32 next
 			else
 				adj_file << " (forward, in isolation) " << std::endl;
 		}
-#endif
 
 		PrintAdjStations(adj_file, thisBlock, 
 			&v_estimatedStations_.at(thisBlock), &v_normals_.at(thisBlock), 
@@ -4172,21 +4096,17 @@ bool dna_adjust::PrepareAdjustmentReverse(const UINT32 currentBlock, bool MT_Rev
 	// a reverse run, so reset coordinates
 	matrix_2d* estimatedStations(&v_estimatedStations_.at(currentBlock));	
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		estimatedStations = &v_estimatedStationsR_.at(currentBlock);
 	}
 	else
 	{
-#endif
 		// Restore back up copy of normals for reverse adjustment in 
 		// single thread mode
 		v_normals_.at(currentBlock) = v_normalsR_.at(currentBlock);
 
-#ifdef MULTI_THREAD_ADJUST
 	}
-#endif
 
 	// Reset coordinates to original values
 	*estimatedStations = v_originalStations_.at(currentBlock);
@@ -4208,13 +4128,11 @@ void dna_adjust::BackupNormals(const UINT32 block, bool MT_ReverseOrCombine)
 	matrix_2d* normals(&v_normals_.at(block));
 	matrix_2d* normalsCopy(&v_normalsR_.at(block));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		normals = &v_normalsR_.at(block);
 		normalsCopy = &v_normalsRC_.at(block);
 	}
-#endif
 
 	normalsCopy->copyelements(0, 0, normals, 0, 0,
 		normals->rows(), normals->columns());
@@ -4259,7 +4177,6 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	matrix_2d* measMinusComp(&v_measMinusComp_.at(thisBlock));
 	matrix_2d* estimatedStations(&v_estimatedStations_.at(thisBlock));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		// restore backup copy of normals
@@ -4272,16 +4189,13 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	}
 	else
 	{
-#endif
 
 		// restore normals for single thread mode
 		// v_normalsR_.at(thisBlock) is the set of normals with constraints
 		// formed during the reverse adjustment
 		v_normals_.at(thisBlock) = v_normalsR_.at(thisBlock);
 
-#ifdef MULTI_THREAD_ADJUST
 	}
-#endif
 
 	AtVinv->grow(0, pseudoMsrElemCount);
 	measMinusComp->grow(pseudoMsrElemCount, 0);
@@ -4381,10 +4295,8 @@ bool dna_adjust::PrepareAdjustmentCombine(const UINT32 currentBlock, UINT32& pse
 	
 	matrix_2d* estimatedStations(&v_estimatedStations_.at(currentBlock));
 	
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 		estimatedStations = &v_estimatedStationsR_.at(currentBlock);
-#endif
 
 	// Now, update normals taking contribution from the junction station estimates and variances
 	// of the preceding block estimated in the forward pass
@@ -4437,9 +4349,6 @@ bool dna_adjust::PrepareAdjustmentCombine(const UINT32 currentBlock, UINT32& pse
 
 void dna_adjust::debug_SolutionInformation(const UINT32& currentBlock)
 {
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 0)
 	{
 		debug_file << "Block " << currentBlock + 1;
@@ -4473,17 +4382,11 @@ void dna_adjust::debug_SolutionInformation(const UINT32& currentBlock)
 		debug_file << "Normals " << std::fixed << std::setprecision(16) << v_normals_.at(currentBlock) << std::endl;
 		debug_file.flush();
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 }
 	
 
 void dna_adjust::debug_BlockInformation(const UINT32& currentBlock, const std::string& adjustment_method)
 {
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 3)
 	{
 		it_vUINT32 _it_stn;
@@ -4502,9 +4405,6 @@ void dna_adjust::debug_BlockInformation(const UINT32& currentBlock, const std::s
 		debug_file << "Block " << currentBlock + 1 << " " << adjustment_method << std::endl;
 		debug_file << "Adjustment Estimates " << std::fixed << std::setprecision(16) << v_estimatedStations_.at(currentBlock);
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 }
 	
 
@@ -4724,14 +4624,12 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 	matrix_2d* corrections(&v_corrections_.at(currentBlock));
 	matrix_2d* aposterioriVariances(&v_normals_.at(currentBlock));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		estimatedStations = &v_estimatedStationsR_.at(currentBlock);
 		corrections = &v_correctionsR_.at(currentBlock);
 		aposterioriVariances = &v_normalsR_.at(currentBlock);
 	}	
-#endif
 
 	// update station coordinates with lsq-estimated corrections
 	estimatedStations->add(*corrections);
@@ -4742,7 +4640,6 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 	{
 		adj_file_mutex.lock();
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 		{
 			adj_file << std::endl << "2> Adjusted block " << currentBlock + 1;
@@ -4751,7 +4648,6 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 			else
 				adj_file << " (reverse, in isolation) " << std::endl;	
 		}
-#endif
 		
 		PrintAdjStations(adj_file, currentBlock, 
 			estimatedStations, aposterioriVariances, 
@@ -4769,7 +4665,6 @@ void dna_adjust::UpdateEstimatesCombine(const UINT32 currentBlock, UINT32 pseudo
 	matrix_2d* AtVinv(&v_AtVinv_.at(currentBlock));
 	matrix_2d* measMinusComp(&v_measMinusComp_.at(currentBlock));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 	{
 		estimatedStations = &v_estimatedStationsR_.at(currentBlock);
@@ -4777,7 +4672,6 @@ void dna_adjust::UpdateEstimatesCombine(const UINT32 currentBlock, UINT32 pseudo
 		AtVinv = &v_AtVinvR_.at(currentBlock);
 		measMinusComp = &v_measMinusCompR_.at(currentBlock);
 	}	
-#endif
 
 	// copy estimated parameter station coordinates
 	estimatedStations->add(*corrections);
@@ -4810,7 +4704,6 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 	matrix_2d* measMinusComp(&v_measMinusComp_.at(currentBlock));
 	matrix_2d* aposterioriVariances(&v_normals_.at(currentBlock));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 	{
 		estimatedStations = &v_estimatedStationsR_.at(currentBlock);
@@ -4819,7 +4712,6 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 		measMinusComp = &v_measMinusCompR_.at(currentBlock);
 		aposterioriVariances = &v_normalsR_.at(currentBlock);
 	}	
-#endif
 
 	if (v_blockMeta_.at(currentBlock)._blockFirst)
 	{
@@ -4840,14 +4732,12 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 		blockLargeCorr_ = currentBlock;
 	}
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 	{
 		v_corrections_.at(currentBlock) = v_correctionsR_.at(currentBlock);
 		v_estimatedStations_.at(currentBlock) = v_estimatedStationsR_.at(currentBlock);
 		v_normals_.at(currentBlock) = v_normalsR_.at(currentBlock);
 	}
-#endif
 
 	// Now copy 'estimated' coordinates to 'rigorous' for comparison on the next iteration
 	v_rigorousStations_.at(currentBlock) = *estimatedStations;
@@ -4865,20 +4755,15 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 	if (projectSettings_.o._adj_stn_iteration)
 	{
 
-#ifdef MULTI_THREAD_ADJUST
 		adj_file_mutex.lock();
 		if (projectSettings_.a.multi_thread)
 			adj_file << std::endl << "3> Adjusted block " << currentBlock + 1 << " (rigorous)" << std::endl;
-#endif		
 
 		PrintAdjStations(adj_file, currentBlock, 
 			&v_rigorousStations_.at(currentBlock), &v_rigorousVariances_.at(currentBlock), 
 			false, true, false, true, false);		// update coordinates
 
-#ifdef MULTI_THREAD_ADJUST
 		adj_file_mutex.unlock();
-#endif		
-
 	}
 }
 	
@@ -4896,20 +4781,15 @@ bool dna_adjust::CarryReverseJunctions(const UINT32 currentBlock, const UINT32 n
 	// matrices from previous block
 	matrix_2d* estimatedStationsNext(&v_estimatedStations_.at(nextBlock));
 	
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 		estimatedStationsNext = &v_estimatedStationsR_.at(nextBlock);
 	else
 	{
-#endif
 		// Restore back up copy of normals for reverse adjustment in 
 		// single thread mode
 		if (!projectSettings_.a.stage)
 			v_normals_.at(nextBlock) = v_normalsR_.at(nextBlock);
-
-#ifdef MULTI_THREAD_ADJUST
 	}
-#endif
 
 	// For staged adjustments, load blocks info for nextBlock
 	if (projectSettings_.a.stage)
@@ -4998,7 +4878,6 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 	matrix_2d* measMinusComp(&v_measMinusComp_.at(block));
 	matrix_2d* normals(&v_normals_.at(block));
 
-#ifdef MULTI_THREAD_ADJUST
 	if (MT_ReverseOrCombine)
 	{
 		estimatedStations = &v_estimatedStationsR_.at(block);
@@ -5006,7 +4885,6 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 		AtVinv = &v_AtVinvR_.at(block);
 		measMinusComp = &v_measMinusCompR_.at(block);
 	}	
-#endif
 
 	switch ((*_it_msr)->measType)
 	{
@@ -7681,87 +7559,6 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 }
 	
 
-// // Used by:
-// //	- AdjustPhasedReverseCombine
-// // nextBlock = thisBlock-1, prevBlock = thisBlock+1
-// void dna_adjust::RecomputeMeasurementsCommonJunctions(
-// 	const UINT32& nextBlock, const UINT32& thisBlock, const UINT32& prevBlock)
-// {
-// 	matrix_2d* estimatedStations(&v_estimatedStations_.at(thisBlock));
-// 	matrix_2d* measMinusComp(&v_measMinusComp_.at(thisBlock));
-// 
-// #ifdef MULTI_THREAD_ADJUST
-// 	if (projectSettings_.a.multi_thread)
-// 	{
-// 		estimatedStations = &v_estimatedStationsR_.at(thisBlock);
-// 		measMinusComp = &v_measMinusCompR_.at(thisBlock);
-// 	}
-// #endif
-// 
-// 	UINT32 this_stn, prev_stn(0), next_stn(0), rowCount(v_measurementParams_.at(thisBlock));
-// 	it_vUINT32 _it_jsl_next;
-// 
-// 	// 1. Update measured-computed for junction station measurements carried forward (from thisBlock-1)
-// 	for (_it_jsl_next=v_JSL_.at(nextBlock).begin(); 
-// 		_it_jsl_next!=v_JSL_.at(nextBlock).end(); 
-// 		++_it_jsl_next, next_stn += 3)
-// 	{
-// 		// At this point, station _it_jsl_next is a junction station in nextBlock AND thisBlock.
-// 		// Accordingly, compute meas-minus-computed using the two junction stations
-// 		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_next)] * 3;
-// 		
-// 		// Measured-computed for junction stations carried forward (from thisBlock-1)
-// 		// add station X measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn, 0) -
-// 			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
-// 		
-// 		// add station Y measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+1, 0) -
-// 			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
-// 		
-// 		// add station Z measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+2, 0) -
-// 			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
-// 	}
-// 
-// 	if (v_blockMeta_.at(thisBlock)._blockLast)	
-// 		return;
-// 
-// 	it_vUINT32 _it_jsl_this;
-// 
-// 	// 2. Update measured-computed for junction station measurements carried reverse (from thisBlock!!!)
-// 	// Remember, it is the junction stations on this block that are used to carry station estimates
-// 	// from prevBlock (thisBlock+1) to thisBlock
-// 	for (_it_jsl_this=v_JSL_.at(thisBlock).begin(); 
-// 		_it_jsl_this!=v_JSL_.at(thisBlock).end(); 
-// 		++_it_jsl_this, prev_stn += 3)
-// 	{
-// 		// At this point, station _it_jsl_this is a junction station in nextBlock AND thisBlock.
-// 		// Accordingly, compute meas-minus-computed using the two junction stations
-// 		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_this)] * 3;
-// 		
-// 		// Measured-computed for junction stations carried reverse (from thisBlock+1)
-// 		// add station X measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn, 0) -
-// 			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
-// 		
-// 		// add station Y measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+1, 0) -
-// 			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
-// 		
-// 		// add station Z measurement
-// 		measMinusComp->put(rowCount++, 0, 
-// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+2, 0) -
-// 			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
-// 	}
-// }
-	
-
 void dna_adjust::SolveTry(bool COMPUTE_INVERSE, const UINT32& block)
 {
 	// Least Squares Solution
@@ -7864,16 +7661,11 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 	v_corrections_.at(block).redim(v_design_.at(block).columns(), 1);
 	v_corrections_.at(block).multiply(v_normals_.at(block), "N", At_Vinv_m, "N");
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif	
 	if (projectSettings_.g.verbose > 0)
 	{
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 			dbg_file_mutex.lock();
-#endif
 
 		it_vUINT32 _it_stn;
 		UINT32 i;
@@ -7913,16 +7705,10 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		debug_file << "Corrections" << std::fixed << std::setprecision(16) << v_corrections_.at(block) << std::endl;
 		debug_file.flush();
 
-#ifdef MULTI_THREAD_ADJUST
 		if (projectSettings_.a.multi_thread)
 			dbg_file_mutex.unlock();
-#endif
 
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif	
-
 }
 	
 
@@ -9508,9 +9294,6 @@ void dna_adjust::OpenOutputFileStreams()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 
-#ifdef _MS_COMPILER_
-#pragma region debug_output
-#endif
 	if (projectSettings_.g.verbose > 0)
 	{
 		std::string debug_output_file = 
@@ -9527,10 +9310,8 @@ void dna_adjust::OpenOutputFileStreams()
 				debug_output_file += "-block1";
 			else if (projectSettings_.a.stage)
 				debug_output_file += "-stage";
-#ifdef MULTI_THREAD_ADJUST
 			else if (projectSettings_.a.multi_thread)
 				debug_output_file += "-mt";
-#endif
 			break;
 		case SimultaneousMode:
 			debug_output_file += ".simult";
@@ -9547,9 +9328,6 @@ void dna_adjust::OpenOutputFileStreams()
 			SignalExceptionAdjustment(e.what(), 0);
 		}
 	}
-#ifdef _MS_COMPILER_
-#pragma endregion debug_output
-#endif
 
 	if (projectSettings_.a.stage)
 	{
@@ -14796,10 +14574,8 @@ void dna_adjust::ResizeMatrixVectors()
 	v_originalStations_.resize(blockCount_);
 	v_corrections_.resize(blockCount_);
 
-#ifdef MULTI_THREAD_ADJUST
 	if (projectSettings_.a.multi_thread)
 		v_normalsRC_.resize(blockCount_);
-#endif
 
 	for (UINT32 block(0); block<blockCount_; ++block)
 	{
