@@ -1283,9 +1283,7 @@ int main(int argc, char* argv[])
 	try {
 		running = true;
 
-        int nthreads_la = init_linear_algebra_threads(10);
-        std::cout << "+ Using " << nthreads_la << " linear algebra threads + 1 progress monitoring thread." << std::endl;
-
+        int nthreads_la = init_linear_algebra_threads();
         boost::thread progress(dna_adjust_progress_thread(&netAdjust, &p));
 
         // Do adjustment using linear algebra threads
