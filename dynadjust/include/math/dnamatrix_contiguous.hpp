@@ -94,11 +94,7 @@ static_assert(sizeof(lapack_int) == 8, "Unexpected 'lapack_int' type size.");
 extern "C" {
 void LAPACK_FUNC(dpotrf)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
 void LAPACK_FUNC(dpotri)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
-void LAPACK_FUNC(cblas_dgemm)(const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
-                              const enum CBLAS_TRANSPOSE TRANSB, const lapack_int M, const lapack_int N,
-                              const lapack_int K, const double ALPHA, const double* _Nullable A, const lapack_int LDA,
-                              const double* _Nullable B, const lapack_int LDB, const double BETA, double* _Nullable C,
-                              const lapack_int LDC);
+void LAPACK_FUNC(cblas_dgemm)(const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA, const enum CBLAS_TRANSPOSE TRANSB, const lapack_int M, const lapack_int N, const lapack_int K, const double ALPHA, const double* A, const lapack_int LDA, const double* B, const lapack_int LDB, const double BETA, double* C, const lapack_int LDC);
 }
 
 using namespace dynadjust::memory;
