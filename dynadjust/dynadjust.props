@@ -2,6 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
+    <OpenBLASIncludeDir>C:\Data\vcpkg\installed\x64-windows\include\openblas</OpenBLASIncludeDir>
+    <OpenBLASLibDir>C:\Data\vcpkg\installed\x64-windows\lib</OpenBLASLibDir>
     <BoostIncludeDir>C:\Data\boost\boost_1_87_0\include</BoostIncludeDir>
     <BoostLibDir>C:\Data\boost\boost_1_87_0\lib\$(Platform)</BoostLibDir>
     <XsdIncludeDir>C:\Program Files (x86)\CodeSynthesis XSD 4.0\include</XsdIncludeDir>
@@ -11,6 +13,12 @@
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
+    <BuildMacro Include="OpenBLASIncludeDir">
+      <Value>$(OpenBLASIncludeDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OpenBLASLibDir">
+      <Value>$(OpenBLASLibDir)</Value>
+    </BuildMacro>
     <BuildMacro Include="BoostIncludeDir">
       <Value>$(BoostIncludeDir)</Value>
     </BuildMacro>

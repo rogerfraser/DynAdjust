@@ -78,7 +78,7 @@ void output_version(T& stream, bool PAD=false)
 		stream << std::setw(PRINT_VAR_PAD) << std::left << "Version: ";
 	else
 		stream << "Version:      ";
-	stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__;
+    stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__ << " with " << __LINEAR_ALGEBRA_LIB__;
 }
 	
 

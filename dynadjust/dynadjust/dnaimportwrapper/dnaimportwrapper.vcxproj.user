@@ -5,16 +5,6 @@
     <LocalDebuggerWorkingDirectory>$(DIST)dcmp\new-plan-zone</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>-n discont --discont sinex_discontinuities_14_brief.snx --export-dis g.msr x.msr y.msr g.stn x.stn y.stn --export-dna --flag</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)2016_GDA2020\</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>-n discont --discont sinex_discontinuities_14_brief.snx --export-dis g.msr x.msr y.msr g.stn x.stn y.stn --export-dna --flag</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)2016_GDA2020\</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>-n jda .\jurisdiction-5.stn .\jurisdiction-5.msr --export-xml</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\measurement-id</LocalDebuggerWorkingDirectory>

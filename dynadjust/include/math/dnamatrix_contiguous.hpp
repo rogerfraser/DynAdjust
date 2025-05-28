@@ -72,6 +72,9 @@ inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a,
     return info;
 }
 #elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
+
+#pragma message(" - Windows.  MKL_ILP64 is not defined.  Bringing in LAPACKE_dpotrf")
+
 #include <cstdint>
 #include <cblas.h>
 typedef int lapack_int;
