@@ -75,9 +75,10 @@ if(BUILD_TESTING)
 endif()
 
 if(APPLE)
-    #add_compile_options(-Werror -ferror-limit=1)
+    #    add_compile_options(-Werror -ferror-limit=1)
     add_compile_options(-Wno-unguarded-availability-new)
     add_compile_options(-Wno-deprecated-declarations)
+    add_compile_options(-Wno-nullability-completeness)
 endif()
 
 # Debug flags
