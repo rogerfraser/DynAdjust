@@ -38,6 +38,7 @@
 #endif
 
 #if defined(__APPLE__)
+#pragma message("Using Apple Accelerate Framework")
 // Apple Accelerate framework with ILP64
 
 #ifndef ACCELERATE_NEW_LAPACK
@@ -52,6 +53,7 @@
 typedef long lapack_int;
 
 #elif defined(__INTEL_MKL__) || defined(__MKL__)
+#pragma message("Using Intel MKL")
 
 // Force Intel MKL to use ILP64
 #ifndef MKL_ILP64
@@ -66,7 +68,8 @@ typedef long lapack_int;
 #include <mkl.h>
 typedef MKL_INT lapack_int;
 
-#elif defined(__OPENBLAS__) || defined(OPENBLAS_VERSION)
+#else
+#pragma message("Using OpenBLAS LAPACK")
 
 // OpenBLAS LAPACK naming conventions for ILP64
 #define LAPACK_SYMBOL_PREFIX
