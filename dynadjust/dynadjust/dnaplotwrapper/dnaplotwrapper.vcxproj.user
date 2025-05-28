@@ -5,9 +5,4 @@
     <LocalDebuggerWorkingDirectory>$(dist)2016_GDA2020\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>discont --keep</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(dist)2016_GDA2020\</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
 </Project>
