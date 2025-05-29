@@ -123,21 +123,6 @@ const char* const __the_app_name__ = "DynAdjust";
 const char* const __metadata_app_name__ = "metadata";
 const char* const __dynadjust_app_name__ = "dynadjust";
 
-#if defined(_WIN32) || defined(_Wp64)
-#ifdef _MSDEBUG
-#if defined(_M_IX86)
-#define __BINARY_BUILDTYPE__ "Debug (32-bit)"
-#elif defined(_M_X64)
-#define __BINARY_BUILDTYPE__ "Debug (64-bit)"
-#endif
-#else
-#if defined(_M_IX86)
-#define __BINARY_BUILDTYPE__ "Release (32-bit)"
-#elif defined(_M_X64)
-#define __BINARY_BUILDTYPE__ "Release (64-bit)"
-#endif
-#endif
-
 #if defined(__APPLE__) // Apple Accelerate framework // (-DACCELERATE_LAPACK_ILP64=1 for ILP64)
     #define __LINEAR_ALGEBRA_LIB__ "OpenBLAS"
 #elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
@@ -148,7 +133,20 @@ const char* const __dynadjust_app_name__ = "dynadjust";
     #define __LINEAR_ALGEBRA_LIB__ "OpenBLAS"
 #endif
 
-
+#if defined(_WIN32) || defined(_Wp64)
+  #ifdef _MSDEBUG
+    #if defined(_M_IX86)
+      #define __BINARY_BUILDTYPE__ "Debug (32-bit)"
+    #elif defined(_M_X64)
+      #define __BINARY_BUILDTYPE__ "Debug (64-bit)"
+    #endif
+  #else
+    #if defined(_M_IX86)
+      #define __BINARY_BUILDTYPE__ "Release (32-bit)"
+    #elif defined(_M_X64)
+      #define __BINARY_BUILDTYPE__ "Release (64-bit)"
+    #endif
+  #endif
 
 const char* const __import_app_name__ = "import";
 const char* const __reftran_app_name__ = "reftran";
@@ -165,10 +163,10 @@ const char* const __adjust_dll_name__ = "dnaAdjust.dll";
 const char* const __plot_dll_name__ = "dnaPlot.dll";
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-#ifdef NDEBUG
-#define __BINARY_BUILDTYPE__ "Release"
-#else
-#define __BINARY_BUILDTYPE__ "Debug"
+  #ifdef NDEBUG
+    #define __BINARY_BUILDTYPE__ "Release"
+  #else
+    #define __BINARY_BUILDTYPE__ "Debug"
 #endif
 
 const char* const __import_app_name__ = "dnaimport";
