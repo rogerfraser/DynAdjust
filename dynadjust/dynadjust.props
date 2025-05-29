@@ -8,7 +8,6 @@
     <BoostLibDir>C:\Data\boost\boost_1_87_0\lib\$(Platform)</BoostLibDir>
     <XsdIncludeDir>C:\Program Files (x86)\CodeSynthesis XSD 4.0\include</XsdIncludeDir>
     <XsdLibDir_x64>C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib64\vc-12.0</XsdLibDir_x64>
-    <XsdLibDir_Win32>C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib\vc-12.0</XsdLibDir_Win32>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -30,9 +29,6 @@
     </BuildMacro>
     <BuildMacro Include="XsdLibDir_x64">
       <Value>$(XsdLibDir_x64)</Value>
-    </BuildMacro>
-    <BuildMacro Include="XsdLibDir_Win32">
-      <Value>$(XsdLibDir_Win32)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
