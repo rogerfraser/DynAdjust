@@ -9,14 +9,18 @@
 #include <omp.h>
 #endif
 
-#if defined(MKL_VERSION) || defined(INTEL_MKL_VERSION) || defined(__INTEL_MKL__)
-#define USE_MKL
+#if defined(USE_MKL) || defined(__MKL__)
 #include <mkl.h>
 
 #elif defined(OPENBLAS_VERSION) || defined(__OPENBLAS_CONFIG_H) || defined(OPENBLAS_LOPT_H)
+
+#ifndef USE_OPENBLAS
 #define USE_OPENBLAS
+#endif
+
 #include <cblas.h>
 #include <openblas_config.h>
+
 extern "C" { void openblas_set_num_threads(int); }
 
 #elif defined(__APPLE__)
