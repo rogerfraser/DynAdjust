@@ -100,6 +100,10 @@ endif()
 #    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
 #endif()
 
+if (WIN32)
+    add_compile_options(-DNOMINMAX)
+endif()
+
 # ----------------------------------------------------------------------------
 # XercesC
 # ----------------------------------------------------------------------------

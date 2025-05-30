@@ -76,7 +76,7 @@ typedef int lapack_int;
 
 #elif defined(USE_MKL) || defined(__MKL__)
 // Intel MKL
-#pragma message("Using Intel MKL for LAPACK/BLAS")
+// #pragma message("Using Intel MKL for LAPACK/BLAS")
 
 #include <mkl.h>
 
@@ -109,7 +109,7 @@ typedef int lapack_int;
 
 #else
 // Default LAPACK/BLAS
-#pragma message("Using default LAPACK/BLAS")
+// #pragma message("Using default LAPACK/BLAS")
 
 #include <cblas.h>
 
