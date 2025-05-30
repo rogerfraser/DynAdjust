@@ -6,6 +6,7 @@ option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" ON)
 option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
 option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
+option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
@@ -65,6 +66,14 @@ message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
+
+# ILP64 interface for BLAS and LAPACK
+if(ILP64)
+    add_compile_options("-DUSE_ILP64")
+    message(STATUS "Using ILP64 interface for BLAS and LAPACK")
+else()
+    message(STATUS "Using LP64 interface for BLAS and LAPACK")
+endif()
 
 # These don't work with MSVC
 #add_compile_options(-Wno-ignored-qualifiers)

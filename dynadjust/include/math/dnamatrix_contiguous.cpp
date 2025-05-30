@@ -869,8 +869,8 @@ matrix_2d matrix_2d::multiply(const char* lhs_trans, const matrix_2d& rhs, const
     CBLAS_TRANSPOSE tA = (strcmp(lhs_trans, "T") == 0) ? CblasTrans : CblasNoTrans;
     CBLAS_TRANSPOSE tB = (strcmp(rhs_trans, "T") == 0) ? CblasTrans : CblasNoTrans;
 
-    LAPACK_FUNC(cblas_dgemm)(CblasColMajor, tA, tB, lhs_rows, rhs_cols, lhs_cols, 1.0, _buffer, _mem_rows,
-                             rhs.getbuffer(), rhs.memRows(), 0.0, m.getbuffer(), m.memRows());
+    BLAS_FUNC(dgemm)(CblasColMajor, tA, tB, lhs_rows, rhs_cols, lhs_cols, 1.0, _buffer, _mem_rows, rhs.getbuffer(),
+                     rhs.memRows(), 0.0, m.getbuffer(), m.memRows());
 
     return (*this = m);
 }
@@ -899,8 +899,7 @@ matrix_2d::multiply(const matrix_2d& lhs, const char* lhs_trans, const matrix_2d
     }
 
     if (lhs_cols != rhs_rows)
-        throw boost::enable_current_exception(
-            std::runtime_error("multiply(): Matrix dimensions are incompatible."));
+        throw boost::enable_current_exception(std::runtime_error("multiply(): Matrix dimensions are incompatible."));
     else if (_rows != lhs_rows || _cols != rhs_cols)
         throw boost::enable_current_exception(
             std::runtime_error("multiply(): Result matrix dimensions are incompatible."));
@@ -908,8 +907,8 @@ matrix_2d::multiply(const matrix_2d& lhs, const char* lhs_trans, const matrix_2d
     CBLAS_TRANSPOSE tA = (strncmp(lhs_trans, "T", 1) == 0) ? CblasTrans : CblasNoTrans;
     CBLAS_TRANSPOSE tB = (strncmp(rhs_trans, "T", 1) == 0) ? CblasTrans : CblasNoTrans;
 
-    LAPACK_FUNC(cblas_dgemm)(CblasColMajor, tA, tB, lhs_rows, rhs_cols, lhs_cols, 1.0, lhs.getbuffer(), lhs.memRows(),
-                             rhs.getbuffer(), rhs.memRows(), 0.0, _buffer, _mem_rows);
+    BLAS_FUNC(dgemm)(CblasColMajor, tA, tB, lhs_rows, rhs_cols, lhs_cols, 1.0, lhs.getbuffer(), lhs.memRows(),
+                     rhs.getbuffer(), rhs.memRows(), 0.0, _buffer, _mem_rows);
 
     return *this;
 } // Multiply()

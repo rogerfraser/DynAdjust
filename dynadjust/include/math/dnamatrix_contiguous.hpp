@@ -38,8 +38,7 @@
 #endif
 
 #if defined(__APPLE__)
-#pragma message("Using Apple Accelerate Framework")
-// Apple Accelerate framework with ILP64
+#ifdef USE_ILP64
 
 #ifndef ACCELERATE_NEW_LAPACK
 #define ACCELERATE_NEW_LAPACK
@@ -49,40 +48,103 @@
 #define LAPACK_FORTRAN_SUFFIX
 #define LAPACK_SYMBOL_SUFFIX $NEWLAPACK$ILP64
 
+#define BLAS_SYMBOL_PREFIX
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX $NEWLAPACK$ILP64
+
 #include <Accelerate/Accelerate.h>
 typedef long lapack_int;
 
-#elif defined(__INTEL_MKL__) || defined(__MKL__)
-#pragma message("Using Intel MKL")
+#else
 
-// Force Intel MKL to use ILP64
+#ifndef ACCELERATE_NEW_LAPACK
+#define ACCELERATE_NEW_LAPACK
+#endif
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX
+#define LAPACK_SYMBOL_SUFFIX $NEWLAPACK
+
+#define BLAS_SYMBOL_PREFIX
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX $NEWLAPACK
+
+#include <Accelerate/Accelerate.h>
+typedef int lapack_int;
+
+#endif
+
+#elif defined(__INTEL_MKL__) || defined(__MKL__)
+#ifdef USE_ILP64
+
 #ifndef MKL_ILP64
 #define MKL_ILP64
 #endif
 
-// Intel MKL LAPACK naming conventions
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
 #define LAPACK_SYMBOL_SUFFIX
+
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
 
 #include <mkl.h>
 typedef MKL_INT lapack_int;
 
 #else
-#pragma message("Using OpenBLAS LAPACK")
 
-// OpenBLAS LAPACK naming conventions for ILP64
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
-#define LAPACK_SYMBOL_SUFFIX 64
+#define LAPACK_SYMBOL_SUFFIX
+
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
+
+#include <mkl.h>
+typedef int lapack_int;
+
+#endif
+
+#else
+#ifdef USE_ILP64
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX 64_
+
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX 64_
 
 #include <cblas.h>
 typedef long lapack_int;
 
+#else
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX
+
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
+
+#include <cblas.h>
+typedef int lapack_int;
+
 #endif
 
-// Ensure that lapack_int is 64 bits
-static_assert(sizeof(lapack_int) == 8, "Unexpected 'lapack_int' type size.");
+#endif
+
+#ifdef USE_ILP64
+// Ensure that lapack_int is 64 bits for ILP64
+static_assert(sizeof(lapack_int) == 8, "ILP64 interface requires 64-bit integers");
+#else
+// Ensure that lapack_int is 32 bits for LP64
+static_assert(sizeof(lapack_int) == 4, "LP64 interface requires 32-bit integers");
+#endif
 
 #define DNAMATRIX_INDEX(no_rows, no_cols, row, column) column* no_rows + row
 #define DNAMATRIX_ELEMENT(A, no_rows, no_cols, row, column) A[DNAMATRIX_INDEX(no_rows, no_cols, row, column)]
@@ -91,10 +153,17 @@ static_assert(sizeof(lapack_int) == 8, "Unexpected 'lapack_int' type size.");
 #define LAPACK_FUNC_EXPAND(name, prefix, suffix, suffix2) LAPACK_FUNC_CONCAT(name, prefix, suffix, suffix2)
 #define LAPACK_FUNC(name) LAPACK_FUNC_EXPAND(name, LAPACK_SYMBOL_PREFIX, LAPACK_FORTRAN_SUFFIX, LAPACK_SYMBOL_SUFFIX)
 
+#define BLAS_FUNC_CONCAT(name, prefix, suffix, suffix2) prefix##name##suffix##suffix2
+#define BLAS_FUNC_EXPAND(name, prefix, suffix, suffix2) BLAS_FUNC_CONCAT(name, prefix, suffix, suffix2)
+#define BLAS_FUNC(name) BLAS_FUNC_EXPAND(name, BLAS_SYMBOL_PREFIX, BLAS_FORTRAN_SUFFIX, BLAS_SYMBOL_SUFFIX)
+
 extern "C" {
 void LAPACK_FUNC(dpotrf)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
 void LAPACK_FUNC(dpotri)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
-void LAPACK_FUNC(cblas_dgemm)(const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA, const enum CBLAS_TRANSPOSE TRANSB, const lapack_int M, const lapack_int N, const lapack_int K, const double ALPHA, const double* A, const lapack_int LDA, const double* B, const lapack_int LDB, const double BETA, double* C, const lapack_int LDC);
+void BLAS_FUNC(dgemm)(const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
+                      const enum CBLAS_TRANSPOSE TRANSB, const lapack_int M, const lapack_int N, const lapack_int K,
+                      const double ALPHA, const double* A, const lapack_int LDA, const double* B, const lapack_int LDB,
+                      const double BETA, double* C, const lapack_int LDC);
 }
 
 using namespace dynadjust::memory;
