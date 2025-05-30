@@ -7,6 +7,7 @@ name: Build binaries (Linux, Mac, Windows)
 
 on:
   workflow_dispatch
+  push
 
 env:
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2cbb02eb-dd4c-4058-a4ac-2e38729a8409/intel-oneapi-base-toolkit-2025.1.2.7_offline.exe
