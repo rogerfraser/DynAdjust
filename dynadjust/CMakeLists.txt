@@ -67,14 +67,6 @@ add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
 
-# ILP64 interface for BLAS and LAPACK
-if(ILP64)
-    add_compile_options("-DUSE_ILP64")
-    message(STATUS "Using ILP64 interface for BLAS and LAPACK")
-else()
-    message(STATUS "Using LP64 interface for BLAS and LAPACK")
-endif()
-
 # These don't work with MSVC
 #add_compile_options(-Wno-ignored-qualifiers)
 #add_compile_options(-Wno-deprecated-declarations)
@@ -148,7 +140,7 @@ set(DNA_LIBRARIES
 )
 
 # ----------------------------------------------------------------------------
-# Math libraries
+# OpenMP
 # ----------------------------------------------------------------------------
 
 find_package(OpenMP)
@@ -180,7 +172,19 @@ if(OpenMP_CXX_FOUND)
     endif()
 endif()
 
-if(USE_MKL)
+# ----------------------------------------------------------------------------
+# Math libraries
+# ----------------------------------------------------------------------------
+
+# ILP64 interface for BLAS and LAPACK
+if(ILP64)
+    add_compile_options("-DUSE_ILP64")
+    message(STATUS "Using ILP64 interface for BLAS and LAPACK")
+else()
+    message(STATUS "Using LP64 interface for BLAS and LAPACK")
+endif()
+
+if(USE_MKL AND (NOT APPLE))
     add_compile_options("-DUSE_MKL")
     set(BLA_VENDOR Intel10_64lp)
 endif()
@@ -188,21 +192,14 @@ endif()
 if(APPLE)
     message(STATUS "Looking for BLAS and LAPACK on MacOS")
 
-    if(USE_OPENBLAS)
-        message(STATUS "Using OpenBLAS + LAPACKE on MacOS")
-        find_package(BLAS REQUIRED)
-        find_package(LAPACK REQUIRED)
-        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    find_library(ACCELERATE_LIB Accelerate)
+    if(NOT ACCELERATE_LIB)
+        message(FATAL_ERROR "Cannot find Apple Accelerate framework.")
     else()
-        find_library(ACCELERATE_LIB Accelerate)
-        if(NOT ACCELERATE_LIB)
-            message(FATAL_ERROR "Cannot find Apple Accelerate framework.")
-        else()
-            message(STATUS "Found Accelerate framework for fast linear algebra")
-            add_compile_options("-DACCELERATE_NEW_LAPACK")
-        endif()
-        list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
+        message(STATUS "Found Accelerate framework for fast linear algebra")
+        add_compile_options("-DACCELERATE_NEW_LAPACK")
     endif()
+    list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
 
 elseif(WIN32)
     message(STATUS "Looking for BLAS and LAPACK on Windows")
