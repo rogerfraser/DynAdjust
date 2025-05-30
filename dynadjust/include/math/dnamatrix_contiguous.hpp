@@ -74,7 +74,9 @@ typedef int lapack_int;
 
 #endif
 
-#elif defined(__INTEL_MKL__) || defined(__MKL__)
+#elif defined(__INTEL_MKL__) || defined(__MKL__) || defined(USE_MKL)
+#pragma message("Using Intel MKL")
+
 #ifdef USE_ILP64
 
 #ifndef MKL_ILP64
@@ -122,6 +124,7 @@ typedef int lapack_int;
 typedef long lapack_int;
 
 #else
+#pragma message("Using LAPACK/BLAS")
 
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _

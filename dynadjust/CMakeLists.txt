@@ -90,10 +90,10 @@ if(APPLE)
     add_compile_options(-Wno-nullability-completeness)
 endif()
 
-# Debug flags
-if (NOT BUILD_STATIC AND NOT APPLE)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
-endif()
+## Debug flags
+#if (NOT BUILD_STATIC AND NOT APPLE)
+#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
+#endif()
 
 ## Coverage if testing
 #if(NOT BUILD_STATIC AND NOT APPLE)
@@ -203,7 +203,7 @@ elseif(WIN32)
     message(STATUS "Looking for BLAS and LAPACK on Windows")
 
     if(USE_MKL)
-        add_compile_options("-DMKL_LP64")
+        add_compile_options("-DUSE_MKL")
         set(BLA_VENDOR Intel10_64lp)
         message(STATUS "Using MKL for fast linear algebra (${BLA_VENDOR})")
     endif()
