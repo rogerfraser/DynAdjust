@@ -38,47 +38,51 @@
 #endif
 
 #if defined(__APPLE__)
-#ifdef USE_ILP64
+// Apple Accelerate Framework
 
 #ifndef ACCELERATE_NEW_LAPACK
 #define ACCELERATE_NEW_LAPACK
+#endif
+
+#include <Accelerate/Accelerate.h>
+
+#ifdef USE_ILP64
+
+#ifndef ACCELERATE_LAPACK_ILP64
+#define ACCELERATE_LAPACK_ILP64
 #endif
 
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX
 #define LAPACK_SYMBOL_SUFFIX $NEWLAPACK$ILP64
-
 #define BLAS_SYMBOL_PREFIX
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX $NEWLAPACK$ILP64
-
-#include <Accelerate/Accelerate.h>
 typedef long lapack_int;
 
 #else
 
-#ifndef ACCELERATE_NEW_LAPACK
-#define ACCELERATE_NEW_LAPACK
-#endif
-
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX
 #define LAPACK_SYMBOL_SUFFIX $NEWLAPACK
-
 #define BLAS_SYMBOL_PREFIX
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX $NEWLAPACK
-
-#include <Accelerate/Accelerate.h>
 typedef int lapack_int;
 
 #endif
 
-#elif defined(__INTEL_MKL__) || defined(__MKL__) || defined(USE_MKL)
-#pragma message("Using Intel MKL")
+// End - Apple Accelerate Framework
+
+#elif defined(USE_MKL) || defined(__MKL__)
+// Intel MKL
+#pragma message("Using Intel MKL for LAPACK/BLAS")
+
+#include <mkl.h>
 
 #ifdef USE_ILP64
 
+// Force Intel MKL to use ILP64 interface
 #ifndef MKL_ILP64
 #define MKL_ILP64
 #endif
@@ -86,12 +90,9 @@ typedef int lapack_int;
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
 #define LAPACK_SYMBOL_SUFFIX
-
 #define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
-
-#include <mkl.h>
 typedef MKL_INT lapack_int;
 
 #else
@@ -99,46 +100,44 @@ typedef MKL_INT lapack_int;
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
 #define LAPACK_SYMBOL_SUFFIX
-
 #define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
-
-#include <mkl.h>
 typedef int lapack_int;
 
 #endif
 
+// End - Intel MKL
+
 #else
+// Default LAPACK/BLAS
+#pragma message("Using default LAPACK/BLAS")
+
+#include <cblas.h>
+
 #ifdef USE_ILP64
 
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
 #define LAPACK_SYMBOL_SUFFIX 64_
-
 #define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX 64_
-
-#include <cblas.h>
 typedef long lapack_int;
 
 #else
-#pragma message("Using LAPACK/BLAS")
 
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX _
 #define LAPACK_SYMBOL_SUFFIX
-
 #define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
-
-#include <cblas.h>
 typedef int lapack_int;
 
 #endif
 
+// End - Default LAPACK/BLAS
 #endif
 
 #ifdef USE_ILP64
