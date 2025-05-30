@@ -93,7 +93,7 @@ typedef int lapack_int;
 #define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
-typedef MKL_INT lapack_int;
+typedef long lapack_int;
 
 #else
 
