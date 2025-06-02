@@ -19,6 +19,12 @@ set_target_properties (${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PRE
 
 install (TARGETS ${PROJECT_NAME} DESTINATION bin)
 
+# Install to the x64 directory
+set_target_properties (${PROJECT_NAME} PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/x64")    
+    
+install (TARGETS ${PROJECT_NAME} DESTINATION x64)
+
 if(BUILD_STATIC)
 
   # Create a static version with the same source files
