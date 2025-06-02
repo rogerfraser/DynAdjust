@@ -1,0 +1,11 @@
+<map id="VincentyDirect" name="VincentyDirect">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,123,146"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ad6deb1818cce514a8a7b919df4a9a4f4" title=" " alt="" coords="172,5,390,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,115,121,88,169,60,184,54,186,58,172,65,124,92,85,119"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="171,75,391,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,120,155,114,156,120,124,125"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ac027e797794dd037bedc85f3f9c2df30" title=" " alt="" coords="171,144,391,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="124,138,156,144,155,149,123,144"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#acf686fcb6fe30578402e372fce02149c" title=" " alt="" coords="216,212,346,240"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="84,144,123,172,172,199,202,209,200,214,170,203,120,176,81,148"/>
+</map>

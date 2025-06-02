@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['false_0',['FALSE',['../dnatypes_8hpp.html#aa93f0eb578d23995850d61f7d61c55c1',1,'dnatypes.hpp']]]
+];

@@ -1,0 +1,10 @@
+<map id="concurrent_block_adjustment::reset_adjustment_runs" name="concurrent_block_adjustment::reset_adjustment_runs">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,219,85"/>
+<area shape="rect" id="Node000002" href="$classconcurrent__block__adjustment.html#aa9d33fd6fa96e9fa7cfa73574eaaef37" title=" " alt="" coords="267,5,480,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,45,251,41,252,46,220,51"/>
+<area shape="rect" id="Node000004" href="$classconcurrent__block__adjustment.html#a97f1200d7d25b303daf89c1f252fa6c5" title=" " alt="" coords="267,75,480,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,74,252,78,251,83,219,79"/>
+<area shape="rect" id="Node000003" href="$structsequential__adj__t.html#a2f1c363c5de4dc2c81392ba7f9437099" title=" " alt="" coords="528,40,723,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,40,513,44,512,49,480,45"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="480,80,512,75,513,81,481,85"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="dynadjust::epsg::epsg_spheroid" name="dynadjust::epsg::epsg_spheroid">
+<area shape="rect" id="Node000001" title=" " alt="" coords="65,331,218,443"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="37,185,112,258"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,256,115,314,110,316,86,258"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,5,133,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="74,109,76,185,71,186,68,110"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="146,177,294,266"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,267,177,317,172,315,197,265"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="157,14,291,86"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="225,101,224,177,218,177,220,101"/>
+</map>

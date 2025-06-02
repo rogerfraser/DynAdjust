@@ -1,0 +1,9 @@
+<map id="GeoidModel_pskel::_end_element_impl" name="GeoidModel_pskel::_end_element_impl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,155,94"/>
+<area shape="rect" id="Node000002" href="$classGeoidModel__pskel.html#a48b02fe1df93f66b234b948012525954" title=" " alt="" coords="203,5,398,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,51,223,34,225,40,156,56"/>
+<area shape="rect" id="Node000003" href="$classGeoidModel__pskel.html#a8fc452c58a688e45a4ec18c5f2c241c9" title=" " alt="" coords="204,57,396,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,68,189,68,189,74,155,74"/>
+<area shape="rect" id="Node000004" href="$classGeoidModel__pskel.html#a357f457729bd550c3804f9f2dfd2f235" title=" " alt="" coords="203,109,398,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="156,86,225,103,223,108,154,91"/>
+</map>

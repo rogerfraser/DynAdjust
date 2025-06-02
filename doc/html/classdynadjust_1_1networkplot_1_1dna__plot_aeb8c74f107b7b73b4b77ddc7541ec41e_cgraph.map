@@ -1,0 +1,7 @@
+<map id="dynadjust::networkplot::dna_plot::CreateSegmentationGraph" name="dynadjust::networkplot::dna_plot::CreateSegmentationGraph">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,272,85"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a6658b7501f3895792d95c752f18d303b" title=" " alt="" coords="320,5,546,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="272,44,304,40,305,45,272,49"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#ab10d9b9554bd9f27947b9c9f2bb8ac6c" title=" " alt="" coords="339,75,526,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="272,75,324,82,323,87,272,81"/>
+</map>

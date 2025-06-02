@@ -1,0 +1,18 @@
+<map id="dynadjust::measurements::CDnaHeight::SimulateMsr" name="dynadjust::measurements::CDnaHeight::SimulateMsr">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,203,142"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#a54376bcce8c4bc50c9559d471969fbf8" title=" " alt="" coords="303,46,422,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,94,250,82,287,74,288,79,251,88,202,99"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a3a8e79438df009ddb0164b7cac90cd18" title=" " alt="" coords="251,97,475,142"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="203,117,235,117,235,122,203,122"/>
+<area shape="rect" id="Node000008" href="$dnaconsts_8hpp.html#a8d1f0bccd46036ced05ea2c90ccc1d82" title=" " alt="" coords="302,166,424,194"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="202,140,251,152,287,160,286,165,250,157,200,145"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ae1003c5f7f0be3190a8abb1f7e07143a" title=" " alt="" coords="682,5,899,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,53,666,34,666,40,423,58"/>
+<area shape="rect" id="Node000004" href="$dnatemplategeodesyfuncs_8hpp.html#ae5a5cbc07338999e179531d290f6c959" title=" " alt="" coords="523,74,632,102"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="423,65,508,76,507,81,422,70"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="629,71,694,52,695,57,630,76"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="680,75,901,119"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="633,87,665,89,665,94,632,93"/>
+<area shape="rect" id="Node000006" href="$dnadatumprojectionparam_8hpp.html#ac5514459b1bfeeca62af4b7352cf812a" title=" " alt="" coords="732,143,849,171"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="609,100,681,129,718,140,716,145,679,134,607,104"/>
+</map>

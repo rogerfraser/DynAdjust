@@ -1,0 +1,9 @@
+<map id="primeVertical" name="primeVertical">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,83,115,111"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ae1003c5f7f0be3190a8abb1f7e07143a" title=" " alt="" coords="164,5,382,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,80,162,60,184,53,185,58,164,65,104,85"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="163,75,383,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,94,147,94,147,100,115,100"/>
+<area shape="rect" id="Node000004" href="$dnadatumprojectionparam_8hpp.html#ac5514459b1bfeeca62af4b7352cf812a" title=" " alt="" coords="215,143,331,171"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="101,109,163,129,200,139,199,144,162,134,100,114"/>
+</map>

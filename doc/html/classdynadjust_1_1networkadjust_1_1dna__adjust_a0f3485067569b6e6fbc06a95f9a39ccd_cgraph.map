@@ -1,0 +1,13 @@
+<map id="dynadjust::networkadjust::dna_adjust::LoadSegmentationMetrics" name="dynadjust::networkadjust::dna_adjust::LoadSegmentationMetrics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,105,236,167"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1iostreams_1_1dna__io__seg.html#a9e9b231aeab166ad9ae311c45ef76415" title=" " alt="" coords="348,5,506,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,102,283,78,332,62,334,67,284,83,212,107"/>
+<area shape="rect" id="Node000004" href="$dnaconsts-iostream_8hpp.html#ac5a648fde861e444fcef1c9731c94b6b" title=" " alt="" coords="378,92,476,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="236,122,362,109,363,115,236,127"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a871ec1693dffcf54482e6e62ed14ec60" title=" " alt="" coords="284,143,571,188"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="236,145,269,148,268,153,236,150"/>
+<area shape="rect" id="Node000006" href="$dnatemplatefuncs_8hpp.html#a78f17ec94799d40562a72e9d65d49e14" title=" " alt="" coords="365,212,490,239"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="193,165,284,198,351,212,350,217,283,203,192,170"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1iostreams_1_1dna__io__seg.html#aa46103a4b2941d3c23ddd39b8dae7f95" title=" " alt="" coords="619,5,794,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="507,34,604,34,604,39,507,39"/>
+</map>

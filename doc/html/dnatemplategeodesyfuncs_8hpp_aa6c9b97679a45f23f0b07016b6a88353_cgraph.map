@@ -1,0 +1,18 @@
+<map id="HorizontalAngle" name="HorizontalAngle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,132,131,160"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#a92262b89cd0e1714d77adcdd19b29602" title=" " alt="" coords="179,132,304,160"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,143,163,143,163,148,131,148"/>
+<area shape="rect" id="Node000003" href="$dnatemplategeodesyfuncs_8hpp.html#a73b65845407300cd874e93bde7bebc44" title=" " alt="" coords="352,81,432,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="284,129,337,111,338,116,286,134"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a0c0dd7e1f008debd8afbfca0edb87a48" title=" " alt="" coords="603,56,674,84"/>
+<area shape="poly" id="edge9_Node000002_Node000006" title=" " alt="" coords="305,156,359,163,423,166,490,160,554,143,589,122,616,94,620,98,592,126,556,148,491,165,423,171,359,168,304,161"/>
+<area shape="rect" id="Node000004" href="$dnatemplatecalcfuncs_8hpp.html#a35eee34d312928eb48ed136c80d90876" title=" " alt="" coords="485,5,550,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="415,79,479,39,481,44,418,83"/>
+<area shape="poly" id="edge8_Node000003_Node000006" title=" " alt="" coords="432,88,587,72,587,78,433,94"/>
+<area shape="rect" id="Node000007" href="$dnaconsts_8hpp.html#a35b8100455087daedfe57a351459200c" title=" " alt="" coords="480,107,555,134"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="434,101,466,107,465,113,432,106"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="722,31,760,58"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="551,20,707,38,706,43,550,25"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="552,30,591,47,589,52,549,35"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="673,59,706,50,707,55,675,64"/>
+</map>

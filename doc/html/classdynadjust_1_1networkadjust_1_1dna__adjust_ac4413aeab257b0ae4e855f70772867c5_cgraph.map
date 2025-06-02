@@ -1,0 +1,17 @@
+<map id="dynadjust::networkadjust::dna_adjust::UpdateIgnoredMeasurements_P" name="dynadjust::networkadjust::dna_adjust::UpdateIgnoredMeasurements_P">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,135,322,179"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ad0c494f7ef2bc9dff6e14f0b05ab85b7" title=" " alt="" coords="370,135,690,179"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="322,154,354,154,354,160,322,160"/>
+<area shape="rect" id="Node000003" href="$dnatemplategeodesyfuncs_8hpp.html#adb2a16445abfdfb3556b2b565fe1da78" title=" " alt="" coords="825,83,907,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="658,131,809,104,810,110,659,137"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1math_1_1matrix__2d.html#a7474bc836cf980fb59974ce0dfdd73ee" title=" " alt="" coords="777,135,955,179"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="690,154,761,154,761,160,690,160"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a45ea57e48698e0ea12be55ac0096f630" title=" " alt="" coords="738,204,994,249"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="642,177,740,198,739,203,641,183"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="1042,5,1263,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="907,85,1042,52,1044,57,908,90"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ac027e797794dd037bedc85f3f9c2df30" title=" " alt="" coords="1042,75,1263,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="908,94,1027,94,1027,100,908,100"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a1609536e9f22fd94ba3de41ab22f019e" title=" " alt="" coords="1087,143,1218,171"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="908,102,995,120,1073,137,1072,142,994,125,907,107"/>
+</map>

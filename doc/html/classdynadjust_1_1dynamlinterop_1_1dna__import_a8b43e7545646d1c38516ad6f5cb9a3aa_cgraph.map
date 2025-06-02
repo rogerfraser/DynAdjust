@@ -1,0 +1,7 @@
+<map id="dynadjust::dynamlinterop::dna_import::FullSortandMapStations" name="dynadjust::dynamlinterop::dna_import::FullSortandMapStations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,271,74"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="81,29,79,19,89,10,109,5,138,3,170,5,190,12,188,17,169,10,138,8,110,10,92,15,84,21,86,28"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a2df2ab4689f9a270978ee0c3d543d15a" title=" " alt="" coords="319,29,561,74"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="271,49,303,49,303,54,271,54"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="383,29,381,19,391,10,410,5,440,3,472,5,491,12,490,17,471,10,440,8,411,10,393,15,386,21,388,28"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="dynadjust::dynamlinterop::dna_import::DetermineBoundingBox" name="dynadjust::dynamlinterop::dna_import::DetermineBoundingBox">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,272,68"/>
+<area shape="rect" id="Node000002" href="$dnatemplatecalcfuncs_8hpp.html#a22a3fdaae59b84d14c1e2baa7c1ad13a" title=" " alt="" coords="320,5,409,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="272,27,304,24,304,29,273,33"/>
+<area shape="rect" id="Node000007" href="$dnastringfuncs_8cpp.html#a3b0d5aadee7a4b1aec81cb212a51633f" title=" " alt="" coords="324,57,405,85"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="273,58,309,62,308,68,272,64"/>
+<area shape="rect" id="Node000003" href="$dnatemplatecalcfuncs_8hpp.html#a1546bdb5214ae4b148dc6b761ba7b6d1" title=" " alt="" coords="487,5,560,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="409,16,472,16,472,22,409,22"/>
+<area shape="rect" id="Node000004" href="$dnatemplatecalcfuncs_8hpp.html#a98ff5967abdac0911c30bfc258759c8c" title=" " alt="" coords="638,5,794,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="561,16,623,16,623,22,561,22"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#a29db49c5e9564fc75bbfe07efd83fcc5" title=" " alt="" coords="842,5,951,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="794,16,826,16,826,22,794,22"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="999,5,1037,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="951,16,984,16,984,22,951,22"/>
+<area shape="rect" id="Node000008" href="$dnaconsts_8hpp.html#a2fe1286de4800133f25081cb46e05d24" title=" " alt="" coords="457,57,590,85"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="406,68,442,68,442,74,406,74"/>
+</map>

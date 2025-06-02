@@ -1,0 +1,8 @@
+<map id="Clusterpoint_pskel" name="Clusterpoint_pskel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,1018,216,1984"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="27,5,184,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,109,112,1018,106,1018,103,109"/>
+<area shape="rect" id="Node000003" href="$classPointCovariance__pskel.html" title=" " alt="" coords="127,144,311,953"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="121,109,129,144,124,145,116,110"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,953,170,1002,165,1001,170,953"/>
+</map>

@@ -1,0 +1,39 @@
+<map id="dynadjust::networksegment::dna_segment::FinaliseBlock" name="dynadjust::networksegment::dna_segment::FinaliseBlock">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,344,216,388"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#aebd7847139b157a0ad776ef98cf91bee" title=" " alt="" coords="299,176,536,238"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,341,341,243,344,248,157,345"/>
+<area shape="rect" id="Node000008" href="$dnatemplatefuncs_8hpp.html#a78f17ec94799d40562a72e9d65d49e14" title=" " alt="" coords="1151,351,1276,378"/>
+<area shape="poly" id="edge19_Node000001_Node000008" title=" " alt="" coords="216,366,264,367,577,369,890,367,1136,363,1136,369,890,372,577,375,264,372,216,372"/>
+<area shape="rect" id="Node000013" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a06ef194526d9d566e44df1da98600e1c" title=" " alt="" coords="264,313,571,358"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="216,353,248,349,249,355,216,358"/>
+<area shape="rect" id="Node000016" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#aaf59abba30c04c8d2a17d55f06feaaa4" title=" " alt="" coords="295,433,540,478"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="183,386,264,411,315,426,313,431,263,416,182,391"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a51a1288f72ef73ff33b0daa90cd71225" title=" " alt="" coords="640,176,869,238"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="537,204,625,204,625,210,537,210"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1iostreams_1_1dna__io__seg.html#a8b40a05c5d7c8c7a64950e16791fde27" title=" " alt="" coords="647,108,862,152"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="536,177,639,154,640,159,537,183"/>
+<area shape="rect" id="Node000005" href="$dnaconsts-iostream_8hpp.html#a442268be4550e1284457aaef750ca9ce" title=" " alt="" coords="971,161,1037,189"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="863,147,957,164,956,169,862,152"/>
+<area shape="rect" id="Node000006" href="$dnatemplatestnmsrfuncs_8hpp.html#ad3c296ebccb8aabc0d594e8b2fab665a" title=" " alt="" coords="943,265,1065,293"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="864,146,892,162,910,184,918,207,924,229,940,251,945,255,942,259,936,254,919,231,913,208,906,187,889,167,862,151"/>
+<area shape="rect" id="Node000009" href="$dnaconsts-iostream_8hpp.html#aedcb4017a12ea1cf46074758d11ba9da" title=" " alt="" coords="973,213,1035,241"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="863,150,892,162,916,180,940,198,960,208,957,213,937,203,913,184,889,167,861,155"/>
+<area shape="rect" id="Node000010" href="$dnaconsts-iostream_8hpp.html#a53eb9a44afccfd5fc61673586492ac41" title=" " alt="" coords="973,5,1035,33"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="803,104,937,43,958,35,960,40,939,48,806,109"/>
+<area shape="rect" id="Node000011" href="$dnaconsts-iostream_8hpp.html#a92c6b66adb1eb28c761e6e1eaadede35" title=" " alt="" coords="970,57,1038,85"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="852,104,955,80,956,85,853,109"/>
+<area shape="rect" id="Node000012" href="$dnaconsts-iostream_8hpp.html#a6c2544809d562354e1671894ac28c89a" title=" " alt="" coords="980,109,1028,137"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="863,124,964,122,964,127,863,130"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1measurements_1_1MsrTally.html#a28147041e70b79473878f2d5d385ef33" title=" " alt="" coords="1118,257,1309,302"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1065,276,1102,276,1102,282,1065,282"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="1041,291,1164,342,1162,347,1039,296"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="538,310,619,298,784,284,927,278,927,283,784,290,619,303,538,315"/>
+<area shape="rect" id="Node000014" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a28d3cad0c9892792002bc640183b87b2" title=" " alt="" coords="626,313,884,358"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="571,332,610,332,610,338,571,338"/>
+<area shape="rect" id="Node000015" href="$dnatemplatestnmsrfuncs_8hpp.html#a7d0f7752266e17ce859366ad1e1884e7" title=" " alt="" coords="938,321,1070,349"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="884,332,923,332,923,338,884,338"/>
+<area shape="rect" id="Node000017" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#aa646f19528aa18d8bafc0b6f6da1fe65" title=" " alt="" coords="619,502,890,547"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="530,476,629,496,627,501,529,481"/>
+<area shape="rect" id="Node000018" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#ad6d6eab355e6930a64099e6ec69fb62a" title=" " alt="" coords="651,433,858,478"/>
+<area shape="poly" id="edge18_Node000016_Node000018" title=" " alt="" coords="540,452,635,452,635,458,540,458"/>
+</map>

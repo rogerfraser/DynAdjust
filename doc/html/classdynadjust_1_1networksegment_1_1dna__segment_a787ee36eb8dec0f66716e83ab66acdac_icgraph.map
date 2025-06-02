@@ -1,0 +1,7 @@
+<map id="dynadjust::networksegment::dna_segment::InitialiseSegmentation" name="dynadjust::networksegment::dna_segment::InitialiseSegmentation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,28,529,72"/>
+<area shape="rect" id="Node000002" href="$dnasegmentwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="80,5,134,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,36,134,25,135,19,241,31"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a47c9873e2e94ffdc573dbbfc8a2e5f97" title=" " alt="" coords="5,57,209,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,68,210,71,209,66,241,63"/>
+</map>

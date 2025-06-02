@@ -1,0 +1,32 @@
+<map id="dynadjust::geoidinterpolation::dna_geoid_interpolation" name="dynadjust::geoidinterpolation::dna_geoid_interpolation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="349,1354,581,2852"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="43,994,137,1066"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,1065,123,1166,157,1289,248,1556,345,1807,340,1809,243,1558,151,1290,118,1167,95,1066"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="17,502,152,591"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="88,606,92,994,87,994,83,606"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="20,249,150,338"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,353,87,502,82,502,82,353"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,127,164,199"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="87,214,87,249,82,249,82,214"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="37,5,132,78"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="87,93,87,127,82,127,82,93"/>
+<area shape="rect" id="Node000007" href="$structfile__par.html" title=" " alt="" coords="166,770,283,1289"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="285,1289,348,1567,342,1568,280,1290"/>
+<area shape="rect" id="Node000008" href="$structgridfileindex.html" title=" " alt="" coords="176,387,295,705"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="235,705,233,753,228,753,229,705"/>
+<area shape="rect" id="Node000009" href="$structbinary__file__meta.html" title=" " alt="" coords="307,893,465,1166"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="399,1166,411,1337,406,1338,393,1166"/>
+<area shape="rect" id="Node000010" href="$structinput__file__meta.html" title=" " alt="" coords="330,466,442,627"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="389,627,389,876,383,876,383,627"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="489,994,656,1066"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="572,1066,544,1338,539,1338,567,1065"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="579,510,697,582"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="621,597,600,660,583,730,574,803,571,876,573,994,568,994,566,876,569,803,578,729,595,658,616,596"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="680,985,807,1074"/>
+<area shape="poly" id="edge13_Node000013_Node000012" title=" " alt="" coords="651,596,737,985,731,986,646,598"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="738,1075,682,1331,588,1687,583,1686,677,1330,732,1074"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="831,994,906,1066"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="867,1066,851,1167,838,1229,822,1290,771,1440,712,1589,650,1731,591,1859,586,1857,645,1729,707,1587,766,1438,817,1289,833,1228,846,1166,862,1065"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="805,502,932,591"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="871,606,871,994,866,994,866,606"/>
+</map>

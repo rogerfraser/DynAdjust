@@ -1,0 +1,11 @@
+<map id="CdnageoidintDlg::OnBnClickedInterpolatePoint" name="CdnageoidintDlg::OnBnClickedInterpolatePoint">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,91,225,136"/>
+<area shape="rect" id="Node000002" href="$classCdnageoidintDlg.html#a62e7fb8a95163fe43041555402d36e8e" title=" " alt="" coords="273,100,521,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,111,257,111,257,116,225,116"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a0a57affa2f9ee83ee48851546035a63e" title=" " alt="" coords="585,5,747,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,97,570,61,571,66,448,102"/>
+<area shape="rect" id="Node000004" href="$classCdnageoidintDlg.html#af6011ca4546f1cc0343978e906b02056" title=" " alt="" coords="571,91,761,136"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="521,111,555,111,555,116,521,116"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a3a17a04471375f3dc75e395d38ad249b" title=" " alt="" coords="569,160,763,205"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="454,125,563,154,561,159,453,130"/>
+</map>

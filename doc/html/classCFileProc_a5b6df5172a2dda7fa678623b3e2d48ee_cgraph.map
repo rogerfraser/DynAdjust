@@ -1,0 +1,29 @@
+<map id="CFileProc::DoCopy" name="CFileProc::DoCopy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,180,145,207"/>
+<area shape="rect" id="Node000002" href="$classCFileProc.html#ae7a43f22bea552afbdef12d2653163f8" title=" " alt="" coords="919,65,1076,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,178,98,152,122,120,154,88,191,64,240,45,291,30,395,11,501,3,605,5,703,14,793,28,932,58,931,63,792,33,702,20,604,11,501,9,396,16,292,35,242,50,194,69,157,92,126,123,102,155,86,181"/>
+<area shape="rect" id="Node000003" href="$classCFileProc.html#a0cbe6c9ac8298f0cc442fecea0c0baf4" title=" " alt="" coords="193,78,410,106"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="93,177,137,146,192,116,212,108,214,113,194,121,139,151,96,181"/>
+<area shape="rect" id="Node000004" href="$classCFileProc.html#a3465e799a59ba030ebc9653d8757b22f" title=" " alt="" coords="458,168,619,195"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,193,268,194,410,191,442,189,442,194,410,196,268,199,145,198"/>
+<area shape="rect" id="Node000008" href="$classCFileProc.html#a0faa05e15321cccecdc27ca4cb5c3847" title=" " alt="" coords="914,294,1081,322"/>
+<area shape="poly" id="edge16_Node000001_Node000008" title=" " alt="" coords="146,203,377,240,668,280,898,300,898,305,667,285,376,246,145,208"/>
+<area shape="rect" id="Node000010" href="$classCFileProc.html#ac94cbdff970bd39c026cfdb3ef0a7ab6" title=" " alt="" coords="212,154,391,182"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="145,183,196,177,196,182,146,188"/>
+<area shape="rect" id="Node000011" href="$classCFileProc.html#ad747511e213eeec59984187cb5078351" title=" " alt="" coords="200,345,403,373"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="87,206,129,264,159,296,194,324,218,337,215,341,191,329,155,300,124,267,83,209"/>
+<area shape="rect" id="Node000005" href="$classCFileProc.html#a907d9484354ecb906de8e0b76def1ea5" title=" " alt="" coords="667,116,866,143"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="602,164,687,145,688,150,603,169"/>
+<area shape="rect" id="Node000006" href="$classCFileProc.html#acda89f1b4ac04d33990f9e7e5ff54688" title=" " alt="" coords="692,244,841,271"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="584,193,709,236,707,241,582,198"/>
+<area shape="rect" id="Node000009" href="$classCFileProc.html#a3c46d799e4b22f9fe96ce48096f2c5ca" title=" " alt="" coords="690,168,843,195"/>
+<area shape="poly" id="edge10_Node000004_Node000009" title=" " alt="" coords="619,179,674,179,674,184,619,184"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="800,241,832,225,864,205,925,153,972,103,976,106,928,157,867,209,835,229,803,245"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="728,245,721,235,726,225,742,219,767,217,793,219,808,226,806,231,792,225,766,222,743,224,730,229,726,234,732,241"/>
+<area shape="rect" id="Node000007" href="$classCFileProc.html#a5ae0ae3fb2cde2f296338340b3029bfe" title=" " alt="" coords="919,242,1076,270"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="841,254,904,254,904,259,841,260"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="833,269,917,288,916,293,832,274"/>
+<area shape="poly" id="edge12_Node000010_Node000002" title=" " alt="" coords="373,151,509,126,667,101,790,89,903,81,903,86,790,94,668,107,510,131,374,156"/>
+<area shape="poly" id="edge13_Node000010_Node000004" title=" " alt="" coords="392,170,442,173,442,179,391,176"/>
+<area shape="poly" id="edge14_Node000010_Node000010" title=" " alt="" coords="263,155,256,145,261,136,277,130,301,128,328,130,342,136,340,141,327,135,301,133,278,135,265,140,262,145,267,152"/>
+</map>

@@ -1,0 +1,35 @@
+<map id="dynadjust::measurements::CDnaMeasurement::CDnaMeasurement" name="dynadjust::measurements::CDnaMeasurement::CDnaMeasurement">
+<area shape="rect" id="Node000001" title=" " alt="" coords="608,345,895,390"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaDirectionSet.html#a5c46034082ef4f08e5d8f9b0668e1657" title=" " alt="" coords="298,5,534,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="736,332,711,272,674,200,623,126,592,93,558,65,534,50,536,46,562,60,596,89,627,123,678,197,716,270,740,330"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a8f075cc9f645ad7d09ef3bdb6fd74a7f" title=" " alt="" coords="293,75,540,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="729,333,701,287,663,233,615,179,559,134,536,122,539,117,561,129,618,175,667,229,706,284,734,330"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaselineCluster.html#a2488456f19af02583fed40dfbf6deb6e" title=" " alt="" coords="321,144,512,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="715,337,646,277,604,246,559,219,511,200,513,195,561,215,607,242,649,273,719,333"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a9ad603a87eaa8d01805aa0aefbc98a01" title=" " alt="" coords="282,229,550,274"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="688,341,626,314,559,289,520,277,522,272,561,284,628,309,690,336"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1measurements_1_1CDnaGpsPointCluster.html#ac479b4650cca13197fba7e3397504244" title=" " alt="" coords="321,298,512,360"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="592,352,512,343,513,337,593,347"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a5fea5e09fe192f59e30bbff65cab07c6" title=" " alt="" coords="294,384,539,429"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="593,389,540,395,539,390,592,383"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a36f871ae082393ade526cccd97233e66" title=" " alt="" coords="273,453,560,498"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="684,399,561,444,520,455,518,450,559,438,682,394"/>
+<area shape="rect" id="Node000009" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#ada56238e1110387b8ced879d093a6bf3" title=" " alt="" coords="273,523,560,567"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="717,403,648,459,606,488,561,513,532,524,530,520,559,508,603,484,645,455,714,398"/>
+<area shape="rect" id="Node000010" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a6d453669fb6f8b7cbecd84644db7de8f" title=" " alt="" coords="302,592,530,637"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="731,405,702,446,663,494,615,542,561,582,532,596,530,591,559,577,612,538,659,491,697,443,726,402"/>
+<area shape="rect" id="Node000017" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a1fd60f1dee05a409ae092301523e38a7" title=" " alt="" coords="302,661,530,706"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="738,406,713,461,674,527,624,595,594,625,561,651,532,667,530,662,559,647,591,621,620,591,670,525,708,458,733,403"/>
+<area shape="rect" id="Node000011" href="$classdynadjust_1_1measurements_1_1CDnaDirection.html#a067de1fba200eac332b2a14827943d62" title=" " alt="" coords="16,415,214,459"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="287,593,271,582,258,568,251,554,246,527,240,499,234,486,223,474,207,462,210,458,226,470,239,484,246,498,251,526,256,553,263,565,274,578,290,588"/>
+<area shape="rect" id="Node000012" href="$classdynadjust_1_1measurements_1_1CDnaDirectionSet.html#a0117a0a99b46a3a2de3782867d31d176" title=" " alt="" coords="6,484,224,529"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="287,589,271,582,257,572,247,563,223,543,198,532,200,527,226,539,250,559,260,568,274,577,289,584"/>
+<area shape="rect" id="Node000013" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaseline.html#aafd4dfaf813e18d606efed5acc4f3d74" title=" " alt="" coords="5,553,225,598"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="286,600,225,592,225,587,287,595"/>
+<area shape="rect" id="Node000014" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaselineCluster.html#ac83bcbf1d1dcbded6299d12bd817e842" title=" " alt="" coords="19,622,211,684"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="287,634,211,643,211,638,286,628"/>
+<area shape="rect" id="Node000015" href="$classdynadjust_1_1measurements_1_1CDnaGpsPoint.html#a32e5fe48bce1905e9b07d939fa2f9b49" title=" " alt="" coords="17,708,213,753"/>
+<area shape="poly" id="edge14_Node000010_Node000015" title=" " alt="" coords="289,644,274,651,260,662,251,674,241,686,226,698,203,710,200,705,223,693,237,682,246,670,256,658,271,647,287,639"/>
+<area shape="rect" id="Node000016" href="$classdynadjust_1_1measurements_1_1CDnaGpsPointCluster.html#abfcf2a0be8893c2af4d142d3f34f02de" title=" " alt="" coords="19,777,211,838"/>
+<area shape="poly" id="edge15_Node000010_Node000016" title=" " alt="" coords="290,640,274,651,262,664,255,678,250,706,246,736,239,752,227,767,213,778,209,774,223,763,234,749,240,735,245,706,250,676,258,661,271,647,287,636"/>
+</map>

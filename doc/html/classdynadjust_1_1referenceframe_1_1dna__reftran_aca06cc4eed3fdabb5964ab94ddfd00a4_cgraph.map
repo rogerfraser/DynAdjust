@@ -1,0 +1,13 @@
+<map id="dynadjust::referenceframe::dna_reftran::DetermineElapsedTime" name="dynadjust::referenceframe::dna_reftran::DetermineElapsedTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,92,270,136"/>
+<area shape="rect" id="Node000002" href="$dnatemplatedatetimefuncs_8hpp.html#a91194ff2ccb5d6143bb288689c7447f9" title=" " alt="" coords="374,5,478,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,88,317,42,358,31,360,36,318,47,193,93"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaDatum.html#ab147f6b8b8305f4cab1bfc751a29df88" title=" " alt="" coords="318,57,535,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="270,95,302,91,303,97,271,101"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaDatum.html#abcda45f916247271168391f2df3c5a28" title=" " alt="" coords="318,126,535,171"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="271,127,303,131,302,136,270,132"/>
+<area shape="rect" id="Node000005" href="$dnatemplatedatetimefuncs_8hpp.html#ae73a6ce9d0da70e230a2611ad108d66f" title=" " alt="" coords="365,195,488,222"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="193,134,318,181,351,190,349,195,317,186,191,139"/>
+<area shape="rect" id="Node000006" href="$dnatemplatedatetimefuncs_8hpp.html#ae6a677d9140b463fdd36a55b50ffb59c" title=" " alt="" coords="583,195,685,222"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="488,206,567,206,567,211,488,211"/>
+</map>

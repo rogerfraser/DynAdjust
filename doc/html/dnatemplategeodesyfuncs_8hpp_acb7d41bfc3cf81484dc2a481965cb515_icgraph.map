@@ -1,0 +1,10 @@
+<map id="primeMeridian" name="primeMeridian">
+<area shape="rect" id="Node000001" title=" " alt="" coords="521,38,637,66"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a51a3c6a1e0abbe8b7ed1605377ab969b" title=" " alt="" coords="242,29,473,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="506,54,474,54,474,49,506,49"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="393,17,380,10,357,8,337,10,324,15,319,21,320,28,315,29,314,19,321,10,335,5,357,3,381,5,396,12"/>
+<area shape="rect" id="Node000003" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="72,7,127,35"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="226,39,127,27,127,21,226,33"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a40d02d30294e142d77c78581168d5f42" title=" " alt="" coords="5,59,194,103"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="226,69,194,73,194,68,226,64"/>
+</map>

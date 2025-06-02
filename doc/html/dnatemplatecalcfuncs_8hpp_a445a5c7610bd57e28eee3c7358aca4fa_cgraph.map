@@ -1,0 +1,11 @@
+<map id="SecondstoRadians" name="SecondstoRadians">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,146,60"/>
+<area shape="rect" id="Node000002" href="$dnaconsts_8hpp.html#afd0a0479c92760ee64dc91d6fd065121" title=" " alt="" coords="194,32,300,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,43,178,43,178,48,146,48"/>
+<area shape="rect" id="Node000003" href="$dnaconsts_8hpp.html#a75f7c692bf0e9ae59d3177a98d62b092" title=" " alt="" coords="350,5,456,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="300,34,334,28,335,33,301,39"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#ac3f20c108124ffd6ecbe904400a078c5" title=" " alt="" coords="348,57,457,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="301,52,333,57,332,62,300,57"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="505,57,544,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="458,68,490,68,490,74,458,74"/>
+</map>

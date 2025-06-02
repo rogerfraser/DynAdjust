@@ -1,0 +1,16 @@
+<map id="dynadjust::networkadjust::dna_adjust::LoadSegmentationFileParameters" name="dynadjust::networkadjust::dna_adjust::LoadSegmentationFileParameters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,86,236,147"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1iostreams_1_1dna__io__seg.html#afe17e5971005d0d1b2b5855643774443" title=" " alt="" coords="343,47,512,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,99,327,88,328,93,236,105"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a871ec1693dffcf54482e6e62ed14ec60" title=" " alt="" coords="284,133,571,178"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="236,128,269,133,268,138,236,134"/>
+<area shape="rect" id="Node000003" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="656,29,750,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="512,65,640,48,641,54,512,70"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1iostreams_1_1dna__io__seg.html#a14a899764ab2fe3de0c4bc8256ea61c8" title=" " alt="" coords="619,82,787,143"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="512,86,604,97,603,103,512,91"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="667,30,661,20,666,11,680,5,703,3,728,5,741,12,739,16,727,10,703,8,681,10,669,15,666,20,672,27"/>
+<area shape="rect" id="Node000005" href="$dnaconsts-iostream_8hpp.html#a6ffac05d420f46e93efc85982b976055" title=" " alt="" coords="835,72,992,100"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="787,99,820,95,820,100,788,104"/>
+<area shape="rect" id="Node000006" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="849,124,978,152"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="788,120,834,126,834,131,787,125"/>
+</map>

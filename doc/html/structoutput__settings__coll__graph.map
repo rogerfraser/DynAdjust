@@ -1,0 +1,9 @@
+<map id="output_settings" name="output_settings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="58,417,243,1294"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,144,197,233"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,248,121,417,115,418,103,248"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="221,152,296,225"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,225,227,401,222,400,250,224"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="195,5,322,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="261,109,261,153,256,153,256,109"/>
+</map>

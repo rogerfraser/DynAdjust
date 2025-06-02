@@ -1,0 +1,13 @@
+<map id="dynadjust::networkplot::dna_plot::PrintCorrectionArrows" name="dynadjust::networkplot::dna_plot::PrintCorrectionArrows">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,241,144"/>
+<area shape="rect" id="Node000002" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="353,29,447,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,96,288,67,337,55,338,60,289,72,194,101"/>
+<area shape="rect" id="Node000003" href="$dnaconsts-iostream_8hpp.html#a6d6682d7981fdde39c780452406a8ce4" title=" " alt="" coords="364,81,436,109"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="241,108,348,97,349,103,241,113"/>
+<area shape="rect" id="Node000004" href="$dnaconsts-iostream_8hpp.html#ac31a980e733a8eb44ac8e6cdd71a3032" title=" " alt="" coords="375,133,425,161"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="241,130,359,141,359,146,241,135"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a39dbd8ab0cfc4c715b1b587061e49935" title=" " alt="" coords="289,209,511,254"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="183,142,328,200,326,205,181,147"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="353,31,345,20,351,11,370,5,400,3,432,5,449,12,448,17,431,10,400,8,371,10,355,15,351,20,357,27"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="347,209,346,199,355,190,373,184,400,182,429,185,447,191,445,196,428,190,400,187,374,189,358,194,351,200,353,208"/>
+</map>

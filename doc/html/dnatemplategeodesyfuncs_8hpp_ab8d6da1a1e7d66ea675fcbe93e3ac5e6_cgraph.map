@@ -1,0 +1,13 @@
+<map id="PartialD_Latitude" name="PartialD_Latitude">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,110,139,138"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#adb2a16445abfdfb3556b2b565fe1da78" title=" " alt="" coords="207,83,289,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,111,191,103,192,108,140,116"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a8d1f0bccd46036ced05ea2c90ccc1d82" title=" " alt="" coords="187,135,309,163"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="140,131,172,135,171,141,139,136"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="357,5,577,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="289,81,356,60,379,53,380,58,358,65,290,87"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ac027e797794dd037bedc85f3f9c2df30" title=" " alt="" coords="357,75,577,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="289,94,342,94,342,100,289,100"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#a1609536e9f22fd94ba3de41ab22f019e" title=" " alt="" coords="402,143,532,171"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="290,108,358,129,388,137,386,142,356,134,289,113"/>
+</map>

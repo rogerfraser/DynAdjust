@@ -1,0 +1,10 @@
+<map id="include/parameters/dnaprojection.cpp" name="include/parameters/dnaprojection.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="34,5,181,50"/>
+<area shape="rect" id="Node000002" href="$dnaprojection_8hpp.html" title=" " alt="" coords="34,98,181,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,50,110,83,105,83,105,50"/>
+<area shape="rect" id="Node000003" href="$dnatypes_8hpp.html" title=" " alt="" coords="5,283,210,311"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="89,145,73,167,61,192,56,213,61,234,70,253,84,270,79,274,66,256,56,236,51,213,56,190,68,164,84,142"/>
+<area shape="rect" id="Node000004" href="$dnadatumprojectionparam_8hpp.html" title=" " alt="" coords="70,191,297,235"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="128,141,158,177,154,181,123,145"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="165,238,132,274,128,270,162,234"/>
+</map>

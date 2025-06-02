@@ -1,0 +1,15 @@
+<map id="include/config/dnaoptions&#45;helper.hpp" name="include/config/dnaoptions&#45;helper.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="200,5,389,50"/>
+<area shape="rect" id="Node000002" href="$dnaoptions_8hpp.html" title=" " alt="" coords="73,106,289,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="269,52,211,99,208,94,266,48"/>
+<area shape="rect" id="Node000006" href="$dnaoptions-interface_8hpp.html" title=" " alt="" coords="314,98,502,143"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="323,48,370,86,367,90,320,52"/>
+<area shape="rect" id="Node000003" href="$dnaconsts_8hpp.html" title=" " alt="" coords="5,191,216,218"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="172,137,133,181,129,177,168,133"/>
+<area shape="rect" id="Node000004" href="$dnatypes_8hpp.html" title=" " alt="" coords="27,359,231,387"/>
+<area shape="poly" id="edge6_Node000002_Node000004" title=" " alt="" coords="196,133,215,158,230,190,241,224,246,252,244,280,230,312,209,337,183,354,180,350,206,333,226,310,238,279,241,253,236,225,225,192,210,161,191,136"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="83,221,55,240,33,268,26,289,33,310,52,333,78,350,75,354,49,337,28,312,21,289,28,265,52,236,81,217"/>
+<area shape="rect" id="Node000005" href="$dnaconsts-datums_8hpp.html" title=" " alt="" coords="42,266,216,311"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="116,218,123,250,118,251,111,220"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="132,311,132,343,126,343,126,311"/>
+</map>

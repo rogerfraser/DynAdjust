@@ -1,0 +1,18 @@
+<map id="FormHelmertRotationMatrix" name="FormHelmertRotationMatrix">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,142,210,170"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1math_1_1matrix__2d.html#a6070ae515a0a1990475b0eeeafbec43f" title=" " alt="" coords="258,99,436,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,139,242,133,243,139,208,144"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1math_1_1matrix__2d.html#a7b8cc43f2bc21d0b9befc0375ee76560" title=" " alt="" coords="258,168,436,213"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,167,243,173,242,178,207,173"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1math_1_1matrix__2d.html#ab5e0441daa632ef1cd9361170555c795" title=" " alt="" coords="484,29,662,74"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="416,165,434,154,450,137,458,120,466,102,482,84,488,80,491,85,486,88,470,105,462,122,454,140,438,158,419,170"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1math_1_1matrix__2d.html#a04623720a4cf24ec4036964e8ba0e5e4" title=" " alt="" coords="484,99,662,143"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="421,165,482,146,484,151,423,170"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1math_1_1matrix__2d.html#a813626232674916c7c1dd659494a6ce7" title=" " alt="" coords="484,168,662,213"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="437,188,468,188,468,193,437,193"/>
+<area shape="rect" id="Node000007" href="$namespacedynadjust_1_1math.html#aa151e8f67053e929dafdb9ea2f2f59d7" title=" " alt="" coords="494,237,653,282"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="423,211,484,230,482,235,421,216"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1math_1_1matrix__2d.html#a676d56f365149aaa075551215c92b37c" title=" " alt="" coords="484,307,662,351"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="375,211,424,251,485,292,495,297,492,302,483,297,421,256,372,215"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="530,29,529,19,536,10,551,5,573,3,598,5,612,12,610,17,596,10,573,8,552,10,539,15,534,21,535,28"/>
+</map>

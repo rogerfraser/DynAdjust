@@ -1,0 +1,33 @@
+<map id="include/parameters/dnadatum.cpp" name="include/parameters/dnadatum.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="405,5,553,50"/>
+<area shape="rect" id="Node000002" href="$dnadatum_8hpp.html" title=" " alt="" coords="351,98,498,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="468,52,447,86,443,83,464,49"/>
+<area shape="rect" id="Node000011" href="$dnaepsg_8hpp.html" title=" " alt="" coords="461,191,609,235"/>
+<area shape="poly" id="edge17_Node000001_Node000011" title=" " alt="" coords="492,49,512,97,531,175,526,176,507,99,487,51"/>
+<area shape="rect" id="Node000003" href="$dnatypes_8hpp.html" title=" " alt="" coords="312,620,516,648"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="351,128,265,135,172,147,89,166,57,178,36,193,16,217,10,242,11,304,11,467,13,479,19,490,44,514,80,535,126,555,231,589,332,614,330,619,230,594,124,560,78,540,41,518,15,494,8,480,6,467,6,304,4,241,12,215,32,189,55,174,87,161,171,142,265,129,350,122"/>
+<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html" title=" " alt="" coords="169,292,450,320"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="427,143,420,188,413,213,401,237,377,264,349,286,346,281,374,261,397,234,408,211,415,187,421,143"/>
+<area shape="rect" id="Node000008" href="$dnatemplatedatetimefuncs_8hpp.html" title=" " alt="" coords="46,199,387,227"/>
+<area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="376,146,261,195,259,190,373,141"/>
+<area shape="rect" id="Node000009" href="$dnadatumprojectionparam_8hpp.html" title=" " alt="" coords="533,283,759,328"/>
+<area shape="poly" id="edge12_Node000002_Node000009" title=" " alt="" coords="499,127,531,136,564,148,596,166,622,189,634,207,642,227,649,267,644,268,637,228,630,209,618,192,593,170,562,153,530,141,498,133"/>
+<area shape="rect" id="Node000010" href="$dnaellipsoid_8hpp.html" title=" " alt="" coords="683,191,830,235"/>
+<area shape="poly" id="edge14_Node000002_Node000010" title=" " alt="" coords="499,139,669,185,667,190,498,144"/>
+<area shape="rect" id="Node000005" href="$dnatemplatecalcfuncs_8hpp.html" title=" " alt="" coords="149,376,457,404"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="311,320,308,361,303,360,306,320"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="282,406,263,421,246,438,235,458,235,468,237,478,265,521,301,558,339,587,375,610,372,614,336,592,297,562,261,524,233,480,229,468,230,457,241,435,259,417,279,402"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html" title=" " alt="" coords="247,452,458,479"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="314,403,337,437,333,440,310,406"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="357,479,365,521,380,571,398,606,394,608,375,573,360,522,352,480"/>
+<area shape="rect" id="Node000007" href="$dnaconsts-datums_8hpp.html" title=" " alt="" coords="390,527,563,572"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="374,478,432,516,429,521,371,482"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="462,574,435,609,431,606,458,571"/>
+<area shape="poly" id="edge11_Node000008_Node000004" title=" " alt="" coords="232,225,287,279,284,283,228,229"/>
+<area shape="poly" id="edge13_Node000009_Node000003" title=" " alt="" coords="649,329,647,378,637,443,616,512,599,545,577,574,544,600,507,617,504,612,542,595,573,570,594,542,611,510,632,442,641,377,644,329"/>
+<area shape="poly" id="edge15_Node000010_Node000003" title=" " alt="" coords="767,235,787,303,796,345,799,388,799,467,792,508,773,542,744,569,707,591,666,607,621,619,532,632,531,627,620,613,664,602,705,586,741,565,769,538,787,506,794,467,794,389,790,346,782,304,762,237"/>
+<area shape="poly" id="edge16_Node000010_Node000009" title=" " alt="" coords="732,238,686,275,682,271,728,234"/>
+<area shape="poly" id="edge20_Node000011_Node000004" title=" " alt="" coords="482,238,357,288,355,283,480,233"/>
+<area shape="poly" id="edge18_Node000011_Node000007" title=" " alt="" coords="533,236,523,284,484,512,479,512,518,283,528,235"/>
+<area shape="poly" id="edge19_Node000011_Node000009" title=" " alt="" coords="563,234,609,271,606,275,560,238"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="CdnageoidintDlg::CreateGridIndex" name="CdnageoidintDlg::CreateGridIndex">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,91,213,136"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a0a57affa2f9ee83ee48851546035a63e" title=" " alt="" coords="277,5,439,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,88,261,63,262,69,184,93"/>
+<area shape="rect" id="Node000003" href="$classCdnageoidintDlg.html#af6011ca4546f1cc0343978e906b02056" title=" " alt="" coords="263,91,453,136"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,111,247,111,247,116,213,116"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a3a17a04471375f3dc75e395d38ad249b" title=" " alt="" coords="261,160,455,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,134,261,153,260,158,191,139"/>
+</map>

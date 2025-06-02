@@ -1,0 +1,9 @@
+<map id="dynadjust::measurements::MsrTally::coutSummaryMsrToStn" name="dynadjust::measurements::MsrTally::coutSummaryMsrToStn">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,246,94"/>
+<area shape="rect" id="Node000002" href="$dnaconsts-iostream_8hpp.html#a6717d4c31c0207bd65a940cef98bf72a" title=" " alt="" coords="294,5,429,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,46,280,34,281,40,230,51"/>
+<area shape="rect" id="Node000003" href="$dnaconsts-iostream_8hpp.html#afafb38548a6baded52afefb205218406" title=" " alt="" coords="335,57,388,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="246,68,319,68,319,74,246,74"/>
+<area shape="rect" id="Node000004" href="$dnaconsts-iostream_8hpp.html#a4570bca630f26d52ffd8e9c01737f717" title=" " alt="" coords="323,109,400,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="230,92,308,109,307,114,229,97"/>
+</map>

@@ -1,0 +1,61 @@
+<map id="include/measurement_types/dnastntally.hpp" name="include/measurement_types/dnastntally.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1097,5,1264,50"/>
+<area shape="rect" id="Node000002" href="$dnaparser__pimpl_8cxx.html" title=" " alt="" coords="908,98,1069,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1122,59,1035,100,1033,95,1120,55"/>
+<area shape="rect" id="Node000003" href="$dnaiosnx_8hpp.html" title=" " alt="" coords="1093,106,1268,134"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1183,66,1183,106,1178,106,1178,66"/>
+<area shape="rect" id="Node000026" href="$dnastntally_8cpp.html" title=" " alt="" coords="1292,98,1458,143"/>
+<area shape="poly" id="edge33_Node000001_Node000026" title=" " alt="" coords="1242,55,1330,95,1328,100,1240,59"/>
+<area shape="rect" id="Node000004" href="$dnaadjust_8hpp.html" title=" " alt="" coords="564,191,717,235"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1107,140,1082,145,886,178,718,204,717,198,885,173,1082,140,1106,135"/>
+<area shape="rect" id="Node000008" href="$dnaadjust_2precompile_8h.html" title=" " alt="" coords="984,283,1137,328"/>
+<area shape="poly" id="edge19_Node000003_Node000008" title=" " alt="" coords="1166,149,1077,285,1072,282,1161,146"/>
+<area shape="rect" id="Node000013" href="$dnaadjustwrapper_2precompile_8h.html" title=" " alt="" coords="754,376,960,421"/>
+<area shape="poly" id="edge20_Node000003_Node000013" title=" " alt="" coords="1152,145,1071,207,974,285,879,378,875,374,971,281,1067,202,1149,141"/>
+<area shape="rect" id="Node000016" href="$dnainterop_8hpp.html" title=" " alt="" coords="1218,191,1375,235"/>
+<area shape="poly" id="edge21_Node000003_Node000016" title=" " alt="" coords="1211,141,1271,188,1267,192,1207,146"/>
+<area shape="rect" id="Node000018" href="$dnaimport_2precompile_8h.html" title=" " alt="" coords="1161,283,1318,328"/>
+<area shape="poly" id="edge30_Node000003_Node000018" title=" " alt="" coords="1188,149,1196,190,1209,234,1230,282,1225,284,1203,236,1191,191,1182,150"/>
+<area shape="rect" id="Node000024" href="$dnaiosnxread_8cpp.html" title=" " alt="" coords="1399,199,1602,227"/>
+<area shape="poly" id="edge31_Node000003_Node000024" title=" " alt="" coords="1243,136,1455,196,1453,201,1241,141"/>
+<area shape="rect" id="Node000025" href="$dnaiosnxwrite_8cpp.html" title=" " alt="" coords="1626,199,1834,227"/>
+<area shape="poly" id="edge32_Node000003_Node000025" title=" " alt="" coords="1255,135,1281,140,1448,165,1614,188,1661,196,1660,201,1614,193,1447,170,1280,145,1254,140"/>
+<area shape="rect" id="Node000005" href="$dnaadjust-multi_8cpp.html" title=" " alt="" coords="62,283,217,328"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="549,231,399,255,229,286,218,288,217,283,228,281,398,250,548,225"/>
+<area shape="rect" id="Node000006" href="$dnaadjust_8cpp.html" title=" " alt="" coords="5,376,159,421"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="548,221,409,230,252,243,120,262,75,273,52,285,43,306,45,329,55,353,68,374,63,377,50,355,40,330,38,305,48,282,73,268,119,256,252,238,408,224,548,216"/>
+<area shape="rect" id="Node000007" href="$dnaadjust-stage_8cpp.html" title=" " alt="" coords="241,283,398,328"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="550,243,397,285,396,280,548,237"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="733,231,984,285,983,290,732,237"/>
+<area shape="rect" id="Node000010" href="$dnaadjustprogress_8hpp.html" title=" " alt="" coords="422,283,628,328"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="603,247,554,285,551,281,600,243"/>
+<area shape="poly" id="edge18_Node000004_Node000013" title=" " alt="" coords="733,214,771,222,809,234,844,254,872,282,882,305,883,330,878,355,870,376,865,375,872,354,877,330,877,306,868,285,841,258,807,239,770,227,732,220"/>
+<area shape="rect" id="Node000015" href="$dnaadjustwrapper_8hpp.html" title=" " alt="" coords="652,283,858,328"/>
+<area shape="poly" id="edge15_Node000004_Node000015" title=" " alt="" coords="681,243,730,281,726,285,678,247"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="120,342,98,377,93,374,115,339"/>
+<area shape="rect" id="Node000009" href="$dnaadjust_2precompile_8cpp.html" title=" " alt="" coords="984,376,1137,421"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="1063,344,1063,376,1058,376,1058,344"/>
+<area shape="rect" id="Node000011" href="$dnaadjustprogress_8cpp.html" title=" " alt="" coords="292,376,498,421"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="483,339,428,378,425,373,480,335"/>
+<area shape="rect" id="Node000012" href="$dnaadjustwrapper_8cpp.html" title=" " alt="" coords="523,376,729,421"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="562,336,604,374,600,378,558,340"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="619,330,778,373,777,378,618,335"/>
+<area shape="rect" id="Node000014" href="$dnaadjustwrapper_2precompile_8cpp.html" title=" " alt="" coords="754,469,960,513"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="859,436,859,468,854,468,854,436"/>
+<area shape="poly" id="edge16_Node000015_Node000012" title=" " alt="" coords="714,339,658,378,655,373,711,335"/>
+<area shape="poly" id="edge17_Node000015_Node000013" title=" " alt="" coords="792,336,834,374,831,378,789,340"/>
+<area shape="rect" id="Node000017" href="$dnainterop_8cpp.html" title=" " alt="" coords="1341,283,1498,328"/>
+<area shape="poly" id="edge22_Node000016_Node000017" title=" " alt="" coords="1339,242,1392,281,1388,285,1336,247"/>
+<area shape="poly" id="edge23_Node000016_Node000018" title=" " alt="" coords="1277,250,1255,285,1251,282,1273,247"/>
+<area shape="rect" id="Node000020" href="$dnaimportwrapper_8hpp.html" title=" " alt="" coords="1521,283,1731,328"/>
+<area shape="poly" id="edge25_Node000016_Node000020" title=" " alt="" coords="1390,237,1548,280,1546,285,1389,242"/>
+<area shape="rect" id="Node000022" href="$dnaimportwrapper_2precompile_8h.html" title=" " alt="" coords="1664,376,1873,421"/>
+<area shape="poly" id="edge29_Node000016_Node000022" title=" " alt="" coords="1390,233,1479,238,1583,242,1679,253,1717,265,1745,281,1761,303,1769,328,1773,375,1768,376,1764,329,1756,305,1742,285,1715,270,1678,259,1582,247,1478,244,1390,238"/>
+<area shape="rect" id="Node000019" href="$dnaimport_2precompile_8cpp.html" title=" " alt="" coords="1161,376,1318,421"/>
+<area shape="poly" id="edge24_Node000018_Node000019" title=" " alt="" coords="1242,344,1242,376,1237,376,1237,344"/>
+<area shape="rect" id="Node000021" href="$dnaimportwrapper_8cpp.html" title=" " alt="" coords="1431,376,1640,421"/>
+<area shape="poly" id="edge26_Node000020_Node000021" title=" " alt="" coords="1596,341,1559,378,1555,374,1592,337"/>
+<area shape="poly" id="edge27_Node000020_Node000022" title=" " alt="" coords="1674,334,1736,373,1733,378,1672,339"/>
+<area shape="rect" id="Node000023" href="$dnaimportwrapper_2precompile_8cpp.html" title=" " alt="" coords="1664,469,1873,513"/>
+<area shape="poly" id="edge28_Node000022_Node000023" title=" " alt="" coords="1771,436,1771,468,1766,468,1766,436"/>
+</map>

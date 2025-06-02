@@ -1,0 +1,10 @@
+<map id="dynadjust::datum_parameters::CDnaProjection::GetCentralScaleFactor" name="dynadjust::datum_parameters::CDnaProjection::GetCentralScaleFactor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="585,32,827,93"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#a36128e3a57276b9192766c2702a237bb" title=" " alt="" coords="286,5,536,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="569,49,536,45,537,40,570,44"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#a358f9510f48a26a36d7998d8f7aa2065" title=" " alt="" coords="285,75,537,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="570,81,538,85,537,80,569,76"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#a9016524bcd7fb83c9f28ddb30b0fcc71" title=" " alt="" coords="5,40,237,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="271,47,238,51,237,46,270,42"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="269,83,237,79,237,74,270,77"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="dynadjust::dynamlinterop::dna_import::InitialiseDynaMLSepMeasurementFile" name="dynadjust::dynamlinterop::dna_import::InitialiseDynaMLSepMeasurementFile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="716,68,961,130"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="889,56,870,49,838,47,812,49,794,53,785,60,784,68,779,67,780,57,791,49,811,43,839,41,871,44,890,51"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#ad0c022124e85e5ac2d632d5e5ff69922" title=" " alt="" coords="393,29,668,91"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="700,84,668,80,669,75,701,79"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a9932db582c155112200a907121037e06" title=" " alt="" coords="422,115,639,160"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="701,119,640,126,639,121,701,113"/>
+<area shape="poly" id="edge6_Node000002_Node000002" title=" " alt="" coords="580,18,561,11,531,8,504,10,487,15,478,21,477,30,471,29,473,19,484,10,503,5,531,3,563,5,582,13"/>
+<area shape="rect" id="Node000003" href="$dnaimportwrapper_8cpp.html#a323b2f6265c5498d97ce25d25b4aa635" title=" " alt="" coords="108,17,345,45"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="377,48,345,45,346,40,378,43"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#ab4ad097f340fc62a711194772d8b77f0" title=" " alt="" coords="120,68,332,113"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="378,78,333,83,332,78,377,73"/>
+<area shape="rect" id="Node000004" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,17,60,45"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="92,34,60,34,60,28,92,28"/>
+</map>

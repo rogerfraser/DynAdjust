@@ -1,0 +1,18 @@
+<map id="CdnageoidintDlg::DeleteLogFile" name="CdnageoidintDlg::DeleteLogFile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,231,85"/>
+<area shape="rect" id="Node000002" href="$classCFileProc.html#a9f7b6fa6c66c9c76d7855bc978a9fa88" title=" " alt="" coords="279,5,457,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,54,282,34,283,39,189,59"/>
+<area shape="rect" id="Node000003" href="$classCFileProc.html#ab5d9d444c59b15e2f7c541557871b34c" title=" " alt="" coords="302,57,434,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,68,286,68,286,74,231,74"/>
+<area shape="rect" id="Node000008" href="$classCFileProc.html#a0b82d887b245e5245f95ac4a3a9648ad" title=" " alt="" coords="292,109,444,137"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="189,83,283,103,282,108,188,88"/>
+<area shape="rect" id="Node000004" href="$classCFileProc.html#acda89f1b4ac04d33990f9e7e5ff54688" title=" " alt="" coords="505,57,654,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="434,68,490,68,490,74,434,74"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="544,58,538,48,543,39,557,33,580,31,604,33,617,40,615,44,603,38,580,36,558,38,547,43,544,48,549,55"/>
+<area shape="rect" id="Node000005" href="$classCFileProc.html#a5ae0ae3fb2cde2f296338340b3029bfe" title=" " alt="" coords="708,5,864,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="637,54,713,35,714,40,638,59"/>
+<area shape="rect" id="Node000006" href="$classCFileProc.html#ae7a43f22bea552afbdef12d2653163f8" title=" " alt="" coords="707,57,865,85"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="655,68,692,68,692,74,655,74"/>
+<area shape="rect" id="Node000007" href="$classCFileProc.html#a0faa05e15321cccecdc27ca4cb5c3847" title=" " alt="" coords="702,109,870,137"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="638,83,714,102,713,108,637,88"/>
+</map>

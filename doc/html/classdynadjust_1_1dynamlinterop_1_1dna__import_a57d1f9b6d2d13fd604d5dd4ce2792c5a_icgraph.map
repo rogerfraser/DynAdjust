@@ -1,0 +1,8 @@
+<map id="dynadjust::dynamlinterop::dna_import::PrintMeasurementsToStations" name="dynadjust::dynamlinterop::dna_import::PrintMeasurementsToStations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="370,29,608,91"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="533,17,517,11,489,8,465,10,450,15,442,21,441,30,436,29,437,19,447,10,464,5,489,3,518,5,535,13"/>
+<area shape="rect" id="Node000002" href="$dnaimportwrapper_8cpp.html#a5bc790647adc0b44da89bb409c4d30c0" title=" " alt="" coords="108,46,322,74"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="354,63,323,63,323,58,354,58"/>
+<area shape="rect" id="Node000003" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,46,60,74"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="92,63,60,63,60,58,92,58"/>
+</map>

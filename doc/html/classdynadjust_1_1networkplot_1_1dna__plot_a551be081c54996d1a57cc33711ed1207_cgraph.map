@@ -1,0 +1,12 @@
+<map id="dynadjust::networkplot::dna_plot::ReduceStationCoordinates" name="dynadjust::networkplot::dna_plot::ReduceStationCoordinates">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,271,74"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="96,29,95,19,102,10,116,5,138,3,162,5,176,12,174,17,160,10,138,8,118,10,105,15,100,21,101,28"/>
+<area shape="rect" id="Node000002" href="$dnatemplatecalcfuncs_8hpp.html#a946b8c7fa5c89c190119ab42907afd59" title=" " alt="" coords="319,38,394,66"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="271,49,303,49,303,54,271,54"/>
+<area shape="rect" id="Node000003" href="$dnatemplatecalcfuncs_8hpp.html#a0b67c11e0772e98f4ce61e8b63962634" title=" " alt="" coords="442,38,597,66"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="395,49,427,49,427,54,395,54"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#ac3f20c108124ffd6ecbe904400a078c5" title=" " alt="" coords="645,38,755,66"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="598,49,630,49,630,54,598,54"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="803,38,841,66"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="755,49,787,49,787,54,755,54"/>
+</map>

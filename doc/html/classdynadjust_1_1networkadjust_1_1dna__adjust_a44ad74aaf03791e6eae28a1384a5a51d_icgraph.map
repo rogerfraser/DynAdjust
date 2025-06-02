@@ -1,0 +1,7 @@
+<map id="dynadjust::networkadjust::dna_adjust::PrintAdjustedNetworkStations" name="dynadjust::networkadjust::dna_adjust::PrintAdjustedNetworkStations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="372,5,622,67"/>
+<area shape="rect" id="Node000002" href="$dnaadjustwrapper_8cpp.html#a622d5caf784795aebadd424affbf2255" title=" " alt="" coords="108,22,324,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="356,39,325,39,325,34,356,34"/>
+<area shape="rect" id="Node000003" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,22,60,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,39,60,39,60,34,92,34"/>
+</map>

@@ -1,0 +1,32 @@
+<map id="include/io/dnaiotpb.cpp" name="include/io/dnaiotpb.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="296,5,468,33"/>
+<area shape="rect" id="Node000002" href="$dnaiotpb_8hpp.html" title=" " alt="" coords="66,258,240,286"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="318,36,272,54,250,67,231,83,202,121,181,164,168,207,160,243,155,242,163,205,176,162,197,118,227,79,247,63,270,49,316,31"/>
+<area shape="rect" id="Node000005" href="$dnastrmanipfuncs_8hpp.html" title=" " alt="" coords="242,81,523,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="385,34,385,65,380,65,380,34"/>
+<area shape="rect" id="Node000009" href="$dnaiostreamfuncs_8hpp.html" title=" " alt="" coords="578,81,859,109"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="443,31,644,75,642,80,442,36"/>
+<area shape="rect" id="Node000003" href="$dnaiobase_8hpp.html" title=" " alt="" coords="5,350,189,378"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="147,287,115,339,111,336,143,284"/>
+<area shape="rect" id="Node000004" href="$dnatypes_8hpp.html" title=" " alt="" coords="200,435,404,462"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="166,284,284,421,280,425,162,288"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="131,376,257,426,255,431,129,381"/>
+<area shape="rect" id="Node000006" href="$dnatemplatecalcfuncs_8hpp.html" title=" " alt="" coords="228,165,536,193"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="385,109,385,150,380,150,380,109"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="360,196,329,218,315,233,305,250,292,294,289,341,292,384,298,419,293,420,287,385,283,341,287,294,300,248,311,230,326,214,356,191"/>
+<area shape="rect" id="Node000007" href="$dnaconsts_8hpp.html" title=" " alt="" coords="314,258,525,286"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="390,192,411,243,406,245,385,194"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="406,288,381,313,355,344,332,383,315,421,310,419,327,381,351,340,377,309,403,284"/>
+<area shape="rect" id="Node000008" href="$dnaconsts-datums_8hpp.html" title=" " alt="" coords="365,342,538,387"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="427,285,441,326,436,328,422,287"/>
+<area shape="poly" id="edge11_Node000008_Node000004" title=" " alt="" coords="413,390,340,429,338,425,411,385"/>
+<area shape="rect" id="Node000010" href="$dnaversion-stream_8hpp.html" title=" " alt="" coords="655,157,843,201"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="726,108,738,141,733,143,721,110"/>
+<area shape="rect" id="Node000011" href="$dnaversion_8hpp.html" title=" " alt="" coords="549,258,765,286"/>
+<area shape="poly" id="edge18_Node000009_Node000011" title=" " alt="" coords="693,111,666,131,645,158,639,179,638,201,648,243,643,244,633,201,633,178,640,155,662,127,690,107"/>
+<area shape="rect" id="Node000012" href="$dnaconsts-iostream_8hpp.html" title=" " alt="" coords="790,249,972,294"/>
+<area shape="poly" id="edge17_Node000009_Node000012" title=" " alt="" coords="779,107,821,125,841,138,858,155,869,173,877,194,884,233,878,234,872,195,864,176,854,158,837,143,819,130,777,112"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="729,204,683,248,679,245,725,200"/>
+<area shape="poly" id="edge15_Node000010_Node000012" title=" " alt="" coords="782,200,839,238,836,243,779,204"/>
+<area shape="poly" id="edge16_Node000012_Node000004" title=" " alt="" coords="824,297,700,342,551,389,378,433,377,428,550,384,698,336,823,292"/>
+</map>

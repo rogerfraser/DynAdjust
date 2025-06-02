@@ -1,0 +1,9 @@
+<map id="CHISQRLIMITS" name="CHISQRLIMITS">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,120,85"/>
+<area shape="rect" id="Node000002" href="$dnaconsts-iostream_8hpp.html#adf49ccb02aa061aa2952191d251617ea" title=" " alt="" coords="168,5,325,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,54,179,35,181,40,115,59"/>
+<area shape="rect" id="Node000003" href="$dnaconsts-iostream_8hpp.html#a3a6df04fbe3fdf4dfcad23a44dc38813" title=" " alt="" coords="202,57,290,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,68,187,68,187,74,120,74"/>
+<area shape="rect" id="Node000004" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="182,109,310,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="115,83,181,102,179,107,114,88"/>
+</map>

@@ -1,0 +1,24 @@
+<map id="PRECISION_1E16" name="PRECISION_1E16">
+<area shape="rect" id="Node000001" title=" " alt="" coords="2030,32,2160,60"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#a27baed86d16081d474be8985bc2678f3" title=" " alt="" coords="1787,5,1982,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2014,38,1982,34,1983,29,2015,33"/>
+<area shape="rect" id="Node000003" href="$dnatemplategeodesyfuncs_8hpp.html#add6caac270c05d0c956de8c90735d37e" title=" " alt="" coords="1826,57,1943,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="2015,58,1944,67,1943,61,2014,53"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a22d616362a686beb2d161bf002108b15" title=" " alt="" coords="1478,49,1739,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1810,74,1739,74,1739,68,1810,68"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#aa77acadd030502a9c8a7d055ce74f554" title=" " alt="" coords="1203,6,1430,67"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1462,56,1431,53,1431,47,1463,51"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a4a45870b69a6bbd3209ceafbd2a1bc5c" title=" " alt="" coords="926,49,1155,94"/>
+<area shape="poly" id="edge11_Node000004_Node000006" title=" " alt="" coords="1463,81,1430,82,1203,82,1155,80,1155,75,1203,77,1430,77,1463,76"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1188,55,1156,59,1155,54,1187,50"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a5215d37328f73436a4d0f3dea5519d4e" title=" " alt="" coords="649,49,878,94"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="910,74,878,74,878,68,910,68"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#ab7ab7b3dbe80eec0815bfa4d98b748f1" title=" " alt="" coords="327,49,601,94"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="633,74,602,74,602,68,633,68"/>
+<area shape="rect" id="Node000009" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a175a54cda67bad4e1b277b18b3d42819" title=" " alt="" coords="108,18,279,63"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="311,56,279,53,280,48,312,51"/>
+<area shape="rect" id="Node000010" href="$dnaplotwrapper_8cpp.html#a7cb2f850ea13fa46112505a44bf29c33" title=" " alt="" coords="130,87,256,114"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="312,90,257,96,257,91,311,85"/>
+<area shape="rect" id="Node000011" href="$dnaplotwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,87,60,114"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="115,103,60,103,60,98,115,98"/>
+</map>

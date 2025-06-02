@@ -1,0 +1,15 @@
+<map id="dynadjust::networkadjust::dna_adjust::ComputeTstatistics" name="dynadjust::networkadjust::dna_adjust::ComputeTstatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,238,157"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a823aa002c9ae408502e643d173c2ce80" title=" " alt="" coords="286,112,523,157"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,132,270,132,270,138,238,138"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#aeb5d2aa3dcd6f900fae5bf161dff14a6" title=" " alt="" coords="586,5,828,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="474,109,595,70,597,75,476,114"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#a675c89cac31032ff8202ef29f6fe70a9" title=" " alt="" coords="890,150,1021,178"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="524,120,676,115,760,118,843,127,904,142,902,147,842,132,760,123,676,121,524,126"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ab2e6507e3d7636a93b295c5b910e15b7" title=" " alt="" coords="580,142,834,186"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="524,144,565,148,564,153,523,149"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a43ffd69101f2e1a8c00cb156dd1c3bab" title=" " alt="" coords="571,211,842,256"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="461,155,572,196,597,204,595,209,570,201,459,160"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="834,162,875,162,875,167,834,167"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="799,208,842,196,894,181,896,186,843,201,800,213"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="type_pimpl" name="type_pimpl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="96,280,197,375"/>
+<area shape="rect" id="Node000002" href="$classtype__pskel.html" title=" " alt="" coords="24,151,125,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,235,125,279,120,282,97,238"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,5,144,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="77,110,77,152,72,152,72,110"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="149,143,288,232"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="191,246,173,281,168,279,187,244"/>
+</map>

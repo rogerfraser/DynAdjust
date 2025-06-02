@@ -1,0 +1,9 @@
+<map id="dynadjust::measurements::CDnaGpsPoint::SetReferenceFrame" name="dynadjust::measurements::CDnaGpsPoint::SetReferenceFrame">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,264,85"/>
+<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1epsg.html#a6014bc834568efd22447508efded81e1" title=" " alt="" coords="312,5,513,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,44,296,39,297,45,264,49"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1measurements_1_1CDnaGpsPoint.html#a617efcd8cbb1d1c3d2209ca708b9173d" title=" " alt="" coords="317,75,508,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="264,76,301,80,301,86,264,81"/>
+<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#a41afaa86d74dc2b3ddb59220c19a2b71" title=" " alt="" coords="561,5,757,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="513,25,545,25,545,30,513,30"/>
+</map>

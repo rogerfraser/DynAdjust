@@ -1,0 +1,9 @@
+<map id="CInputCoords::OnEnSetfocusLat" name="CInputCoords::OnEnSetfocusLat">
+<area shape="rect" id="Node000001" title=" " alt="" coords="252,83,478,111"/>
+<area shape="rect" id="Node000002" href="$classCInputCoords.html#a3c25d8bdc7ccd67325ddf7b413841da5" title=" " alt="" coords="5,5,204,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="295,81,190,53,192,48,296,76"/>
+<area shape="rect" id="Node000003" href="$classCInputCoords.html#af1b479eeaf78942f705bd2cbdc663f85" title=" " alt="" coords="5,75,204,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="236,100,204,100,204,94,236,94"/>
+<area shape="rect" id="Node000004" href="$classCInputCoords.html#abb8b90befc28f859df0137c054774007" title=" " alt="" coords="5,144,204,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="296,118,192,146,190,141,295,113"/>
+</map>

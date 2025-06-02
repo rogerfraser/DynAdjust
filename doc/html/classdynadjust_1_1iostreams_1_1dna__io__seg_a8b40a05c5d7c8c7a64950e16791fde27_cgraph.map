@@ -1,0 +1,19 @@
+<map id="dynadjust::iostreams::dna_io_seg::write_seg_block" name="dynadjust::iostreams::dna_io_seg::write_seg_block">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,221,172"/>
+<area shape="rect" id="Node000002" href="$dnaconsts-iostream_8hpp.html#a442268be4550e1284457aaef750ca9ce" title=" " alt="" coords="297,5,362,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,125,200,85,267,44,281,36,283,41,270,48,203,90,146,129"/>
+<area shape="rect" id="Node000003" href="$dnatemplatestnmsrfuncs_8hpp.html#ad3c296ebccb8aabc0d594e8b2fab665a" title=" " alt="" coords="269,57,390,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,124,273,88,275,93,178,129"/>
+<area shape="rect" id="Node000006" href="$dnaconsts-iostream_8hpp.html#aedcb4017a12ea1cf46074758d11ba9da" title=" " alt="" coords="298,109,360,137"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="221,134,283,126,283,131,221,139"/>
+<area shape="rect" id="Node000007" href="$dnaconsts-iostream_8hpp.html#a53eb9a44afccfd5fc61673586492ac41" title=" " alt="" coords="298,161,360,189"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="221,160,283,167,283,172,221,165"/>
+<area shape="rect" id="Node000008" href="$dnaconsts-iostream_8hpp.html#a92c6b66adb1eb28c761e6e1eaadede35" title=" " alt="" coords="296,213,363,241"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="179,170,282,208,280,213,177,175"/>
+<area shape="rect" id="Node000009" href="$dnaconsts-iostream_8hpp.html#a6c2544809d562354e1671894ac28c89a" title=" " alt="" coords="305,265,354,293"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="147,170,203,209,270,250,292,261,290,266,267,255,200,214,144,175"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1measurements_1_1MsrTally.html#a28147041e70b79473878f2d5d385ef33" title=" " alt="" coords="438,20,629,64"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="390,60,422,55,423,60,391,65"/>
+<area shape="rect" id="Node000005" href="$dnatemplatefuncs_8hpp.html#a78f17ec94799d40562a72e9d65d49e14" title=" " alt="" coords="472,88,596,116"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="391,78,457,88,456,93,390,83"/>
+</map>

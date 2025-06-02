@@ -1,0 +1,9 @@
+<map id="elapsedTime" name="elapsedTime">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,110,60"/>
+<area shape="rect" id="Node000002" href="$dnatemplatedatetimefuncs_8hpp.html#a91194ff2ccb5d6143bb288689c7447f9" title=" " alt="" coords="167,5,271,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,35,151,28,152,33,110,40"/>
+<area shape="rect" id="Node000003" href="$dnatemplatedatetimefuncs_8hpp.html#ae73a6ce9d0da70e230a2611ad108d66f" title=" " alt="" coords="158,57,280,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="110,51,143,57,142,62,109,57"/>
+<area shape="rect" id="Node000004" href="$dnatemplatedatetimefuncs_8hpp.html#ae6a677d9140b463fdd36a55b50ffb59c" title=" " alt="" coords="328,57,430,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="280,68,312,68,312,74,280,74"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="FloatFromString" name="FloatFromString">
+<area shape="rect" id="Node000001" title=" " alt="" coords="878,168,1003,196"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1CDnaProjectFile.html#a7b45733ec42ea1bc9c2e52f1612b1835" title=" " alt="" coords="614,40,810,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="912,160,874,128,828,99,802,88,804,83,831,95,877,124,915,156"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1measurements_1_1CDnaDirection.html#a36b27de06a8b7e564709480ff43bc7ae" title=" " alt="" coords="600,109,824,170"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="862,170,823,163,824,158,863,165"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1measurements_1_1CDnaDistance.html#aa8e3fba7a7ad3c45a6d8383d5b66a125" title=" " alt="" coords="601,194,823,256"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="863,199,824,207,823,202,862,194"/>
+<area shape="rect" id="Node000009" href="$classdynadjust_1_1measurements_1_1CDnaDirection.html#a61b87f37ab07dcbbc2d89d2d2b1213ae" title=" " alt="" coords="594,280,830,325"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="915,209,877,241,831,270,804,282,802,277,828,265,874,236,912,205"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1CDnaProjectFile.html#ada57c170206b279b9e6f0caead87d62f" title=" " alt="" coords="351,40,546,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="599,65,547,65,547,60,599,60"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1CDnaProjectFile.html#a1cb970070a350f044d59a34c4500057c" title=" " alt="" coords="108,5,303,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="335,49,303,44,304,39,336,44"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1CDnaProjectFile.html#a32d2b46e11d1a69044396e3ff866bb2c" title=" " alt="" coords="108,75,303,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="336,81,304,86,303,80,335,76"/>
+<area shape="rect" id="Node000006" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,83,60,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="92,100,60,100,60,94,92,94"/>
+</map>

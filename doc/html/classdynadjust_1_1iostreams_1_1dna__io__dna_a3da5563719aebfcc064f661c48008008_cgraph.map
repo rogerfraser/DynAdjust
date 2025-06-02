@@ -1,0 +1,33 @@
+<map id="dynadjust::iostreams::dna_io_dna::write_msr_header" name="dynadjust::iostreams::dna_io_dna::write_msr_header">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,126,182,188"/>
+<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="45,126,47,116,56,107,71,101,94,100,119,102,135,109,133,114,118,107,93,105,72,107,58,112,51,118,51,126"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaDatum.html#a4e4ce3c43927adf0dda68343b239cd42" title=" " alt="" coords="230,65,447,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,129,242,112,243,117,183,135"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1datum__parameters_1_1CDnaDatum.html#abcda45f916247271168391f2df3c5a28" title=" " alt="" coords="230,135,447,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="182,154,214,154,214,160,182,160"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1iostreams_1_1dna__io__dna.html#afde4c3538b5d5129538aa6fe24532bf3" title=" " alt="" coords="250,228,426,289"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="170,186,249,219,247,223,168,191"/>
+<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#a09dcf40f9b6e8540e340010cd23635ed" title=" " alt="" coords="495,5,716,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,62,488,51,489,56,441,67"/>
+<area shape="rect" id="Node000004" href="$dnatemplatedatetimefuncs_8hpp.html#a78f9f6140da71f865b08ea6400aafc3a" title=" " alt="" coords="534,74,678,102"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="447,85,518,85,518,90,447,90"/>
+<area shape="rect" id="Node000005" href="$dnatemplatedatetimefuncs_8hpp.html#a9371d16146407490834814f13f2e7f3f" title=" " alt="" coords="544,126,667,154"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="448,106,529,122,528,127,447,111"/>
+<area shape="poly" id="edge17_Node000007_Node000007" title=" " alt="" coords="290,227,292,217,300,208,316,203,338,201,364,204,380,211,377,216,363,209,338,206,317,208,303,213,296,219,295,228"/>
+<area shape="rect" id="Node000008" href="$dnastringfuncs_8cpp.html#a3df114ae098e29f8afbcc8cdc96d0450" title=" " alt="" coords="548,270,663,298"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="427,264,533,274,533,280,427,269"/>
+<area shape="rect" id="Node000009" href="$dnastringfuncs_8cpp.html#a6a704fa6a0f937b164800b876bbfd625" title=" " alt="" coords="557,218,654,246"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="427,247,541,235,542,241,427,252"/>
+<area shape="rect" id="Node000010" href="$dnaversion-stream_8hpp.html#a8866f032f6dfbd1208523bb79d6c89cb" title=" " alt="" coords="781,218,883,246"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="655,229,765,229,765,234,655,234"/>
+<area shape="rect" id="Node000013" href="$dnaversion-stream_8hpp.html#a26c124f2ef930672fbf17fa1f28111b0" title=" " alt="" coords="764,270,900,298"/>
+<area shape="poly" id="edge13_Node000009_Node000013" title=" " alt="" coords="656,240,754,263,753,268,654,245"/>
+<area shape="rect" id="Node000014" href="$dnaversion-stream_8hpp.html#a737daa0e4a11b99df02b198d3f5deb9d" title=" " alt="" coords="773,166,891,194"/>
+<area shape="poly" id="edge14_Node000009_Node000014" title=" " alt="" coords="654,218,757,194,758,199,656,223"/>
+<area shape="rect" id="Node000011" href="$dnaconsts-iostream_8hpp.html#a6c2544809d562354e1671894ac28c89a" title=" " alt="" coords="988,166,1036,194"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="882,215,972,188,973,193,883,220"/>
+<area shape="rect" id="Node000012" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="948,218,1076,246"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="884,229,932,229,932,234,884,234"/>
+<area shape="poly" id="edge15_Node000014_Node000011" title=" " alt="" coords="891,177,972,177,972,182,891,182"/>
+<area shape="poly" id="edge16_Node000014_Node000012" title=" " alt="" coords="883,192,948,211,946,216,882,197"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="dynadjust::measurements::CDnaGpsBaselineCluster::SetTotal" name="dynadjust::measurements::CDnaGpsBaselineCluster::SetTotal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,15,197,77"/>
+<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#abbaedca095285a283e8ab62c24938ceb" title=" " alt="" coords="245,5,368,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,31,229,26,230,32,197,36"/>
+<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="274,57,339,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,55,258,63,258,68,197,60"/>
+<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="416,57,488,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="339,68,401,68,401,74,339,74"/>
+</map>

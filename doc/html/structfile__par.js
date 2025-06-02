@@ -1,0 +1,26 @@
+var structfile__par =
+[
+    [ "file_par", "structfile__par.html#a87a8bb9f73e8004b6b4b070fffcb26bc", null ],
+    [ "ptrIndex", "structfile__par.html#a3536acf21a9f21a846da674dcff269a6", null ],
+    [ "filename", "structfile__par.html#a2d9619a6ee30b82b7a9e7beead2b1748", null ],
+    [ "filetype", "structfile__par.html#adbd8c97521dd912f4ca0d60287de4069", null ],
+    [ "chGs_type", "structfile__par.html#a95ce06d1264d698caf359e6c01f96fb4", null ],
+    [ "chVersion", "structfile__par.html#affe8e4cbb6be23fe1ee4c0b2d7a9e4ac", null ],
+    [ "chSystem_f", "structfile__par.html#aa9acb70022f0e19eaeaca0ca00329aa8", null ],
+    [ "chSystem_t", "structfile__par.html#a48fe00f8861c17c65a2b22750779fd3e", null ],
+    [ "daf", "structfile__par.html#af42b5728c96ea55432d366a544892072", null ],
+    [ "dat", "structfile__par.html#acdf50fd02ac36e4e59c590b1ad9aae60", null ],
+    [ "dbf", "structfile__par.html#a255fc7d3f66656bbb219008a639b75c6", null ],
+    [ "dbt", "structfile__par.html#a871a311b8a460baca109c2231d14f93a", null ],
+    [ "dLat", "structfile__par.html#a36b452c3272108c6d084a1cb7c368b50", null ],
+    [ "dLatacc", "structfile__par.html#abfe9058fc83e580515c891aed4aa3c59", null ],
+    [ "dLong", "structfile__par.html#a0123d3d23e948f0140631529ee22b611", null ],
+    [ "dLongacc", "structfile__par.html#a9fbc962e4a0b60560ee4e65562be7ba3", null ],
+    [ "iH_info", "structfile__par.html#af61537c6159734f91e7297ba674269ec", null ],
+    [ "iSubH_info", "structfile__par.html#a92c56982508f580186b8f71bf4fd04e1", null ],
+    [ "iNumsubgrids", "structfile__par.html#a9ee14b971ebd8a5228e5f5c3c44d5ae6", null ],
+    [ "iGfilelength", "structfile__par.html#a9df01eae110e43d9f415d1adfea9a729", null ],
+    [ "iPointFlag", "structfile__par.html#a78250ec1e18c388ecc095deac737221f", null ],
+    [ "iTheGrid", "structfile__par.html#adfa130de4a5d6369940d5f3bde5c0781", null ],
+    [ "Can_Format", "structfile__par.html#a53f97ee105f3305cbbab60014d8b8aa4", null ]
+];

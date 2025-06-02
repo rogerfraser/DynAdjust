@@ -1,0 +1,19 @@
+<map id="dynadjust::measurements::CDnaAngle::SetValue" name="dynadjust::measurements::CDnaAngle::SetValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,76,197,120"/>
+<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#aedaeb3bc40b3a05793cbc4acd28ea47e" title=" " alt="" coords="245,57,392,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,83,229,79,229,85,197,89"/>
+<area shape="rect" id="Node000008" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="286,109,351,137"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="197,106,271,115,270,120,197,112"/>
+<area shape="rect" id="Node000003" href="$dnatemplatecalcfuncs_8hpp.html#a966c06db8a459578eddb99b3320f3439" title=" " alt="" coords="440,5,530,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,54,424,35,426,40,366,59"/>
+<area shape="rect" id="Node000004" href="$dnatemplatecalcfuncs_8hpp.html#a1546bdb5214ae4b148dc6b761ba7b6d1" title=" " alt="" coords="448,57,522,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="393,68,433,68,433,74,393,74"/>
+<area shape="rect" id="Node000005" href="$dnatemplatecalcfuncs_8hpp.html#a98ff5967abdac0911c30bfc258759c8c" title=" " alt="" coords="578,57,734,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="522,68,563,68,563,74,522,74"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a29db49c5e9564fc75bbfe07efd83fcc5" title=" " alt="" coords="782,57,891,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="734,68,766,68,766,74,734,74"/>
+<area shape="rect" id="Node000007" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="939,57,977,85"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="891,68,924,68,924,74,891,74"/>
+<area shape="rect" id="Node000009" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="449,109,521,137"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="351,120,434,120,434,126,351,126"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="dynadjust::networkadjust::dna_adjust::PrintStatistics" name="dynadjust::networkadjust::dna_adjust::PrintStatistics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="646,109,845,154"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ac35594ae479bd9bee3976f705ad36759" title=" " alt="" coords="381,5,577,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="686,105,597,65,563,53,565,48,599,60,689,100"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a4acb5aafc7e91310ff21a6a0288af2d0" title=" " alt="" coords="360,75,598,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="631,119,598,115,599,110,631,114"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a2602b8194dbce81cbb9f93ad88109107" title=" " alt="" coords="370,144,588,189"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="631,149,589,155,589,149,631,144"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a8f405a7a71faffab234fa54991e34759" title=" " alt="" coords="365,213,593,258"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="689,164,599,203,565,215,563,210,597,199,686,159"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a604cd4cd0a07ef579d6f68b96c400b28" title=" " alt="" coords="108,40,312,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="366,45,313,52,312,47,365,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="344,82,312,78,313,73,345,77"/>
+<area shape="rect" id="Node000007" href="$dnaadjustwrapper_8cpp.html#afa35dbd8446750827577a94b66c01453" title=" " alt="" coords="139,222,280,250"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="349,238,281,238,281,233,349,233"/>
+<area shape="rect" id="Node000008" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,222,60,250"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="124,238,60,238,60,233,124,233"/>
+</map>

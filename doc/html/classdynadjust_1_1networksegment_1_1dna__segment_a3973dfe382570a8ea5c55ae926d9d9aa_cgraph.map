@@ -1,0 +1,7 @@
+<map id="dynadjust::networksegment::dna_segment::RemoveInvalidFreeStations" name="dynadjust::networksegment::dna_segment::RemoveInvalidFreeStations">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,257,67"/>
+<area shape="rect" id="Node000002" href="$dnatemplatefuncs_8hpp.html#a7b9d312555e0322d1f77972041b2900b" title=" " alt="" coords="305,22,378,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,34,289,34,289,39,257,39"/>
+<area shape="rect" id="Node000003" href="$dnatemplatefuncs_8hpp.html#afb276711cdd0d00ba358916866e9d8ca" title=" " alt="" coords="426,22,535,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="379,34,411,34,411,39,379,39"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="CInputCoords::CInputCoords" name="CInputCoords::CInputCoords">
+<area shape="rect" id="Node000001" title=" " alt="" coords="251,29,454,57"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="395,16,380,10,352,8,326,10,312,15,308,20,314,27,310,30,303,20,309,11,325,5,352,3,381,5,397,12"/>
+<area shape="rect" id="Node000002" href="$classCInputCoords.html#a5c7853331ba1635f5251c6f820b6dc02" title=" " alt="" coords="5,29,203,57"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="235,46,203,46,203,40,235,40"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="147,16,132,10,104,8,78,10,64,15,60,20,66,27,62,30,55,20,60,11,77,5,104,3,133,5,149,12"/>
+</map>

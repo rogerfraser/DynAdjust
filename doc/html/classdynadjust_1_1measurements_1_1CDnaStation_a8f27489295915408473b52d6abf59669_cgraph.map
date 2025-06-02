@@ -1,0 +1,7 @@
+<map id="dynadjust::measurements::CDnaStation::CDnaStation" name="dynadjust::measurements::CDnaStation::CDnaStation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,205,50"/>
+<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1epsg.html#a6014bc834568efd22447508efded81e1" title=" " alt="" coords="253,5,454,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,25,237,25,237,30,205,30"/>
+<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#a41afaa86d74dc2b3ddb59220c19a2b71" title=" " alt="" coords="502,5,698,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="454,25,486,25,486,30,454,30"/>
+</map>

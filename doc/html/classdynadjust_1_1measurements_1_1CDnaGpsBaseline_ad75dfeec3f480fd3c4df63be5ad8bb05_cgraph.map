@@ -1,0 +1,17 @@
+<map id="dynadjust::measurements::CDnaGpsBaseline::CDnaGpsBaseline" name="dynadjust::measurements::CDnaGpsBaseline::CDnaGpsBaseline">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,109,275,154"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaseline.html#a7c85b3c821729dba670c355f5a19d88e" title=" " alt="" coords="323,109,592,154"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="275,128,307,128,307,134,275,134"/>
+<area shape="rect" id="Node000003" href="$dnaconsts_8hpp.html#a70676ab237d15ddd5ce072f4bff4dd74" title=" " alt="" coords="684,5,818,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="500,106,564,74,639,43,668,34,670,39,641,48,567,79,502,111"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#a57dcef0a1037eadc98e223c583e9d6d0" title=" " alt="" coords="686,57,817,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="569,106,670,85,671,90,571,111"/>
+<area shape="rect" id="Node000005" href="$namespacedynadjust_1_1epsg.html#a6014bc834568efd22447508efded81e1" title=" " alt="" coords="650,109,852,154"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="592,128,635,128,635,134,592,134"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a1602cb92fb07d243be0ed026c9a2bfa1" title=" " alt="" coords="640,178,862,223"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="556,152,640,171,638,177,555,157"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaseline.html#a25507ce0eea3ec8c3e2e6b6632eb2470" title=" " alt="" coords="648,248,854,292"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="494,152,561,192,641,233,657,239,655,244,639,238,558,197,492,156"/>
+<area shape="rect" id="Node000006" href="$namespacedynadjust_1_1epsg.html#a41afaa86d74dc2b3ddb59220c19a2b71" title=" " alt="" coords="910,109,1107,154"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="852,128,895,128,895,134,852,134"/>
+</map>

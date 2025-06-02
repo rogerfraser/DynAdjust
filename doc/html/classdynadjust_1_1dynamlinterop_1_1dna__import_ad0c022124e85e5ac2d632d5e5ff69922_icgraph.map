@@ -1,0 +1,10 @@
+<map id="dynadjust::dynamlinterop::dna_import::SerialiseDynaMLSepfromMemory" name="dynadjust::dynamlinterop::dna_import::SerialiseDynaMLSepfromMemory">
+<area shape="rect" id="Node000001" title=" " alt="" coords="393,29,668,91"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="580,18,561,11,531,8,504,10,487,15,478,21,477,30,471,29,473,19,484,10,503,5,531,3,563,5,582,13"/>
+<area shape="rect" id="Node000002" href="$dnaimportwrapper_8cpp.html#a323b2f6265c5498d97ce25d25b4aa635" title=" " alt="" coords="108,16,345,43"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="377,47,345,44,346,39,378,42"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#ab4ad097f340fc62a711194772d8b77f0" title=" " alt="" coords="120,67,332,112"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="378,78,333,82,332,77,377,72"/>
+<area shape="rect" id="Node000003" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,16,60,43"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,32,60,32,60,27,92,27"/>
+</map>

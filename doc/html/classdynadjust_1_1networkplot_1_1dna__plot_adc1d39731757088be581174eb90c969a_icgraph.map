@@ -1,0 +1,13 @@
+<map id="dynadjust::networkplot::dna_plot::ComputeMeasurementCount" name="dynadjust::networkplot::dna_plot::ComputeMeasurementCount">
+<area shape="rect" id="Node000001" title=" " alt="" coords="893,36,1173,81"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#acdbdcbc08b0c5a024d2e630ac5f8f101" title=" " alt="" coords="599,36,845,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="877,61,845,61,845,56,877,56"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#aeb3247300fd64f7cf43d23ebc087105b" title=" " alt="" coords="327,28,551,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="584,61,552,61,552,56,584,56"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a175a54cda67bad4e1b277b18b3d42819" title=" " alt="" coords="108,5,279,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="311,45,279,41,280,36,312,40"/>
+<area shape="rect" id="Node000005" href="$dnaplotwrapper_8cpp.html#aaf3e11bee5fdb069e7b7d54555e09a6e" title=" " alt="" coords="132,74,254,102"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="312,76,255,83,254,78,311,71"/>
+<area shape="rect" id="Node000006" href="$dnaplotwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,74,60,102"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="116,90,60,90,60,85,116,85"/>
+</map>

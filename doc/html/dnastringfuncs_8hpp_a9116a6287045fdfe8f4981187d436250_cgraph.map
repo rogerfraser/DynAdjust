@@ -1,0 +1,15 @@
+<map id="snx_softwarehardware_text" name="snx_softwarehardware_text">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,208,85"/>
+<area shape="rect" id="Node000002" href="$dnaversion-stream_8hpp.html#a8866f032f6dfbd1208523bb79d6c89cb" title=" " alt="" coords="278,57,380,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,68,262,68,262,74,208,74"/>
+<area shape="rect" id="Node000005" href="$dnaversion-stream_8hpp.html#a078b16a0953a7a35744cb99f73c1ddf2" title=" " alt="" coords="256,109,403,137"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="170,83,253,103,251,108,169,88"/>
+<area shape="rect" id="Node000006" href="$dnaversion-stream_8hpp.html#a737daa0e4a11b99df02b198d3f5deb9d" title=" " alt="" coords="270,5,388,33"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="169,54,254,34,256,39,170,59"/>
+<area shape="rect" id="Node000003" href="$dnaconsts-iostream_8hpp.html#a6c2544809d562354e1671894ac28c89a" title=" " alt="" coords="491,5,539,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,54,475,27,477,32,381,60"/>
+<area shape="rect" id="Node000004" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="451,57,579,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="381,68,435,68,435,74,381,74"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="389,16,475,16,475,22,389,22"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="382,31,449,50,448,55,381,36"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="CInputCoords::OnBnClickedDmmss" name="CInputCoords::OnBnClickedDmmss">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,76,204,120"/>
+<area shape="rect" id="Node000002" href="$classCInputCoords.html#a93331e766d1bb790fffbfb5724b6b511" title=" " alt="" coords="257,5,484,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,72,251,43,284,35,285,40,252,48,166,77"/>
+<area shape="rect" id="Node000004" href="$classCInputCoords.html#a0345fed48e54ecc4c4e73798205fc3f8" title=" " alt="" coords="252,57,489,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="204,85,236,82,236,87,204,91"/>
+<area shape="rect" id="Node000005" href="$classCInputCoords.html#aa9ba4dada5c5d63623bf097859e9c368" title=" " alt="" coords="257,109,484,137"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="204,105,242,108,241,114,204,110"/>
+<area shape="rect" id="Node000006" href="$classCInputCoords.html#aa1550f97b2db5de7e2754eeaee8d369c" title=" " alt="" coords="252,161,489,189"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="168,118,252,146,286,155,284,160,251,151,166,123"/>
+<area shape="rect" id="Node000003" href="$classCInputCoords.html#a3ad79618595e981873e6ef573e965a86" title=" " alt="" coords="537,32,751,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="484,28,522,31,521,37,484,33"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="489,58,521,54,522,60,490,63"/>
+</map>

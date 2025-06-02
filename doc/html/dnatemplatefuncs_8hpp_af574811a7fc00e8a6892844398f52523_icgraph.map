@@ -1,0 +1,9 @@
+<map id="FormatDnaDmsString" name="FormatDnaDmsString">
+<area shape="rect" id="Node000001" title=" " alt="" coords="294,83,455,111"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaAngle.html#a695aff1fd109ae5ccee4927ea5d922e1" title=" " alt="" coords="27,5,224,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="307,81,208,53,209,48,308,76"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaDirection.html#aa0a630f789644143c7028f6f0b11e261" title=" " alt="" coords="16,75,235,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="278,100,235,100,235,94,278,94"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1measurements_1_1CDnaDirectionSet.html#a46064a52df8bb2cd1b50b0e35b9d8dcf" title=" " alt="" coords="5,144,246,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="308,118,209,146,208,141,307,113"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="dynadjust::networkadjust::dna_adjust::CreateMsrToStnTally" name="dynadjust::networkadjust::dna_adjust::CreateMsrToStnTally">
+<area shape="rect" id="Node000001" title=" " alt="" coords="653,14,894,58"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a97927de4b0c6c7eeed13cd1c91a4bb73" title=" " alt="" coords="370,5,605,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="638,39,606,39,606,34,638,34"/>
+<area shape="rect" id="Node000003" href="$dnaadjustwrapper_8cpp.html#ae2ec6b6fa60674b2410a76356900d4e6" title=" " alt="" coords="108,22,322,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="354,39,323,39,323,34,354,34"/>
+<area shape="rect" id="Node000004" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,22,60,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,39,60,39,60,34,92,34"/>
+</map>

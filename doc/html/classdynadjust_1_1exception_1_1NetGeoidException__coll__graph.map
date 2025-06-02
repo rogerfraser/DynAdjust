@@ -1,0 +1,9 @@
+<map id="dynadjust::exception::NetGeoidException" name="dynadjust::exception::NetGeoidException">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,178,482"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="19,144,122,216"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,231,84,281,79,282,73,232"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="146,144,222,216"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,217,147,267,142,265,165,215"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="120,5,248,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="186,110,186,144,181,144,181,110"/>
+</map>

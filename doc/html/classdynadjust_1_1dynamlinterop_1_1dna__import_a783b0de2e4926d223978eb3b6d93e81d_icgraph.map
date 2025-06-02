@@ -1,0 +1,14 @@
+<map id="dynadjust::dynamlinterop::dna_import::ExtractAssociatedMsrsBoundingBox" name="dynadjust::dynamlinterop::dna_import::ExtractAssociatedMsrsBoundingBox">
+<area shape="rect" id="Node000001" title=" " alt="" coords="602,44,830,106"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="768,32,748,25,716,23,688,25,670,29,661,36,660,44,654,43,656,33,668,25,688,19,716,17,750,20,770,27"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#ab55d23ce038111308a11697a250595b0" title=" " alt="" coords="283,5,512,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="586,62,513,53,513,47,587,56"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a54a82c9ee36f5793b5ac52bdbc3388c7" title=" " alt="" coords="242,91,554,136"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="587,93,555,97,554,92,586,88"/>
+<area shape="rect" id="Node000003" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="72,28,127,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="268,41,127,44,127,38,267,36"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a40d02d30294e142d77c78581168d5f42" title=" " alt="" coords="5,83,194,128"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="268,69,195,86,193,81,267,64"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="276,90,241,81,127,51,128,46,242,76,277,85"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="226,112,194,111,194,105,226,106"/>
+</map>

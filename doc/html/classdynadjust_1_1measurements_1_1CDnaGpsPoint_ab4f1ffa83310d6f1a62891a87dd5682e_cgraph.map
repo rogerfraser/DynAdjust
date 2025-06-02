@@ -1,0 +1,21 @@
+<map id="dynadjust::measurements::CDnaGpsPoint::SetCoordType" name="dynadjust::measurements::CDnaGpsPoint::SetCoordType">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,132,225,176"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaGpsPoint.html#a93f6a9d51c5c921419c2d40ed8c68bfc" title=" " alt="" coords="273,101,523,146"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,139,257,136,258,141,225,145"/>
+<area shape="rect" id="Node000009" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="365,169,430,197"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="225,163,350,176,350,181,225,168"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#a3407bc1a1a2763c6e5693662a503781c" title=" " alt="" coords="571,101,789,146"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="523,120,556,120,556,126,523,126"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#a305aa02121f5aa7ec50579487786f00c" title=" " alt="" coords="838,5,924,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="724,98,838,38,840,43,726,103"/>
+<area shape="rect" id="Node000005" href="$dnaconsts_8hpp.html#a9bf57bbf595a462f476ffaf958b326df" title=" " alt="" coords="840,57,922,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="768,98,824,83,826,88,770,103"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a0aadaa955ae1d0678a88dfe00baf8704" title=" " alt="" coords="841,109,921,137"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="790,120,826,120,826,126,790,126"/>
+<area shape="rect" id="Node000007" href="$dnaconsts_8hpp.html#a2d7a23a592d4f78205975994bf375b81" title=" " alt="" coords="837,161,925,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="770,144,823,158,822,163,768,149"/>
+<area shape="rect" id="Node000008" href="$dnaconsts_8hpp.html#af40312bb7455fb4be16c1b243299e454" title=" " alt="" coords="839,213,923,241"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="766,144,791,156,816,176,839,198,844,202,841,207,836,203,812,180,788,160,764,148"/>
+<area shape="rect" id="Node000010" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="644,169,716,197"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="431,180,628,180,628,186,431,186"/>
+</map>

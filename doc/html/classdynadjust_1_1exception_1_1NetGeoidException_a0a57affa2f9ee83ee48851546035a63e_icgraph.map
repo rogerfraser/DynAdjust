@@ -1,0 +1,25 @@
+<map id="dynadjust::exception::NetGeoidException::error_no" name="dynadjust::exception::NetGeoidException::error_no">
+<area shape="rect" id="Node000001" title=" " alt="" coords="953,160,1116,222"/>
+<area shape="rect" id="Node000002" href="$dnageoidintDlg_8cpp.html#ad12d65d287b73008eaf09fa75fd888e4" title=" " alt="" coords="724,5,838,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1004,149,961,95,934,68,904,47,872,33,838,26,839,20,873,28,907,42,938,64,965,91,1009,146"/>
+<area shape="rect" id="Node000004" href="$classCdnageoidintDlg.html#aff161746e01d1e40b1aab2e4fb653b5c" title=" " alt="" coords="678,57,885,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="974,154,904,116,873,105,875,100,906,111,977,149"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a364c26028b128d54b36e890a9ade5e10" title=" " alt="" coords="700,126,862,187"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="937,181,862,170,863,165,938,175"/>
+<area shape="rect" id="Node000009" href="$classCdnageoidintDlg.html#a62e7fb8a95163fe43041555402d36e8e" title=" " alt="" coords="657,212,905,240"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="938,207,887,214,887,209,937,202"/>
+<area shape="rect" id="Node000011" href="$classCdnageoidintDlg.html#a89d0f43b2c30e5e0d00ec6f14c9208c8" title=" " alt="" coords="668,264,894,308"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="959,231,906,254,871,265,869,260,904,249,957,226"/>
+<area shape="rect" id="Node000012" href="$classCdnageoidintDlg.html#adaeb11f04f1f545856aa451025abfc38" title=" " alt="" coords="670,332,892,360"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1004,236,961,282,935,304,907,323,881,334,879,329,904,318,932,300,957,278,1000,233"/>
+<area shape="rect" id="Node000003" href="$classCdnageoidintDlg.html#a40af3b4668424bebf6bd0107c17ea39f" title=" " alt="" coords="330,5,609,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="709,22,609,22,609,16,709,16"/>
+<area shape="rect" id="Node000005" href="$classCdnageoidintDlg.html#a9b2e8ab8692832960cdc2fab933b133e" title=" " alt="" coords="360,61,578,89"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="662,80,579,79,579,74,662,75"/>
+<area shape="rect" id="Node000006" href="$classCdnageoidintDlg.html#a5edb4f8dd5654bab01bd815ba545983c" title=" " alt="" coords="350,113,588,141"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="663,100,564,115,563,110,662,95"/>
+<area shape="rect" id="Node000007" href="$classCdnageoidintDlg.html#a5e570e387658ce4c5b6f9e81dd018149" title=" " alt="" coords="5,113,282,141"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="335,130,282,130,282,124,335,124"/>
+<area shape="rect" id="Node000010" href="$classCdnageoidintDlg.html#a26855071ee14348ca8b457e0105a43ce" title=" " alt="" coords="360,204,579,248"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="642,228,579,228,579,223,642,223"/>
+</map>

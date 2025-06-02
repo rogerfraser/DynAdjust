@@ -1,0 +1,7 @@
+<map id="ZenithDistance" name="ZenithDistance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,14,126,42"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#a317e99d485dcebbd11f03603cff8aa97" title=" " alt="" coords="174,14,294,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,25,158,25,158,30,126,30"/>
+<area shape="rect" id="Node000003" href="$dnatemplategeodesyfuncs_8hpp.html#a27240075f4b01988bea0d4c6d5c6499a" title=" " alt="" coords="342,5,590,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="294,25,326,25,326,30,294,30"/>
+</map>

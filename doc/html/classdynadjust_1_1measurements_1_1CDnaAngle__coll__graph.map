@@ -1,0 +1,12 @@
+<map id="dynadjust::measurements::CDnaAngle" name="dynadjust::measurements::CDnaAngle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,3458,195,3950"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html" title=" " alt="" coords="204,416,437,3409"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,3322,188,3410,178,3459,173,3458,183,3408,199,3321"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="98,178,174,250"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="130,250,113,326,99,417,61,871,43,1255,39,1594,47,1910,77,2566,91,2953,99,3409,99,3441,94,3441,94,3409,86,2953,72,2567,41,1910,34,1594,37,1255,56,870,94,416,108,325,125,249"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="149,249,169,325,188,416,204,515,199,516,183,417,164,326,144,250"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="72,5,200,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="139,110,139,178,134,178,134,110"/>
+<area shape="rect" id="Node000005" href="$structmsr__database__t.html" title=" " alt="" coords="250,144,391,283"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="323,283,323,400,318,400,318,283"/>
+</map>

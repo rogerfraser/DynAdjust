@@ -1,0 +1,9 @@
+<map id="dynadjust::networkplot::dna_plot::DetermineBoundingBox" name="dynadjust::networkplot::dna_plot::DetermineBoundingBox">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,254,68"/>
+<area shape="rect" id="Node000002" href="$dnatemplatecalcfuncs_8hpp.html#a966c06db8a459578eddb99b3320f3439" title=" " alt="" coords="302,5,392,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="254,28,286,24,287,29,254,33"/>
+<area shape="rect" id="Node000003" href="$dnastringfuncs_8cpp.html#a3b0d5aadee7a4b1aec81cb212a51633f" title=" " alt="" coords="306,57,388,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="254,58,291,62,290,67,254,63"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#a2fe1286de4800133f25081cb46e05d24" title=" " alt="" coords="440,57,573,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="388,68,424,68,424,74,388,74"/>
+</map>

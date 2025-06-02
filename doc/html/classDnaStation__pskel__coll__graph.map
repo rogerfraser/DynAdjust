@@ -1,0 +1,23 @@
+<map id="DnaStation_pskel" name="DnaStation_pskel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="276,1207,489,1927"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,163,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,110,77,119,76,144,71,314,76,484,85,657,94,791,113,924,156,1090,181,1165,212,1240,279,1379,274,1382,207,1242,176,1167,151,1091,108,925,88,792,80,657,71,484,66,314,71,144,72,118,73,109"/>
+<area shape="rect" id="Node000003" href="$classStationCoord__pskel.html" title=" " alt="" coords="166,549,363,1091"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="83,110,82,185,84,279,93,382,112,484,137,562,168,637,163,639,132,563,107,485,88,383,79,280,77,186,78,110"/>
+<area shape="rect" id="Node000006" href="$classGeoidModel__pskel.html" title=" " alt="" coords="121,144,292,484"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="113,107,130,143,125,146,108,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="296,1090,309,1182,310,1189,305,1190,304,1183,290,1091"/>
+<area shape="rect" id="Node000004" href="$classHeight__pskel.html" title=" " alt="" coords="316,200,452,428"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="374,429,357,526,356,533,351,532,352,525,369,428"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="315,5,454,95"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="387,110,387,200,382,200,382,110"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="207,484,209,525,210,532,205,533,204,526,201,484"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="416,784,589,856"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="502,856,487,999,463,1183,462,1190,456,1189,458,1182,482,998,497,856"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="476,278,594,350"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="534,365,508,784,502,784,529,365"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="628,784,703,856"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="660,857,604,1091,592,1138,577,1184,540,1271,499,1356,495,1354,535,1268,572,1182,587,1136,599,1090,655,855"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="618,270,745,359"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="682,374,669,784,664,784,677,374"/>
+</map>

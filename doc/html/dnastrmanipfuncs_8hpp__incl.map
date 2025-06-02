@@ -1,0 +1,13 @@
+<map id="include/functions/dnastrmanipfuncs.hpp" name="include/functions/dnastrmanipfuncs.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="19,5,300,33"/>
+<area shape="rect" id="Node000002" href="$dnatemplatecalcfuncs_8hpp.html" title=" " alt="" coords="5,81,314,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,34,162,65,157,65,157,34"/>
+<area shape="rect" id="Node000003" href="$dnatypes_8hpp.html" title=" " alt="" coords="37,325,242,353"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="148,111,130,132,117,158,110,198,112,239,121,278,131,310,126,311,115,279,107,240,104,198,112,156,126,129,144,107"/>
+<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html" title=" " alt="" coords="126,157,337,184"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="174,107,210,144,206,147,170,111"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="213,187,189,207,167,234,152,273,144,311,139,310,146,271,163,231,185,203,210,183"/>
+<area shape="rect" id="Node000005" href="$dnaconsts-datums_8hpp.html" title=" " alt="" coords="177,232,350,277"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="239,184,252,217,247,219,234,186"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="232,280,173,318,170,314,229,275"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="dna_create_threaded_process" name="dna_create_threaded_process">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,169,410"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="50,144,125,216"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,216,90,265,85,265,85,216"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="24,5,151,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="90,110,90,144,85,144,85,110"/>
+</map>

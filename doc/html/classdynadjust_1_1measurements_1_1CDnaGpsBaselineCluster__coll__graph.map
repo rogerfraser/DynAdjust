@@ -1,0 +1,18 @@
+<map id="dynadjust::measurements::CDnaGpsBaselineCluster" name="dynadjust::measurements::CDnaGpsBaselineCluster">
+<area shape="rect" id="Node000001" title=" " alt="" coords="443,3474,659,4613"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html" title=" " alt="" coords="268,416,501,3409"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,3416,509,3474,504,3475,500,3417"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="141,178,217,250"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="168,250,142,326,121,417,85,708,53,1072,27,1485,11,1921,8,2140,9,2356,15,2566,25,2766,40,2953,61,3125,88,3277,121,3408,148,3482,181,3554,219,3624,261,3691,349,3814,434,3916,430,3919,345,3817,256,3694,214,3627,176,3556,143,3484,116,3410,83,3278,56,3125,35,2954,19,2766,9,2566,4,2356,3,2140,6,1921,21,1485,47,1072,80,707,116,416,137,325,163,249"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="196,249,225,324,251,416,267,496,262,497,246,417,220,326,191,250"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="115,5,243,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="182,110,182,178,177,178,177,110"/>
+<area shape="rect" id="Node000005" href="$structmsr__database__t.html" title=" " alt="" coords="314,144,455,283"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="387,283,387,400,382,400,382,283"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="525,1868,780,1957"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="653,1957,582,3457,576,3457,648,1957"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="594,178,711,250"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="655,265,655,1868,650,1868,650,265"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="804,1876,978,1949"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="895,1949,900,2166,899,2333,895,2526,883,2739,864,2963,836,3189,795,3410,770,3509,739,3608,668,3794,663,3792,734,3606,765,3507,790,3408,830,3188,859,2962,878,2739,889,2526,894,2332,895,2166,890,1949"/>
+</map>

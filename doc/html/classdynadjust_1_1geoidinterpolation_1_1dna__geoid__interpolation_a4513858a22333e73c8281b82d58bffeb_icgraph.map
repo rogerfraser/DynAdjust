@@ -1,0 +1,7 @@
+<map id="dynadjust::geoidinterpolation::dna_geoid_interpolation::ReturnBadStationRecords" name="dynadjust::geoidinterpolation::dna_geoid_interpolation::ReturnBadStationRecords">
+<area shape="rect" id="Node000001" title=" " alt="" coords="343,5,555,67"/>
+<area shape="rect" id="Node000002" href="$dnageoidwrapper_8cpp.html#a2201241448bfab03d6c3b3ba83ecea8b" title=" " alt="" coords="108,22,295,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="327,39,296,39,296,34,327,34"/>
+<area shape="rect" id="Node000003" href="$dnageoidwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,22,60,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,39,60,39,60,34,92,34"/>
+</map>

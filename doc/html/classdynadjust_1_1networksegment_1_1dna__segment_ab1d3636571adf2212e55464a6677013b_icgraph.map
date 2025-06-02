@@ -1,0 +1,11 @@
+<map id="dynadjust::networksegment::dna_segment::coutSummary" name="dynadjust::networksegment::dna_segment::coutSummary">
+<area shape="rect" id="Node000001" title=" " alt="" coords="816,36,1033,81"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a76c82e9444829be3835f2aa44b1205b2" title=" " alt="" coords="543,5,768,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="800,47,768,43,769,38,801,42"/>
+<area shape="rect" id="Node000005" href="$dnasegmentwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="628,74,683,102"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="801,74,683,87,683,82,800,69"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a81d47df0f25ca27cee95bfab349470d7" title=" " alt="" coords="257,5,495,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="527,30,495,30,495,25,527,25"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a47c9873e2e94ffdc573dbbfc8a2e5f97" title=" " alt="" coords="5,5,209,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="241,30,209,30,209,25,241,25"/>
+</map>

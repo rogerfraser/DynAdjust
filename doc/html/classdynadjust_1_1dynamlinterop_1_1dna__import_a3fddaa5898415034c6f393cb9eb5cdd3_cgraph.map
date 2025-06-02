@@ -1,0 +1,18 @@
+<map id="dynadjust::dynamlinterop::dna_import::SerialiseDiscontTextFile" name="dynadjust::dynamlinterop::dna_import::SerialiseDiscontTextFile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,222,205"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="58,142,59,132,70,124,88,118,114,116,144,119,162,127,160,132,143,124,113,122,89,124,72,128,64,135,63,143"/>
+<area shape="rect" id="Node000002" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="353,29,448,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,141,204,101,269,66,303,55,337,47,339,53,304,60,271,71,207,106,153,145"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#af35b75c05a6af41cc7d30154f4330bf2" title=" " alt="" coords="270,105,531,150"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="222,154,254,148,255,154,223,159"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#ad313ba06f80bfee009b9af78b83b2670" title=" " alt="" coords="275,198,526,243"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="223,189,260,195,259,200,222,194"/>
+<area shape="rect" id="Node000006" href="$dnaconsts-iostream_8hpp.html#a4570bca630f26d52ffd8e9c01737f717" title=" " alt="" coords="362,267,439,294"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="167,203,216,229,271,253,347,271,346,276,269,258,214,234,164,208"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="352,31,344,20,350,11,369,5,400,3,434,5,452,12,450,17,433,10,400,8,370,10,354,15,349,20,356,27"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="346,105,345,95,354,86,372,80,400,78,431,81,449,87,447,92,430,86,400,83,373,85,357,90,350,96,352,104"/>
+<area shape="poly" id="edge9_Node000004_Node000004" title=" " alt="" coords="346,198,345,188,354,179,372,173,400,172,431,174,449,180,447,185,430,179,400,177,373,179,357,184,350,190,352,197"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a5cf97a496b9985d0ba256fae571122a9" title=" " alt="" coords="579,198,793,243"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="526,218,564,218,564,223,526,223"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="632,198,631,188,640,179,658,173,686,172,717,174,735,180,733,185,715,179,686,177,659,179,642,184,636,190,637,197"/>
+</map>

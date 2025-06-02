@@ -1,0 +1,7 @@
+<map id="dynadjust::networkplot::dna_plot::PrintGMTParameters" name="dynadjust::networkplot::dna_plot::PrintGMTParameters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,234,74"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="68,29,66,19,75,10,93,5,120,3,149,5,166,11,164,16,147,10,119,8,94,10,78,15,71,21,73,28"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a39dbd8ab0cfc4c715b1b587061e49935" title=" " alt="" coords="282,29,504,74"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="234,49,266,49,266,54,234,54"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="341,29,340,19,348,10,366,5,393,3,422,5,439,11,437,16,421,10,393,8,367,10,351,15,345,21,346,28"/>
+</map>

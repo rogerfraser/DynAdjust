@@ -1,0 +1,31 @@
+<map id="PRECISION_1E10" name="PRECISION_1E10">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1734,127,1864,155"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1CDnaProjectFile.html#aaf765fca37afa70b15a3362705a86b32" title=" " alt="" coords="1452,28,1648,73"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1753,123,1685,94,1631,76,1632,71,1687,89,1755,118"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a823aa002c9ae408502e643d173c2ce80" title=" " alt="" coords="1129,107,1366,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1718,140,1686,138,1367,132,1367,127,1686,133,1718,134"/>
+<area shape="rect" id="Node000011" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ab2e6507e3d7636a93b295c5b910e15b7" title=" " alt="" coords="1423,217,1677,262"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="1765,166,1728,187,1687,207,1653,219,1652,214,1685,203,1726,183,1763,161"/>
+<area shape="rect" id="Node000012" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a43ffd69101f2e1a8c00cb156dd1c3bab" title=" " alt="" coords="1414,148,1686,193"/>
+<area shape="poly" id="edge15_Node000001_Node000012" title=" " alt="" coords="1719,153,1687,157,1686,152,1718,148"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1CDnaProjectFile.html#a1cb970070a350f044d59a34c4500057c" title=" " alt="" coords="1150,28,1345,73"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1437,53,1346,53,1346,48,1437,48"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a0016a6bdb5e4d2d4c9fd31b4fb64fb86" title=" " alt="" coords="849,56,1081,101"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1113,108,1081,102,1082,97,1114,102"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a2602b8194dbce81cbb9f93ad88109107" title=" " alt="" coords="302,116,520,161"/>
+<area shape="poly" id="edge11_Node000004_Node000007" title=" " alt="" coords="1114,133,521,140,521,134,1114,128"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a7b27037791736d551bd100ab1e241b2f" title=" " alt="" coords="573,5,801,50"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="832,57,800,51,801,46,833,52"/>
+<area shape="poly" id="edge10_Node000005_Node000007" title=" " alt="" coords="834,94,574,122,521,128,520,123,573,117,833,89"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="609,58,574,71,465,118,463,113,572,67,607,53"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a8f405a7a71faffab234fa54991e34759" title=" " alt="" coords="297,5,525,50"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="558,30,526,30,526,25,558,25"/>
+<area shape="rect" id="Node000009" href="$dnaadjustwrapper_8cpp.html#afa35dbd8446750827577a94b66c01453" title=" " alt="" coords="108,14,249,42"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="281,30,249,30,249,25,281,25"/>
+<area shape="rect" id="Node000010" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,14,60,42"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="92,30,60,30,60,25,92,25"/>
+<area shape="poly" id="edge14_Node000011_Node000004" title=" " alt="" coords="1436,215,1413,208,1349,181,1292,154,1294,149,1351,176,1415,202,1437,210"/>
+<area shape="poly" id="edge13_Node000011_Node000007" title=" " alt="" coords="1407,232,1030,203,573,161,520,155,521,150,574,156,1030,198,1407,227"/>
+<area shape="poly" id="edge17_Node000012_Node000004" title=" " alt="" coords="1398,152,1366,148,1367,143,1399,147"/>
+<area shape="poly" id="edge16_Node000012_Node000007" title=" " alt="" coords="1399,171,1129,166,520,145,521,140,1129,161,1399,166"/>
+</map>

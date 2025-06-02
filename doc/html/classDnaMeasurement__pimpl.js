@@ -1,0 +1,28 @@
+var classDnaMeasurement__pimpl =
+[
+    [ "pre", "classDnaMeasurement__pimpl.html#adb95a310c39ae68255c9fba582dccc45", null ],
+    [ "Type", "classDnaMeasurement__pimpl.html#af00f17f224cfae2b4fe4e7a8a1a467f3", null ],
+    [ "Ignore", "classDnaMeasurement__pimpl.html#a7330f3b300e09313b4a9f77f736b5c7b", null ],
+    [ "First", "classDnaMeasurement__pimpl.html#a37caab577f733b62aeb8987efc5d8f7d", null ],
+    [ "Second", "classDnaMeasurement__pimpl.html#a701632f4f7739e6a69757d2c590cdad2", null ],
+    [ "Third", "classDnaMeasurement__pimpl.html#ab589a6251c2f2b2e3c6e618bee199a9e", null ],
+    [ "Value", "classDnaMeasurement__pimpl.html#aae012a1ac64107b0d26fcac29a3c1b70", null ],
+    [ "StdDev", "classDnaMeasurement__pimpl.html#a0f7e30f1a302e34e781f4bdad9125391", null ],
+    [ "InstHeight", "classDnaMeasurement__pimpl.html#a7d3ebf846ae07b4de5249ba09f4b01d4", null ],
+    [ "TargHeight", "classDnaMeasurement__pimpl.html#a8b47586bf93783975ad8fde1f3340f25", null ],
+    [ "Total", "classDnaMeasurement__pimpl.html#aaad8173bf560d4fa77f33366e05fac89", null ],
+    [ "Directions", "classDnaMeasurement__pimpl.html#a9b8d56534690de65a8c0932a028cba46", null ],
+    [ "Vscale", "classDnaMeasurement__pimpl.html#a33837fcf775ba51540e74799ba4db792", null ],
+    [ "Epoch", "classDnaMeasurement__pimpl.html#a76dbf957abfcdf146948bb97cc7578a8", null ],
+    [ "ReferenceFrame", "classDnaMeasurement__pimpl.html#a340eb9daa8c3bf7d1144a814f1a40b1c", null ],
+    [ "GPSBaseline", "classDnaMeasurement__pimpl.html#aeeeed24c2ee564452ebaa581464303b4", null ],
+    [ "Hscale", "classDnaMeasurement__pimpl.html#aa338408473c4f45b7cbd43795213cc7d", null ],
+    [ "Lscale", "classDnaMeasurement__pimpl.html#a7427cefebb4e7c4886e5ff45ac4ea674", null ],
+    [ "Pscale", "classDnaMeasurement__pimpl.html#a98c684888e4aeb0c999181b1e31c8417", null ],
+    [ "Clusterpoint", "classDnaMeasurement__pimpl.html#a422ba0b62229784ba917bd48e16bb8dd", null ],
+    [ "Coords", "classDnaMeasurement__pimpl.html#a177840ef9cb9c49d5d8718ce782311f4", null ],
+    [ "Source", "classDnaMeasurement__pimpl.html#a4e393c41fbb9474058e63fccf14d40a3", null ],
+    [ "MeasurementDBID", "classDnaMeasurement__pimpl.html#a15f058ce9aa9d721ebf47f787e3e674e", null ],
+    [ "ClusterDBID", "classDnaMeasurement__pimpl.html#a7e9902bc6271ebe273f7b0380e8fa29f", null ],
+    [ "post_DnaMeasurement", "classDnaMeasurement__pimpl.html#ad918098b7e861871b02c82cb969f6a26", null ]
+];

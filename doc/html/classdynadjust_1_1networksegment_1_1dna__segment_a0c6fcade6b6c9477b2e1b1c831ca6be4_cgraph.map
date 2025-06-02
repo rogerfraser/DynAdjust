@@ -1,0 +1,18 @@
+<map id="dynadjust::networksegment::dna_segment::SortbyMeasurementCount" name="dynadjust::networksegment::dna_segment::SortbyMeasurementCount">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,301,155"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#ad6f7c24a5749e255d4348a65b36df98d" title=" " alt="" coords="349,68,616,129"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="301,115,333,111,333,117,301,120"/>
+<area shape="rect" id="Node000007" href="$dnatemplatecalcfuncs_8hpp.html#ac728b1dbef1e88928dae4991b0ec2fec" title=" " alt="" coords="449,154,516,182"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="301,146,433,160,433,165,301,151"/>
+<area shape="poly" id="edge7_Node000002_Node000002" title=" " alt="" coords="421,67,423,57,434,48,454,43,482,41,515,44,535,51,533,56,514,49,482,46,455,48,437,53,428,60,427,68"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a6cefaad0f03dd4b074c150f7a813deee" title=" " alt="" coords="664,34,927,96"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="616,81,648,78,649,83,617,87"/>
+<area shape="rect" id="Node000006" href="$dnatemplatefuncs_8hpp.html#a78f17ec94799d40562a72e9d65d49e14" title=" " alt="" coords="1178,74,1302,102"/>
+<area shape="poly" id="edge8_Node000002_Node000006" title=" " alt="" coords="617,103,664,105,796,108,927,105,1162,91,1163,97,927,110,796,113,664,110,616,109"/>
+<area shape="rect" id="Node000004" href="$dnatemplatestnmsrfuncs_8hpp.html#ad3c296ebccb8aabc0d594e8b2fab665a" title=" " alt="" coords="975,18,1097,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="928,44,959,40,960,45,928,49"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="928,69,1163,81,1163,86,928,74"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1measurements_1_1MsrTally.html#a28147041e70b79473878f2d5d385ef33" title=" " alt="" coords="1145,5,1336,50"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1097,28,1129,27,1129,33,1097,33"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="1088,43,1145,60,1171,67,1170,72,1144,65,1086,49"/>
+</map>

@@ -1,0 +1,40 @@
+<map id="EllipsoidArcDistance" name="EllipsoidArcDistance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,207,160,234"/>
+<area shape="rect" id="Node000002" href="$dnatemplategeodesyfuncs_8hpp.html#ad53ac8523859fb4bd4b914df95e62156" title=" " alt="" coords="492,129,664,157"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,206,477,156,478,161,161,211"/>
+<area shape="rect" id="Node000008" href="$dnatemplategeodesyfuncs_8hpp.html#a6fc009eb3e15611bd0bd00c8eaa850c2" title=" " alt="" coords="208,232,411,260"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="160,226,192,230,192,235,159,232"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ae1003c5f7f0be3190a8abb1f7e07143a" title=" " alt="" coords="985,126,1202,171"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="664,140,936,141,970,141,969,147,936,146,664,145"/>
+<area shape="rect" id="Node000004" href="$dnatemplategeodesyfuncs_8hpp.html#a1bf98409182d9bff6508ab8674303864" title=" " alt="" coords="795,155,886,182"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="664,149,780,160,779,165,664,154"/>
+<area shape="rect" id="Node000005" href="$dnatemplategeodesyfuncs_8hpp.html#ae5a5cbc07338999e179531d290f6c959" title=" " alt="" coords="786,53,895,81"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="628,126,774,83,776,88,630,131"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="886,79,984,111,1007,118,1005,124,983,116,884,84"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="984,57,1204,102"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="896,67,968,71,968,76,895,72"/>
+<area shape="rect" id="Node000007" href="$dnadatumprojectionparam_8hpp.html#ac5514459b1bfeeca62af4b7352cf812a" title=" " alt="" coords="1036,5,1152,33"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="895,54,1020,30,1021,36,896,59"/>
+<area shape="rect" id="Node000009" href="$dnatemplategeodesyfuncs_8hpp.html#a0edf37936f3e888091de94ff29a96a0e" title=" " alt="" coords="459,232,697,260"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="411,243,443,243,443,248,411,248"/>
+<area shape="rect" id="Node000010" href="$dnatemplatecalcfuncs_8hpp.html#a0c80d7ec9a75cbeb449b7d64c879388f" title=" " alt="" coords="803,259,878,286"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="698,255,788,265,787,270,698,261"/>
+<area shape="rect" id="Node000011" href="$dnatemplategeodesyfuncs_8hpp.html#a73b65845407300cd874e93bde7bebc44" title=" " alt="" coords="800,311,881,338"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="625,258,746,295,786,307,785,312,745,300,624,263"/>
+<area shape="rect" id="Node000016" href="$dnatemplategeodesyfuncs_8hpp.html#a5f52fa8053f9cf63bacb93f31fe0f3bd" title=" " alt="" coords="745,207,936,234"/>
+<area shape="poly" id="edge18_Node000009_Node000016" title=" " alt="" coords="698,232,730,229,730,234,698,237"/>
+<area shape="rect" id="Node000012" href="$dnatemplatecalcfuncs_8hpp.html#a35eee34d312928eb48ed136c80d90876" title=" " alt="" coords="1061,260,1126,288"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="880,314,1046,281,1047,286,882,319"/>
+<area shape="rect" id="Node000014" href="$dnaconsts_8hpp.html#a0c0dd7e1f008debd8afbfca0edb87a48" title=" " alt="" coords="1252,311,1323,338"/>
+<area shape="poly" id="edge17_Node000011_Node000014" title=" " alt="" coords="881,322,1237,322,1237,327,881,327"/>
+<area shape="rect" id="Node000015" href="$dnaconsts_8hpp.html#a35b8100455087daedfe57a351459200c" title=" " alt="" coords="1057,361,1131,389"/>
+<area shape="poly" id="edge16_Node000011_Node000015" title=" " alt="" coords="882,330,1042,362,1041,367,880,335"/>
+<area shape="rect" id="Node000013" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="1371,285,1410,313"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="1127,274,1356,294,1355,299,1126,279"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="1128,280,1238,309,1236,314,1126,285"/>
+<area shape="poly" id="edge15_Node000014_Node000013" title=" " alt="" coords="1323,313,1355,305,1357,310,1324,318"/>
+<area shape="poly" id="edge19_Node000016_Node000003" title=" " alt="" coords="892,203,935,191,999,173,1000,178,936,196,894,209"/>
+<area shape="poly" id="edge20_Node000016_Node000006" title=" " alt="" coords="913,204,934,192,950,173,957,153,965,132,982,112,987,108,991,112,985,116,969,135,962,155,955,176,937,196,916,208"/>
+<area shape="rect" id="Node000017" href="$dnadatumprojectionparam_8hpp.html#ad6c641e9c204251b660c24fe1af5c006" title=" " alt="" coords="995,207,1192,234"/>
+<area shape="poly" id="edge21_Node000016_Node000017" title=" " alt="" coords="936,218,980,218,980,223,936,223"/>
+</map>

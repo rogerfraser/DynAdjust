@@ -1,0 +1,16 @@
+<map id="dynadjust::networkadjust::dna_adjust::OpenOutputFileStreams" name="dynadjust::networkadjust::dna_adjust::OpenOutputFileStreams">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,89,268,134"/>
+<area shape="rect" id="Node000002" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="738,37,832,65"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,86,235,49,274,32,315,19,370,9,427,4,539,6,641,18,723,34,722,39,640,24,539,12,427,10,371,15,316,25,276,37,237,54,173,91"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ac69692e1eade2d5ed3e8b63bffbdd6a0" title=" " alt="" coords="327,58,582,103"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="268,96,311,92,312,97,269,101"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a871ec1693dffcf54482e6e62ed14ec60" title=" " alt="" coords="641,89,928,134"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="268,112,316,113,593,113,625,112,625,118,593,118,316,118,268,117"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a8d1fcb3e2d4bfc1c52cafe19fd11752a" title=" " alt="" coords="316,202,593,247"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="203,132,376,194,374,199,201,137"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="736,42,721,32,721,25,725,20,747,13,785,11,837,16,848,23,848,32,842,31,843,26,835,21,785,16,748,18,728,24,726,27,726,29,739,37"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="582,67,722,54,722,59,583,72"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="395,58,393,48,403,39,423,34,454,32,488,34,509,41,507,46,487,39,454,37,424,39,405,44,398,50,400,57"/>
+<area shape="poly" id="edge6_Node000003_Node000004" title=" " alt="" coords="583,90,626,94,625,99,582,95"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="395,202,393,192,403,183,423,178,454,176,488,178,509,185,507,190,487,183,454,181,424,183,405,188,398,194,400,201"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="SerialiseVarianceMatrices" name="SerialiseVarianceMatrices">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,152,196,180"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#aca2fe17af8d95c3dae0f470fbf7f7851" title=" " alt="" coords="244,135,465,197"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,163,228,163,228,168,196,168"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#ac69692e1eade2d5ed3e8b63bffbdd6a0" title=" " alt="" coords="524,50,779,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,132,512,105,539,97,540,102,514,110,436,137"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a8d1fcb3e2d4bfc1c52cafe19fd11752a" title=" " alt="" coords="513,144,790,188"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="465,163,497,163,497,168,465,168"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#afca21c511cca8a72c9b3e57bcfec4b07" title=" " alt="" coords="541,237,762,282"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="456,195,564,229,563,234,454,200"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="596,50,594,40,603,31,623,25,652,24,683,26,702,32,700,37,682,31,652,29,624,31,606,36,599,42,601,49"/>
+<area shape="rect" id="Node000004" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="935,29,1029,57"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="779,59,919,46,920,51,780,64"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a871ec1693dffcf54482e6e62ed14ec60" title=" " alt="" coords="838,81,1126,126"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="780,82,823,86,823,91,779,87"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="933,34,919,24,918,17,923,12,944,5,982,3,1034,8,1045,15,1045,24,1040,23,1041,18,1032,13,982,8,945,10,926,16,923,19,923,21,936,29"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="596,143,594,133,603,124,623,119,652,117,683,119,702,126,700,131,682,124,652,122,624,124,606,129,599,135,601,142"/>
+<area shape="poly" id="edge11_Node000007_Node000007" title=" " alt="" coords="596,237,594,227,603,218,623,212,652,210,683,213,702,219,700,224,682,218,652,215,624,217,606,222,599,228,601,236"/>
+<area shape="rect" id="Node000008" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a2a47893676a984f411a6f4ee445c307f" title=" " alt="" coords="875,237,1089,282"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="763,256,859,256,859,262,763,262"/>
+</map>

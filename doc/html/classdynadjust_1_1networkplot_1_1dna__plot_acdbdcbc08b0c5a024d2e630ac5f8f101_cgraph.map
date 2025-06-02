@@ -1,0 +1,15 @@
+<map id="dynadjust::networkplot::dna_plot::PlotGnuplotDatFileMsrs" name="dynadjust::networkplot::dna_plot::PlotGnuplotDatFileMsrs">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,149,251,194"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#adc1d39731757088be581174eb90c969a" title=" " alt="" coords="299,5,579,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,147,219,103,298,60,315,53,317,58,300,65,222,107,160,151"/>
+<area shape="rect" id="Node000003" href="$dnaiostreamfuncs_8hpp.html#a3a9a8a8f1d32538aba8eebf4f4a0f004" title=" " alt="" coords="392,98,486,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,146,298,134,376,120,377,125,299,140,240,151"/>
+<area shape="rect" id="Node000004" href="$namespacedynadjust_1_1measurements.html#a8baff871e5eceea5213bd545fc0c344a" title=" " alt="" coords="343,149,534,194"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="251,169,328,169,328,174,251,174"/>
+<area shape="rect" id="Node000005" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="375,218,503,246"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="240,192,299,204,360,215,359,220,298,209,239,197"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a39dbd8ab0cfc4c715b1b587061e49935" title=" " alt="" coords="328,293,550,338"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="174,192,300,255,368,284,366,289,298,259,172,197"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="390,101,378,90,384,80,404,73,439,71,483,75,495,81,499,87,495,90,492,85,482,81,439,76,405,79,387,84,383,89,393,97"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="380,293,379,283,389,274,409,269,439,267,472,269,492,276,490,281,471,274,439,272,409,274,391,279,384,285,386,292"/>
+</map>

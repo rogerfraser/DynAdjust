@@ -1,0 +1,28 @@
+var classdynadjust_1_1measurements_1_1CDnaDistance =
+[
+    [ "CDnaDistance", "classdynadjust_1_1measurements_1_1CDnaDistance.html#ab7e38da71ee9f5957463d6fe0a886375", null ],
+    [ "~CDnaDistance", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a6d2eb3a2839a077c215690389599ee1c", null ],
+    [ "operator==", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a8c8ba58ef79020ee6b562474488e8b8c", null ],
+    [ "operator<", "classdynadjust_1_1measurements_1_1CDnaDistance.html#ac53564d58c7231f355ec5ca76ab18020", null ],
+    [ "GetTarget", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a9cbb98f8a64763a8da373aa66a313254", null ],
+    [ "GetValue", "classdynadjust_1_1measurements_1_1CDnaDistance.html#ada4e9945c3ffe46616d230ee803f42b9", null ],
+    [ "GetStdDev", "classdynadjust_1_1measurements_1_1CDnaDistance.html#ac2e536a892615467a2aa38fdb1c271e8", null ],
+    [ "GetInstrHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a91d44fa89c926569a352d61afb292f12", null ],
+    [ "GetTargetHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a9ac85c8f9c1c49491e567fcd3f4677f9", null ],
+    [ "SetTarget", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a2a073d674e35eec27805db9cbf445ac5", null ],
+    [ "SetValue", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a1a50203797b73adea25a9add09fe4ef6", null ],
+    [ "SetStdDev", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a5484afb08608ec7fa6176a207037a237", null ],
+    [ "SetInstrumentHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#aa8e3fba7a7ad3c45a6d8383d5b66a125", null ],
+    [ "SetTargetHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a176b08f57858da52683a9a60c61fe4c1", null ],
+    [ "CalcBinaryRecordCount", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a324557d99f3152f6c6b8a3beaef6e172", null ],
+    [ "WriteBinaryMsr", "classdynadjust_1_1measurements_1_1CDnaDistance.html#afd9027d7821220c1e68e28fcdcc3f01f", null ],
+    [ "SetMeasurementRec", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a3a114459d8f387eaef0de260b70fda57", null ],
+    [ "WriteDynaMLMsr", "classdynadjust_1_1measurements_1_1CDnaDistance.html#acdb4995b9116223f6f5df6ab10ef3ec5", null ],
+    [ "WriteDNAMsr", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a2f3d94ed2bc985107b35eb2bb795f308", null ],
+    [ "SimulateMsr", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a61b04c9731b5e7d785c815f44743181e", null ],
+    [ "m_strTarget", "classdynadjust_1_1measurements_1_1CDnaDistance.html#af7db2278c8a8318ac34264df2b0923d9", null ],
+    [ "m_dValue", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a16359b6d63dd8a5ee61632016ac45b1c", null ],
+    [ "m_dStdDev", "classdynadjust_1_1measurements_1_1CDnaDistance.html#aef0cfc72022b27a78e5833404266cebd", null ],
+    [ "m_fInstHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#ac4e528ff0ee3ff1ba3063fc291b053b9", null ],
+    [ "m_fTargHeight", "classdynadjust_1_1measurements_1_1CDnaDistance.html#a466aabd51a42d080efcb464a37858d83", null ]
+];

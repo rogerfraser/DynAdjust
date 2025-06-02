@@ -1,0 +1,19 @@
+<map id="dynadjust::measurements::CDnaCoordinate::SetValue" name="dynadjust::measurements::CDnaCoordinate::SetValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,76,207,120"/>
+<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#aedaeb3bc40b3a05793cbc4acd28ea47e" title=" " alt="" coords="255,57,402,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,83,239,79,239,85,207,88"/>
+<area shape="rect" id="Node000008" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="296,109,361,137"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="207,107,281,115,280,120,207,112"/>
+<area shape="rect" id="Node000003" href="$dnatemplatecalcfuncs_8hpp.html#a966c06db8a459578eddb99b3320f3439" title=" " alt="" coords="450,5,540,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,54,434,35,436,40,376,59"/>
+<area shape="rect" id="Node000004" href="$dnatemplatecalcfuncs_8hpp.html#a1546bdb5214ae4b148dc6b761ba7b6d1" title=" " alt="" coords="458,57,532,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="403,68,443,68,443,74,403,74"/>
+<area shape="rect" id="Node000005" href="$dnatemplatecalcfuncs_8hpp.html#a98ff5967abdac0911c30bfc258759c8c" title=" " alt="" coords="588,57,744,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="532,68,573,68,573,74,532,74"/>
+<area shape="rect" id="Node000006" href="$dnaconsts_8hpp.html#a29db49c5e9564fc75bbfe07efd83fcc5" title=" " alt="" coords="792,57,901,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="744,68,776,68,776,74,744,74"/>
+<area shape="rect" id="Node000007" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="949,57,987,85"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="901,68,934,68,934,74,901,74"/>
+<area shape="rect" id="Node000009" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="459,109,531,137"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="361,120,444,120,444,126,361,126"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="dynadjust::iostreams::dna_io_snx::parse_sinex_discontinuities" name="dynadjust::iostreams::dna_io_snx::parse_sinex_discontinuities">
+<area shape="rect" id="Node000001" title=" " alt="" coords="713,29,902,91"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="852,17,835,11,807,8,784,10,768,15,760,21,759,30,754,29,755,19,765,10,783,5,808,3,836,5,854,13"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1iostreams_1_1dna__io__snx.html#a2fd3beff6da7899c0dcd440ee5d5dbaa" title=" " alt="" coords="400,38,665,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="698,63,666,63,666,58,698,58"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1dynamlinterop_1_1dna__import.html#a533d9dbfb9c6196d4ed966b048e143ab" title=" " alt="" coords="108,38,352,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="384,63,352,63,352,58,384,58"/>
+<area shape="rect" id="Node000004" href="$dnaimportwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,46,60,74"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,63,60,63,60,58,92,58"/>
+</map>

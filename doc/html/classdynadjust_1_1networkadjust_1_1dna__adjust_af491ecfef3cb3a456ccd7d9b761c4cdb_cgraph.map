@@ -1,0 +1,22 @@
+<map id="dynadjust::networkadjust::dna_adjust::UpdateIgnoredMeasurements_H" name="dynadjust::networkadjust::dna_adjust::UpdateIgnoredMeasurements_H">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,68,324,113"/>
+<area shape="rect" id="Node000002" href="$dnaconsts_8hpp.html#a8d1f0bccd46036ced05ea2c90ccc1d82" title=" " alt="" coords="474,46,596,74"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="324,74,459,63,459,69,324,80"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a60502667bcb4c8feebe4b3ff2b5c955c" title=" " alt="" coords="372,97,699,142"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="324,100,356,103,356,108,324,106"/>
+<area shape="rect" id="Node000004" href="$dnatemplategeodesyfuncs_8hpp.html#a54376bcce8c4bc50c9559d471969fbf8" title=" " alt="" coords="816,46,935,74"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,94,799,70,800,75,666,99"/>
+<area shape="rect" id="Node000009" href="$classdynadjust_1_1math_1_1matrix__2d.html#a7474bc836cf980fb59974ce0dfdd73ee" title=" " alt="" coords="786,97,964,142"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="699,117,770,117,770,122,699,122"/>
+<area shape="rect" id="Node000010" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a45ea57e48698e0ea12be55ac0096f630" title=" " alt="" coords="747,167,1003,211"/>
+<area shape="poly" id="edge10_Node000003_Node000010" title=" " alt="" coords="649,140,748,160,747,166,648,145"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ae1003c5f7f0be3190a8abb1f7e07143a" title=" " alt="" coords="1210,5,1428,50"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="935,53,1194,34,1195,39,935,58"/>
+<area shape="rect" id="Node000006" href="$dnatemplategeodesyfuncs_8hpp.html#ae5a5cbc07338999e179531d290f6c959" title=" " alt="" coords="1051,74,1161,102"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="936,64,1036,77,1035,82,935,70"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="1157,71,1222,52,1223,57,1158,76"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="1209,75,1429,119"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1161,87,1193,89,1193,94,1161,93"/>
+<area shape="rect" id="Node000008" href="$dnadatumprojectionparam_8hpp.html#ac5514459b1bfeeca62af4b7352cf812a" title=" " alt="" coords="1261,143,1377,171"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="1138,100,1210,129,1246,140,1245,145,1208,134,1135,104"/>
+</map>

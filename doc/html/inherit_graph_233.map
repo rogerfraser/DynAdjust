@@ -1,0 +1,17 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,222,119,250"/>
+<area shape="rect" id="Node000001" href="$classdynadjust_1_1exception_1_1NetAdjustException.html" title=" " alt="" coords="175,5,332,50"/>
+<area shape="poly" id="edge124_Node000000_Node000001" title=" " alt="" coords="71,206,106,134,132,95,165,60,182,48,185,53,168,64,137,98,111,137,76,208"/>
+<area shape="rect" id="Node000002" href="$classdynadjust_1_1exception_1_1NetGeoidException.html" title=" " alt="" coords="175,75,332,119"/>
+<area shape="poly" id="edge125_Node000000_Node000002" title=" " alt="" coords="82,208,118,168,165,129,186,117,189,122,168,134,122,172,86,212"/>
+<area shape="rect" id="Node000003" href="$classdynadjust_1_1exception_1_1NetMemoryException.html" title=" " alt="" coords="169,144,339,189"/>
+<area shape="poly" id="edge126_Node000000_Node000003" title=" " alt="" coords="116,214,189,187,191,192,118,219"/>
+<area shape="rect" id="Node000004" href="$classdynadjust_1_1exception_1_1NetPlotException.html" title=" " alt="" coords="175,213,332,258"/>
+<area shape="poly" id="edge127_Node000000_Node000004" title=" " alt="" coords="134,233,175,233,175,238,134,238"/>
+<area shape="rect" id="Node000005" href="$classdynadjust_1_1exception_1_1NetSegmentException.html" title=" " alt="" coords="167,283,341,327"/>
+<area shape="poly" id="edge128_Node000000_Node000005" title=" " alt="" coords="118,253,191,280,189,285,116,258"/>
+<area shape="rect" id="Node000006" href="$classdynadjust_1_1exception_1_1RefTranException.html" title=" " alt="" coords="175,352,332,397"/>
+<area shape="poly" id="edge129_Node000000_Node000006" title=" " alt="" coords="86,260,122,299,168,337,189,349,186,354,165,342,118,303,82,263"/>
+<area shape="rect" id="Node000007" href="$classdynadjust_1_1exception_1_1XMLInteropException.html" title=" " alt="" coords="170,421,338,466"/>
+<area shape="poly" id="edge130_Node000000_Node000007" title=" " alt="" coords="76,263,111,334,137,373,168,407,185,419,182,423,165,411,132,376,106,337,71,265"/>
+</map>

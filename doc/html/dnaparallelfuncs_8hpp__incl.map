@@ -1,0 +1,13 @@
+<map id="include/functions/dnaparallelfuncs.hpp" name="include/functions/dnaparallelfuncs.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="154,5,426,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,90,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="248,36,106,79,104,74,246,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="114,81,200,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="268,36,195,76,192,71,265,31"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="224,81,356,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="293,34,293,65,288,65,288,34"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="380,81,555,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="323,31,423,72,421,77,321,36"/>
+<area shape="rect" id="Node000006" href="$dnatypes_8hpp.html" title=" " alt="" coords="579,81,783,109"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="361,31,596,75,595,80,360,36"/>
+</map>
