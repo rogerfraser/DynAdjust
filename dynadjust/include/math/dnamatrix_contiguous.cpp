@@ -91,10 +91,9 @@ UINT32 __col__;
 // string _method_;
 
 void out_of_memory_handler() {
-    std::stringstream ss("");
-    UINT32 mem(std::max(__row__, __col__));
-    mem *= std::min(__row__, __col__) * sizeof(UINT32);
+    std::size_t mem = static_cast<std::size_t>(__row__) * static_cast<std::size_t>(__col__) * sizeof(double);
 
+    std::stringstream ss;
     ss << "Insufficient memory available to create a " << __row__ << " x " << __col__ << " matrix (" << std::fixed
        << std::setprecision(2);
 
@@ -135,7 +134,7 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns, const double dat
     std::set_new_handler(out_of_memory_handler);
 
     std::stringstream ss;
-    UINT32 upperMatrixElements(sumOfConsecutiveIntegers(rows));
+    std::size_t upperMatrixElements(sumOfConsecutiveIntegers(rows));
     UINT32 j;
 
     const double* dataptr = &data[0];
