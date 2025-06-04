@@ -550,6 +550,7 @@ jobs:
         tar zxvf libxsd-4.2.0.tar.gz
 
     - name: Print openblas function names
+      shell: cmd
       run: |
         vcpkg.exe integrate install
         call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
