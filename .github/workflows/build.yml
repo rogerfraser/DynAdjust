@@ -550,7 +550,12 @@ jobs:
         tar zxvf libxsd-4.2.0.tar.gz
 
     - name: Print openblas function names
-      run: dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
+      run: |
+        vcpkg.exe integrate install
+        call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+        dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
+        lib.exe /list C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
 
     - name: Build with CMake
       working-directory: "./src"
