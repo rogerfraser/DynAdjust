@@ -549,6 +549,9 @@ jobs:
         curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
         tar zxvf libxsd-4.2.0.tar.gz
 
+    - name: Print openblas function names
+      run: dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
+
     - name: Build with CMake
       working-directory: "./src"
       shell: cmd
