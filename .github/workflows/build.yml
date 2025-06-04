@@ -464,7 +464,7 @@ jobs:
     runs-on: windows-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
     
@@ -549,14 +549,14 @@ jobs:
         curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
         tar zxvf libxsd-4.2.0.tar.gz
 
-    - name: Print openblas function names
+    - name: Print BLAS and LAPACK function names
       shell: cmd
       run: |
         vcpkg.exe integrate install
         call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
         call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
         dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
-        lib.exe /list C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
+        dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/lapack.lib
 
     - name: Build with CMake
       working-directory: "./src"
