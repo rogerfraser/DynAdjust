@@ -585,6 +585,6 @@ jobs:
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
         set UseEnv=true
         mkdir mkl
-        cmake -DUSE_MKL=ON -G "Visual Studio 17 2022" -A x64 -S dynadjust -B mkl --debug-find
+        cmake -DUSE_MKL=ON -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -DBLA_VENDOR=Intel10_64lp -G "Visual Studio 17 2022" -A x64 -S dynadjust -B mkl
         cmake --build mkl --config Release --parallel 2
 
