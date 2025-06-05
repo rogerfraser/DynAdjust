@@ -558,7 +558,7 @@ jobs:
         dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/openblas.lib
         dumpbin /EXPORTS C:/vcpkg/installed/x64-windows/debug/lib/lapack.lib
 
-    - name: Build with CMake
+    - name: Build with OpenBLAS
       working-directory: "./src"
       shell: cmd
       run: |
@@ -569,8 +569,13 @@ jobs:
         set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
         set UseEnv=true
-        cmake -DUSE_MKL=OFF -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
-        cmake --build %cd% --config Release --parallel 2
+        mkdir openblas
+        cmake -DUSE_MKL=OFF -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 -S dynadjust -B openblas
+        cmake --build openblas --config Release --parallel 2
+        mkdir mkl
+        cmake -DUSE_MKL=ON -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 -S dynadjust -B mkl
+        cmake --build mkl --config Release --parallel 2
+
 
 #------------------------------------------------
 
