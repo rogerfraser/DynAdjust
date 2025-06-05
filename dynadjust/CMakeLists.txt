@@ -224,6 +224,10 @@ elseif(WIN32)
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
 
+    if (NOT USE_MKL)
+        set(BLA_VENDOR "Generic" CACHE STRING "Force Generic" FORCE)
+    endif()
+
     find_package(LAPACK)
     if (LAPACK_FOUND)
         add_link_options(${LAPACK_LINKER_FLAGS})
