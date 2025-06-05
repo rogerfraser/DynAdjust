@@ -205,8 +205,6 @@ if(APPLE)
     list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
 
 elseif(WIN32)
-    message(STATUS "Looking for BLAS and LAPACK on Windows")
-
     if (USE_MKL)
         add_compile_options("-DUSE_MKL")
         if (ILP64)
@@ -217,6 +215,8 @@ elseif(WIN32)
     else()
         set(BLA_VENDOR OpenBLAS)
     endif()
+
+    message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
 
     find_package(BLAS REQUIRED)
     add_link_options(${BLAS_LINKER_FLAGS})
