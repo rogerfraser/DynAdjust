@@ -3,9 +3,9 @@ project(dynadjust VERSION 1.2.9)
 
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
-option(USE_MKL "Use Intel MKL (Linux and Windows)" ON)
-option(USE_OPENBLAS "Use OpenBLAS + LAPACKE (on macOS: partial(?) overrides Accelerate)" OFF)
+option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
 option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
+option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
@@ -75,15 +75,16 @@ if(BUILD_TESTING)
 endif()
 
 if(APPLE)
-    #add_compile_options(-Werror -ferror-limit=1)
+    #    add_compile_options(-Werror -ferror-limit=1)
     add_compile_options(-Wno-unguarded-availability-new)
     add_compile_options(-Wno-deprecated-declarations)
+    add_compile_options(-Wno-nullability-completeness)
 endif()
 
-# Debug flags
-if (NOT BUILD_STATIC AND NOT APPLE)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
-endif()
+## Debug flags
+#if (NOT BUILD_STATIC AND NOT APPLE)
+#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
+#endif()
 
 ## Coverage if testing
 #if(NOT BUILD_STATIC AND NOT APPLE)
@@ -97,6 +98,10 @@ endif()
 #else()
 #    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
 #endif()
+
+if (WIN32)
+    add_compile_options(-DNOMINMAX)
+endif()
 
 # ----------------------------------------------------------------------------
 # XercesC
@@ -138,7 +143,7 @@ set(DNA_LIBRARIES
 )
 
 # ----------------------------------------------------------------------------
-# Math libraries
+# OpenMP
 # ----------------------------------------------------------------------------
 
 find_package(OpenMP)
@@ -170,61 +175,74 @@ if(OpenMP_CXX_FOUND)
     endif()
 endif()
 
+# ----------------------------------------------------------------------------
+# Math libraries
+# ----------------------------------------------------------------------------
+
+# ILP64 interface for BLAS and LAPACK
+if(ILP64)
+    add_compile_options("-DUSE_ILP64")
+    message(STATUS "Using ILP64 interface for BLAS and LAPACK")
+else()
+    message(STATUS "Using LP64 interface for BLAS and LAPACK")
+endif()
+
+if(USE_MKL AND (NOT APPLE))
+    add_compile_options("-DUSE_MKL")
+    set(BLA_VENDOR Intel10_64lp)
+endif()
+
 if(APPLE)
     message(STATUS "Looking for BLAS and LAPACK on MacOS")
 
-    if(USE_OPENBLAS)
-        message(STATUS "Using OpenBLAS + LAPACKE on MacOS")
-        find_package(BLAS REQUIRED)
-        find_package(LAPACK REQUIRED)
-        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    find_library(ACCELERATE_LIB Accelerate)
+    if(NOT ACCELERATE_LIB)
+        message(FATAL_ERROR "Cannot find Apple Accelerate framework.")
     else()
-        find_library(ACCELERATE_LIB Accelerate)
-        if(NOT ACCELERATE_LIB)
-            message(FATAL_ERROR "Cannot find Apple Accelerate framework.")
-        else()
-            message(STATUS "Found Accelerate framework for fast linear algebra")
-            add_compile_options("-DACCELERATE_NEW_LAPACK")
-        endif()
-        list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
+        message(STATUS "Found Accelerate framework for fast linear algebra")
+        add_compile_options("-DACCELERATE_NEW_LAPACK")
     endif()
+    list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
 
 elseif(WIN32)
-    message(STATUS "Looking for BLAS and LAPACK on Windows")
-
-    if(USE_MKL)
-        add_compile_options("-DMKL_LP64")
-        set(BLA_VENDOR Intel10_64lp)
-        message(STATUS "Using MKL for fast linear algebra (${BLA_VENDOR})")
+    if (USE_MKL)
+        add_compile_options("-DUSE_MKL")
+        if (ILP64)
+            set(BLA_VENDOR "Intel10_64ilp" CACHE STRING "Force MKL" FORCE)
+        else()
+            set(BLA_VENDOR "Intel10_64lp" CACHE STRING "Force MKL" FORCE)
+        endif()
+    else()
+        set(BLA_VENDOR "OpenBLAS" CACHE STRING "Force OpenBLAS" FORCE)
     endif()
+
+    message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
 
     find_package(BLAS REQUIRED)
     add_link_options(${BLAS_LINKER_FLAGS})
     message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
+    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
 
-    find_package(LAPACK REQUIRED)
-    add_link_options(${LAPACK_LINKER_FLAGS})
-    message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
-    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+    if (NOT USE_MKL)
+        set(BLA_VENDOR "Generic" CACHE STRING "Force Generic" FORCE)
+    endif()
+
+    find_package(LAPACK)
+    if (LAPACK_FOUND)
+        add_link_options(${LAPACK_LINKER_FLAGS})
+        message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
+        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+        list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
+    endif()
 
     if(NOT USE_MKL)
         find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
         include_directories(${BLAS_INCLUDE_DIRS})
     endif()
 
-    list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
-
 elseif(UNIX)
     message(STATUS "Looking for BLAS and LAPACK on Linux")
-
-    #if (USE_MKL)
-    #    add_compile_options("-DMKL_LP64")
-    #    set(BLA_VENDOR Intel10_64lp)
-    #else()
-    #    #set(BLA_PREFER_PKGCONFIG YES)
-    #    set(BLA_VENDOR OpenBLAS)
-    #endif()
 
     if (BUILD_STATIC)
         set(BLA_STATIC ON)
@@ -232,18 +250,17 @@ elseif(UNIX)
 
     find_package(BLAS REQUIRED)
 
-    find_package(LAPACK REQUIRED)
+    find_package(LAPACK)
 
-    if ("${LAPACK_LIBRARIES}" MATCHES "libmkl")
+    if ("${BLAS_LIBRARIES}" MATCHES "libmkl")
         message(STATUS "Using Intel MKL for fast linear algebra")
-        add_compile_options("-DMKL_LP64")
+        add_compile_options("-DUSE_MKL")
         set(USE_MKL ON)
     	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     else()
         message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
         find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
-        #list(APPEND DNA_LIBRARIES "cblas" "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     endif()
 
 endif()

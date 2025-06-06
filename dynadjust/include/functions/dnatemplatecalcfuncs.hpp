@@ -46,10 +46,9 @@
 #include <include/config/dnaconsts.hpp>
 
 template <class U>
-U sumOfConsecutiveIntegers(const U& max, const U& min = 1)
+std::size_t sumOfConsecutiveIntegers(const U& max, const U& min = 1)
 {
-	//U q(static_cast<U>(average<double, U>(max, min) * max));
-	U sum(0);
+    std::size_t sum(0);
 	for (U u=min; u<=max; u++)
 		sum += u;
 	return sum;	

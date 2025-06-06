@@ -37,78 +37,135 @@
 #include <include/ide/trace.hpp>
 #endif
 
-// prevent conflict with std::min(...) std::max(...)
-#ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#endif
+#if defined(__APPLE__)
+// Apple Accelerate Framework
 
-#if defined(_MSC_VER)
-#if defined(LIST_INCLUDES_ON_BUILD)
-#pragma message("  " __FILE__)
-#endif
-#endif
-
-#if defined(__APPLE__) // Apple Accelerate framework (-DACCELERATE_LAPACK_ILP64=1 for ILP64)
 #ifndef ACCELERATE_NEW_LAPACK
 #define ACCELERATE_NEW_LAPACK
 #endif
+
 #include <Accelerate/Accelerate.h>
-#define LAPACK_COL_MAJOR 102
-typedef __LAPACK_int lapack_int; // Handle LP64 and ILP64
-inline lapack_int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
-    if (layout != LAPACK_COL_MAJOR)
-        return -1;
-    lapack_int info = 0;
-    dpotrf_(&uplo, &n, a, &lda, &info);
-    return info;
-}
-inline lapack_int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
-    if (layout != LAPACK_COL_MAJOR)
-        return -1;
-    lapack_int info = 0;
-    dpotri_(&uplo, &n, a, &lda, &info);
-    return info;
-}
-#elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
 
-#pragma message(" - Windows.  MKL_ILP64 is not defined.  Bringing in LAPACKE_dpotrf")
+#ifdef USE_ILP64
 
-#include <cstdint>
-#include <cblas.h>
+#ifndef ACCELERATE_LAPACK_ILP64
+#define ACCELERATE_LAPACK_ILP64
+#endif
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX
+#define LAPACK_SYMBOL_SUFFIX $NEWLAPACK$ILP64
+#define BLAS_SYMBOL_PREFIX
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX $NEWLAPACK$ILP64
+typedef long lapack_int;
+
+#else
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX
+#define LAPACK_SYMBOL_SUFFIX $NEWLAPACK
+#define BLAS_SYMBOL_PREFIX
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX $NEWLAPACK
 typedef int lapack_int;
-#define LAPACK_COL_MAJOR 102
+
+#endif
+
+// End - Apple Accelerate Framework
+
+#elif defined(USE_MKL) || defined(__MKL__)
+// Intel MKL
+// #pragma message("Using Intel MKL for LAPACK/BLAS")
+
+#include <mkl.h>
+
+#ifdef USE_ILP64
+
+// Force Intel MKL to use ILP64 interface
+#ifndef MKL_ILP64
+#define MKL_ILP64
+#endif
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
+
+#else
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
+
+#endif
+
+// End - Intel MKL
+
+#else
+// Default LAPACK/BLAS
+// #pragma message("Using default LAPACK/BLAS")
+
+#include <cblas.h>
+
+#ifdef USE_ILP64
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX 64_
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX 64_
+typedef long lapack_int;
+
+#else
+
+#define LAPACK_SYMBOL_PREFIX
+#define LAPACK_FORTRAN_SUFFIX _
+#define LAPACK_SYMBOL_SUFFIX
+#define BLAS_SYMBOL_PREFIX cblas_
+#define BLAS_FORTRAN_SUFFIX
+#define BLAS_SYMBOL_SUFFIX
+typedef int lapack_int;
+
+#endif
+
+// End - Default LAPACK/BLAS
+#endif
+
+#ifdef USE_ILP64
+// Ensure that lapack_int is 64 bits for ILP64
+static_assert(sizeof(lapack_int) == 8, "ILP64 interface requires 64-bit integers");
+#else
+// Ensure that lapack_int is 32 bits for LP64
+static_assert(sizeof(lapack_int) == 4, "LP64 interface requires 32-bit integers");
+#endif
+
+#define DNAMATRIX_INDEX(no_rows, no_cols, row, column) column* no_rows + row
+#define DNAMATRIX_ELEMENT(A, no_rows, no_cols, row, column) A[DNAMATRIX_INDEX(no_rows, no_cols, row, column)]
+
+#define LAPACK_FUNC_CONCAT(name, prefix, suffix, suffix2) prefix##name##suffix##suffix2
+#define LAPACK_FUNC_EXPAND(name, prefix, suffix, suffix2) LAPACK_FUNC_CONCAT(name, prefix, suffix, suffix2)
+#define LAPACK_FUNC(name) LAPACK_FUNC_EXPAND(name, LAPACK_SYMBOL_PREFIX, LAPACK_FORTRAN_SUFFIX, LAPACK_SYMBOL_SUFFIX)
+
+#define BLAS_FUNC_CONCAT(name, prefix, suffix, suffix2) prefix##name##suffix##suffix2
+#define BLAS_FUNC_EXPAND(name, prefix, suffix, suffix2) BLAS_FUNC_CONCAT(name, prefix, suffix, suffix2)
+#define BLAS_FUNC(name) BLAS_FUNC_EXPAND(name, BLAS_SYMBOL_PREFIX, BLAS_FORTRAN_SUFFIX, BLAS_SYMBOL_SUFFIX)
+
+#ifndef USE_MKL
 extern "C" {
-    void dpotrf_(char* uplo, int* n, double* a, int* lda, int* info);
-    void dpotri_(char* uplo, int* n, double* a, int* lda, int* info);
+void LAPACK_FUNC(dpotrf)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
+void LAPACK_FUNC(dpotri)(const char* uplo, const lapack_int* n, double* a, const lapack_int* lda, lapack_int* info);
+void BLAS_FUNC(dgemm)(const enum CBLAS_ORDER ORDER, const enum CBLAS_TRANSPOSE TRANSA,
+                      const enum CBLAS_TRANSPOSE TRANSB, const lapack_int M, const lapack_int N, const lapack_int K,
+                      const double ALPHA, const double* A, const lapack_int LDA, const double* B, const lapack_int LDB,
+                      const double BETA, double* C, const lapack_int LDC);
 }
-inline int LAPACKE_dpotrf(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
-    if (layout != LAPACK_COL_MAJOR)
-        return -1;
-    int info = 0;
-    dpotrf_(&uplo, &n, a, &lda, &info);
-    return static_cast<int>(info);
-}
-inline int LAPACKE_dpotri(int layout, char uplo, lapack_int n, double* a, lapack_int lda) {
-    if (layout != LAPACK_COL_MAJOR)
-        return -1;
-    int info = 0;
-    dpotri_(&uplo, &n, a, &lda, &info);
-    return static_cast<int>(info);
-}
-#elif defined(MKL_ILP64) // Linux or Windows - Intel MKL with ILP64
-#include <mkl.h>
-#include <mkl_lapacke.h>
-//typedef MKL_INT64 lapack_int;
-#elif defined(MKL_LP64) // Linux or Windows - Intel MKL with LP64
-#include <mkl.h>
-#include <mkl_lapacke.h>
-//typedef MKL_INT lapack_int;
-#else // LAPACKE Fallback
-#include <cblas.h>
-#include <lapacke.h>
-typedef int lapack_int;
 #endif
 
 using namespace dynadjust::memory;
@@ -117,258 +174,116 @@ using namespace dynadjust::exception;
 namespace dynadjust {
 namespace math {
 
-// Forward declarations
 class matrix_2d;
 typedef std::vector<matrix_2d> v_mat_2d, *pv_mat_2d;
 typedef v_mat_2d::iterator _it_v_mat_2d;
 typedef v_mat_2d::const_iterator _it_v_mat_2d_const;
 typedef std::vector<v_mat_2d> vv_mat_2d;
 
-/*
-  By default uses column-major order
-*/
-#define DNAMATRIX_INDEX(num_rows, num_cols, row, column)                       \
-    ((column) * (num_rows) + (row))
+template <typename T> std::size_t byteSize(const UINT32 elements = 1) { return elements * sizeof(T); }
 
-/*
-  Retrieves an element based on DNAMATRIX_INDEX based indexing
-*/
-#define DNAMATRIX_ELEMENT(A, no_rows, no_cols, row, column)                    \
-    A[DNAMATRIX_INDEX(no_rows, no_cols, row, column)]
-
-/*
-  byteSize template: calculates memory size for 'elements' of type T
-*/
-template <typename T> std::size_t byteSize(const index_t elements = 1) {
-    return elements * sizeof(T);
-}
-
-/*
-  A matrix implementation using column-major storage.
-*/
 class matrix_2d : public new_handler_support<matrix_2d> {
   public:
-    /* Default constructor: initialises an empty matrix */
+    // Constructors/deconstructors
     matrix_2d();
+    matrix_2d(const UINT32& rows, const UINT32& columns); // explicit constructor
+    matrix_2d(const UINT32& rows, const UINT32& columns, const double data[], const std::size_t& data_size,
+              const UINT32& matrix_type = mtx_full);
+    matrix_2d(const matrix_2d&); // copy constructor
+    ~matrix_2d();                // destructor
 
-    /* Constructor: creates matrix with given rows and columns */
-    matrix_2d(const index_t& rows, const index_t& columns);
-
-    /*
-       Constructor: creates matrix from data array, can handle full/lower forms
-       matrix_type default = mtx_full
-    */
-    matrix_2d(const index_t& rows, const index_t& columns, const double data[],
-              const index_t& data_size, const index_t& matrix_type = mtx_full);
-
-    /* Copy constructor: makes a deep copy of newmat */
-    matrix_2d(const matrix_2d&);
-
-    /* Destructor: deallocates matrix buffer */
-    ~matrix_2d();
-
-    /* Checks if matrix buffer is null */
     inline bool empty() { return _buffer == nullptr; }
 
-    /* Returns size of matrix in bytes, depends on matrixType */
     std::size_t get_size();
 
-    /* Returns total allocated memory rows */
-    inline index_t memRows() const { return _mem_rows; }
-
-    /* Returns total allocated memory columns */
-    inline index_t memColumns() const { return _mem_cols; }
-
-    /* Returns actual rows in matrix */
-    inline index_t rows() const { return _rows; }
-
-    /* Returns actual columns in matrix */
-    inline index_t columns() const { return _cols; }
-
-    /* Returns pointer to underlying buffer */
+    ///////////////////////////////////////////////////////////////////////
+    // Get
+    inline UINT32 memRows() const { return _mem_rows; }
+    inline UINT32 memColumns() const { return _mem_cols; }
+    inline UINT32 rows() const { return _rows; }
+    inline UINT32 columns() const { return _cols; }
     inline double* getbuffer() const { return _buffer; }
 
-    /* Returns reference to element at row r, column c */
-    inline double& get(const index_t& r, const index_t& c) const {
-        return DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, r, c);
+    // element retrieval
+    // see DNAMATRIX_ROW_WISE
+    inline double& get(const UINT32& row, const UINT32& column) const {
+        return DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, row, column);
+    }
+    inline double* getbuffer(const UINT32& row, const UINT32& column) const {
+        return _buffer + DNAMATRIX_INDEX(_mem_rows, _mem_cols, row, column);
     }
 
-    /* Returns pointer to element at row r, column c */
-    inline double* getbuffer(const index_t& r, const index_t& c) const {
-        return _buffer + DNAMATRIX_INDEX(_mem_rows, _mem_cols, r, c);
-    }
+    void submatrix(const UINT32& row_begin, const UINT32& col_begin, matrix_2d* dest, const UINT32& rows,
+                   const UINT32& columns) const;
+    matrix_2d
+    submatrix(const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) const;
 
-    /*
-       Extracts a submatrix of size rows x columns
-       starting at (row_begin, col_begin) into 'dest'
-    */
-    void submatrix(const index_t& row_begin, const index_t& col_begin,
-                   matrix_2d* dest, const index_t& rows,
-                   const index_t& columns) const;
-
-    /* Returns a submatrix of size rows x columns from (row_begin, col_begin) */
-    matrix_2d submatrix(const index_t& row_begin, const index_t& col_begin,
-                        const index_t& rows, const index_t& columns) const;
-
-    /* Returns the current maximum value in the matrix */
     inline double maxvalue() const { return get(_maxvalRow, _maxvalCol); }
+    inline UINT32 maxvalueRow() const { return _maxvalRow; }
+    inline UINT32 maxvalueCol() const { return _maxvalCol; }
 
-    /* Returns the row index of the current maximum value */
-    inline index_t maxvalueRow() const { return _maxvalRow; }
-
-    /* Returns the column index of the current maximum value */
-    inline index_t maxvalueCol() const { return _maxvalCol; }
-
-    /* Returns pointer to the element reference at row r, column c */
-    inline double* getelementref(const index_t& r, const index_t& c) const {
-        return &(DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, r, c));
+    inline double* getelementref(const UINT32& row, const UINT32& column) const {
+        return &(DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, row, column));
+    }
+    inline double* getelementref(const UINT32& row, const UINT32& column) {
+        return &(DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, row, column));
     }
 
-    /* Returns pointer to the element reference at row r, column c (non-const) */
-    inline double* getelementref(const index_t& r, const index_t& c) {
-        return &(DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, r, c));
+    inline void mem_rows(const UINT32& r) { _mem_rows = r; }
+    inline void mem_columns(const UINT32& c) { _mem_cols = c; }
+    inline void rows(const UINT32& r) { _rows = r; }
+    inline void columns(const UINT32& c) { _cols = c; }
+    inline void maxvalueRow(const UINT32& r) { _maxvalRow = r; }
+    inline void maxvalueCol(const UINT32& c) { _maxvalCol = c; }
+
+    inline void put(const UINT32& row, const UINT32& column, const double& value) {
+        DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, row, column) = value;
     }
 
-    /* Sets the total allocated rows (memory) */
-    inline void mem_rows(const index_t& r) { _mem_rows = r; }
+    inline UINT32 matrixType() const { return _matrixType; }
+    inline void matrixType(const UINT32 t) { _matrixType = t; }
 
-    /* Sets the total allocated columns (memory) */
-    inline void mem_columns(const index_t& c) { _mem_cols = c; }
+    // Matrix functions
+    void copyelements(const UINT32& row_dest, const UINT32& column_dest, const matrix_2d& src, const UINT32& row_src,
+                      const UINT32& column_src, const UINT32& rows, const UINT32& columns);
+    void copyelements(const UINT32& row_dest, const UINT32& column_dest, const matrix_2d* src, const UINT32& row_src,
+                      const UINT32& column_src, const UINT32& rows, const UINT32& columns);
 
-    /* Sets the actual number of rows */
-    inline void rows(const index_t& r) { _rows = r; }
-
-    /* Sets the actual number of columns */
-    inline void columns(const index_t& c) { _cols = c; }
-
-    /* Sets the row index for the maximum value */
-    inline void maxvalueRow(const index_t& r) { _maxvalRow = r; }
-
-    /* Sets the column index for the maximum value */
-    inline void maxvalueCol(const index_t& c) { _maxvalCol = c; }
-
-    /* Places val into row r, column c */
-    inline void put(const index_t& r, const index_t& c, const double& val) {
-        DNAMATRIX_ELEMENT(_buffer, _mem_rows, _mem_cols, r, c) = val;
+    inline void elementadd(const UINT32& row, const UINT32& column, const double& increment) {
+        *getelementref(row, column) += increment;
     }
 
-    /* Returns current matrix type */
-    inline index_t matrixType() const { return _matrixType; }
-
-    /* Sets the current matrix type */
-    inline void matrixType(const index_t t) { _matrixType = t; }
-
-    /*
-       Copies rows x columns of src from (row_src, column_src)
-       into this matrix at (row_dest, column_dest)
-    */
-    void copyelements(const index_t& row_dest, const index_t& column_dest,
-                      const matrix_2d& src, const index_t& row_src,
-                      const index_t& column_src, const index_t& rows,
-                      const index_t& columns);
-
-    /* Overload: same as above, but src is a pointer */
-    void copyelements(const index_t& row_dest, const index_t& column_dest,
-                      const matrix_2d* src, const index_t& row_src,
-                      const index_t& column_src, const index_t& rows,
-                      const index_t& columns);
-
-    /* Adds 'inc' to the element at (r, c) */
-    inline void
-    elementadd(const index_t& r, const index_t& c, const double& inc) {
-        *getelementref(r, c) += inc;
+    inline void elementsubtract(const UINT32& row, const UINT32& column, const double& decrement) {
+        *getelementref(row, column) -= decrement;
     }
 
-    /* Subtracts 'dec' from the element at (r, c) */
-    inline void
-    elementsubtract(const index_t& r, const index_t& c, const double& dec) {
-        *getelementref(r, c) -= dec;
+    inline void elementmultiply(const UINT32& row, const UINT32& column, const double& scale) {
+        *getelementref(row, column) *= scale;
     }
 
-    /* Multiplies the element at (r, c) by 'scale' */
-    inline void
-    elementmultiply(const index_t& r, const index_t& c, const double& scale) {
-        *getelementref(r, c) *= scale;
-    }
+    void blockadd(const UINT32& row_dest, const UINT32& col_dest, const matrix_2d& mat_src, const UINT32& row_src,
+                  const UINT32& col_src, const UINT32& rows, const UINT32& cols);
+    void blockTadd(const UINT32& row_dest, const UINT32& col_dest, const matrix_2d& mat_src, const UINT32& row_src,
+                   const UINT32& col_src, const UINT32& rows, const UINT32& cols);
+    void blocksubtract(const UINT32& row_dest, const UINT32& col_dest, const matrix_2d& mat_src, const UINT32& row_src,
+                       const UINT32& col_src, const UINT32& rows, const UINT32& cols);
 
-    /*
-       Adds a sub-block of mat_src at (row_src, col_src)
-       to this matrix at (row_dest, col_dest)
-    */
-    void
-    blockadd(const index_t& row_dest, const index_t& col_dest,
-             const matrix_2d& mat_src, const index_t& row_src,
-             const index_t& col_src, const index_t& rows, const index_t& cols);
-
-    /*
-       Adds the transpose of a sub-block of mat_src
-       to this matrix at (row_dest, col_dest)
-    */
-    void
-    blockTadd(const index_t& row_dest, const index_t& col_dest,
-              const matrix_2d& mat_src, const index_t& row_src,
-              const index_t& col_src, const index_t& rows, const index_t& cols);
-
-    /*
-       Subtracts a sub-block of mat_src at (row_src, col_src)
-       from this matrix at (row_dest, col_dest)
-    */
-    void blocksubtract(const index_t& row_dest, const index_t& col_dest,
-                       const matrix_2d& mat_src, const index_t& row_src,
-                       const index_t& col_src, const index_t& rows,
-                       const index_t& cols);
-
-    /*
-       In-place add of rhs to this matrix (dimensions must match)
-    */
     matrix_2d add(const matrix_2d& rhs);
-
-    /*
-       Static add: sets this = lhs + rhs, returns result
-       (dimensions must match)
-    */
     matrix_2d add(const matrix_2d& lhs, const matrix_2d& rhs);
 
-    /*
-       Matrix multiplication using MKL (or fallback):
-       multiplies *this by rhs
-       lhs_trans or rhs_trans can be "T" or "N"
-    */
-    matrix_2d multiply(const char* lhs_trans, const matrix_2d& rhs,
-                       const char* rhs_trans);
+    matrix_2d multiply(const char* lhs_trans, const matrix_2d& rhs, const char* rhs_trans); // multiplication
+    matrix_2d multiply(const matrix_2d& lhs, const char* lhs_trans, const matrix_2d& rhs,
+                       const char* rhs_trans); // multiplication
 
-    /*
-       Matrix multiplication using MKL (or fallback):
-       stores lhs*rhs in *this
-    */
-    matrix_2d multiply(const matrix_2d& lhs, const char* lhs_trans,
-                       const matrix_2d& rhs, const char* rhs_trans);
+    matrix_2d sweepinverse();                                  // Sweep inverse (good for rotation matrices)
+    matrix_2d cholesky_inverse(bool LOWER_IS_CLEARED = false); // Cholesky inverse
 
-    /*
-       Performs a sweep operation on the entire matrix in-place
-       to find the inverse (requires square matrix)
-    */
-    matrix_2d sweepinverse();
+    matrix_2d transpose(const matrix_2d&); // Transpose
+    matrix_2d transpose();                 //  ''
+    matrix_2d scale(const double& scalar); // scale
 
-    /*
-       In-place Cholesky inversion using MKL (or fallback)
-       if LOWER_IS_CLEARED=true, lower part is zeroed before
-    */
-    matrix_2d cholesky_inverse(bool LOWER_IS_CLEARED = false);
-
-    /*
-       In-place transpose: sets *this = transpose(matA)
-       (Requires matching dimensions for 'matA' and *this)
-    */
-    matrix_2d transpose(const matrix_2d&);
-
-    /* Returns a new transposed copy of *this */
-    matrix_2d transpose();
-
-    /* Scales matrix elements by 'scalar' in-place */
-    matrix_2d scale(const double& scalar);
-
-    /* Equality operator */
+    // overloaded operators
+    // equality
     bool operator==(const matrix_2d& rhs) const {
         if (_mem_cols != rhs._mem_cols)
             return false;
@@ -389,7 +304,7 @@ class matrix_2d : public new_handler_support<matrix_2d> {
         return true;
     }
 
-    /* Inequality operator */
+    // equality
     bool operator!=(const matrix_2d& rhs) const {
         if (_mem_cols == rhs._mem_cols)
             return false;
@@ -410,122 +325,67 @@ class matrix_2d : public new_handler_support<matrix_2d> {
         return true;
     }
 
-    /* Copy assignment operator */
     matrix_2d operator=(const matrix_2d& rhs);
-
-    /* Scalar multiplication: returns a new matrix_2d(*this * rhs) */
     matrix_2d operator*(const double& rhs) const;
-
-    /* Allocates memory for _rows, _cols (in-place) */
+    //
+    // Initialisation / manipulation
     void allocate();
-
-    /* Allocates memory for given rows, columns (in-place) */
-    void allocate(const index_t& rows, const index_t& columns);
-
-    /*
-       Sets new matrix dimension (rows, columns) and
-       deallocates old buffer
-    */
-    void setsize(const index_t& rows, const index_t& columns);
-
-    /*
-       Re-dimensions the matrix, possibly creating new buffer
-       if current memory is insufficient
-    */
-    void redim(const index_t& rows, const index_t& columns);
-
-    /*
-       Replaces a sub-block at (rowstart, columnstart)
-       with contents of newmat
-    */
-    void replace(const index_t& rowstart, const index_t& columnstart,
+    void allocate(const UINT32& rows, const UINT32& columns);
+    void setsize(const UINT32& rows,
+                 const UINT32& columns); // sets matrix size to rows * columns only (buffer not allocated any memory)
+    void redim(const UINT32& rows, const UINT32& columns); // redimensions matrix to rows * columns
+    void replace(const UINT32& rowstart, const UINT32& columnstart, const matrix_2d& newmat);
+    void replace(const UINT32& rowstart, const UINT32& columnstart, const UINT32& rows, const UINT32& columns,
                  const matrix_2d& newmat);
-
-    /*
-       Overload: replaces (rows x columns) from newmat
-       into *this at (rowstart, columnstart)
-    */
-    void replace(const index_t& rowstart, const index_t& columnstart,
-                 const index_t& rows, const index_t& columns,
-                 const matrix_2d& newmat);
-
-    /* Shrinks matrix dimensions by (rows, columns) without reallocation */
-    void shrink(const index_t& rows, const index_t& columns);
-
-    /* Grows matrix dimensions by (rows, columns) without reallocation */
-    void grow(const index_t& rows, const index_t& columns);
-
-    /* Sets lower triangle to zero */
-    void clearlower();
-
-    /* Copies upper to lower triangle (makes symmetrical) */
-    void filllower();
-
-    /* Copies lower to upper triangle (makes symmetrical) */
-    void fillupper();
-
-    /* Sets entire matrix to zero */
-    void zero();
-
-    /* Zeros a sub-block of size (rows, columns) from (row_begin, col_begin) */
-    void zero(const index_t& row_begin, const index_t& col_begin,
-              const index_t& rows, const index_t& columns);
-
-    /* Finds maximum value in matrix and updates _maxvalRow/_maxvalCol */
+    void shrink(const UINT32& rows, const UINT32& columns);
+    void grow(const UINT32& rows, const UINT32& columns);
+    void clearlower(); // sets lower tri elements to zero
+    void filllower();  // copies upper tri to lower
+    void fillupper();  // copies lower tri to upper
+    void zero();       // sets all elements to zero
+    void zero(const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns);
     double compute_maximum_value();
 
-    /* Overloaded << operator for matrix output */
+    // Printing
     friend std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs);
 
-    /* Reads matrix data from mapped file region */
+    // Reading from memory mapped file
     void ReadMappedFileRegion(void* addr);
 
-    /* Writes matrix data to mapped file region */
+    // Writing to memory mapped file
     void WriteMappedFileRegion(void* addr);
 
+    // debug
 #ifdef _MSDEBUG
-    /* Debug trace of entire matrix */
     void trace(const std::string& comment, const std::string& format) const;
-
-    /* Debug trace of submatrix */
-    void trace(const std::string& comment, const std::string& submat_comment,
-               const std::string& format, const index_t& row_begin,
-               const index_t& col_begin, const index_t& rows,
-               const index_t& columns) const;
+    void trace(const std::string& comment, const std::string& submat_comment, const std::string& format,
+               const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) const;
 #endif
 
   private:
-    /* Returns size in bytes of buffer */
     inline std::size_t buffersize() const {
-        return _mem_rows * _mem_cols * sizeof(double);
+        return static_cast<std::size_t>(_mem_rows) * static_cast<std::size_t>(_mem_cols) * sizeof(double);
     }
 
-    /* Frees the matrix buffer */
     void deallocate();
-
-    /* Allocates buffer for rows x columns into mem_space */
-    void buy(const index_t& rows, const index_t& columns, double** mem_space);
-
-    /* Copies oldmat into this matrix (size must match) */
-    void copybuffer(const index_t& rows, const index_t& columns,
-                    const matrix_2d& oldmat);
-
-    /* Copies rows x columns of mat into this matrix at rowstart, columnstart */
-    void copybuffer(const index_t& rowstart, const index_t& columnstart,
-                    const index_t& rows, const index_t& columns,
+    void buy(const UINT32& rows, const UINT32& columns, double** mem_space);
+    void copybuffer(const UINT32& rows, const UINT32& columns, const matrix_2d& oldmat);
+    void copybuffer(const UINT32& rowstart, const UINT32& columnstart, const UINT32& rows, const UINT32& columns,
                     const matrix_2d& mat);
+    // void copybuffer(const UINT32& rows, const UINT32& columns, double**	buffer);
 
-    /* Sweep function for matrix inversion */
-    void sweep(index_t k1, index_t k2);
+    void sweep(UINT32 k1, UINT32 k2);
 
-    index_t _cols;             // actual columns
-    index_t _rows;             // actual rows
-    index_t _mem_cols;         // memory columns
-    index_t _mem_rows;         // memory rows
-    index_t _maxvalCol;        // column index of maximum value
-    index_t _maxvalRow;        // row index of maximum value
-    index_t _matrixType;       // matrix type (full, lower, sparse) - not used?
-    double* _buffer = nullptr; // pointer to actual matrix memory
+    UINT32 _mem_cols; // actual buffer size (cols)
+    UINT32 _mem_rows; // actual buffer size (rows)
+    UINT32 _cols;     // number of actual cols
+    UINT32 _rows;     // number of actual rows
+    double* _buffer;  // matrix buffer elements
+
+    UINT32 _maxvalCol; // col of max value
+    UINT32 _maxvalRow; // row of max value
+
+    UINT32 _matrixType; // full, upper/lower, sparse
 };
 
 } // namespace math

@@ -2,6 +2,7 @@ BasedOnStyle: LLVM
 Language: Cpp
 IndentWidth: 4
 TabWidth: 4
+ColumnLimit: 120
 UseTab: Never
 PointerAlignment: Left
 SortIncludes: true
@@ -20,7 +21,7 @@ BraceWrapping:
   IndentBraces: false
   BeforeElse: false
   BeforeCatch: false
-  #IndentPPDirectives: BeforeHash
+#IndentPPDirectives: BeforeHash
 AlignAfterOpenBracket: Align
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true

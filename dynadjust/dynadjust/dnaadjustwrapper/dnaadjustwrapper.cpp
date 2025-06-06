@@ -23,6 +23,8 @@
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
 
+#include "threading_init.hpp"
+
 extern bool running;
 extern boost::mutex cout_mutex;
 
@@ -1280,14 +1282,15 @@ int main(int argc, char* argv[])
 	
 	try {
 		running = true;
-		
-		// adjust blocks using group thread
-		boost::thread_group ui_adjust_threads;
-		if (!p.g.quiet)
-			ui_adjust_threads.create_thread(dna_adjust_progress_thread(&netAdjust, &p));
-		ui_adjust_threads.create_thread(dna_adjust_thread(&netAdjust, &p, &adjustStatus));
-		ui_adjust_threads.join_all();
 
+        int nthreads_la = init_linear_algebra_threads();
+        boost::thread progress(dna_adjust_progress_thread(&netAdjust, &p));
+
+        // Do adjustment using linear algebra threads
+        dna_adjust_thread(&netAdjust, &p, &adjustStatus)(); 
+
+        progress.join();
+	
 		switch (adjustStatus)
 		{
 		case ADJUST_EXCEPTION_RAISED:
