@@ -14073,7 +14073,7 @@ void dna_adjust::SetDefaultReferenceFrame()
 	}
 }
 
-void dna_adjust::LoadNetworkFiles()
+void dna_adjust::LoadNetworkFilesOld()
 {
 	adj_file << "+ Loading network files" << std::endl;
 	
@@ -14299,7 +14299,166 @@ void dna_adjust::LoadNetworkFiles()
 		measurementParams_ = measurementCount_ = v_measurementCount_.at(0);
 	}
 
+	// Fix for phased mode: ensure v_measurementParams_ is properly set
 	v_measurementParams_ = v_measurementCount_;
+	
+	// Set scalar measurement parameters for all adjustment modes
+	if (!v_measurementCount_.empty()) {
+		measurementParams_ = measurementCount_ = v_measurementCount_.at(0);
+	} else if (projectSettings_.a.adjust_mode == PhasedMode || projectSettings_.a.adjust_mode == Phased_Block_1Mode) {
+		// For phased mode, set measurement parameters to total measurement count
+		measurementParams_ = measurementCount_ = bmsr_count_;
+	}
+}
+
+void dna_adjust::LoadNetworkFilesNew()
+{
+    adj_file << "+ Loading network files (new implementation)" << std::endl;
+    
+    try {
+        NetworkDataManager networkManager(projectSettings_);
+        
+        // Set up callbacks for functions that NetworkDataManager needs
+        networkManager.setErrorHandler([this](const std::string& msg, UINT32 block) {
+            SignalExceptionAdjustment(msg, block);
+        });
+        
+        networkManager.setConstraintApplier([this]() {
+            ApplyAdditionalConstraints();
+        });
+        
+        networkManager.setInvalidStationRemover([this](vUINT32& v_ISLTemp) {
+            RemoveInvalidISLStations(v_ISLTemp);
+        });
+        
+        networkManager.setNonMeasurementRemover([this](UINT32 block) {
+            RemoveNonMeasurements(block);
+        });
+        
+        networkManager.setMeasurementCountUpdater([this](UINT32 measurementParams, UINT32 measurementCount) {
+            measurementParams_ = measurementParams;
+            measurementCount_ = measurementCount;
+        });
+        
+        // Load network files using new implementation
+        bool success = networkManager.loadNetworkFiles(
+            &bstBinaryRecords_,
+            bst_meta_,
+            &vAssocStnList_,
+            &bmsBinaryRecords_,
+            bms_meta_,
+            v_ISL_,
+            &v_blockStationsMap_,
+            &v_CML_,
+            bstn_count_,
+            asl_count_,
+            bmsr_count_,
+            unknownParams_,
+            unknownsCount_,
+            measurementParams_,
+            measurementCount_);
+            
+        if (!success) {
+            SignalExceptionAdjustment("LoadNetworkFilesNew(): Failed to load network files", 0);
+        }
+        
+        // Apply the same fix for phased mode
+        if (projectSettings_.a.adjust_mode == PhasedMode) {
+            v_measurementParams_ = v_measurementCount_;
+        } else {
+            v_measurementParams_ = v_measurementCount_;
+        }
+        
+        // Ensure v_blockStationsMap_ matches the state that LoadNetworkFilesOld preserves
+        if (v_blockStationsMap_.empty()) {
+            v_blockStationsMap_.resize(1);
+        }
+    }
+    catch (const std::exception& e) {
+        SignalExceptionAdjustment(std::string("LoadNetworkFilesNew(): ") + e.what(), 0);
+    }
+}
+
+void dna_adjust::LoadNetworkFiles()
+{
+    adj_file << "+ Loading and comparing network files" << std::endl;
+    
+    // Capture initial state
+    NetworkState initialState = captureCurrentState();
+    
+    // Load using old implementation
+    LoadNetworkFilesOld();
+    NetworkState oldState = captureCurrentState();
+    
+    // Clear state and load using new implementation
+    clearState();
+    LoadNetworkFilesNew();
+    NetworkState newState = captureCurrentState();
+    
+    // Compare results
+    bool statesMatch = compareNetworkStates(oldState, newState);
+    
+    if (statesMatch) {
+        std::cerr << "  Network loading implementations match!" << std::endl;
+    } else {
+        std::cerr << "  WARNING: Network loading implementations differ!" << std::endl;
+    }
+}
+
+NetworkState dna_adjust::captureCurrentState() const
+{
+    NetworkState state;
+    state.bstn_count = bstn_count_;
+    state.asl_count = asl_count_;
+    state.bmsr_count = bmsr_count_;
+    state.unknownParams = unknownParams_;
+    state.unknownsCount = unknownsCount_;
+    state.measurementParams = measurementParams_;
+    state.measurementCount = measurementCount_;
+    state.v_measurementCount = v_measurementCount_;
+    state.v_measurementVarianceCount = v_measurementVarianceCount_;
+    state.v_measurementParams = v_measurementParams_;
+    state.v_unknownsCount = v_unknownsCount_;
+    state.v_ISL = v_ISL_;
+    state.v_CML = v_CML_;
+    state.v_blockStationsMap = v_blockStationsMap_;
+    
+    return state;
+}
+
+void dna_adjust::clearState()
+{
+    bstn_count_ = 0;
+    asl_count_ = 0;
+    bmsr_count_ = 0;
+    unknownParams_ = 0;
+    unknownsCount_ = 0;
+    measurementParams_ = 0;
+    measurementCount_ = 0;
+    
+    bstBinaryRecords_.clear();
+    bmsBinaryRecords_.clear();
+    vAssocStnList_.clear();
+    
+    v_measurementCount_.clear();
+    v_measurementVarianceCount_.clear();
+    v_measurementParams_.clear();
+    v_unknownsCount_.clear();
+    v_ISL_.clear();
+    v_CML_.clear();
+    v_blockStationsMap_.clear();
+}
+
+bool dna_adjust::compareNetworkStates(const NetworkState& oldState, const NetworkState& newState)
+{
+    std::ostringstream comparison_output;
+    bool match = diff_network_state(oldState, newState, comparison_output);
+    
+    adj_file << "  Network state comparison:" << std::endl;
+    adj_file << comparison_output.str() << std::endl;
+    
+    
+    return match;
 }
 
 void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
