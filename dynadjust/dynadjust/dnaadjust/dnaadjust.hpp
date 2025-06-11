@@ -434,6 +434,11 @@ class dna_adjust {
     void InitialiseAdjustment();
     void SetDefaultReferenceFrame();
     void LoadNetworkFiles();
+    void LoadNetworkFilesOld();
+    void LoadNetworkFilesNew();
+    NetworkState captureCurrentState() const;
+    void clearState();
+    bool compareNetworkStates(const NetworkState& oldState, const NetworkState& newState);
     void CreateMsrToStnTally();
     // void CreateStationAppearanceList(const vUINT32& parameterStations);
 
