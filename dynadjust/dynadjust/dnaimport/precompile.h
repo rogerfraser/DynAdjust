@@ -35,7 +35,7 @@
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnadatum.hpp>
 
-#include <include/math/dnamatrix_contiguous.hpp>
+//#include <include/math/dnamatrix_contiguous.hpp>
 
 #include <dynadjust/dnaimport/dnaparser_pskel.hxx>
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>

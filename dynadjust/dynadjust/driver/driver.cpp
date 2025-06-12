@@ -33,10 +33,12 @@
 //     of dnageoid can be rebuilt without having to rebuild the driver.
 
 
+/// \cond
 #include <ostream>
 #include <iostream>
 #include <iomanip>
 #include <string>
+/// \endcond
 
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
 

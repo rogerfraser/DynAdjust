@@ -29,9 +29,11 @@
 	#endif
 #endif
 
+/// \cond
 #include <math.h>
 #include <string>
 #include <sstream>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>

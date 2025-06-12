@@ -27,7 +27,10 @@
 #ifndef DNAMATRIX_CONTIGUOUS_H_
 #define DNAMATRIX_CONTIGUOUS_H_
 
+/// \cond
 #include <cstring>
+/// \endcond
+
 #include <include/config/dnatypes.hpp>
 #include <include/exception/dnaexception.hpp>
 #include <include/functions/dnatemplatecalcfuncs.hpp>

@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -39,6 +40,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
+/// \endcond
 
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/config/dnatypes.hpp>

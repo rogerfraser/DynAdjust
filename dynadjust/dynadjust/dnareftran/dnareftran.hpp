@@ -29,16 +29,18 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
-
-#include <include/measurement_types/dnageometries.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/timer/timer.hpp>
 #include <boost/chrono/time_point.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
+
+#include <include/measurement_types/dnageometries.hpp>
 
 #include <include/io/dnaiotpb.hpp>
 #include <include/io/dnaiobst.hpp>

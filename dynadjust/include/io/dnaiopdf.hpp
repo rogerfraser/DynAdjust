@@ -52,11 +52,13 @@
 	#include <unistd.h>
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
 #include <iostream>
 #include <string>
 #include <vector>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 #include <include/exception/dnaexception.hpp>

@@ -29,11 +29,14 @@
 	#endif
 #endif
 
+/// \cond
 #include <string>
 #include <iomanip>
 #include <sstream>
+
 #include <boost/exception_ptr.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
 #include <include/parameters/dnaconsts-datums.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>

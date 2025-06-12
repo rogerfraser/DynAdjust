@@ -29,12 +29,13 @@
 	#endif
 #endif
 
+/// \cond
+#include <boost/shared_ptr.hpp>
+/// \endcond
+
 #include <include/measurement_types/dnastation.hpp>
 #include <include/measurement_types/dnadirection.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
-
-
-#include <boost/shared_ptr.hpp>
 
 namespace dynadjust {
 namespace measurements {

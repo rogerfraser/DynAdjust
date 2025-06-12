@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
 #include <iostream>
@@ -44,6 +45,7 @@
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>

@@ -29,13 +29,16 @@
 	#endif
 #endif
 
+/// \cond
+#include <boost/date_time/local_time/local_time.hpp>
+/// \endcond
+
 #include <include/io/dnaiobase.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnastntally.hpp>
 #include <include/measurement_types/dnastation.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/parameters/dnadatum.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
 
 using namespace dynadjust::math;
 using namespace dynadjust::datum_parameters;

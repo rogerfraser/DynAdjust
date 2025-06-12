@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iostream>
 #include <string>
 
@@ -40,6 +41,7 @@ using std::locale;
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/exception_ptr.hpp>
+/// \endcond
 
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts-iostream.hpp>

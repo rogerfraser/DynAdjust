@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -36,8 +37,6 @@
 #include <sstream>
 #include <string>
 #include <time.h>
-
-#include <dynadjust/dnareftran/dnareftran.hpp>
 
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
@@ -49,6 +48,9 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
+
+#include <dynadjust/dnareftran/dnareftran.hpp>
 
 #include <include/io/dnaiodna.hpp>
 

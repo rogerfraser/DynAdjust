@@ -14,6 +14,12 @@
 #endif
 #endif
 
+/// \cond
+#include <iostream>
+#include <sstream>
+#include <string>
+/// \endcond
+
 #include <dynadjust/dnaimport/dnaparser_pskel.hxx>
 #include <include/measurement_types/dnameasurement_types.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>

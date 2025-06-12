@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <cstdint>
 #include <cstring>		// memset
 #include <map>
@@ -36,6 +37,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+/// \endcond
 
 #ifdef UINT32
 #undef UINT32

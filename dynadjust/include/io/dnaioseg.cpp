@@ -21,8 +21,6 @@
 //============================================================================
 
 #include <include/io/dnaioseg.hpp>
-#include <include/functions/dnaiostreamfuncs.hpp>
-#include <include/functions/dnatemplatestnmsrfuncs.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
