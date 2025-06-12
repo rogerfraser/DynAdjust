@@ -624,14 +624,14 @@ typedef struct binary_file_meta {
 		if (inputFileMeta != NULL)
 			delete []inputFileMeta;
 	}
-	UINT32				binCount;						// number of records in the binary file
+    std::uint64_t		binCount;						// number of records in the binary file
 	bool				reduced;						// indicates whether the data is reduced(true) or raw(false)
 	char				modifiedBy[MOD_NAME_WIDTH+1];	// the program that modified this file
 	char				epsgCode[STN_EPSG_WIDTH+1];		// epsg ID, i.e. NNNNN (where NNNNN is in the range 0-32767). "Mixed" if stations are on different reference frames
 	char				epoch[STN_EPOCH_WIDTH+1];		// date, i.e. "DD.MM.YYYY" (10 chars)
 	bool				reftran;						// the data has been transformed to another frame and/or epoch
 	bool				geoid;							// geoid separation values have been obtained
-	UINT16				inputFileCount;					// Number of source file metadata elements
+    std::uint64_t		inputFileCount;					// Number of source file metadata elements
 	input_file_meta_t*	inputFileMeta;					// Source file metadata
 } binary_file_meta_t;
 
@@ -646,7 +646,7 @@ S formatStnMsrFileSourceString(const vifm_t* vfile_meta, const size_t& file_type
 	std::string source_files("");
 	bool this_file;
 
-	for (UINT32 i(0); i<vfile_meta->size(); ++i)
+	for (std::size_t i(0); i<vfile_meta->size(); ++i)
 	{
 		this_file= false;
 		switch (file_type)

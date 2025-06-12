@@ -26,9 +26,9 @@
 namespace dynadjust { 
 namespace iostreams {
 
-UINT16 dna_io_bms::create_msr_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta)
+std::uint64_t dna_io_bms::create_msr_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta)
 {
-	UINT16 msr_file_count(0);
+	std::uint64_t msr_file_count(0);
 	std::stringstream ss;
 	ss << "create_msr_input_file_meta(): An error was encountered when creating " << std::endl <<
 		"  the binary measurement file metadata." << std::endl;
@@ -107,7 +107,7 @@ void dna_io_bms::load_bms_file_meta(const std::string& bms_filename, binary_file
 	bms_file.close();
 }
 	
-UINT32 dna_io_bms::load_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta) 
+std::uint64_t dna_io_bms::load_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta) 
 {	
 	std::ifstream bms_file;
 	std::stringstream ss;
@@ -126,7 +126,7 @@ UINT32 dna_io_bms::load_bms_file(const std::string& bms_filename, pvmsr_t vbinar
 	}
 	
 	measurement_t measRecord;
-	UINT32 msr;
+	std::uint64_t msr;
 
 	ss.str("");
 	ss << "load_bms_file(): An error was encountered when reading from " << bms_filename << "." << std::endl;

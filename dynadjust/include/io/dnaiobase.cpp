@@ -81,7 +81,7 @@ void dna_io_base::readFileInfo(std::ifstream& file_stream)
 void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta_t& file_meta)
 {
 	// Write the metadata
-	file_stream.write(reinterpret_cast<char *>(&file_meta.binCount), sizeof(UINT32)); 
+	file_stream.write(reinterpret_cast<char *>(&file_meta.binCount), sizeof(std::uint64_t)); 
 	file_stream.write(reinterpret_cast<char *>(&file_meta.reduced), sizeof(bool)); 
 	file_stream.write(reinterpret_cast<char *>(file_meta.modifiedBy), MOD_NAME_WIDTH); 
 	
@@ -93,8 +93,8 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 	file_stream.write(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
 
 	// Write file count and file meta
-	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16)); 
-	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
+	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(std::uint64_t)); 
+	for (std::uint64_t i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
@@ -108,7 +108,7 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_t& file_meta)
 {
 	// Read the metadata
-	file_stream.read(reinterpret_cast<char *>(&file_meta.binCount), sizeof(UINT32)); 
+	file_stream.read(reinterpret_cast<char *>(&file_meta.binCount), sizeof(std::uint64_t)); 
 	file_stream.read(reinterpret_cast<char *>(&file_meta.reduced), sizeof(bool)); 
 	file_stream.read(reinterpret_cast<char *>(file_meta.modifiedBy), MOD_NAME_WIDTH);
 
@@ -120,13 +120,13 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	file_stream.read(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
 
 	// Read file count and file meta
-	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16));
+	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(std::uint64_t));
 	if (file_meta.inputFileMeta != NULL)
 		delete []file_meta.inputFileMeta;
 
 	file_meta.inputFileMeta = new input_file_meta_t[file_meta.inputFileCount];
 		
-	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
+	for (std::uint64_t i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);

@@ -1,9 +1,6 @@
 //============================================================================
 // Name         : dnaiobst.hpp
-// Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Copyright    : Copyright 2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -23,12 +20,6 @@
 #ifndef DNAIOBST_H_
 #define DNAIOBST_H_
 
-#if defined(_MSC_VER)
-	#if defined(LIST_INCLUDES_ON_BUILD) 
-		#pragma message("  " __FILE__) 
-	#endif
-#endif
-
 #include <include/io/dnaiobase.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
@@ -41,15 +32,15 @@ namespace iostreams {
 class dna_io_bst : public dna_io_base
 {
 public:
-	dna_io_bst(void) {};
+	dna_io_bst() {};
 	dna_io_bst(const dna_io_bst& bst) : dna_io_base(bst) {};
-	virtual ~dna_io_bst(void) {};
+	virtual ~dna_io_bst() {};
 
-	dna_io_bst& operator=(const dna_io_bst& rhs);
+	dna_io_bst& operator=(const dna_io_bst& rhs) noexcept;
 
-	UINT16 create_stn_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta);
+	std::uint64_t create_stn_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta);
 	void load_bst_file_meta(const std::string& bst_filename, binary_file_meta_t& bst_meta);
-	UINT32 load_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
+	std::uint64_t load_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
 	void write_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
 	bool write_bst_file(const std::string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, binary_file_meta_t& bst_meta, bool flagUnused);
 
