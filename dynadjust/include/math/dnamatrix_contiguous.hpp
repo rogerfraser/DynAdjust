@@ -28,10 +28,7 @@
 #define DNAMATRIX_CONTIGUOUS_H_
 
 /// \cond
-/// \cond
 #include <cstring>
-/// \endcond
-
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
