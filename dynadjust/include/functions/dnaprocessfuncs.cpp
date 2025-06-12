@@ -20,10 +20,14 @@
 //
 // Description  : Common process and fork functions
 //============================================================================
-#include <include/functions/dnaprocessfuncs.hpp>
+
+/// \cond
 #include <iostream>
 #include <string>
 #include <cstdlib>
+/// \endcond
+
+#include <include/functions/dnaprocessfuncs.hpp>
 
 // Platform detection
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)

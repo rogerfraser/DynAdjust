@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
@@ -41,11 +42,13 @@
 #include <iostream>
 #include <boost/tokenizer.hpp>
 
-#include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/operator.hpp>
+/// \endcond
+
+#include <include/functions/dnatemplatecalcfuncs.hpp>
 
 using boost::spirit::qi::double_;
 using boost::spirit::qi::float_;

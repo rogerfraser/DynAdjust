@@ -30,6 +30,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <string.h>
 
@@ -39,13 +40,16 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+
+#include <boost/shared_ptr.hpp>
+/// \endcond
+
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnastation.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/parameters/dnadatum.hpp>
 
-#include <boost/shared_ptr.hpp>
 
 //#include <boost/random.hpp>
 

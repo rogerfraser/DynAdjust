@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -40,6 +41,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/algorithm/string.hpp>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>

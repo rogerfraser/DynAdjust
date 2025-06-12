@@ -29,7 +29,9 @@
 	#endif
 #endif
 
+/// \cond
 #include <vector>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 

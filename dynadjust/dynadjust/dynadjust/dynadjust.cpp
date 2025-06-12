@@ -1,5 +1,6 @@
 // dynadjust.cpp : Defines the entry point for the console application.
 //
+/// \cond
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -18,6 +19,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
 boost::mutex cout_mutex;
 

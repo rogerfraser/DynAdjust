@@ -30,17 +30,13 @@
 	#endif
 #endif
 
-//#include <algorithm>
+/// \cond
 #include <numeric>
-//#include <functional>
-//#include <sstream>
-//#include <string>
-//#include <vector>
 #include <math.h>
-//#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>

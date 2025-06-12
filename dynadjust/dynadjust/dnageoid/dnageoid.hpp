@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -36,6 +37,10 @@
 #include <exception>
 #include <new>
 #include <math.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem/operations.hpp>
+/// \endcond
 
 #include <include/io/dnaiobst.hpp>
 
@@ -75,9 +80,6 @@
 
 #include <dynadjust/dnageoid/bicubic_interpolation.hpp>
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem/operations.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;

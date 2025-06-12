@@ -29,9 +29,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <fstream>
 #include <string>
 #include <iomanip>
+/// \endcond
+
 #include <include/config/dnatypes.hpp>
 
 #define __FILE_VERSION__ "1.0"

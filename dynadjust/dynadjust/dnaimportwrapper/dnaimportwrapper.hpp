@@ -35,7 +35,7 @@
 	#include <unistd.h>
 #endif
 
-
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -55,6 +55,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
+/// \endcond
 
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>

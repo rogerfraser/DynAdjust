@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
@@ -38,6 +39,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
+/// \endcond
 
 #include <include/config/dnaconsts.hpp>
 

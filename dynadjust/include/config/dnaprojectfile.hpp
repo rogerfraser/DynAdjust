@@ -29,11 +29,14 @@
 	#endif
 #endif
 
+/// \cond
 #include <string>
 #include <sstream>
 #include <iomanip>
 
 #include <boost/timer/timer.hpp>
+/// \endcond
+
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaoptions.hpp>

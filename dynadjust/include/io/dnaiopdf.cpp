@@ -20,9 +20,12 @@
 // Description  : DynAdjust pdf file io operations
 //============================================================================
 
-#include <include/io/dnaiopdf.hpp>
+/// \cond
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+/// \endcond
+
+#include <include/io/dnaiopdf.hpp>
 namespace dynadjust { 
 namespace iostreams {
 

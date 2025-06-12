@@ -29,9 +29,12 @@
 	#endif
 #endif
 
+/// \cond
+#include <boost/operators.hpp>
+/// \endcond
+
 #include <include/config/dnatypes.hpp>
 #include <include/parameters/dnaconsts-datums.hpp>
-#include <boost/operators.hpp>
 
 const UINT16 BUF_WIDTH(512);
 

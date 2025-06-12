@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <string.h>
 
@@ -41,6 +42,10 @@
 #include <string>
 #include <cctype>
 #include <fstream>
+
+#include <boost/shared_ptr.hpp>
+/// \endcond
+
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -53,7 +58,6 @@
 #include <include/parameters/dnaprojection.hpp>
 #include <include/io/dnaiodnatypes.hpp>
 
-#include <boost/shared_ptr.hpp>
 
 using namespace dynadjust::datum_parameters;
 

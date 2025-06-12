@@ -29,9 +29,11 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdarg.h>
 #include <sstream>
 #include <iomanip>
+/// \endcond
 
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>

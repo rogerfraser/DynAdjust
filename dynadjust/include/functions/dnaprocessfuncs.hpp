@@ -29,7 +29,9 @@
 #endif
 #endif
 
+/// \cond
 #include <string>
+/// \endcond
 
 #if defined(_WIN32) || defined(__WIN32__)
 // prevent conflict with std::min(...) std::max(...)

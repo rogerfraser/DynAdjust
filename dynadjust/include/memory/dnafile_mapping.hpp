@@ -29,12 +29,14 @@
 #endif
 #endif
 
-#include <include/config/dnatypes.hpp>
-
+/// \cond
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
+
+#include <include/config/dnatypes.hpp>
 
 namespace dynadjust { 
 namespace memory {

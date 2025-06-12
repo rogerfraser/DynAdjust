@@ -20,10 +20,13 @@
 // Description  : DynAdjust file io operations
 //============================================================================
 
+/// \cond
+#include <boost/date_time/gregorian/gregorian.hpp>
+/// \endcond
+
 #include <include/io/dnaiobase.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
 
 namespace dynadjust {
 namespace iostreams {

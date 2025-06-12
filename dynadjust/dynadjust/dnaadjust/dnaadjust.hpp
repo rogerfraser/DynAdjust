@@ -30,6 +30,7 @@
 #endif
 #endif
 
+/// \cond
 #include <cstdarg>
 #include <exception>
 #include <fstream>
@@ -55,6 +56,10 @@
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/timer/timer.hpp>
+
+#include <atomic>
+
+/// \endcond
 
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
@@ -87,8 +92,6 @@
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnaprojection.hpp>
 #include <include/thread/dnathreading.hpp>
-
-#include <atomic>
 
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;

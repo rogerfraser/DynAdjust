@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iomanip>
 
 #include <iostream>
@@ -50,6 +51,7 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
