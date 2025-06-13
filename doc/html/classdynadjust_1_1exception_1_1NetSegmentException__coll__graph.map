@@ -1,9 +1,0 @@
-<map id="dynadjust::exception::NetSegmentException" name="dynadjust::exception::NetSegmentException">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,198,415"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="29,144,132,216"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,231,96,281,91,282,84,232"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="156,144,232,216"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,217,149,268,144,265,172,215"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="130,5,258,95"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="196,110,196,144,191,144,191,110"/>
-</map>

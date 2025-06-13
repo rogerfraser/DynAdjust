@@ -1,8 +1,0 @@
-<map id="dynadjust::dynamlinterop::dna_import::RemoveNonMeasurements" name="dynadjust::dynamlinterop::dna_import::RemoveNonMeasurements">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,294,74"/>
-<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="106,29,104,19,112,10,127,5,150,3,174,5,189,12,187,17,173,10,149,8,128,10,115,15,110,21,111,28"/>
-<area shape="rect" id="Node000002" href="$dnatemplatefuncs_8hpp.html#a7b9d312555e0322d1f77972041b2900b" title=" " alt="" coords="342,38,415,66"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="294,49,326,49,326,54,294,54"/>
-<area shape="rect" id="Node000003" href="$dnatemplatefuncs_8hpp.html#afb276711cdd0d00ba358916866e9d8ca" title=" " alt="" coords="463,38,572,66"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,49,448,49,448,54,416,54"/>
-</map>

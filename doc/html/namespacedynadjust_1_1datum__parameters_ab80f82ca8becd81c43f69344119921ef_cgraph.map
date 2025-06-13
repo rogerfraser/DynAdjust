@@ -1,9 +1,0 @@
-<map id="dynadjust::datum_parameters::determineGDA94Parameters" name="dynadjust::datum_parameters::determineGDA94Parameters">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,44,223,89"/>
-<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1datum__parameters.html#a7c941ae72f805d3cf5b7ce7faa765ee7" title=" " alt="" coords="271,5,513,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,49,255,44,255,49,224,54"/>
-<area shape="rect" id="Node000004" href="$structdynadjust_1_1datum__parameters_1_1transformation__parameter__set__.html#aa79604cba3aa655979f4a7dda93691ec" title=" " alt="" coords="283,74,500,136"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,79,268,85,268,90,223,84"/>
-<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#a4129dd8ac67056dea61f666182deed2f" title=" " alt="" coords="561,5,768,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="514,25,545,25,545,30,514,30"/>
-</map>

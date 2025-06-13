@@ -1,9 +1,0 @@
-<map id="dynadjust::math::matrix_2d::scale" name="dynadjust::math::matrix_2d::scale">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,184,85"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1math_1_1matrix__2d.html#ac7a5f142dbc7286c72d4ea6a4f5c6167" title=" " alt="" coords="232,5,410,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,46,216,41,216,46,185,51"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1math_1_1matrix__2d.html#ad877d2bf2261ff27ad50be07f3fe244e" title=" " alt="" coords="232,75,410,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,73,216,78,216,84,184,79"/>
-<area shape="rect" id="Node000004" href="$namespacedynadjust_1_1math.html#aa151e8f67053e929dafdb9ea2f2f59d7" title=" " alt="" coords="458,75,617,119"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="411,94,442,94,442,100,411,100"/>
-</map>

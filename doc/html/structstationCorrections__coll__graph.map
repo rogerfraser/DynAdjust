@@ -1,7 +1,0 @@
-<map id="stationCorrections" name="stationCorrections">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,161,488"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="46,144,121,216"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,216,86,265,81,265,81,216"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="20,5,147,95"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="86,110,86,144,81,144,81,110"/>
-</map>

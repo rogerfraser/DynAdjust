@@ -1,9 +1,0 @@
-<map id="NearbyStation_HighAcc&lt; T, U, S, E &gt;" name="NearbyStation_HighAcc&lt; T, U, S, E &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="101,962,291,1118"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,484,174,573"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,572,125,734,167,937,169,944,164,946,162,938,120,735,93,573"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="31,5,148,78"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,92,92,484,87,484,87,92"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html" title=" " alt="" coords="198,160,405,897"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="228,897,218,946,213,945,223,896"/>
-</map>

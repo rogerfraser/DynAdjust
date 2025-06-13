@@ -1,7 +1,0 @@
-<map id="geoid_point" name="geoid_point">
-<area shape="rect" id="Node000001" title=" " alt="" coords="98,254,185,327"/>
-<area shape="rect" id="Node000002" href="$structinterpolant.html" title=" " alt="" coords="5,5,128,189"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,188,124,238,119,240,100,190"/>
-<area shape="rect" id="Node000003" href="$structgeoid__values.html" title=" " alt="" coords="153,39,280,156"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,156,169,231,166,240,161,238,164,229,193,154"/>
-</map>

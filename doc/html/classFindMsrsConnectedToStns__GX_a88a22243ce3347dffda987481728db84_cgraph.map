@@ -1,7 +1,0 @@
-<map id="FindMsrsConnectedToStns_GX::operator()" name="FindMsrsConnectedToStns_GX::operator()">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,195,85"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html#a8b8da6b895e1c27c90d0e817b63d7839" title=" " alt="" coords="245,5,457,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,47,229,42,230,47,196,52"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaGpsBaseline.html#ab5ffa0606ac445e00925c61c005cdb34" title=" " alt="" coords="243,75,459,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,73,227,77,227,83,195,78"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="dynadjust::networksegment::dna_segment::AddtoJunctionStnList" name="dynadjust::networksegment::dna_segment::AddtoJunctionStnList">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,265,50"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a0d1fdb6a817c96c3b40f35a4d0fa9d52" title=" " alt="" coords="313,5,612,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="265,25,297,25,297,30,265,30"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#a030c17f7294ed724a6fd2e42ac2c3dd2" title=" " alt="" coords="660,5,870,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="612,25,644,25,644,30,612,30"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#ad6d6eab355e6930a64099e6ec69fb62a" title=" " alt="" coords="918,5,1126,50"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="871,25,903,25,903,30,871,30"/>
-</map>

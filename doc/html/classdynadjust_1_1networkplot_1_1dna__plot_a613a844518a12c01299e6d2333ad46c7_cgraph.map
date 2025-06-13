@@ -1,7 +1,0 @@
-<map id="dynadjust::networkplot::dna_plot::PrintGnuplotCommandFileMsrs" name="dynadjust::networkplot::dna_plot::PrintGnuplotCommandFileMsrs">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,28,247,89"/>
-<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1measurements.html#a8baff871e5eceea5213bd545fc0c344a" title=" " alt="" coords="295,5,486,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="247,42,279,38,279,43,247,47"/>
-<area shape="rect" id="Node000003" href="$dnaconsts-iostream_8hpp.html#accc158cedf7e80648757393d82ed9b65" title=" " alt="" coords="326,74,454,102"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,69,311,76,311,82,247,74"/>
-</map>

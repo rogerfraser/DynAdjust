@@ -1,9 +1,0 @@
-<map id="reftran_settings" name="reftran_settings">
-<area shape="rect" id="Node000001" title=" " alt="" coords="72,417,228,512"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,144,197,233"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,248,145,417,140,418,109,249"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="221,152,296,225"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,226,177,402,172,400,242,224"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="195,5,322,95"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="261,109,261,153,256,153,256,109"/>
-</map>

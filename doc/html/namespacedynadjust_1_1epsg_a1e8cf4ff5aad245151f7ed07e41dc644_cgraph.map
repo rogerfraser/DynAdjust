@@ -1,7 +1,0 @@
-<map id="dynadjust::epsg::referenceepochFromEpsgString" name="dynadjust::epsg::referenceepochFromEpsgString">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,28,239,72"/>
-<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#abbaedca095285a283e8ab62c24938ceb" title=" " alt="" coords="342,5,465,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,34,325,25,326,30,239,40"/>
-<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#ae2e533ee74fc4052091de1211e51c3ce" title=" " alt="" coords="287,57,520,102"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,59,271,63,271,68,239,65"/>
-</map>

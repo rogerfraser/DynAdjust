@@ -1,9 +1,0 @@
-<map id="dynadjust::datum_parameters::CDnaProjection::CDnaProjection" name="dynadjust::datum_parameters::CDnaProjection::CDnaProjection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="291,75,528,119"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaProjection.html#a281ff205ccd9ce4fcfcae5dcd517e369" title=" " alt="" coords="5,5,243,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="299,73,218,53,219,48,300,68"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaProjection.html#a6bf8623826bebb3e27720cee8c03c228" title=" " alt="" coords="15,75,233,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="275,100,233,100,233,94,275,94"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1datum__parameters_1_1CDnaProjection.html#adfe870e813fcacdf35619426cf822bab" title=" " alt="" coords="15,144,233,189"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="300,126,219,146,218,141,299,121"/>
-</map>

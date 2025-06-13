@@ -1,7 +1,0 @@
-<map id="GPSBaseline_pskel" name="GPSBaseline_pskel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,239,1131"/>
-<area shape="rect" id="Node000003" href="$classGPSBaseline__pimpl.html" title=" " alt="" coords="42,1179,202,1519"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="125,1146,125,1179,120,1179,120,1146"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="44,5,201,95"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,109,125,143,120,143,120,109"/>
-</map>

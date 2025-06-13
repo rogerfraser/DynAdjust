@@ -1,9 +1,0 @@
-<map id="dynadjust::datum_parameters::CDnaDatum" name="dynadjust::datum_parameters::CDnaDatum">
-<area shape="rect" id="Node000001" title=" " alt="" coords="42,946,276,1638"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html" title=" " alt="" coords="5,144,212,881"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,881,138,929,133,929,130,881"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="236,476,312,549"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="272,549,227,881,220,929,215,929,222,881,267,548"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="210,5,338,95"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,110,277,477,271,477,271,110"/>
-</map>

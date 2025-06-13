@@ -1,9 +1,0 @@
-<map id="Degrees" name="Degrees">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,81,33"/>
-<area shape="rect" id="Node000002" href="$dnatemplatecalcfuncs_8hpp.html#a0b67c11e0772e98f4ce61e8b63962634" title=" " alt="" coords="129,5,284,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,16,113,16,113,22,81,22"/>
-<area shape="rect" id="Node000003" href="$dnaconsts_8hpp.html#ac3f20c108124ffd6ecbe904400a078c5" title=" " alt="" coords="332,5,441,33"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="285,16,317,16,317,22,285,22"/>
-<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#aaf1898badea281d9f3672d84a292eb4e" title=" " alt="" coords="489,5,528,33"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="442,16,474,16,474,22,442,22"/>
-</map>

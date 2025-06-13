@@ -1,7 +1,0 @@
-<map id="dynadjust::geoidinterpolation::dna_geoid_interpolation::FileTransformation" name="dynadjust::geoidinterpolation::dna_geoid_interpolation::FileTransformation">
-<area shape="rect" id="Node000001" title=" " alt="" coords="330,5,542,67"/>
-<area shape="rect" id="Node000002" href="$dnageoidwrapper_8cpp.html#a3ea5d02a8846a7c4a92d5c0417cbb77e" title=" " alt="" coords="108,22,282,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="314,39,282,39,282,34,314,34"/>
-<area shape="rect" id="Node000003" href="$dnageoidwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,22,60,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,39,60,39,60,34,92,34"/>
-</map>

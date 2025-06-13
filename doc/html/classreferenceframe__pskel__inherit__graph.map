@@ -1,7 +1,0 @@
-<map id="referenceframe_pskel" name="referenceframe_pskel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="24,143,176,215"/>
-<area shape="rect" id="Node000003" href="$classreferenceframe__pimpl.html" title=" " alt="" coords="5,263,194,402"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="102,230,102,263,97,263,97,230"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="30,5,169,95"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,110,102,143,97,143,97,110"/>
-</map>

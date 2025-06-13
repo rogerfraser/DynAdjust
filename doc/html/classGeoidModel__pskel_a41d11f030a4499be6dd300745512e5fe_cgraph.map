@@ -1,9 +1,0 @@
-<map id="GeoidModel_pskel::parsers" name="GeoidModel_pskel::parsers">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,202,85"/>
-<area shape="rect" id="Node000002" href="$classGeoidModel__pskel.html#a48b02fe1df93f66b234b948012525954" title=" " alt="" coords="250,5,445,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,54,263,34,264,39,173,59"/>
-<area shape="rect" id="Node000003" href="$classGeoidModel__pskel.html#a8fc452c58a688e45a4ec18c5f2c241c9" title=" " alt="" coords="251,57,444,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,68,236,68,236,74,202,74"/>
-<area shape="rect" id="Node000004" href="$classGeoidModel__pskel.html#a357f457729bd550c3804f9f2dfd2f235" title=" " alt="" coords="250,109,445,137"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,83,264,103,263,108,171,88"/>
-</map>

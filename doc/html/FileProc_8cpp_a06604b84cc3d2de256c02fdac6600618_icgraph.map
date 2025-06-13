@@ -1,9 +1,0 @@
-<map id="BrowseCallbackProc" name="BrowseCallbackProc">
-<area shape="rect" id="Node000001" title=" " alt="" coords="558,36,711,64"/>
-<area shape="rect" id="Node000002" href="$classCFileProc.html#a159455e6b1781965b68050a0469762d1" title=" " alt="" coords="309,5,508,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="542,40,508,35,508,30,543,35"/>
-<area shape="rect" id="Node000003" href="$classCdnageoidintDlg.html#ad2f453cdeaa0774df29e62f860a17845" title=" " alt="" coords="307,57,510,102"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="543,64,511,69,510,63,542,59"/>
-<area shape="rect" id="Node000004" href="$classCdnageoidintDlg.html#a541e35cdd12a586da660f2482b615379" title=" " alt="" coords="5,65,259,93"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="291,82,259,82,259,76,291,76"/>
-</map>

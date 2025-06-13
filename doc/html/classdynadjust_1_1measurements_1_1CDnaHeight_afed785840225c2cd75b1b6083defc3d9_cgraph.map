@@ -1,9 +1,0 @@
-<map id="dynadjust::measurements::CDnaHeight::SetStdDev" name="dynadjust::measurements::CDnaHeight::SetStdDev">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,197,68"/>
-<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#ae3a5a07751ca29788499ab7b1d95b739" title=" " alt="" coords="245,5,383,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,31,229,27,229,32,197,36"/>
-<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="281,57,346,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,55,266,63,266,68,197,60"/>
-<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="431,57,503,85"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="347,68,416,68,416,74,347,74"/>
-</map>

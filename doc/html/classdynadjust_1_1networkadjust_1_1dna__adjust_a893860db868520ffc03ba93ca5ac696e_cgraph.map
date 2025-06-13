@@ -1,9 +1,0 @@
-<map id="dynadjust::networkadjust::dna_adjust::AddMsrtoNormalsVar" name="dynadjust::networkadjust::dna_adjust::AddMsrtoNormalsVar">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,253,85"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1math_1_1matrix__2d.html#a3a10df2beedb7e1275dfd8876c7973c9" title=" " alt="" coords="301,5,479,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,43,285,39,285,44,253,49"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1math_1_1matrix__2d.html#a7474bc836cf980fb59974ce0dfdd73ee" title=" " alt="" coords="301,75,479,119"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="253,76,285,80,285,86,253,81"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1math_1_1matrix__2d.html#ac7a5f142dbc7286c72d4ea6a4f5c6167" title=" " alt="" coords="527,5,705,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="480,25,511,25,511,30,480,30"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="dynadjust::datum_parameters::determineITRF1996Parameters" name="dynadjust::datum_parameters::determineITRF1996Parameters">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,44,238,89"/>
-<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1datum__parameters.html#a7c941ae72f805d3cf5b7ce7faa765ee7" title=" " alt="" coords="286,5,528,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,48,270,44,271,49,239,53"/>
-<area shape="rect" id="Node000004" href="$structdynadjust_1_1datum__parameters_1_1transformation__parameter__set__.html#aa79604cba3aa655979f4a7dda93691ec" title=" " alt="" coords="298,74,516,136"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="239,79,283,86,283,91,238,85"/>
-<area shape="rect" id="Node000003" href="$namespacedynadjust_1_1epsg.html#a4129dd8ac67056dea61f666182deed2f" title=" " alt="" coords="576,5,783,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="529,25,560,25,560,30,529,30"/>
-</map>

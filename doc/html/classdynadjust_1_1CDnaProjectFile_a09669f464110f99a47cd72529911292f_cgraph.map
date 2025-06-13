@@ -1,7 +1,0 @@
-<map id="dynadjust::CDnaProjectFile::LoadSettingSegment" name="dynadjust::CDnaProjectFile::LoadSettingSegment">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,201,68"/>
-<area shape="rect" id="Node000002" href="$dnafilepathfuncs_8hpp.html#a946a6d10794a61a52b95899ca420331f" title=" " alt="" coords="254,5,336,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,30,238,24,239,30,202,35"/>
-<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#aa1557915cbf48f86d2bfad327e4ff273" title=" " alt="" coords="249,57,341,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,56,234,60,233,66,201,61"/>
-</map>

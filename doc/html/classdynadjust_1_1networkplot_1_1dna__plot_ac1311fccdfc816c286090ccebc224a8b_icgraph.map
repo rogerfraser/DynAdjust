@@ -1,7 +1,0 @@
-<map id="dynadjust::networkplot::dna_plot::dna_plot" name="dynadjust::networkplot::dna_plot::dna_plot">
-<area shape="rect" id="Node000001" title=" " alt="" coords="225,40,396,85"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a8182a09499138d0b2330617015717a79" title=" " alt="" coords="5,5,177,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,49,177,44,178,39,210,44"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkplot_1_1dna__plot.html#a175a54cda67bad4e1b277b18b3d42819" title=" " alt="" coords="5,75,177,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,81,178,86,177,81,209,76"/>
-</map>

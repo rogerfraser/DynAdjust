@@ -1,9 +1,0 @@
-<map id="import_settings::import_settings" name="import_settings::import_settings">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,180,94"/>
-<area shape="rect" id="Node000002" href="$dnaconsts_8hpp.html#a70676ab237d15ddd5ce072f4bff4dd74" title=" " alt="" coords="243,5,377,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,48,234,35,235,40,181,53"/>
-<area shape="rect" id="Node000003" href="$dnaconsts_8hpp.html#a57dcef0a1037eadc98e223c583e9d6d0" title=" " alt="" coords="244,57,376,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,68,229,68,229,74,180,74"/>
-<area shape="rect" id="Node000004" href="$dnaconsts_8hpp.html#a5e613cdd4f154008fe46f7af1d052654" title=" " alt="" coords="228,109,392,137"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="181,89,235,103,234,108,179,95"/>
-</map>

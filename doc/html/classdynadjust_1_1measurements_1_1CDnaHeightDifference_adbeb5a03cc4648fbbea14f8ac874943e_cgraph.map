@@ -1,9 +1,0 @@
-<map id="dynadjust::measurements::CDnaHeightDifference::WriteDNAMsr" name="dynadjust::measurements::CDnaHeightDifference::WriteDNAMsr">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,197,67"/>
-<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#a02a94d871c4ad26ae4536a671a02484a" title=" " alt="" coords="245,22,358,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,34,230,34,230,39,197,39"/>
-<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="406,22,471,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,34,390,34,390,39,359,39"/>
-<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="519,22,592,50"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="472,34,504,34,504,39,472,39"/>
-</map>

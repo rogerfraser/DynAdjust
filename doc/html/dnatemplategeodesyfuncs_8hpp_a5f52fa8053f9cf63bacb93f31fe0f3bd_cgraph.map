@@ -1,9 +1,0 @@
-<map id="primeVerticalandMeridian" name="primeVerticalandMeridian">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,83,196,111"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#ae1003c5f7f0be3190a8abb1f7e07143a" title=" " alt="" coords="245,5,462,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,80,254,52,256,57,154,85"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1CDnaEllipsoid.html#a4cd921d0597e9d8b49343951ae607103" title=" " alt="" coords="244,75,464,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,94,228,94,228,100,196,100"/>
-<area shape="rect" id="Node000004" href="$dnadatumprojectionparam_8hpp.html#ad6c641e9c204251b660c24fe1af5c006" title=" " alt="" coords="255,143,452,171"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,109,244,129,276,136,274,142,243,134,160,114"/>
-</map>

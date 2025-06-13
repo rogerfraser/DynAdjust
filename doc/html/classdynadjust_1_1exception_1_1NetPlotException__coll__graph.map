@@ -1,9 +1,0 @@
-<map id="dynadjust::exception::NetPlotException" name="dynadjust::exception::NetPlotException">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,165,415"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="13,144,115,216"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,231,80,281,74,282,68,232"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="140,144,215,216"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,217,132,268,128,265,156,215"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="114,5,241,95"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="180,110,180,144,175,144,175,110"/>
-</map>

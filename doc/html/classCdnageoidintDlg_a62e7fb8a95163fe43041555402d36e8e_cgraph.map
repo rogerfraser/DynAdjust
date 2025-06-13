@@ -1,9 +1,0 @@
-<map id="CdnageoidintDlg::OnFileInterpolate" name="CdnageoidintDlg::OnFileInterpolate">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,254,127"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a0a57affa2f9ee83ee48851546035a63e" title=" " alt="" coords="318,5,480,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,97,302,61,304,66,181,102"/>
-<area shape="rect" id="Node000003" href="$classCdnageoidintDlg.html#af6011ca4546f1cc0343978e906b02056" title=" " alt="" coords="304,91,494,136"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="254,111,288,111,288,116,254,116"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1exception_1_1NetGeoidException.html#a3a17a04471375f3dc75e395d38ad249b" title=" " alt="" coords="302,160,496,205"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,125,295,154,294,159,185,130"/>
-</map>

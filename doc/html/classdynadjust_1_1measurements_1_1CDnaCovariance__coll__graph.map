@@ -1,7 +1,0 @@
-<map id="dynadjust::measurements::CDnaCovariance" name="dynadjust::measurements::CDnaCovariance">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,195,1755"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="62,144,138,216"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,216,103,264,98,264,98,216"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="36,5,164,95"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="103,110,103,144,98,144,98,110"/>
-</map>

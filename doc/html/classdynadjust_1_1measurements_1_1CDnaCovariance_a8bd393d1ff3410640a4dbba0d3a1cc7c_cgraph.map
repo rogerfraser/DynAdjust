@@ -1,9 +1,0 @@
-<map id="dynadjust::measurements::CDnaCovariance::SetM13" name="dynadjust::measurements::CDnaCovariance::SetM13">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,200,68"/>
-<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#ae3a5a07751ca29788499ab7b1d95b739" title=" " alt="" coords="248,5,386,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,31,232,27,232,32,200,36"/>
-<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="284,57,350,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,55,269,63,269,68,199,60"/>
-<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="434,57,506,85"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="350,68,419,68,419,74,350,74"/>
-</map>

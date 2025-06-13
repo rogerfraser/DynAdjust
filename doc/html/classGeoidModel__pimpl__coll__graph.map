@@ -1,7 +1,0 @@
-<map id="GeoidModel_pimpl" name="GeoidModel_pimpl">
-<area shape="rect" id="Node000001" title=" " alt="" coords="16,531,166,693"/>
-<area shape="rect" id="Node000002" href="$classGeoidModel__pskel.html" title=" " alt="" coords="5,143,176,483"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,498,94,531,88,531,88,498"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="12,5,170,95"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="94,109,94,143,88,143,88,109"/>
-</map>

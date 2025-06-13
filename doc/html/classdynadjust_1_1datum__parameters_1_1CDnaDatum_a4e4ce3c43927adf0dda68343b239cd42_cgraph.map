@@ -1,9 +1,0 @@
-<map id="dynadjust::datum_parameters::CDnaDatum::GetEpoch_s" name="dynadjust::datum_parameters::CDnaDatum::GetEpoch_s">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,65,223,110"/>
-<area shape="rect" id="Node000002" href="$namespacedynadjust_1_1epsg.html#a09dcf40f9b6e8540e340010cd23635ed" title=" " alt="" coords="271,5,492,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,62,264,51,265,56,217,67"/>
-<area shape="rect" id="Node000003" href="$dnatemplatedatetimefuncs_8hpp.html#a78f9f6140da71f865b08ea6400aafc3a" title=" " alt="" coords="309,74,454,102"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,85,294,85,294,90,223,90"/>
-<area shape="rect" id="Node000004" href="$dnatemplatedatetimefuncs_8hpp.html#a9371d16146407490834814f13f2e7f3f" title=" " alt="" coords="320,126,442,154"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,106,305,122,304,127,222,111"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="dynadjust::networksegment::dna_segment::MoveJunctiontoISL" name="dynadjust::networksegment::dna_segment::MoveJunctiontoISL">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,40,251,85"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#aa646f19528aa18d8bafc0b6f6da1fe65" title=" " alt="" coords="299,5,570,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,46,283,42,283,47,251,51"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1networksegment_1_1dna__segment.html#ad6d6eab355e6930a64099e6ec69fb62a" title=" " alt="" coords="331,75,538,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,74,315,81,315,86,251,79"/>
-</map>

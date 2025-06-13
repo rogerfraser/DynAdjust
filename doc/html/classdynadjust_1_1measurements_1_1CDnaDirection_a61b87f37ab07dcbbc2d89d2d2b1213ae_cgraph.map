@@ -1,9 +1,0 @@
-<map id="dynadjust::measurements::CDnaDirection::SetTargetHeight" name="dynadjust::measurements::CDnaDirection::SetTargetHeight">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,241,68"/>
-<area shape="rect" id="Node000002" href="$dnastrmanipfuncs_8hpp.html#a84b3fec21ca61b5669bca7a0377b12e1" title=" " alt="" coords="289,5,414,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,29,273,26,274,31,241,35"/>
-<area shape="rect" id="Node000003" href="$dnastrmanipfuncs_8hpp.html#a5be156dfa9974303aebe8d2332a9d8dd" title=" " alt="" coords="319,57,384,85"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,56,303,63,303,69,241,62"/>
-<area shape="rect" id="Node000004" href="$dnastrmanipfuncs_8hpp.html#a65cb54486037d53713e6632e8939751b" title=" " alt="" coords="462,57,534,85"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="385,68,446,68,446,74,385,74"/>
-</map>

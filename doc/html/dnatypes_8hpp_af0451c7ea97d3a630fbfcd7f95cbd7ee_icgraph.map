@@ -1,7 +1,0 @@
-<map id="STN_DESC_WIDTH" name="STN_DESC_WIDTH">
-<area shape="rect" id="Node000001" title=" " alt="" coords="538,14,679,42"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#a6fc33315346b55941a29cb6115f277db" title=" " alt="" coords="274,5,490,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="522,30,490,30,490,25,522,25"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaStation.html#ad0a39f7b9543dadfc52fa16f17e5802a" title=" " alt="" coords="5,5,226,50"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="258,30,226,30,226,25,258,25"/>
-</map>

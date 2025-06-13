@@ -1,8 +1,0 @@
-<map id="include/config/dnaconsts.hpp" name="include/config/dnaconsts.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,216,33"/>
-<area shape="rect" id="Node000002" href="$dnatypes_8hpp.html" title=" " alt="" coords="8,174,213,201"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,35,88,56,77,82,73,103,77,125,94,159,89,162,72,126,68,103,72,80,83,54,98,32"/>
-<area shape="rect" id="Node000003" href="$dnaconsts-datums_8hpp.html" title=" " alt="" coords="86,81,260,126"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,32,150,67,145,70,118,35"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="159,128,132,163,128,159,155,124"/>
-</map>

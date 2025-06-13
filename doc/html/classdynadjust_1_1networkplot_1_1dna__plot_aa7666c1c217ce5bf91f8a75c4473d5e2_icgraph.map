@@ -1,7 +1,0 @@
-<map id="dynadjust::networkplot::dna_plot::minInnerStns" name="dynadjust::networkplot::dna_plot::minInnerStns">
-<area shape="rect" id="Node000001" title=" " alt="" coords="278,5,457,50"/>
-<area shape="rect" id="Node000002" href="$dnaplotwrapper_8cpp.html#aaf3e11bee5fdb069e7b7d54555e09a6e" title=" " alt="" coords="108,14,230,42"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="262,30,230,30,230,25,262,25"/>
-<area shape="rect" id="Node000003" href="$dnaplotwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,14,60,42"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,30,60,30,60,25,92,25"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="dna_adjust_thread::handleProcessAdjustError" name="dna_adjust_thread::handleProcessAdjustError">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,193,74"/>
-<area shape="rect" id="Node000002" href="$classdna__adjust__thread.html#afa6b9553bf5ba8572f4fbd1686ab32f1" title=" " alt="" coords="241,29,390,74"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,49,225,49,225,54,193,54"/>
-<area shape="rect" id="Node000003" href="$classdna__adjust__thread.html#a9454a7e8bf1fea479dd04c1754206ffa" title=" " alt="" coords="438,29,587,74"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,49,423,49,423,54,390,54"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="475,29,473,19,480,10,493,5,513,3,534,5,547,11,544,16,532,10,513,8,494,10,483,15,479,21,480,28"/>
-</map>

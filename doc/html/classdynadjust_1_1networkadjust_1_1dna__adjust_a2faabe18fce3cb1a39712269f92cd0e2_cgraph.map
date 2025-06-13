@@ -1,7 +1,0 @@
-<map id="dynadjust::networkadjust::dna_adjust::RemoveNonMeasurements" name="dynadjust::networkadjust::dna_adjust::RemoveNonMeasurements">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,291,50"/>
-<area shape="rect" id="Node000002" href="$dnatemplatefuncs_8hpp.html#a7b9d312555e0322d1f77972041b2900b" title=" " alt="" coords="339,14,412,42"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="291,25,323,25,323,30,291,30"/>
-<area shape="rect" id="Node000003" href="$dnatemplatefuncs_8hpp.html#afb276711cdd0d00ba358916866e9d8ca" title=" " alt="" coords="460,14,569,42"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,25,445,25,445,30,413,30"/>
-</map>

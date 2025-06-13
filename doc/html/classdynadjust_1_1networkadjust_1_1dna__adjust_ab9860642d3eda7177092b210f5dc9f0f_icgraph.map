@@ -1,8 +1,0 @@
-<map id="dynadjust::networkadjust::dna_adjust::GetStatus" name="dynadjust::networkadjust::dna_adjust::GetStatus">
-<area shape="rect" id="Node000001" title=" " alt="" coords="328,5,514,50"/>
-<area shape="rect" id="Node000002" href="$dnaadjustwrapper_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title=" " alt="" coords="5,14,60,42"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="312,30,60,30,60,25,312,25"/>
-<area shape="rect" id="Node000003" href="$dnaadjustwrapper_8cpp.html#a733ca5b664688c8e23e3634b50c51731" title=" " alt="" coords="108,39,280,67"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="313,42,281,46,280,41,312,37"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="92,40,60,34,60,29,92,34"/>
-</map>

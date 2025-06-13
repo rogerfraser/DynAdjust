@@ -1,7 +1,0 @@
-<map id="dynadjust::measurements::CDnaDirection" name="dynadjust::measurements::CDnaDirection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="27,3180,217,3917"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1measurements_1_1CDnaAzimuth.html" title=" " alt="" coords="32,3965,212,4099"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="124,3932,124,3965,119,3965,119,3932"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1measurements_1_1CDnaMeasurement.html" title=" " alt="" coords="5,5,238,3132"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,3147,124,3180,119,3180,119,3147"/>
-</map>

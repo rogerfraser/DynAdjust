@@ -1,7 +1,0 @@
-<map id="dynadjust::datum_parameters::_itrf2014_to_gda2020_&lt; T, U &gt;" name="dynadjust::datum_parameters::_itrf2014_to_gda2020_&lt; T, U &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="122,5,329,156"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1datum__parameters_1_1AUS__PLATE__MOTION__MODEL.html" title=" " alt="" coords="5,204,214,311"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,170,146,206,142,203,166,167"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1datum__parameters_1_1ITRF2014__GDA2020.html" title=" " alt="" coords="238,213,445,302"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="285,167,315,212,311,214,281,170"/>
-</map>

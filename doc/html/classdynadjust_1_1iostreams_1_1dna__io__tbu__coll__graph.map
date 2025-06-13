@@ -1,9 +1,0 @@
-<map id="dynadjust::iostreams::dna_io_tbu" name="dynadjust::iostreams::dna_io_tbu">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,789,189,1214"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1iostreams_1_1dna__io__base.html" title=" " alt="" coords="20,315,174,740"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,755,100,789,95,789,95,755"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="60,144,135,216"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,216,100,299,95,299,95,216"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="34,5,161,95"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="100,110,100,144,95,144,95,110"/>
-</map>

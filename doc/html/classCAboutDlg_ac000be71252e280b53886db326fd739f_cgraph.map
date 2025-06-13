@@ -1,7 +1,0 @@
-<map id="CAboutDlg::OnInitDialog" name="CAboutDlg::OnInitDialog">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,185,57"/>
-<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="57,30,51,20,56,11,71,5,95,3,121,5,135,12,133,16,120,10,95,8,72,10,59,15,56,20,62,27"/>
-<area shape="rect" id="Node000002" href="$classCAboutDlg.html#a6d1e6a33fef23bee6e75254189d865ce" title=" " alt="" coords="233,29,400,57"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,40,217,40,217,46,185,46"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="278,30,272,20,277,11,292,5,316,3,342,5,356,12,354,16,341,10,316,8,293,10,281,15,278,20,283,27"/>
-</map>

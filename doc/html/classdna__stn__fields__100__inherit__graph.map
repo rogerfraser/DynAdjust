@@ -1,7 +1,0 @@
-<map id="dna_stn_fields_100" name="dna_stn_fields_100">
-<area shape="rect" id="Node000001" title=" " alt="" coords="9,343,144,415"/>
-<area shape="rect" id="Node000002" href="$struct__dna__stn__fields__100__.html" title=" " alt="" coords="5,182,148,294"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,309,79,343,74,343,74,309"/>
-<area shape="rect" id="Node000003" href="$struct__dna__stn__fields__100__.html" title=" " alt="" coords="5,5,148,117"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="79,132,79,182,74,182,74,132"/>
-</map>

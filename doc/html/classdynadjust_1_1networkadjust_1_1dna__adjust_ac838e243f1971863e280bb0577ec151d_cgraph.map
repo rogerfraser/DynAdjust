@@ -1,9 +1,0 @@
-<map id="dynadjust::networkadjust::dna_adjust::AddMsrtoDesign_BCEKMSVZ" name="dynadjust::networkadjust::dna_adjust::AddMsrtoDesign_BCEKMSVZ">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,221,67"/>
-<area shape="rect" id="Node000002" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a7917978efd1062bf4efb6e98a111eb5a" title=" " alt="" coords="269,14,484,58"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,34,253,34,253,39,221,39"/>
-<area shape="rect" id="Node000003" href="$classdynadjust_1_1networkadjust_1_1dna__adjust.html#a8ecc52e5c7aa9f728514bc2f1f019677" title=" " alt="" coords="532,14,777,58"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="485,34,517,34,517,39,485,39"/>
-<area shape="rect" id="Node000004" href="$classdynadjust_1_1math_1_1matrix__2d.html#a6070ae515a0a1990475b0eeeafbec43f" title=" " alt="" coords="825,14,1004,58"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="778,34,810,34,810,39,778,39"/>
-</map>
