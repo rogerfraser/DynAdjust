@@ -90,7 +90,7 @@
 
 #include <atomic>
 
-#include "network/network_data_manager.hpp"
+#include "network_data_manager.hpp"
 #include "network_state_diff.hpp"
 
 using namespace dynadjust::datum_parameters;

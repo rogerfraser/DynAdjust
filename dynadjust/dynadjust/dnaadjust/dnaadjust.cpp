@@ -14318,7 +14318,6 @@ void dna_adjust::LoadNetworkFilesNew()
     try {
         NetworkDataManager networkManager(projectSettings_);
         
-        // Set up callbacks for functions that NetworkDataManager needs
         networkManager.setErrorHandler([this](const std::string& msg, UINT32 block) {
             SignalExceptionAdjustment(msg, block);
         });
@@ -14340,7 +14339,6 @@ void dna_adjust::LoadNetworkFilesNew()
             measurementCount_ = measurementCount;
         });
         
-        // Load network files using new implementation
         bool success = networkManager.loadNetworkFiles(
             &bstBinaryRecords_,
             bst_meta_,
@@ -14360,13 +14358,6 @@ void dna_adjust::LoadNetworkFilesNew()
             
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFilesNew(): Failed to load network files", 0);
-        }
-        
-        // Apply the same fix for phased mode
-        if (projectSettings_.a.adjust_mode == PhasedMode) {
-            v_measurementParams_ = v_measurementCount_;
-        } else {
-            v_measurementParams_ = v_measurementCount_;
         }
         
         // Ensure v_blockStationsMap_ matches the state that LoadNetworkFilesOld preserves
