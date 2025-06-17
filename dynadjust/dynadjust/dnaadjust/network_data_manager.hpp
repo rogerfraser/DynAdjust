@@ -66,24 +66,24 @@ public:
     measurement_count_updater_ = std::move(updater);
   }
 
-  auto loadNetworkFiles(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+  bool loadNetworkFiles(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
                         vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
                         binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
                         v_uint32_uint32_map *v_blockStationsMap,
                         vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
                         UINT32 &bmsr_count, UINT32 &unknownParams,
                         UINT32 &unknownsCount, UINT32 &measurementParams,
-                        UINT32 &measurementCount) -> bool;
+                        UINT32 &measurementCount);
 
 private:
-  auto loadStations(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
-                    UINT32 &bstn_count) -> bool;
+  bool loadStations(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                    UINT32 &bstn_count);
 
-  auto loadAssociatedStations(vASL *vAssocStnList, vUINT32 &v_ISLTemp,
-                              UINT32 &asl_count) -> bool;
+  bool loadAssociatedStations(vASL *vAssocStnList, vUINT32 &v_ISLTemp,
+                              UINT32 &asl_count);
 
-  auto loadMeasurements(vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta,
-                        UINT32 &bmsr_count) -> bool;
+  bool loadMeasurements(vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta,
+                        UINT32 &bmsr_count);
 
   void processSimultaneousMode(const vUINT32 &v_ISLTemp, vvUINT32 &v_ISL,
                                v_uint32_uint32_map *v_blockStationsMap,

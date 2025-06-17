@@ -46,8 +46,7 @@ public:
   BinaryStationLoader(BinaryStationLoader &&) = default;
   BinaryStationLoader &operator=(BinaryStationLoader &&) = default;
 
-  auto load(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta)
-      -> std::optional<UINT32>;
+  std::optional<UINT32> load(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta);
 
 private:
   std::string filename_;

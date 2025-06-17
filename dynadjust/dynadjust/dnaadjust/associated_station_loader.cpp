@@ -30,7 +30,7 @@ AssociatedStationLoader::AssociatedStationLoader(std::string_view filename)
 {
 }
 
-auto AssociatedStationLoader::load(vASL* vAssocStnList, vUINT32* v_ISLTemp) -> std::optional<UINT32>
+std::optional<UINT32> AssociatedStationLoader::load(vASL* vAssocStnList, vUINT32* v_ISLTemp)
 {
     try {
         return asl_loader_->load_asl_file(filename_, vAssocStnList, v_ISLTemp);

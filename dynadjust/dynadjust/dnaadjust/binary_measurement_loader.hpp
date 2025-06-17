@@ -46,8 +46,7 @@ public:
   BinaryMeasurementLoader(BinaryMeasurementLoader &&) = default;
   BinaryMeasurementLoader &operator=(BinaryMeasurementLoader &&) = default;
 
-  auto load(vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta)
-      -> std::optional<UINT32>;
+  std::optional<UINT32> load(vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta);
 
 private:
   std::string filename_;
