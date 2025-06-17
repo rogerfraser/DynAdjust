@@ -37,6 +37,8 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <vector>
 #include <math.h>
 #include <iostream>
