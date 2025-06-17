@@ -12,6 +12,7 @@
 #endif
 #endif
 
+/// \cond
 #include <windows.h>
 
 #include <boost/timer/timer.hpp>
@@ -26,6 +27,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
 
+/// \endcond
+
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-interface.hpp>
@@ -39,8 +42,8 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatecalcfuncs.hpp>
+#include <include/functions/dnatemplatedatetimefuncs.hpp>
 
 #include <include/parameters/dnadatum.hpp>
-#include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
 #include <include/parameters/dnaellipsoid.hpp>

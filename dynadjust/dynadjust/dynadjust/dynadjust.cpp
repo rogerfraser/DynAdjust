@@ -32,7 +32,6 @@ boost::mutex cout_mutex;
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
