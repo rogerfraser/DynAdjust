@@ -27,11 +27,11 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
              ${CMAKE_SOURCE_DIR}/include/memory/dnafile_mapping.cpp
-             network/network_data_manager.cpp
-             network/loaders/binary_station_loader.cpp
-             network/loaders/associated_station_loader.cpp
-             network/loaders/binary_measurement_loader.cpp
-             network/processors/measurement_processor.cpp
+             network_data_manager.cpp
+             binary_station_loader.cpp
+             associated_station_loader.cpp
+             binary_measurement_loader.cpp
+             measurement_processor.cpp
              dnaadjust-stage.cpp
              dnaadjust.cpp
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
