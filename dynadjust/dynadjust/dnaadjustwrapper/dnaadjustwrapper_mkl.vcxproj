@@ -71,7 +71,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN64;_DEBUG;_CONSOLE;BUILD_ADJUST_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_DEBUG;USE_MKL=ON;USE_ILP64=ON;_CONSOLE;BUILD_ADJUST_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
@@ -91,7 +91,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;NDEBUG;_CONSOLE;BUILD_ADJUST_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;NDEBUG;USE_MKL=ON;USE_ILP64=ON;_CONSOLE;BUILD_ADJUST_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
@@ -141,6 +141,7 @@
     <ClInclude Include="dnaadjustprogress.hpp" />
     <ClInclude Include="dnaadjustwrapper.hpp" />
     <ClInclude Include="precompile.h" />
+    <ClInclude Include="threading_init.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dnaadjust\dnaadjust_mkl.vcxproj">

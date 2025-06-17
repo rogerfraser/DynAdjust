@@ -7,25 +7,25 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaadjustwrapper", "dynadju
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaadjust", "dynadjust\dnaadjust\dnaadjust_mkl.vcxproj", "{A776C73C-FABB-41BD-BBF0-8B9904FA13D3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaimport", "dynadjust\dnaimport\dnaimport.vcxproj", "{15636C17-F2A9-4D89-9931-8378DF2C3A91}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaimportwrapper", "dynadjust\dnaimportwrapper\dnaimportwrapper_mkl.vcxproj", "{936B4AFE-4015-4C58-95D8-82D60EC19FEF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnageoid", "dynadjust\dnageoid\dnageoid.vcxproj", "{4B5CE96F-752C-4015-BBBC-45DFB18F8A02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaimport", "dynadjust\dnaimport\dnaimport_mkl.vcxproj", "{15636C17-F2A9-4D89-9931-8378DF2C3A91}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnasegment", "dynadjust\dnasegment\dnasegment.vcxproj", "{9211C2F7-1D45-46B5-A7AD-7411864F79BF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnageoidwrapper", "dynadjust\dnageoidwrapper\dnageoidwrapper_mkl.vcxproj", "{63A805D0-188B-4F57-A190-7AE597E713F9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnareftran", "dynadjust\dnareftran\dnareftran.vcxproj", "{0A5D9F7A-7036-4085-AF0C-874D822CB8EE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnageoid", "dynadjust\dnageoid\dnageoid_mkl.vcxproj", "{4B5CE96F-752C-4015-BBBC-45DFB18F8A02}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnageoidwrapper", "dynadjust\dnageoidwrapper\dnageoidwrapper.vcxproj", "{63A805D0-188B-4F57-A190-7AE597E713F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnareftranwrapper", "dynadjust\dnareftranwrapper\dnareftranwrapper_mkl.vcxproj", "{A18EDE4A-B7CA-4CF2-AE15-9887FE8369DC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaimportwrapper", "dynadjust\dnaimportwrapper\dnaimportwrapper.vcxproj", "{936B4AFE-4015-4C58-95D8-82D60EC19FEF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnareftran", "dynadjust\dnareftran\dnareftran_mkl.vcxproj", "{0A5D9F7A-7036-4085-AF0C-874D822CB8EE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaplot", "dynadjust\dnaplot\dnaplot.vcxproj", "{6338C81D-122B-483B-A0E2-F08FC8D48BC2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaplotwrapper", "dynadjust\dnaplotwrapper\dnaplotwrapper_mkl.vcxproj", "{773A66DB-8664-48CD-8305-63274D13B233}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaplotwrapper", "dynadjust\dnaplotwrapper\dnaplotwrapper.vcxproj", "{773A66DB-8664-48CD-8305-63274D13B233}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnaplot", "dynadjust\dnaplot\dnaplot_mkl.vcxproj", "{6338C81D-122B-483B-A0E2-F08FC8D48BC2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnareftranwrapper", "dynadjust\dnareftranwrapper\dnareftranwrapper.vcxproj", "{A18EDE4A-B7CA-4CF2-AE15-9887FE8369DC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnasegmentwrapper", "dynadjust\dnasegmentwrapper\dnasegmentwrapper_mkl.vcxproj", "{09C887C6-F54C-497B-B675-F58966F2B484}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnasegmentwrapper", "dynadjust\dnasegmentwrapper\dnasegmentwrapper.vcxproj", "{09C887C6-F54C-497B-B675-F58966F2B484}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnasegment", "dynadjust\dnasegment\dnasegment_mkl.vcxproj", "{9211C2F7-1D45-46B5-A7AD-7411864F79BF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnageoidint", "dynadjust\dnageoidint\dnageoidint.vcxproj", "{3E2F049B-7190-4DB6-AD8B-06AE2E8C0D0D}"
 EndProject
