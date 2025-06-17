@@ -37,13 +37,13 @@ NetworkDataManager::NetworkDataManager(const project_settings &settings)
               ? processors::AdjustmentMode::Simultaneous
               : processors::AdjustmentMode::Phased)) {}
 
-auto NetworkDataManager::loadNetworkFiles(
+bool NetworkDataManager::loadNetworkFiles(
     vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta, vASL *vAssocStnList,
     vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
     v_uint32_uint32_map *v_blockStationsMap, vvUINT32 *v_CML,
     UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
     UINT32 &unknownParams, UINT32 &unknownsCount, UINT32 &measurementParams,
-    UINT32 &measurementCount) -> bool {
+    UINT32 &measurementCount) {
   if (!loadStations(bstBinaryRecords, bst_meta, bstn_count))
     return false;
 
@@ -100,9 +100,9 @@ auto NetworkDataManager::loadNetworkFiles(
   return true;
 }
 
-auto NetworkDataManager::loadStations(vstn_t *bstBinaryRecords,
+bool NetworkDataManager::loadStations(vstn_t *bstBinaryRecords,
                                       binary_file_meta_t &bst_meta,
-                                      UINT32 &bstn_count) -> bool {
+                                      UINT32 &bstn_count) {
   auto result = station_loader_->load(bstBinaryRecords, bst_meta);
   if (!result) {
     if (error_handler_)
@@ -113,9 +113,9 @@ auto NetworkDataManager::loadStations(vstn_t *bstBinaryRecords,
   return true;
 }
 
-auto NetworkDataManager::loadAssociatedStations(vASL *vAssocStnList,
+bool NetworkDataManager::loadAssociatedStations(vASL *vAssocStnList,
                                                 vUINT32 &v_ISLTemp,
-                                                UINT32 &asl_count) -> bool {
+                                                UINT32 &asl_count) {
   auto result = asl_loader_->load(vAssocStnList, &v_ISLTemp);
   if (!result) {
     if (error_handler_)
@@ -126,9 +126,9 @@ auto NetworkDataManager::loadAssociatedStations(vASL *vAssocStnList,
   return true;
 }
 
-auto NetworkDataManager::loadMeasurements(vmsr_t *bmsBinaryRecords,
+bool NetworkDataManager::loadMeasurements(vmsr_t *bmsBinaryRecords,
                                           binary_file_meta_t &bms_meta,
-                                          UINT32 &bmsr_count) -> bool {
+                                          UINT32 &bmsr_count) {
   auto result = measurement_loader_->load(bmsBinaryRecords, bms_meta);
   if (!result) {
     if (error_handler_)

@@ -47,7 +47,7 @@ public:
   AssociatedStationLoader(AssociatedStationLoader &&) = default;
   AssociatedStationLoader &operator=(AssociatedStationLoader &&) = default;
 
-  auto load(vASL *vAssocStnList, vUINT32 *v_ISLTemp) -> std::optional<UINT32>;
+  std::optional<UINT32> load(vASL *vAssocStnList, vUINT32 *v_ISLTemp);
 
 private:
   std::string filename_;

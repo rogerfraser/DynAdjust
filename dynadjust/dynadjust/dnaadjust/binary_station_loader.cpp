@@ -30,7 +30,7 @@ BinaryStationLoader::BinaryStationLoader(std::string_view filename)
 {
 }
 
-auto BinaryStationLoader::load(vstn_t* bstBinaryRecords, binary_file_meta_t& bst_meta) -> std::optional<UINT32>
+std::optional<UINT32> BinaryStationLoader::load(vstn_t* bstBinaryRecords, binary_file_meta_t& bst_meta)
 {
     try {
         return bst_loader_->load_bst_file(filename_, bstBinaryRecords, bst_meta);

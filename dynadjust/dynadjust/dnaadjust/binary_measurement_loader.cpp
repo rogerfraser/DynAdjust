@@ -30,7 +30,7 @@ BinaryMeasurementLoader::BinaryMeasurementLoader(std::string_view filename)
 {
 }
 
-auto BinaryMeasurementLoader::load(vmsr_t* bmsBinaryRecords, binary_file_meta_t& bms_meta) -> std::optional<UINT32>
+std::optional<UINT32> BinaryMeasurementLoader::load(vmsr_t* bmsBinaryRecords, binary_file_meta_t& bms_meta)
 {
     try {
         return bms_loader_->load_bms_file(filename_, bmsBinaryRecords, bms_meta);
