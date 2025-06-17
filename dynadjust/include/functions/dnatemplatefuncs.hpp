@@ -44,6 +44,7 @@
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
 
 template <typename T>
 bool isOdd(T integer)
