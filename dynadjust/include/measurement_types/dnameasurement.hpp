@@ -193,25 +193,6 @@ typedef std::vector<measurement_t> vmsr_t, *pvmsr_t;
 typedef vmsr_t::iterator it_vmsr_t, *pit_vmsr_t;
 typedef vmsr_t::const_iterator it_vmsr_t_const;
 
-typedef struct scl_t {
-	scl_t()
-		: station1(""), station2("")
-		, v_scale(1.), p_scale(1.), l_scale(1.), h_scale(1.) 
-	{}
-
-	std::string	station1;		
-	std::string	station2;		
-	double	v_scale;	// phi, n or X scalar
-	double	p_scale;	// lambda, e or Y scalar
-	double	l_scale;	// height, up or Z scalar
-	double	h_scale;	// matrix scalar
-} scalar_t;
-
-typedef std::vector<scalar_t> vscl_t, *pvscl_t;
-typedef vscl_t::iterator it_vscl_t, *pit_vscl_t;
-typedef vscl_t::const_iterator it_vscl_t_const;
-
-
 class CDnaCovariance
 {
 public:
