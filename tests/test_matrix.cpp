@@ -1,7 +1,7 @@
 #define TESTING_MAIN
 
-#include "testing.hpp"
 #include "math/dnamatrix_contiguous.hpp"
+#include "testing.hpp"
 
 using namespace dynadjust::math;
 
@@ -247,7 +247,7 @@ TEST_CASE("Element modification", "[matrix_2d]") {
 TEST_CASE("Matrix allocation", "[matrix_2d]") {
     matrix_2d mat;
     mat.allocate(3, 4); // Does not change dimensions?
-                        
+
     REQUIRE(mat.rows() == 0);
     REQUIRE(mat.columns() == 0);
 }

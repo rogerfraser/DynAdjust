@@ -47,7 +47,7 @@ public:
 
 	dna_io_asl& operator=(const dna_io_asl& rhs);
 
-	UINT32 load_asl_file(const std::string& asl_filename, vASL* vbinary_asl, vUINT32* vfree_stn);
+	std::uint64_t load_asl_file(const std::string& asl_filename, vASL* vbinary_asl, vUINT32* vfree_stn);
 	void write_asl_file(const std::string& asl_filename, pvASLPtr vbinary_asl);
 	void write_asl_file_txt(const std::string& asl_filename, pvASLPtr vbinary_asl, vdnaStnPtr* vStations);
 
