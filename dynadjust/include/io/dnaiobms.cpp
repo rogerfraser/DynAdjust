@@ -26,6 +26,15 @@
 namespace dynadjust { 
 namespace iostreams {
 
+dna_io_bms& dna_io_bms::operator=(const dna_io_bms& rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	dna_io_base::operator=(rhs);
+	return *this;
+}
+
 std::uint64_t dna_io_bms::create_msr_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta)
 {
 	std::uint64_t msr_file_count(0);
