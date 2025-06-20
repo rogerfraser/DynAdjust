@@ -21,7 +21,7 @@
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 #include <dynadjust/dnaadjust/network_data_loader.hpp>
-
+#include "dnaadjust_printer.hpp"
 #include <dynadjust/dnaadjust/dnaadjust-multi.cpp>
 
 namespace dynadjust {
@@ -3301,37 +3301,22 @@ void dna_adjust::PrintAdjustmentStatus()
 
 void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_ timerType)
 {
-	// calculate and print total time
-	boost::posix_time::milliseconds ms(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
-	boost::posix_time::time_duration t(ms);
+	networkadjust::DynAdjustPrinter printer(*this);
 	
-	std::stringstream ss;
-	if (t > boost::posix_time::seconds(1))
-		ss << boost::posix_time::seconds(static_cast<long>(t.total_seconds()));
-	else
-		ss << t;
-
-	if (timerType == iteration_time)
-		adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Elapsed time" << ss.str() << std::endl;
-	else
-	{
+	// Store total time if needed
+	if (timerType != iteration_time) {
+		boost::posix_time::milliseconds ms(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
 		total_time_ = ms;
-		adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Total time" << ss.str() << std::endl << std::endl;
 	}
+	
+	printer.PrintAdjustmentTime(time, static_cast<int>(timerType));
 }
 	
 
 void dna_adjust::PrintIteration(const UINT32& iteration)
 {
-	std::stringstream iterationMessage;
-
-	iterationMessage << std::endl << OUTPUTLINE << std::endl <<
-		std::setw(PRINT_VAR_PAD) << std::left << "ITERATION" << iteration << std::endl << std::endl;
-
-	adj_file << iterationMessage.str();
-
-	if (projectSettings_.g.verbose)
-		debug_file << iterationMessage.str();		
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintIteration(iteration);
 }
 	
 
@@ -12815,21 +12800,15 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	// Print adjusted angular measurements
-	PrintMeasurementsAngular(cardinal, _it_msr->measAdj, _it_msr->measCorr, _it_msr);
-
-	// Print adjusted statistics
-	PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
+	DynAdjustPrinter printer(*this);
+	printer.PrintAdjustedMeasurements<AngularMeasurement>(cardinal, _it_msr, initialise_dbindex);
 }
 	
 
 void dna_adjust::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	// Print adjusted linear measurements
-	PrintMeasurementsLinear(cardinal, _it_msr->measAdj, _it_msr->measCorr, _it_msr);
-	
-	// Print adjusted statistics
-	PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
+	DynAdjustPrinter printer(*this);
+	printer.PrintAdjustedMeasurements<LinearMeasurement>(cardinal, _it_msr, initialise_dbindex);
 }
 	
 
@@ -13062,38 +13041,22 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 
 void dna_adjust::PrintAdjMeasurements_A(it_vmsr_t& _it_msr)
 {
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station3).stationName;
-
-	// Print angular measurement, taking care of user requirements for 
-	// type, format and precision	
-	PrintAdjMeasurementsAngular(' ', _it_msr);
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementWithStations(_it_msr, 'A');
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr)
 {
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	// Print angular measurement, taking care of user requirements for 
-	// type, format and precision	
-	PrintAdjMeasurementsAngular(' ', _it_msr);
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr)
 {
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	PrintAdjMeasurementsLinear(' ', _it_msr);
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 
@@ -13786,25 +13749,15 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 	
 void dna_adjust::PrintAdjMeasurements_HR(it_vmsr_t& _it_msr)
 {
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	PrintAdjMeasurementsLinear(' ', _it_msr);
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr)
 {
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	// Print angular measurement, taking care of user requirements for 
-	// type, format and precision	
-	PrintAdjMeasurementsAngular(' ', _it_msr);
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 

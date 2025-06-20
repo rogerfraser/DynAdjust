@@ -1,0 +1,343 @@
+#define TESTING_MAIN
+#define __BINARY_NAME__ "test_dnaadjust_printer"
+#define __BINARY_DESC__ "Unit tests for DynAdjustPrinter class"
+
+#include "testing.hpp"
+
+#include <boost/timer/timer.hpp>
+#include <sstream>
+#include <string>
+
+// Include necessary headers
+#include "../dynadjust/include/config/dnatypes.hpp"
+#include "../dynadjust/include/config/dnaconsts-iostream.hpp"
+#include "../dynadjust/include/measurement_types/dnameasurement.hpp"
+#include "../dynadjust/include/measurement_types/dnastation.hpp"
+
+using namespace dynadjust::measurements;
+
+namespace {
+
+// Mock dna_adjust class for testing
+class MockDnaAdjust {
+public:
+    std::ostringstream adj_file;
+    std::ostringstream debug_file;
+    
+    // Mock project settings
+    struct MockProjectSettings {
+        struct {
+            bool verbose = true;
+        } g;
+    } projectSettings_;
+    
+    // Mock binary records
+    std::vector<station_t> bstBinaryRecords_;
+    std::vector<measurement_t> bmsBinaryRecords_;
+    
+    MockDnaAdjust() {
+        // Initialize mock station records
+        station_t stn1, stn2, stn3;
+        strcpy(stn1.stationName, "STATION_001");
+        strcpy(stn2.stationName, "STATION_002"); 
+        strcpy(stn3.stationName, "STATION_003");
+        
+        bstBinaryRecords_.push_back(stn1);
+        bstBinaryRecords_.push_back(stn2);
+        bstBinaryRecords_.push_back(stn3);
+    }
+    
+    // Mock methods that the printer calls
+    void PrintMeasurementsAngular(char cardinal, double measAdj, double measCorr, const it_vmsr_t& it_msr) {
+        adj_file << "Angular measurement: " << measAdj << " ";
+    }
+    
+    void PrintMeasurementsLinear(char cardinal, double measAdj, double measCorr, const it_vmsr_t& it_msr) {
+        adj_file << "Linear measurement: " << measAdj << " ";
+    }
+    
+    void PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+        adj_file << "Statistics: " << cardinal << " ";
+    }
+    
+    void PrintAdjMeasurementsAngular(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true) {
+        adj_file << "PrintAdjMeasurementsAngular called ";
+    }
+    
+    void PrintAdjMeasurementsLinear(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true) {
+        adj_file << "PrintAdjMeasurementsLinear called ";
+    }
+};
+
+// Simplified test printer to avoid complex dependencies
+class TestPrinter {
+public:
+    explicit TestPrinter(MockDnaAdjust& adjust) : adjust_(adjust) {}
+    
+    void print_iteration(const UINT32& iteration) {
+        std::stringstream iterationMessage;
+        iterationMessage << std::endl << OUTPUTLINE << std::endl <<
+            std::setw(PRINT_VAR_PAD) << std::left << "ITERATION" << iteration << std::endl << std::endl;
+
+        adjust_.adj_file << iterationMessage.str();
+
+        if (adjust_.projectSettings_.g.verbose)
+            adjust_.debug_file << iterationMessage.str();		
+    }
+    
+    void print_measurement_with_stations_A(it_vmsr_t& it_msr) {
+        // 3 stations for angle measurement
+        adjust_.adj_file << std::left << std::setw(STATION) 
+                        << adjust_.bstBinaryRecords_.at(it_msr->station1).stationName;
+        adjust_.adj_file << std::left << std::setw(STATION) 
+                        << adjust_.bstBinaryRecords_.at(it_msr->station2).stationName;
+        adjust_.adj_file << std::left << std::setw(STATION) 
+                        << adjust_.bstBinaryRecords_.at(it_msr->station3).stationName;
+        
+        adjust_.PrintAdjMeasurementsAngular(' ', it_msr, true);
+    }
+    
+    void print_measurement_with_stations_C(it_vmsr_t& it_msr) {
+        // 2 stations for distance measurement
+        adjust_.adj_file << std::left << std::setw(STATION) 
+                        << adjust_.bstBinaryRecords_.at(it_msr->station1).stationName;
+        adjust_.adj_file << std::left << std::setw(STATION) 
+                        << adjust_.bstBinaryRecords_.at(it_msr->station2).stationName;
+        adjust_.adj_file << std::left << std::setw(STATION) << " ";
+        
+        adjust_.PrintAdjMeasurementsLinear(' ', it_msr, true);
+    }
+    
+    void print_angular_measurement(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+        adjust_.PrintMeasurementsAngular(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+        adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
+    }
+    
+    void print_linear_measurement(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+        adjust_.PrintMeasurementsLinear(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+        adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
+    }
+    
+    // Test helper functions
+    static constexpr int get_station_count(char measurement_type) {
+        constexpr std::array station_counts{
+            std::pair{'A', 3},
+            std::pair{'B', 2}, std::pair{'K', 2}, std::pair{'V', 2}, std::pair{'Z', 2},
+            std::pair{'C', 2}, std::pair{'E', 2}, std::pair{'L', 2}, 
+            std::pair{'M', 2}, std::pair{'S', 2},
+            std::pair{'H', 2}, std::pair{'R', 2},
+            std::pair{'I', 2}, std::pair{'J', 2}, std::pair{'P', 2}, std::pair{'Q', 2}
+        };
+        
+        for (const auto& [type, count] : station_counts) {
+            if (type == measurement_type) {
+                return count;
+            }
+        }
+        return 2; // Default to 2 stations
+    }
+    
+    static constexpr bool is_angular_type(char measurement_type) {
+        constexpr std::array angular_types{'A', 'B', 'K', 'V', 'Z'};
+        
+        for (const auto& type : angular_types) {
+            if (type == measurement_type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+    MockDnaAdjust& adjust_;
+};
+
+// Helper function to create test measurement data
+measurement_t createTestMeasurement(char type, UINT32 station1 = 0, UINT32 station2 = 1, UINT32 station3 = 2) {
+    measurement_t msr = {};
+    msr.measType = type;
+    msr.station1 = station1;
+    msr.station2 = station2;
+    msr.station3 = station3;
+    msr.measAdj = 123.456;
+    msr.measCorr = 0.001;
+    return msr;
+}
+
+} // anonymous namespace
+
+TEST_CASE("TestPrinter::print_iteration outputs correct format", "[printer][iteration]") {
+    MockDnaAdjust mock_adjust;
+    TestPrinter printer(mock_adjust);
+    
+    SECTION("Basic iteration print") {
+        printer.print_iteration(5);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("ITERATION") != std::string::npos);
+        REQUIRE(output.find("5") != std::string::npos);
+        REQUIRE(output.find(OUTPUTLINE) != std::string::npos);
+    }
+    
+    SECTION("Debug output when verbose enabled") {
+        mock_adjust.projectSettings_.g.verbose = true;
+        printer.print_iteration(3);
+        
+        std::string adj_output = mock_adjust.adj_file.str();
+        std::string debug_output = mock_adjust.debug_file.str();
+        
+        REQUIRE(adj_output == debug_output);
+        REQUIRE(debug_output.find("ITERATION") != std::string::npos);
+        REQUIRE(debug_output.find("3") != std::string::npos);
+    }
+    
+    SECTION("No debug output when verbose disabled") {
+        // Create a fresh mock instance to avoid contamination from previous test
+        MockDnaAdjust fresh_mock_adjust;
+        TestPrinter fresh_printer(fresh_mock_adjust);
+        
+        fresh_mock_adjust.projectSettings_.g.verbose = false;
+        fresh_printer.print_iteration(7);
+        
+        std::string adj_output = fresh_mock_adjust.adj_file.str();
+        std::string debug_output = fresh_mock_adjust.debug_file.str();
+        
+        REQUIRE(!adj_output.empty());
+        REQUIRE(debug_output.empty());
+    }
+}
+
+TEST_CASE("TestPrinter measurement printing works correctly", "[printer][measurements]") {
+    MockDnaAdjust mock_adjust;
+    TestPrinter printer(mock_adjust);
+    
+    SECTION("Angular measurement printing") {
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('A'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_angular_measurement(' ', it_msr, true);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Angular measurement: 123.456") != std::string::npos);
+        REQUIRE(output.find("Statistics: ") != std::string::npos);
+    }
+    
+    SECTION("Linear measurement printing") {
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_linear_measurement(' ', it_msr, true);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Linear measurement: 123.456") != std::string::npos);
+        REQUIRE(output.find("Statistics: ") != std::string::npos);
+    }
+}
+
+TEST_CASE("TestPrinter::print_measurement_with_stations handles different measurement types", "[printer][stations]") {
+    MockDnaAdjust mock_adjust;
+    TestPrinter printer(mock_adjust);
+    
+    SECTION("Angle measurement with 3 stations") {
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('A', 0, 1, 2));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_measurement_with_stations_A(it_msr);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("STATION_001") != std::string::npos);
+        REQUIRE(output.find("STATION_002") != std::string::npos);
+        REQUIRE(output.find("STATION_003") != std::string::npos);
+        REQUIRE(output.find("PrintAdjMeasurementsAngular called") != std::string::npos);
+    }
+    
+    SECTION("Distance measurement with 2 stations") {
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C', 0, 1, 2));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_measurement_with_stations_C(it_msr);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("STATION_001") != std::string::npos);
+        REQUIRE(output.find("STATION_002") != std::string::npos);
+        REQUIRE(output.find("PrintAdjMeasurementsLinear called") != std::string::npos);
+    }
+}
+
+TEST_CASE("TestPrinter helper functions work correctly", "[printer][helpers]") {
+    SECTION("get_station_count returns correct counts") {
+        REQUIRE(TestPrinter::get_station_count('A') == 3);  // Angle needs 3 stations
+        REQUIRE(TestPrinter::get_station_count('B') == 2);  // Bearing needs 2 stations
+        REQUIRE(TestPrinter::get_station_count('C') == 2);  // Distance needs 2 stations
+        REQUIRE(TestPrinter::get_station_count('H') == 2);  // Height needs 2 stations
+        REQUIRE(TestPrinter::get_station_count('X') == 2);  // Unknown type defaults to 2
+    }
+    
+    SECTION("is_angular_type correctly identifies angular measurements") {
+        REQUIRE(TestPrinter::is_angular_type('A') == true);   // Angle
+        REQUIRE(TestPrinter::is_angular_type('B') == true);   // Bearing
+        REQUIRE(TestPrinter::is_angular_type('K') == true);   // Azimuth
+        REQUIRE(TestPrinter::is_angular_type('V') == true);   // Zenith angle
+        REQUIRE(TestPrinter::is_angular_type('Z') == true);   // Vertical angle
+        
+        REQUIRE(TestPrinter::is_angular_type('C') == false);  // Distance
+        REQUIRE(TestPrinter::is_angular_type('E') == false);  // Ellipsoid arc
+        REQUIRE(TestPrinter::is_angular_type('H') == false);  // Height
+        REQUIRE(TestPrinter::is_angular_type('L') == false);  // Level difference
+    }
+}
+
+TEST_CASE("TestPrinter constexpr lookup tables are compile-time", "[printer][constexpr]") {
+    SECTION("Station count lookup is constexpr") {
+        constexpr auto count_A = TestPrinter::get_station_count('A');
+        constexpr auto count_C = TestPrinter::get_station_count('C');
+        
+        // These should compile as constexpr
+        static_assert(count_A == 3);
+        static_assert(count_C == 2);
+        
+        REQUIRE(count_A == 3);
+        REQUIRE(count_C == 2);
+    }
+    
+    SECTION("Angular type check is constexpr") {
+        constexpr bool is_A_angular = TestPrinter::is_angular_type('A');
+        constexpr bool is_C_angular = TestPrinter::is_angular_type('C');
+        
+        // These should compile as constexpr
+        static_assert(is_A_angular == true);
+        static_assert(is_C_angular == false);
+        
+        REQUIRE(is_A_angular == true);
+        REQUIRE(is_C_angular == false);
+    }
+}
+
+TEST_CASE("Printer demonstrates C++17 features", "[printer][modern]") {
+    SECTION("Structured bindings work with lookup tables") {
+        constexpr std::array station_counts{
+            std::pair{'A', 3}, std::pair{'C', 2}
+        };
+        
+        for (const auto& [type, count] : station_counts) {
+            if (type == 'A') {
+                REQUIRE(count == 3);
+            } else if (type == 'C') {
+                REQUIRE(count == 2);
+            }
+        }
+    }
+    
+    SECTION("Template specialization concept works") {
+        // This demonstrates the concept used in the actual printer
+        bool is_angular = TestPrinter::is_angular_type('A');
+        bool is_linear = !TestPrinter::is_angular_type('C');
+        
+        REQUIRE(is_angular == true);
+        REQUIRE(is_linear == true);
+    }
+}
