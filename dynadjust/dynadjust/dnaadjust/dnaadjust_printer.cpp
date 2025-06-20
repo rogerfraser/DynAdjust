@@ -755,6 +755,123 @@ void DynAdjustPrinter::PrintUniqueStationsList(std::ostream& os,
     os << "Unique stations list printed using existing detailed implementation." << std::endl;
 }
 
+void DynAdjustPrinter::PrintAdjStationsUniqueListWithStaging(std::ostream& os,
+                                                           const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
+                                                           bool recomputeGeographicCoords, bool updateGeographicCoords,
+                                                           bool reapplyTypeBUncertainties) {
+    // Use new printer infrastructure for header generation
+    PrintStationColumnHeaders(os, CoordinateOutputMode::Geographic, stationVariances != nullptr);
+    
+    UINT32 block(UINT_MAX), stn, mat_index;
+    _it_u32u32_uint32_pair _it_bsmu;
+
+    // Determine sort order of block Stations Map using existing logic
+    SortBlockStationsMapUnique();
+    
+    std::stringstream stationRecord;
+    v_uint32_string_pair stationsOutput;
+    stationsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
+
+    std::ostream* outstream(&os);
+    if (adjust_.projectSettings_.a.stage)
+        outstream = &stationRecord;
+
+    // Print stations according to the user-defined sort order
+    for (_it_bsmu = adjust_.v_blockStationsMapUnique_.begin();
+         _it_bsmu != adjust_.v_blockStationsMapUnique_.end(); ++_it_bsmu) {
+        
+        // Handle block-1 mode exit condition
+        if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+            if (_it_bsmu->second > 0)
+                break;
+
+        // Handle staging operations for memory efficiency
+        if (adjust_.projectSettings_.a.stage) {
+            ProcessBlockStaging(_it_bsmu, block);
+        }
+
+        block = _it_bsmu->second;
+        stn = _it_bsmu->first.first;
+        mat_index = _it_bsmu->first.second * 3;
+
+        // Use the refactored PrintAdjStation through the main class
+        adjust_.PrintAdjStation(*outstream, 
+                               block, stn, mat_index, 
+                               &stationEstimates->at(block), &stationVariances->at(block), 
+                               recomputeGeographicCoords, updateGeographicCoords,
+                               reapplyTypeBUncertainties);
+
+        if (adjust_.projectSettings_.a.stage) {        
+            stationsOutput.push_back(uint32_string_pair(stn, stationRecord.str()));
+            stationRecord.str("");
+        }    
+    }
+
+    // Final staging operations and output
+    if (adjust_.projectSettings_.a.stage) {
+        FinalizeBlockStaging(block, stationsOutput, os);
+    }
+
+    os << std::endl;
+}
+
+void DynAdjustPrinter::SortBlockStationsMapUnique() {
+    // Consolidated sorting logic for block stations map
+    if (adjust_.projectSettings_.a.stage || adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode) {
+        // Sort by blocks to create efficiency when deserialising matrix info
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), 
+                 CompareBlockStationMapUnique_byBlock<u32u32_uint32_pair>());
+    }
+    else if (adjust_.projectSettings_.o._sort_stn_file_order) {
+        CompareBlockStationMapUnique_byFileOrder<station_t, u32u32_uint32_pair> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), stnorderCompareFunc);
+    }
+    else {
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end());
+    }
+}
+
+void DynAdjustPrinter::ProcessBlockStaging(_it_u32u32_uint32_pair _it_bsmu, UINT32& block) {
+    if (block != _it_bsmu->second) {
+        // Unload previous block
+        if (_it_bsmu->second > 0) {
+            adjust_.UnloadBlock(_it_bsmu->second-1, 2, sf_rigorous_stns, sf_rigorous_vars);
+
+            // Were original station estimates updated? If so, serialise, otherwise unload
+            if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+                adjust_.SerialiseBlockToMappedFile(_it_bsmu->second-1, 1, sf_original_stns);
+        }
+
+        // Load up this block
+        adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 2, sf_rigorous_stns, sf_rigorous_vars);
+
+        if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+            adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 1, sf_original_stns);
+    }
+}
+
+void DynAdjustPrinter::FinalizeBlockStaging(UINT32 block, v_uint32_string_pair& stationsOutput, std::ostream& os) {
+    adjust_.UnloadBlock(block, 2, sf_rigorous_stns, sf_rigorous_vars);
+    
+    // Were original station estimates updated? If so, serialise, otherwise unload
+    if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+        adjust_.SerialiseBlockToMappedFile(block, 1, sf_original_stns);
+
+    // Sort final output according to project settings
+    if (adjust_.projectSettings_.o._sort_stn_file_order) {
+        CompareOddPairFirst_FileOrder<station_t, UINT32, std::string> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(stationsOutput.begin(), stationsOutput.end(), stnorderCompareFunc);
+    }
+    else {
+        std::sort(stationsOutput.begin(), stationsOutput.end(), CompareOddPairFirst<UINT32, std::string>());
+    }
+
+    // Output final sorted stations using modern C++17 structured binding
+    for (const auto& [station_id, station_output] : stationsOutput) {
+        os << station_output;
+    }
+}
+
 // Advanced station functions
 void DynAdjustPrinter::PrintPositionalUncertaintyOutput() {
     // Coordinate with existing PrintPositionalUncertainty function
