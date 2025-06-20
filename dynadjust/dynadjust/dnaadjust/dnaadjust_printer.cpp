@@ -835,9 +835,64 @@ void DynAdjustPrinter::PrintStationUncertainties<CartesianCoordinates>(std::ostr
 
 // Station processing coordinators
 void DynAdjustPrinter::PrintStationCorrections() {
-    // Simplified implementation - delegate to existing detailed logic
-    adjust_.adj_file << std::endl << "NETWORK STATION CORRECTIONS" << std::endl;
-    adjust_.adj_file << "Station corrections printed using existing implementation." << std::endl;
+    std::ofstream cor_file;
+    try {
+        // Create cor file.  Throws runtime_error on failure.
+        file_opener(cor_file, adjust_.projectSettings_.o._cor_file);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+
+    // Print header using existing infrastructure
+    PrintStationFileHeader(cor_file, "CORRECTIONS", adjust_.projectSettings_.o._cor_file);
+
+    cor_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
+    if (adjust_.projectSettings_.a.adjust_mode != SimultaneousMode &&
+        adjust_.projectSettings_.o._output_stn_blocks)
+        cor_file << "Yes" << std::endl << std::endl;
+    else
+        cor_file << "No" << std::endl;
+    cor_file << OUTPUTLINE << std::endl << std::endl;
+
+    cor_file << "Corrections to stations" << std::endl;
+    cor_file << "------------------------------------------" << std::endl << std::endl;
+
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case SimultaneousMode:
+        adjust_.PrintCorStations(cor_file, 0);
+        break;
+    case PhasedMode:
+        // Output phased blocks as a single block?
+        if (!adjust_.projectSettings_.o._output_stn_blocks)
+        {
+            adjust_.PrintCorStationsUniqueList(cor_file);
+            cor_file.close();
+            return;
+        }
+
+        for (UINT32 block = 0; block < adjust_.blockCount_; ++block)
+        {
+            // load up this block
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.DeserialiseBlockFromMappedFile(block, 2,
+                    sf_rigorous_stns, sf_original_stns);
+
+            adjust_.PrintCorStations(cor_file, block);
+
+            // unload previous block
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.UnloadBlock(block, 2, 
+                    sf_rigorous_stns, sf_original_stns);
+        }
+        break;
+    case Phased_Block_1Mode:        // only the first block is rigorous
+        adjust_.PrintCorStations(cor_file, 0);
+        break;
+    }
+    
+    cor_file.close();
 }
 
 void DynAdjustPrinter::PrintStationCorrelations(std::ostream& cor_file, const UINT32& block) {
