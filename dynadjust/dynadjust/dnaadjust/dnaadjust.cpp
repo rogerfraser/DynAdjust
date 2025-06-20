@@ -13879,7 +13879,7 @@ void dna_adjust::LoadNetworkFiles()
             measurementCount_);
             
         if (!success) {
-            SignalExceptionAdjustment("LoadNetworkFilesNew(): Failed to load network files", 0);
+            SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
         }
         
         // Ensure v_blockStationsMap_ matches expected state
@@ -13888,7 +13888,7 @@ void dna_adjust::LoadNetworkFiles()
         }
     }
     catch (const std::exception& e) {
-        SignalExceptionAdjustment(std::string("LoadNetworkFilesNew(): ") + e.what(), 0);
+        SignalExceptionAdjustment(std::string("LoadNetworkFiles(): ") + e.what(), 0);
     }
 }
 
