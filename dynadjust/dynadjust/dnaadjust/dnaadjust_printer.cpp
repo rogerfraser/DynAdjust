@@ -512,11 +512,40 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
                 &adjust_.v_rigorousVariances_,
                 true, true, false);
         } else {
-            // Print stations for each block
-            for (UINT32 block(0); block < adjust_.blockCount_; ++block) {
-                adjust_.PrintAdjStations(adjust_.adj_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
-                adjust_.PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
-                printHeader = false;
+            // Handle staging for complex phased output blocks if needed
+            if (adjust_.projectSettings_.a.stage) {
+                // Handle special staging logic for blocks written to disk
+                for (UINT32 block = 0; block < adjust_.blockCount_; ++block) {
+                    // Deserialize blocks from mapped files
+                    adjust_.DeserialiseBlockFromMappedFile(block, 2, sf_rigorous_stns, sf_rigorous_vars);
+                    if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+                        adjust_.DeserialiseBlockFromMappedFile(block, 1, sf_original_stns);
+
+                    // Print using original detailed function for staging compatibility
+                    adjust_.PrintAdjStations(adjust_.adj_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
+                    adjust_.PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
+                    printHeader = false;
+
+                    // Release block from memory
+                    adjust_.UnloadBlock(block, 2, sf_rigorous_stns, sf_rigorous_vars);
+                    if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+                        adjust_.SerialiseBlockToMappedFile(block, 1, sf_original_stns);
+
+                    // Exit if block-1 mode
+                    if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+                        break;
+                }
+            } else {
+                // Print stations for each block without staging
+                for (UINT32 block = 0; block < adjust_.blockCount_; ++block) {
+                    adjust_.PrintAdjStations(adjust_.adj_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
+                    adjust_.PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
+                    printHeader = false;
+                    
+                    // Exit if block-1 mode
+                    if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+                        break;
+                }
             }
         }
         break;
