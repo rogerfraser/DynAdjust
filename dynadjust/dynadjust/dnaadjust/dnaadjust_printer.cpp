@@ -1422,6 +1422,186 @@ void DynAdjustPrinter::PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_b
     }
 }
 
+// Stage 5: Enhanced measurement formatting helper functions
+double DynAdjustPrinter::CalculateAngularPrecision(const it_vmsr_t& it_msr, char cardinal) const {
+    double precision(0.0);
+    
+    switch (it_msr->measType) {
+    case 'G':
+    case 'X':
+    case 'Y':
+        switch (cardinal) {
+        case 'P':
+        case 'a':
+            precision = it_msr->term2;  // Precision (Meas)
+            break;
+        case 'L':
+        case 'v':
+            precision = it_msr->term3;  // Precision (Meas)
+            break;
+        }
+        break;
+    case 'D':
+        // Precision of subtended angle derived from successive direction set measurement precisions
+        precision = it_msr->scale2;
+        break;
+    default:
+        precision = it_msr->term2;  // Precision (Meas)
+    }
+    
+    return precision;
+}
+
+double DynAdjustPrinter::CalculateLinearPrecision(const it_vmsr_t& it_msr, char cardinal) const {
+    switch (it_msr->measType) {
+    case 'G':
+    case 'X':
+    case 'Y':
+        switch (cardinal) {
+        case 'X':  // XYZ
+        case 'e':  // ENU
+            return sqrt(it_msr->term2);
+        case 'Y':  // XYZ
+        case 'n':  // ENU
+            return sqrt(it_msr->term3);
+        case 'Z':  // XYZ
+        case 'u':  // ENU
+        case 'H':  // LLH (Lat and Lon cardinals are printed in PrintMeasurementsAngular)
+            return sqrt(it_msr->term4);
+        case 's':  // AED (Azimuth and vertical angle cardinals are printed in PrintMeasurementsAngular)
+            switch (adjust_.projectSettings_.o._adj_gnss_units) {
+            case AED_adj_gnss_ui:
+                return sqrt(it_msr->term4);
+            case ADU_adj_gnss_ui:
+                return sqrt(it_msr->term3);
+            default:
+                return sqrt(it_msr->term2);
+            }
+        }
+        break;
+    default:
+        return sqrt(it_msr->term2);  // Precision (Meas)
+    }
+    
+    return sqrt(it_msr->term2);  // Default fallback
+}
+
+void DynAdjustPrinter::FormatAngularMeasurement(const double& preAdjMeas, const double& adjMeas, 
+                                               const double& precision, const double& correction, 
+                                               const it_vmsr_t& it_msr, bool printAdjMsr) {
+    // Which angular format?
+    if (adjust_.projectSettings_.o._angular_type_msr == DMS) {
+        switch (adjust_.projectSettings_.o._dms_format_msr) {
+        case SEPARATED_WITH_SYMBOLS:
+            // ddd°mm'ss.sss"
+            adjust_.adj_file << 
+                std::setw(MSR) << std::right << FormatDmsString(RadtoDms(preAdjMeas), 4 + adjust_.PRECISION_SEC_MSR, true, true) <<
+                std::setw(MSR) << std::right << FormatDmsString(RadtoDms(adjMeas), 4 + adjust_.PRECISION_SEC_MSR, true, true);
+            break;
+        case HP_NOTATION:
+            // ddd.mmssssss
+            adjust_.adj_file << 
+                std::setw(MSR) << std::right << StringFromT(RadtoDms(preAdjMeas), 4 + adjust_.PRECISION_SEC_MSR) <<
+                std::setw(MSR) << std::right << StringFromT(RadtoDms(adjMeas), 4 + adjust_.PRECISION_SEC_MSR);
+            break;
+        case SEPARATED:
+        default:
+            // ddd mm ss.ssss
+            adjust_.adj_file << 
+                std::setw(MSR) << std::right << FormatDmsString(RadtoDms(preAdjMeas), 4 + adjust_.PRECISION_SEC_MSR, true, false) <<
+                std::setw(MSR) << std::right << FormatDmsString(RadtoDms(adjMeas), 4 + adjust_.PRECISION_SEC_MSR, true, false);
+            break;
+        }
+
+        // Print correction and precision in seconds
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file << 
+                std::right << StringFromTW(removeNegativeZero(Seconds(correction), adjust_.PRECISION_SEC_MSR), CORR, adjust_.PRECISION_SEC_MSR) <<
+                std::right << StringFromTW(Seconds(sqrt(precision)), PREC, adjust_.PRECISION_SEC_MSR);
+        } else {
+            adjust_.adj_file << 
+                std::setw(CORR) << std::right << StringFromT(removeNegativeZero(Seconds(correction), adjust_.PRECISION_SEC_MSR), adjust_.PRECISION_SEC_MSR) <<
+                std::setw(PREC) << std::right << StringFromT(Seconds(sqrt(precision)), adjust_.PRECISION_SEC_MSR);
+        }
+
+        if (printAdjMsr) {
+            if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+                adjust_.adj_file << 
+                    std::right << StringFromTW(Seconds(sqrt(it_msr->measAdjPrec)), PREC, adjust_.PRECISION_SEC_MSR) <<
+                    std::right << StringFromTW(Seconds(sqrt(it_msr->residualPrec)), PREC, adjust_.PRECISION_SEC_MSR);
+            } else {
+                adjust_.adj_file << 
+                    std::setw(PREC) << std::right << StringFromT(Seconds(sqrt(it_msr->measAdjPrec)), adjust_.PRECISION_SEC_MSR) <<
+                    std::setw(PREC) << std::right << StringFromT(Seconds(sqrt(it_msr->residualPrec)), adjust_.PRECISION_SEC_MSR);
+            }
+        }
+    } else { // DDEG
+        // ddd.dddddddd
+        adjust_.adj_file << 
+            std::setw(MSR) << std::right << StringFromT(Degrees(preAdjMeas), 4 + adjust_.PRECISION_SEC_MSR) <<
+            std::setw(MSR) << std::right << StringFromT(Degrees(adjMeas), 4 + adjust_.PRECISION_SEC_MSR);
+        
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file <<
+                std::right << StringFromTW(removeNegativeZero(Degrees(correction), adjust_.PRECISION_SEC_MSR), CORR, adjust_.PRECISION_SEC_MSR) <<
+                std::right << StringFromTW(Degrees(sqrt(precision)), PREC, adjust_.PRECISION_SEC_MSR);
+        } else {
+            adjust_.adj_file <<
+                std::setw(CORR) << std::right << StringFromT(removeNegativeZero(Degrees(correction), adjust_.PRECISION_SEC_MSR), adjust_.PRECISION_SEC_MSR) <<
+                std::setw(PREC) << std::right << StringFromT(Degrees(sqrt(precision)), adjust_.PRECISION_SEC_MSR);
+        }
+        
+        if (printAdjMsr) {
+            if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+                adjust_.adj_file <<
+                    std::right << StringFromTW(Degrees(sqrt(it_msr->measAdjPrec)), PREC, adjust_.PRECISION_SEC_MSR) <<
+                    std::right << StringFromTW(Degrees(sqrt(it_msr->residualPrec)), PREC, adjust_.PRECISION_SEC_MSR);
+            } else {
+                adjust_.adj_file <<
+                    std::setw(PREC) << std::right << StringFromT(Degrees(sqrt(it_msr->measAdjPrec)), adjust_.PRECISION_SEC_MSR) <<
+                    std::setw(PREC) << std::right << StringFromT(Degrees(sqrt(it_msr->residualPrec)), adjust_.PRECISION_SEC_MSR);
+            }
+        }
+    }
+}
+
+void DynAdjustPrinter::FormatLinearMeasurement(const double& measurement, const double& correction, 
+                                              const it_vmsr_t& it_msr, bool printAdjMsr) {
+    // Print measurements with metric precision
+    adjust_.adj_file << 
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << it_msr->preAdjMeas <<
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << measurement;
+    
+    // Print correction
+    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+        adjust_.adj_file << std::right << StringFromTW(removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR), CORR, adjust_.PRECISION_MTR_MSR);
+    } else {
+        adjust_.adj_file << std::setw(CORR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << 
+            removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR);
+    }
+
+    // Print precision based on measurement type - use default for non-GNSS measurements
+    double precision = sqrt(it_msr->term2); // Default fallback for most measurements
+    
+    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+        adjust_.adj_file << StringFromTW(precision, UINT16(PREC), adjust_.PRECISION_MTR_MSR);
+    } else {
+        adjust_.adj_file << std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << precision;
+    }
+
+    if (printAdjMsr) {
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file <<
+                StringFromTW(sqrt(it_msr->measAdjPrec), UINT16(PREC), adjust_.PRECISION_MTR_MSR) <<
+                StringFromTW(sqrt(it_msr->residualPrec), UINT16(PREC), adjust_.PRECISION_MTR_MSR);
+        } else {
+            adjust_.adj_file <<
+                std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->measAdjPrec) <<
+                std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->residualPrec);
+        }
+    }
+}
+
 // Stage 5: Enhanced measurement formatting template specializations
 template<>
 void DynAdjustPrinter::PrintMeasurementValue<AngularMeasurement>(char cardinal, const double& measurement, 
@@ -1469,50 +1649,9 @@ void DynAdjustPrinter::PrintMeasurementValue<AngularMeasurement>(char cardinal, 
     adjust_.adj_file << std::setw(PAD3) << std::left << ignoreFlag << 
                         std::setw(PAD2) << std::left << cardinal;
 
-    // Print measured value based on type
-    switch (it_msr->measType) {
-    case 'A':	// Horizontal angle
-    case 'B':	// Geodetic azimuth
-    case 'K':	// Astronomic azimuth
-    case 'V':	// Zenith distance
-    case 'Z':	// Vertical angle
-    case 'D':	// Direction
-        if (adjust_.projectSettings_.o._angular_type_msr == DMS) {
-            adjust_.adj_file << std::setw(MSR) << std::setprecision(4 + adjust_.PRECISION_SEC_MSR) << 
-                               std::fixed << std::right << RadtoDms(preAdjMeas);
-            adjust_.adj_file << std::setw(MSR) << std::setprecision(4 + adjust_.PRECISION_SEC_MSR) << 
-                               std::fixed << std::right << RadtoDms(adjMeas);
-        } else {
-            adjust_.adj_file << std::setw(MSR) << std::setprecision(4 + adjust_.PRECISION_SEC_MSR) << 
-                               std::fixed << std::right << Degrees(preAdjMeas);
-            adjust_.adj_file << std::setw(MSR) << std::setprecision(4 + adjust_.PRECISION_SEC_MSR) << 
-                               std::fixed << std::right << Degrees(adjMeas);
-        }
-        break;
-    default:
-        // For other angular measurements, use decimal degrees
-        adjust_.adj_file << std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                           std::fixed << std::right << preAdjMeas;
-        adjust_.adj_file << std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                           std::fixed << std::right << adjMeas;
-    }
-
-    // Print correction with appropriate precision
-    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
-        adjust_.adj_file << std::right << StringFromTW(removeNegativeZero(correction, adjust_.PRECISION_SEC_MSR), 
-                                                      CORR, adjust_.PRECISION_SEC_MSR);
-    } else {
-        adjust_.adj_file << std::setw(CORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << 
-                           std::fixed << std::right << removeNegativeZero(correction, adjust_.PRECISION_SEC_MSR);
-    }
-
-    // Print precision
-    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
-        adjust_.adj_file << StringFromTW(sqrt(it_msr->term2), UINT16(PREC), adjust_.PRECISION_SEC_MSR);
-    } else {
-        adjust_.adj_file << std::setw(PREC) << std::setprecision(adjust_.PRECISION_SEC_MSR) << 
-                           std::fixed << std::right << sqrt(it_msr->term2);
-    }
+    // Calculate precision and use consolidated formatting
+    double precision = CalculateAngularPrecision(it_msr, cardinal);
+    FormatAngularMeasurement(preAdjMeas, adjMeas, precision, correction, it_msr, printAdjMsr);
 }
 
 template<>
@@ -1545,25 +1684,55 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
     }
     
     adjust_.adj_file << std::setw(PAD3) << std::left << ignoreFlag << 
-                        std::setw(PAD2) << std::left << cardinal <<
-                        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                        std::fixed << std::right << it_msr->preAdjMeas <<
-                        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                        std::fixed << std::right << measurement;
+                        std::setw(PAD2) << std::left << cardinal;
+
+    // Print measurements with metric precision
+    adjust_.adj_file << 
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << it_msr->preAdjMeas <<
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << measurement;
     
+    // Print correction
     if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
-        adjust_.adj_file << std::right << StringFromTW(removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR), 
-                                                      CORR, adjust_.PRECISION_MTR_MSR);
+        adjust_.adj_file << std::right << StringFromTW(removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR), CORR, adjust_.PRECISION_MTR_MSR);
     } else {
-        adjust_.adj_file << std::setw(CORR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                           std::fixed << std::right << removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR);
+        adjust_.adj_file << std::setw(CORR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << 
+            removeNegativeZero(correction, adjust_.PRECISION_MTR_MSR);
     }
 
-    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
-        adjust_.adj_file << StringFromTW(sqrt(it_msr->term2), UINT16(PREC), adjust_.PRECISION_MTR_MSR);
-    } else {
-        adjust_.adj_file << std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << 
-                           std::fixed << std::right << sqrt(it_msr->term2);
+    // Calculate precision based on cardinal and measurement type
+    double precision = CalculateLinearPrecision(it_msr, cardinal);
+    
+    // Handle special case for non-GNSS measurements where questionable adjustments need special formatting
+    switch (it_msr->measType) {
+    case 'G':
+    case 'X':
+    case 'Y':
+        // For GNSS measurements, use calculated precision normally
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file << StringFromTW(precision, UINT16(PREC), adjust_.PRECISION_MTR_MSR);
+        } else {
+            adjust_.adj_file << std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << precision;
+        }
+        break;
+    default:
+        // For other measurements, handle questionable case differently
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file << StringFromTW(precision, UINT16(PREC), adjust_.PRECISION_MTR_MSR);
+        } else {
+            adjust_.adj_file << std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << precision;
+        }
+    }
+
+    if (printAdjMsr) {
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0)) {
+            adjust_.adj_file <<
+                StringFromTW(sqrt(it_msr->measAdjPrec), UINT16(PREC), adjust_.PRECISION_MTR_MSR) <<
+                StringFromTW(sqrt(it_msr->residualPrec), UINT16(PREC), adjust_.PRECISION_MTR_MSR);
+        } else {
+            adjust_.adj_file <<
+                std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->measAdjPrec) <<
+                std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->residualPrec);
+        }
     }
 }
 
