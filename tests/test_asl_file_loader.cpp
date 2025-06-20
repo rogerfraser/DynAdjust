@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_dna_io_asl"
-#define __BINARY_DESC__ "Unit tests for dna_io_asl class"
+#define __BINARY_NAME__ "test_AslFileLoader"
+#define __BINARY_DESC__ "Unit tests for AslFileLoader class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_dna_io_asl"
+#define __BINARY_NAME__ "test_AslFileLoader"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for dna_io_asl class"
+#define __BINARY_DESC__ "Unit tests for AslFileLoader class"
 #endif
 
-#include "../dynadjust/include/io/dnaioasl.hpp"
+#include "../dynadjust/include/io/asl_file_loader.hpp"
 #include "../dynadjust/include/measurement_types/dnastation.hpp"
 #include <filesystem>
 
@@ -103,57 +103,54 @@ void cleanup_temp_files() {
 } // namespace
 
 // Basic constructor and destructor tests
-TEST_CASE("dna_io_asl constructor", "[dna_io_asl][basic]") {
-    dna_io_asl asl_io;
+TEST_CASE("AslFileLoader constructor", "[asl_file_loader][basic]") {
+    AslFileLoader asl_loader;
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_asl copy constructor", "[dna_io_asl][basic]") {
-    dna_io_asl asl_io1;
-    dna_io_asl asl_io2(asl_io1);
+TEST_CASE("AslFileLoader copy constructor", "[asl_file_loader][basic]") {
+    AslFileLoader asl_loader1;
+    AslFileLoader asl_loader2(asl_loader1);
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_asl assignment operator", "[dna_io_asl][basic]") {
-    dna_io_asl asl_io1;
-    dna_io_asl asl_io2;
-    asl_io2 = asl_io1;
+TEST_CASE("AslFileLoader assignment operator", "[asl_file_loader][basic]") {
+    AslFileLoader asl_loader1;
+    AslFileLoader asl_loader2;
+    asl_loader2 = asl_loader1;
     REQUIRE(true);
 }
 
 // Error handling tests
-TEST_CASE("Error handling for non-existent files", "[dna_io_asl][error]") {
-    dna_io_asl asl_io;
+TEST_CASE("Error handling for non-existent files", "[asl_file_loader][error]") {
+    AslFileLoader asl_loader;
     vASL asl_data;
     vUINT32 free_stations;
 
-    bool threw_exception = false;
-    try {
-        asl_io.load_asl_file(NONEXISTENT_FILE, &asl_data, &free_stations);
-    } catch (const std::runtime_error&) { threw_exception = true; }
-    REQUIRE(threw_exception);
+    auto result = asl_loader.LoadWithOptional(NONEXISTENT_FILE, &asl_data, &free_stations);
+    REQUIRE(result == std::nullopt);
 }
 
-TEST_CASE("Error handling for write to invalid path", "[dna_io_asl][error]") {
-    dna_io_asl asl_io;
+TEST_CASE("Error handling for write to invalid path", "[asl_file_loader][error]") {
+    AslFileLoader asl_loader;
     vASLPtr asl_ptr_data;
     create_test_asl_ptr_data(&asl_ptr_data);
 
     bool threw_exception = false;
     try {
-        asl_io.write_asl_file("/invalid/path/test.asl", &asl_ptr_data);
+        asl_loader.WriteFile("/invalid/path/test.asl", &asl_ptr_data);
     } catch (const std::runtime_error&) { threw_exception = true; }
     REQUIRE(threw_exception);
 }
 
 // Load test file if available
-TEST_CASE("Load ASL from test file if available", "[dna_io_asl][file]") {
-    dna_io_asl asl_io;
+TEST_CASE("Load ASL from test file if available", "[AslFileLoader][file]") {
+    AslFileLoader asl_loader;
     vASL asl_data;
     vUINT32 free_stations;
 
     if (std::filesystem::exists(TEST_ASL_FILE)) {
-        std::uint64_t count = asl_io.load_asl_file(TEST_ASL_FILE, &asl_data, &free_stations);
+        std::uint64_t count = asl_loader.LoadFile(TEST_ASL_FILE, &asl_data, &free_stations);
         REQUIRE(count > 0);
         REQUIRE(asl_data.size() == count);
         REQUIRE(free_stations.size() == count);
@@ -168,8 +165,8 @@ TEST_CASE("Load ASL from test file if available", "[dna_io_asl][file]") {
 }
 
 // Write and read back binary ASL data
-TEST_CASE("Write and read back binary ASL data", "[dna_io_asl][roundtrip]") {
-    dna_io_asl asl_io;
+TEST_CASE("Write and read back binary ASL data", "[AslFileLoader][roundtrip]") {
+    AslFileLoader asl_loader;
     vASLPtr original_asl_data;
 
     cleanup_temp_files();
@@ -177,13 +174,13 @@ TEST_CASE("Write and read back binary ASL data", "[dna_io_asl][roundtrip]") {
     create_test_asl_ptr_data(&original_asl_data);
 
     // Write the ASL file
-    asl_io.write_asl_file(TEMP_ASL_FILE, &original_asl_data);
+    asl_loader.WriteFile(TEMP_ASL_FILE, &original_asl_data);
     REQUIRE(std::filesystem::exists(TEMP_ASL_FILE));
 
     // Read it back
     vASL loaded_asl_data;
     vUINT32 free_stations;
-    std::uint64_t count = asl_io.load_asl_file(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
+    std::uint64_t count = asl_loader.LoadFile(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
 
     // Verify data integrity
     REQUIRE(count == 3);
@@ -212,20 +209,20 @@ TEST_CASE("Write and read back binary ASL data", "[dna_io_asl][roundtrip]") {
 }
 
 // Test empty ASL data
-TEST_CASE("Write and read empty ASL data", "[dna_io_asl][empty]") {
-    dna_io_asl asl_io;
+TEST_CASE("Write and read empty ASL data", "[AslFileLoader][empty]") {
+    AslFileLoader asl_loader;
     vASLPtr empty_asl_data;
 
     cleanup_temp_files();
 
     // Write empty ASL file
-    asl_io.write_asl_file(TEMP_ASL_FILE, &empty_asl_data);
+    asl_loader.WriteFile(TEMP_ASL_FILE, &empty_asl_data);
     REQUIRE(std::filesystem::exists(TEMP_ASL_FILE));
 
     // Read it back
     vASL loaded_asl_data;
     vUINT32 free_stations;
-    std::uint64_t count = asl_io.load_asl_file(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
+    std::uint64_t count = asl_loader.LoadFile(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
 
     REQUIRE(count == 0);
     REQUIRE(loaded_asl_data.size() == 0);
@@ -235,8 +232,8 @@ TEST_CASE("Write and read empty ASL data", "[dna_io_asl][empty]") {
 }
 
 // Test ASL text output
-TEST_CASE("Write ASL text file", "[dna_io_asl][text]") {
-    dna_io_asl asl_io;
+TEST_CASE("Write ASL text file", "[AslFileLoader][text]") {
+    AslFileLoader asl_loader;
     vASLPtr asl_ptr_data;
     vdnaStnPtr stations;
 
@@ -246,7 +243,7 @@ TEST_CASE("Write ASL text file", "[dna_io_asl][text]") {
     create_test_station_data(stations);
 
     // Write text ASL file
-    asl_io.write_asl_file_txt(TEMP_ASL_TXT_FILE, &asl_ptr_data, &stations);
+    asl_loader.WriteTextFile(TEMP_ASL_TXT_FILE, &asl_ptr_data, &stations);
     REQUIRE(std::filesystem::exists(TEMP_ASL_TXT_FILE));
 
     // Verify file has content
@@ -263,8 +260,8 @@ TEST_CASE("Write ASL text file", "[dna_io_asl][text]") {
 }
 
 // Test with null pointers in ASL data
-TEST_CASE("Handle null pointers in ASL data", "[dna_io_asl][nulls]") {
-    dna_io_asl asl_io;
+TEST_CASE("Handle null pointers in ASL data", "[AslFileLoader][nulls]") {
+    AslFileLoader asl_loader;
     vASLPtr asl_ptr_data;
 
     cleanup_temp_files();
@@ -281,15 +278,15 @@ TEST_CASE("Handle null pointers in ASL data", "[dna_io_asl][nulls]") {
     asl_ptr_data.push_back(asl1);    // valid entry
 
     // Should write only non-null entries
-    asl_io.write_asl_file(TEMP_ASL_FILE, &asl_ptr_data);
+    asl_loader.WriteFile(TEMP_ASL_FILE, &asl_ptr_data);
     REQUIRE(std::filesystem::exists(TEMP_ASL_FILE));
 
     cleanup_temp_files();
 }
 
 // Test large station count (uint64_t usage)
-TEST_CASE("Handle large station counts", "[dna_io_asl][large]") {
-    dna_io_asl asl_io;
+TEST_CASE("Handle large station counts", "[AslFileLoader][large]") {
+    AslFileLoader asl_loader;
     vASL large_asl_data;
 
     cleanup_temp_files();
@@ -315,13 +312,13 @@ TEST_CASE("Handle large station counts", "[dna_io_asl][large]") {
     // Resize large_asl_data for reading back
     large_asl_data.resize(num_stations);
 
-    asl_io.write_asl_file(TEMP_ASL_FILE, &asl_ptr_data);
+    asl_loader.WriteFile(TEMP_ASL_FILE, &asl_ptr_data);
     REQUIRE(std::filesystem::exists(TEMP_ASL_FILE));
 
     // Read it back
     vASL loaded_asl_data;
     vUINT32 free_stations;
-    std::uint64_t count = asl_io.load_asl_file(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
+    std::uint64_t count = asl_loader.LoadFile(TEMP_ASL_FILE, &loaded_asl_data, &free_stations);
 
     REQUIRE(count == num_stations);
     REQUIRE(loaded_asl_data.size() == num_stations);

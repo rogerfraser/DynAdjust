@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_dna_io_bst"
-#define __BINARY_DESC__ "Unit tests for dna_io_bst class"
+#define __BINARY_NAME__ "test_BstFileLoader"
+#define __BINARY_DESC__ "Unit tests for BstFileLoader class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_dna_io_bst"
+#define __BINARY_NAME__ "test_BstFileLoader"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for dna_io_bst class"
+#define __BINARY_DESC__ "Unit tests for BstFileLoader class"
 #endif
 
-#include "../dynadjust/include/io/dnaiobst.hpp"
+#include "../dynadjust/include/io/bst_file_loader.hpp"
 #include <filesystem>
 
 using namespace dynadjust::iostreams;
@@ -104,30 +104,30 @@ void cleanup_temp_files() {
 } // namespace
 
 // Basic constructor and destructor tests (known to work)
-TEST_CASE("dna_io_bst constructor", "[dna_io_bst][basic]") {
-    dna_io_bst bst_io;
+TEST_CASE("BstFileLoader constructor", "[BstFileLoader][basic]") {
+    BstFileLoader bst_loader;
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_bst copy constructor", "[dna_io_bst][basic]") {
-    dna_io_bst bst_io1;
-    dna_io_bst bst_io2(bst_io1);
+TEST_CASE("BstFileLoader copy constructor", "[BstFileLoader][basic]") {
+    BstFileLoader bst_loader1;
+    BstFileLoader bst_loader2(bst_loader1);
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_bst assignment operator", "[dna_io_bst][basic]") {
-    dna_io_bst bst_io1;
-    dna_io_bst bst_io2;
-    bst_io2 = bst_io1;
+TEST_CASE("BstFileLoader assignment operator", "[BstFileLoader][basic]") {
+    BstFileLoader bst_loader1;
+    BstFileLoader bst_loader2;
+    bst_loader2 = bst_loader1;
     REQUIRE(true);
 }
 
-TEST_CASE("create_stn_input_file_meta empty input", "[dna_io_bst]") {
-    dna_io_bst bst_io;
+TEST_CASE("create_stn_input_file_meta empty input", "[BstFileLoader]") {
+    BstFileLoader bst_loader;
     vifm_t vinput_file_meta;
     input_file_meta_t* input_file_meta = nullptr;
 
-    UINT16 count = bst_io.create_stn_input_file_meta(vinput_file_meta, &input_file_meta);
+    UINT16 count = bst_loader.CreateStnInputFileMeta(vinput_file_meta, &input_file_meta);
 
     REQUIRE(count == 0);
     REQUIRE(input_file_meta != nullptr);
@@ -135,14 +135,14 @@ TEST_CASE("create_stn_input_file_meta empty input", "[dna_io_bst]") {
     delete[] input_file_meta;
 }
 
-TEST_CASE("create_stn_input_file_meta with mixed file types", "[dna_io_bst]") {
-    dna_io_bst bst_io;
+TEST_CASE("create_stn_input_file_meta with mixed file types", "[BstFileLoader]") {
+    BstFileLoader bst_loader;
     vifm_t vinput_file_meta;
     input_file_meta_t* input_file_meta = nullptr;
 
     create_test_input_file_meta(vinput_file_meta);
 
-    UINT16 count = bst_io.create_stn_input_file_meta(vinput_file_meta, &input_file_meta);
+    UINT16 count = bst_loader.CreateStnInputFileMeta(vinput_file_meta, &input_file_meta);
 
     REQUIRE(count == 2); // stn_data and stn_msr_data should be included
     REQUIRE(input_file_meta != nullptr);
@@ -158,23 +158,23 @@ TEST_CASE("create_stn_input_file_meta with mixed file types", "[dna_io_bst]") {
     delete[] input_file_meta;
 }
 
-TEST_CASE("Error handling for non-existent files", "[dna_io_bst]") {
-    dna_io_bst bst_io;
+TEST_CASE("Error handling for non-existent files", "[BstFileLoader]") {
+    BstFileLoader bst_loader;
     binary_file_meta_t bst_meta;
 
     bool threw_exception = false;
     try {
-        bst_io.load_bst_file_meta(NONEXISTENT_FILE, bst_meta);
+        bst_loader.LoadFileMeta(NONEXISTENT_FILE, bst_meta);
     } catch (const std::runtime_error&) { threw_exception = true; }
     REQUIRE(threw_exception);
 }
 
-TEST_CASE("Load metadata from test file if available", "[dna_io_bst]") {
-    dna_io_bst bst_io;
+TEST_CASE("Load metadata from test file if available", "[BstFileLoader]") {
+    BstFileLoader bst_loader;
     binary_file_meta_t bst_meta;
 
     if (std::filesystem::exists(TEST_BST_FILE)) {
-        bst_io.load_bst_file_meta(TEST_BST_FILE, bst_meta);
+        bst_loader.LoadFileMeta(TEST_BST_FILE, bst_meta);
         REQUIRE(bst_meta.binCount > 0);
         REQUIRE(std::strlen(bst_meta.epsgCode) > 0);
     } else {
@@ -182,8 +182,8 @@ TEST_CASE("Load metadata from test file if available", "[dna_io_bst]") {
     }
 }
 
-TEST_CASE("Write and read back synthetic data", "[dna_io_bst]") {
-    dna_io_bst bst_io;
+TEST_CASE("Write and read back synthetic data", "[BstFileLoader]") {
+    BstFileLoader bst_loader;
     vstn_t stations;
     binary_file_meta_t bst_meta;
 
@@ -192,12 +192,12 @@ TEST_CASE("Write and read back synthetic data", "[dna_io_bst]") {
     create_test_station_data(stations);
     create_test_binary_meta(bst_meta, static_cast<UINT32>(stations.size()));
 
-    bst_io.write_bst_file(TEMP_BST_FILE, &stations, bst_meta);
+    bst_loader.WriteFile(TEMP_BST_FILE, &stations, bst_meta);
     REQUIRE(std::filesystem::exists(TEMP_BST_FILE));
 
     vstn_t loaded_stations;
     binary_file_meta_t loaded_meta;
-    UINT32 count = bst_io.load_bst_file(TEMP_BST_FILE, &loaded_stations, loaded_meta);
+    UINT32 count = bst_loader.LoadFile(TEMP_BST_FILE, &loaded_stations, loaded_meta);
 
     REQUIRE(count == 2);
     REQUIRE(loaded_stations.size() == 2);

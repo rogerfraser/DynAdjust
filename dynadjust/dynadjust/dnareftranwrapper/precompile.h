@@ -6,7 +6,7 @@
 #pragma once
 
 #include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
+#include <include/io/bms_file_loader.hpp>
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>

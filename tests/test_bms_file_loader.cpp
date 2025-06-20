@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_dna_io_bms"
-#define __BINARY_DESC__ "Unit tests for dna_io_bms class"
+#define __BINARY_NAME__ "test_BmsFileLoader"
+#define __BINARY_DESC__ "Unit tests for BmsFileLoader class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_dna_io_bms"
+#define __BINARY_NAME__ "test_BmsFileLoader"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for dna_io_bms class"
+#define __BINARY_DESC__ "Unit tests for BmsFileLoader class"
 #endif
 
-#include "../dynadjust/include/io/dnaiobms.hpp"
+#include "../dynadjust/include/io/bms_file_loader.hpp"
 #include "../dynadjust/include/measurement_types/dnameasurement.hpp"
 #include <filesystem>
 
@@ -137,31 +137,31 @@ void cleanup_temp_files() {
 } // namespace
 
 // Basic constructor and destructor tests
-TEST_CASE("dna_io_bms constructor", "[dna_io_bms][basic]") {
-    dna_io_bms bms_io;
+TEST_CASE("BmsFileLoader constructor", "[BmsFileLoader][basic]") {
+    BmsFileLoader bms_loader;
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_bms copy constructor", "[dna_io_bms][basic]") {
-    dna_io_bms bms_io1;
-    dna_io_bms bms_io2(bms_io1);
+TEST_CASE("BmsFileLoader copy constructor", "[BmsFileLoader][basic]") {
+    BmsFileLoader bms_loader1;
+    BmsFileLoader bms_loader2(bms_loader1);
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_bms assignment operator", "[dna_io_bms][basic]") {
-    dna_io_bms bms_io1;
-    dna_io_bms bms_io2;
-    bms_io2 = bms_io1;
+TEST_CASE("BmsFileLoader assignment operator", "[BmsFileLoader][basic]") {
+    BmsFileLoader bms_loader1;
+    BmsFileLoader bms_loader2;
+    bms_loader2 = bms_loader1;
     REQUIRE(true);
 }
 
 // Test create_msr_input_file_meta function
-TEST_CASE("create_msr_input_file_meta empty input", "[dna_io_bms]") {
-    dna_io_bms bms_io;
+TEST_CASE("create_msr_input_file_meta empty input", "[BmsFileLoader]") {
+    BmsFileLoader bms_loader;
     vifm_t input_files;
     input_file_meta_t* file_meta = nullptr;
 
-    std::uint64_t count = bms_io.create_msr_input_file_meta(input_files, &file_meta);
+    std::uint64_t count = bms_loader.CreateMsrInputFileMeta(input_files, &file_meta);
 
     REQUIRE(count == 0);
     REQUIRE(file_meta != nullptr);
@@ -169,14 +169,14 @@ TEST_CASE("create_msr_input_file_meta empty input", "[dna_io_bms]") {
     delete[] file_meta;
 }
 
-TEST_CASE("create_msr_input_file_meta with mixed file types", "[dna_io_bms]") {
-    dna_io_bms bms_io;
+TEST_CASE("create_msr_input_file_meta with mixed file types", "[BmsFileLoader]") {
+    BmsFileLoader bms_loader;
     vifm_t input_files;
     input_file_meta_t* file_meta = nullptr;
 
     create_test_input_file_meta(input_files);
 
-    std::uint64_t count = bms_io.create_msr_input_file_meta(input_files, &file_meta);
+    std::uint64_t count = bms_loader.CreateMsrInputFileMeta(input_files, &file_meta);
 
     REQUIRE(count == 2); // msr_data and stn_msr_data should be included
     REQUIRE(file_meta != nullptr);
@@ -193,19 +193,19 @@ TEST_CASE("create_msr_input_file_meta with mixed file types", "[dna_io_bms]") {
 }
 
 // Error handling tests
-TEST_CASE("Error handling for non-existent files", "[dna_io_bms][error]") {
-    dna_io_bms bms_io;
+TEST_CASE("Error handling for non-existent files", "[BmsFileLoader][error]") {
+    BmsFileLoader bms_loader;
     binary_file_meta_t bms_meta;
 
     bool threw_exception = false;
     try {
-        bms_io.load_bms_file_meta(NONEXISTENT_FILE, bms_meta);
+        bms_loader.LoadFileMeta(NONEXISTENT_FILE, bms_meta);
     } catch (const std::runtime_error&) { threw_exception = true; }
     REQUIRE(threw_exception);
 }
 
-TEST_CASE("Error handling for write to invalid path", "[dna_io_bms][error]") {
-    dna_io_bms bms_io;
+TEST_CASE("Error handling for write to invalid path", "[BmsFileLoader][error]") {
+    BmsFileLoader bms_loader;
     vmsr_t measurements;
     binary_file_meta_t bms_meta;
 
@@ -214,18 +214,18 @@ TEST_CASE("Error handling for write to invalid path", "[dna_io_bms][error]") {
 
     bool threw_exception = false;
     try {
-        bms_io.write_bms_file("/invalid/path/test.bms", &measurements, bms_meta);
+        bms_loader.WriteFile("/invalid/path/test.bms", &measurements, bms_meta);
     } catch (const std::runtime_error&) { threw_exception = true; }
     REQUIRE(threw_exception);
 }
 
 // Load metadata from test file if available
-TEST_CASE("Load metadata from test file if available", "[dna_io_bms][file]") {
-    dna_io_bms bms_io;
+TEST_CASE("Load metadata from test file if available", "[BmsFileLoader][file]") {
+    BmsFileLoader bms_loader;
     binary_file_meta_t bms_meta;
 
     if (std::filesystem::exists(TEST_BMS_FILE)) {
-        bms_io.load_bms_file_meta(TEST_BMS_FILE, bms_meta);
+        bms_loader.LoadFileMeta(TEST_BMS_FILE, bms_meta);
         REQUIRE(bms_meta.binCount > 0);
         REQUIRE(std::strlen(bms_meta.epsgCode) > 0);
     } else {
@@ -234,13 +234,13 @@ TEST_CASE("Load metadata from test file if available", "[dna_io_bms][file]") {
 }
 
 // Load full BMS file if available
-TEST_CASE("Load BMS file if available", "[dna_io_bms][file]") {
-    dna_io_bms bms_io;
+TEST_CASE("Load BMS file if available", "[BmsFileLoader][file]") {
+    BmsFileLoader bms_loader;
     vmsr_t measurements;
     binary_file_meta_t bms_meta;
 
     if (std::filesystem::exists(TEST_BMS_FILE)) {
-        std::uint64_t count = bms_io.load_bms_file(TEST_BMS_FILE, &measurements, bms_meta);
+        std::uint64_t count = bms_loader.LoadFile(TEST_BMS_FILE, &measurements, bms_meta);
         REQUIRE(count > 0);
         REQUIRE(measurements.size() == count);
         REQUIRE(measurements.size() == bms_meta.binCount);
@@ -256,8 +256,8 @@ TEST_CASE("Load BMS file if available", "[dna_io_bms][file]") {
 }
 
 // Write and read back synthetic BMS data
-TEST_CASE("Write and read back synthetic BMS data", "[dna_io_bms][roundtrip]") {
-    dna_io_bms bms_io;
+TEST_CASE("Write and read back synthetic BMS data", "[BmsFileLoader][roundtrip]") {
+    BmsFileLoader bms_loader;
     vmsr_t original_measurements;
     binary_file_meta_t original_meta;
 
@@ -267,13 +267,13 @@ TEST_CASE("Write and read back synthetic BMS data", "[dna_io_bms][roundtrip]") {
     create_test_binary_meta(original_meta, static_cast<std::uint64_t>(original_measurements.size()));
 
     // Write the BMS file
-    bms_io.write_bms_file(TEMP_BMS_FILE, &original_measurements, original_meta);
+    bms_loader.WriteFile(TEMP_BMS_FILE, &original_measurements, original_meta);
     REQUIRE(std::filesystem::exists(TEMP_BMS_FILE));
 
     // Read it back
     vmsr_t loaded_measurements;
     binary_file_meta_t loaded_meta;
-    std::uint64_t count = bms_io.load_bms_file(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
+    std::uint64_t count = bms_loader.LoadFile(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
 
     // Verify data integrity
     REQUIRE(count == 3);
@@ -311,8 +311,8 @@ TEST_CASE("Write and read back synthetic BMS data", "[dna_io_bms][roundtrip]") {
 }
 
 // Test empty BMS data
-TEST_CASE("Write and read empty BMS data", "[dna_io_bms][empty]") {
-    dna_io_bms bms_io;
+TEST_CASE("Write and read empty BMS data", "[BmsFileLoader][empty]") {
+    BmsFileLoader bms_loader;
     vmsr_t empty_measurements;
     binary_file_meta_t empty_meta;
 
@@ -321,13 +321,13 @@ TEST_CASE("Write and read empty BMS data", "[dna_io_bms][empty]") {
     create_test_binary_meta(empty_meta, 0);
 
     // Write empty BMS file
-    bms_io.write_bms_file(TEMP_BMS_FILE, &empty_measurements, empty_meta);
+    bms_loader.WriteFile(TEMP_BMS_FILE, &empty_measurements, empty_meta);
     REQUIRE(std::filesystem::exists(TEMP_BMS_FILE));
 
     // Read it back
     vmsr_t loaded_measurements;
     binary_file_meta_t loaded_meta;
-    std::uint64_t count = bms_io.load_bms_file(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
+    std::uint64_t count = bms_loader.LoadFile(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
 
     REQUIRE(count == 0);
     REQUIRE(loaded_measurements.size() == 0);
@@ -337,8 +337,8 @@ TEST_CASE("Write and read empty BMS data", "[dna_io_bms][empty]") {
 }
 
 // Test large BMS data (uint64_t usage)
-TEST_CASE("Handle large BMS data", "[dna_io_bms][large]") {
-    dna_io_bms bms_io;
+TEST_CASE("Handle large BMS data", "[BmsFileLoader][large]") {
+    BmsFileLoader bms_loader;
     vmsr_t large_measurements;
     binary_file_meta_t large_meta;
 
@@ -363,13 +363,13 @@ TEST_CASE("Handle large BMS data", "[dna_io_bms][large]") {
 
     create_test_binary_meta(large_meta, static_cast<std::uint64_t>(large_measurements.size()));
 
-    bms_io.write_bms_file(TEMP_BMS_FILE, &large_measurements, large_meta);
+    bms_loader.WriteFile(TEMP_BMS_FILE, &large_measurements, large_meta);
     REQUIRE(std::filesystem::exists(TEMP_BMS_FILE));
 
     // Read it back
     vmsr_t loaded_measurements;
     binary_file_meta_t loaded_meta;
-    std::uint64_t count = bms_io.load_bms_file(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
+    std::uint64_t count = bms_loader.LoadFile(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
 
     REQUIRE(count == num_measurements);
     REQUIRE(loaded_measurements.size() == num_measurements);
@@ -386,8 +386,8 @@ TEST_CASE("Handle large BMS data", "[dna_io_bms][large]") {
 }
 
 // Test metadata-only operations
-TEST_CASE("Load metadata only", "[dna_io_bms][metadata]") {
-    dna_io_bms bms_io;
+TEST_CASE("Load metadata only", "[BmsFileLoader][metadata]") {
+    BmsFileLoader bms_loader;
     vmsr_t measurements;
     binary_file_meta_t write_meta;
 
@@ -397,12 +397,12 @@ TEST_CASE("Load metadata only", "[dna_io_bms][metadata]") {
     create_test_binary_meta(write_meta, static_cast<std::uint64_t>(measurements.size()));
 
     // Write a BMS file
-    bms_io.write_bms_file(TEMP_BMS_FILE, &measurements, write_meta);
+    bms_loader.WriteFile(TEMP_BMS_FILE, &measurements, write_meta);
     REQUIRE(std::filesystem::exists(TEMP_BMS_FILE));
 
     // Load only metadata
     binary_file_meta_t read_meta;
-    bms_io.load_bms_file_meta(TEMP_BMS_FILE, read_meta);
+    bms_loader.LoadFileMeta(TEMP_BMS_FILE, read_meta);
 
     // Verify metadata matches
     REQUIRE(read_meta.binCount == write_meta.binCount);
@@ -417,8 +417,8 @@ TEST_CASE("Load metadata only", "[dna_io_bms][metadata]") {
 }
 
 // Test measurement type variety
-TEST_CASE("Handle various measurement types", "[dna_io_bms][types]") {
-    dna_io_bms bms_io;
+TEST_CASE("Handle various measurement types", "[BmsFileLoader][types]") {
+    BmsFileLoader bms_loader;
     vmsr_t measurements;
     binary_file_meta_t meta;
 
@@ -445,11 +445,11 @@ TEST_CASE("Handle various measurement types", "[dna_io_bms][types]") {
     create_test_binary_meta(meta, static_cast<std::uint64_t>(measurements.size()));
 
     // Write and read back
-    bms_io.write_bms_file(TEMP_BMS_FILE, &measurements, meta);
+    bms_loader.WriteFile(TEMP_BMS_FILE, &measurements, meta);
 
     vmsr_t loaded_measurements;
     binary_file_meta_t loaded_meta;
-    std::uint64_t count = bms_io.load_bms_file(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
+    std::uint64_t count = bms_loader.LoadFile(TEMP_BMS_FILE, &loaded_measurements, loaded_meta);
 
     REQUIRE(count == num_types);
     REQUIRE(loaded_measurements.size() == num_types);

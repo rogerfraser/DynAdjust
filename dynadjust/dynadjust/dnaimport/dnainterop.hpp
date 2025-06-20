@@ -63,11 +63,11 @@
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>
 
 #include <include/io/dnaiodna.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
+#include <include/io/bst_file_loader.hpp>
+#include <include/io/bms_file_loader.hpp>
 #include <include/io/dnaioaml.hpp>
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaiomap.hpp>
+#include <include/io/asl_file_loader.hpp>
+#include <include/io/map_file_loader.hpp>
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaioscalar.hpp>

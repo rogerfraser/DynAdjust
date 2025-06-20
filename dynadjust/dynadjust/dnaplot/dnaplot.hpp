@@ -77,9 +77,9 @@
 
 #include <include/math/dnamatrix_contiguous.hpp>
 
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiomap.hpp>
+#include <include/io/bst_file_loader.hpp>
+#include <include/io/bms_file_loader.hpp>
+#include <include/io/map_file_loader.hpp>
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiotpb.hpp>
 

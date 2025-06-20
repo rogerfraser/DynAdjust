@@ -13,11 +13,11 @@
 
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaioasl.hpp>
+#include <include/io/asl_file_loader.hpp>
 #include <include/io/dnaioaml.hpp>
 #include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiomap.hpp>
+#include <include/io/bms_file_loader.hpp>
+#include <include/io/map_file_loader.hpp>
 #include <include/io/dnaioseg.hpp>
 
 #include <include/functions/dnatemplatefuncs.hpp>

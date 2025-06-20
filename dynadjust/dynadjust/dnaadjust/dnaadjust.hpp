@@ -66,10 +66,10 @@
 
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaioaml.hpp>
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiomap.hpp>
+#include <include/io/asl_file_loader.hpp>
+#include <include/io/bms_file_loader.hpp>
+#include <include/io/bst_file_loader.hpp>
+#include <include/io/map_file_loader.hpp>
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaiotbu.hpp>
@@ -90,8 +90,7 @@
 
 #include <atomic>
 
-#include "network_data_manager.hpp"
-#include "network_state_diff.hpp"
+#include "network_data_loader.hpp"
 
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
@@ -321,7 +320,6 @@ class dna_adjust {
     inline UINT32 GetTestResult() const { return passFail_; }
     inline bool GetAllFixed() const { return allStationsFixed_; }
 
-    void GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit);
 
     void LoadSegmentationFileParameters(const std::string& seg_filename);
 
@@ -434,11 +432,6 @@ class dna_adjust {
     void InitialiseAdjustment();
     void SetDefaultReferenceFrame();
     void LoadNetworkFiles();
-    void LoadNetworkFilesOld();
-    void LoadNetworkFilesNew();
-    NetworkState captureCurrentState() const;
-    void clearState();
-    bool compareNetworkStates(const NetworkState& oldState, const NetworkState& newState);
     void CreateMsrToStnTally();
     // void CreateStationAppearanceList(const vUINT32& parameterStations);
 
@@ -460,7 +453,6 @@ class dna_adjust {
     void AdjustPhasedReverse();
 
     // Adjustment helps
-    void ApplyAdditionalConstraints();
     void AddDiscontinuitySites(vstring& constraintStns);
     void LoadStationMap(pv_string_uint32_pair stnsMap,
                         const std::string& stnmap_file);
@@ -468,8 +460,6 @@ class dna_adjust {
     void LoadPhasedBlocks();
     void LoadSegmentationFile();
     void LoadSegmentationMetrics();
-    void RemoveInvalidISLStations(vUINT32& v_ISLTemp);
-    void RemoveNonMeasurements(const UINT32& block);
     void RemoveDuplicateStations(vUINT32& vStns);
     void InitialiseTypeBUncertainties();
 

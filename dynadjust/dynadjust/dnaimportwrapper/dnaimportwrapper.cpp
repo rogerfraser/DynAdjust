@@ -741,10 +741,10 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 		{
 			// Has import been run after the segmentation file was created?
 			binary_file_meta_t bst_meta, bms_meta;
-			dna_io_bst bst;
-			dna_io_bms bms;
-			bst.load_bst_file_meta(p.i.bst_file, bst_meta);
-			bms.load_bms_file_meta(p.i.bms_file, bms_meta);
+			BstFileLoader bst;
+			BmsFileLoader bms;
+			bst.LoadFileMeta(p.i.bst_file, bst_meta);
+			bms.LoadFileMeta(p.i.bms_file, bms_meta);
 
 			bool bst_meta_import(boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
 				boost::iequals(bst_meta.modifiedBy, __import_dll_name__));

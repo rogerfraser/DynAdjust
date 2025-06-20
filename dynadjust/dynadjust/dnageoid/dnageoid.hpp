@@ -37,7 +37,7 @@
 #include <new>
 #include <math.h>
 
-#include <include/io/dnaiobst.hpp>
+#include <include/io/bst_file_loader.hpp>
 
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
