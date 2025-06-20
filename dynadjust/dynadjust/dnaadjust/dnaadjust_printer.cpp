@@ -3694,5 +3694,153 @@ void DynAdjustPrinter::PrintPosUncertaintiesHeader(std::ostream& os)
     os << std::endl;
 }
 
+void DynAdjustPrinter::PrintPosUncertainty(std::ostream& os, const UINT32& block, const UINT32& stn, 
+                                           const UINT32& mat_idx, const matrix_2d* stationVariances, 
+                                           const UINT32& map_idx, const vUINT32* blockStations)
+{
+    double semimajor, semiminor, azimuth, hzPosU, vtPosU;
+    UINT32 ic, jc;
+
+    matrix_2d variances_cart(3, 3), variances_local(3, 3), mrotations(3, 3);
+    matrix_2d *variances(&variances_cart);
+
+    switch (adjust_.projectSettings_.o._apu_vcv_units)
+    {
+    case ENU_apu_ui:
+        variances = &variances_local;
+        break;
+    }
+
+    // get cartesian matrix
+    stationVariances->submatrix(mat_idx, mat_idx, &variances_cart, 3, 3);
+
+    // Calculate standard deviations in local reference frame
+    PropagateVariances_LocalCart<double>(variances_cart, variances_local, 
+        adjust_.bstBinaryRecords_.at(stn).currentLatitude, 
+        adjust_.bstBinaryRecords_.at(stn).currentLongitude, false,
+        mrotations, true);
+
+    // Compute error ellipse terms
+    ErrorEllipseParameters<double>(variances_local, semimajor, semiminor, azimuth);
+
+    // Compute positional uncertainty terms
+    PositionalUncertainty<double>(semimajor, semiminor, sqrt(variances_local.get(2, 2)), hzPosU, vtPosU);
+
+    // print...
+    // station and padding
+    os << std::setw(STATION) << std::left << adjust_.bstBinaryRecords_.at(stn).stationName << std::setw(PAD2) << " ";
+    
+    os.flags(std::ios::fixed | std::ios::right);
+
+    // latitude
+    if (adjust_.projectSettings_.o._angular_type_stn == DMS)
+        os << std::setprecision(4+adjust_.PRECISION_SEC_STN) << std::setw(LAT_EAST) <<
+            RadtoDms(adjust_.bstBinaryRecords_.at(stn).currentLatitude);
+    else
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::setw(LAT_EAST) <<
+            Degrees(adjust_.bstBinaryRecords_.at(stn).currentLatitude);
+    // longitude
+    if (adjust_.projectSettings_.o._angular_type_stn == DMS)
+        os << std::setprecision(4+adjust_.PRECISION_SEC_STN) << std::setw(LON_NORTH) <<
+            RadtoDmsL(adjust_.bstBinaryRecords_.at(stn).currentLongitude);
+    else
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::setw(LON_NORTH) <<
+            DegreesL(adjust_.bstBinaryRecords_.at(stn).currentLongitude);
+
+    // positional uncertainty 
+    if (adjust_.isAdjustmentQuestionable_)
+        os << 
+            StringFromTW(hzPosU, STAT, adjust_.PRECISION_MTR_STN) <<
+            StringFromTW(vtPosU, STAT, adjust_.PRECISION_MTR_STN);
+    else
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::setw(STAT) << hzPosU <<
+            std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(STAT) << vtPosU;
+    
+    // error ellipse semi-major, semi-minor, orientation
+    os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::setw(PREC) << semimajor <<
+        std::setprecision(adjust_.PRECISION_MTR_STN) << std::setw(PREC) << semiminor <<
+        std::setprecision(4) << std::setw(PREC) << RadtoDms(azimuth);
+
+    os.flags(std::ios::scientific | std::ios::right);
+
+    UINT16 PRECISION_UNCERTAINTY(9);
+
+    // xx, xy, xz
+    if (adjust_.isAdjustmentQuestionable_)
+        os << 
+            StringFromTW(variances->get(0, 0), MSR, PRECISION_UNCERTAINTY) <<						// e
+            StringFromTW(variances->get(0, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+            StringFromTW(variances->get(0, 2), MSR, PRECISION_UNCERTAINTY) << std::endl;				// up
+    else
+        os << 
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 0) <<				// e
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 1) <<				// n
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 2) << std::endl;		// up
+    
+    // Next line: yy, yz
+    os << std::setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR) << " ";		// padding
+    if (adjust_.isAdjustmentQuestionable_)
+        os << 
+            StringFromTW(variances->get(1, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+            StringFromTW(variances->get(1, 2), MSR, PRECISION_UNCERTAINTY) << std::endl;					// up
+    else
+        os << 
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(1, 1) <<				// n
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(1, 2) << std::endl;		// up
+    
+    // Next line: zz
+    os << std::setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR) << " ";	// padding
+    if (adjust_.isAdjustmentQuestionable_)
+        os <<
+            StringFromTW(variances->get(2, 2), MSR, PRECISION_UNCERTAINTY) << std::endl;		// up
+    else
+        os <<
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 2) << std::endl;		// up
+    
+    if (!adjust_.projectSettings_.o._output_pu_covariances)
+        return;
+
+    // Print covariances
+    for (ic=map_idx+1; ic<adjust_.v_blockStationsMap_.at(block).size(); ++ic)
+    {
+        jc = adjust_.v_blockStationsMap_.at(block)[blockStations->at(ic)] * 3;
+
+        // get cartesian submatrix corresponding to the covariance
+        stationVariances->submatrix(mat_idx, jc, &variances_cart, 3, 3);
+            
+        switch (adjust_.projectSettings_.o._apu_vcv_units)
+        {
+        case ENU_apu_ui:
+            // Calculate vcv in local reference frame
+            PropagateVariances_LocalCart<double>(variances_cart, variances_local, 
+                adjust_.bstBinaryRecords_.at(stn).currentLatitude, 
+                adjust_.bstBinaryRecords_.at(stn).currentLongitude, false,
+                mrotations, false);
+            break;
+        }
+
+        os << std::setw(STATION) << std::left << adjust_.bstBinaryRecords_.at(blockStations->at(ic)).stationName;
+            
+        os.flags(std::ios::scientific | std::ios::right);
+        os << 
+            std::setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<					// padding
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 0) <<			// 11
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 1) <<			// 12
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(0, 2) << std::endl;	// 13
+            
+        os <<
+            std::setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(1, 0) <<			// 21
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(1, 1) <<			// 22
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(1, 2) << std::endl;	// 23
+        
+        os <<
+            std::setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 0) <<			// 31
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 1) <<			// 32
+            std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 2) << std::endl;	// 33
+    }
+}
+
 } // namespace networkadjust
 } // namespace dynadjust

@@ -227,6 +227,9 @@ class DynAdjustPrinter {
                         const matrix_2d* stationEstimates);
     void PrintCorStations(std::ostream& cor_file, const UINT32& block);
     void PrintPosUncertaintiesHeader(std::ostream& os);
+    void PrintPosUncertainty(std::ostream& os, const UINT32& block, const UINT32& stn, 
+                            const UINT32& mat_idx, const matrix_2d* stationVariances, 
+                            const UINT32& map_idx, const vUINT32* blockStations);
 
     // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
     void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,
