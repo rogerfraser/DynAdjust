@@ -2159,6 +2159,137 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
     apu_file.close();
 }
 
+void DynAdjustPrinter::PrintEstimatedStationCoordinates(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
+{
+    // Stations
+    std::ofstream stn_file;
+    try {
+        // Create STN/XML file. 
+        file_opener(stn_file, stnFile);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+
+    try {
+    
+        UINT32 count(static_cast<UINT32>(adjust_.bstBinaryRecords_.size()));
+        dna_stn_fields dsl, dsw;
+
+        std::string headerComment("Source data:  Coordinates estimated from least squares adjustment.");
+        
+        // print header
+        switch (t)
+        {
+        case dynaml:
+
+            // Write header and comments
+            dynaml_header(stn_file, "Station File", adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s());
+            dynaml_comment(stn_file, "File type:    Station file");
+            dynaml_comment(stn_file, "Project name: " + adjust_.projectSettings_.g.network_name);
+            dynaml_comment(stn_file, headerComment);
+            dynaml_comment(stn_file, "Adj file:     " + adjust_.projectSettings_.o._adj_file);
+            break;
+
+        case dna:
+
+            // get file format field widths
+            determineDNASTNFieldParameters<UINT16>("3.01", dsl, dsw);
+
+            // Write header and comments
+            dna_header(stn_file, "3.01", "STN", adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s(), count);
+            dna_comment(stn_file, "File type:    Station file");
+            dna_comment(stn_file, "Project name: " + adjust_.projectSettings_.g.network_name);
+            dna_comment(stn_file, headerComment);
+            dna_comment(stn_file, "Adj file:     " + adjust_.projectSettings_.o._adj_file);
+            break;
+        default:
+            break;
+        }
+
+        dnaStnPtr stnPtr(new CDnaStation(adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s()));
+
+        vUINT32 vStationList;
+
+        switch (adjust_.projectSettings_.a.adjust_mode)
+        {
+        case Phased_Block_1Mode:
+            // Get stations in block 1 only
+            vStationList = adjust_.v_parameterStationList_.at(0);
+            break;
+        default:
+            // Create and initialise vector with 0,1,2,...,n-2,n-1,n for
+            // all stations in the network
+            vStationList.resize(adjust_.bstBinaryRecords_.size());
+            initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(adjust_.bstBinaryRecords_.size()));
+        }
+        
+        // Sort on original file order
+        CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+
+        // print station coordinates
+        switch (t)
+        {
+        case dynaml:
+
+            if (flagUnused)
+                // Print stations in DynaML format
+                for_each(vStationList.begin(), vStationList.end(),
+                    [&stn_file, &stnPtr, this](const UINT32& stn) {
+                        stnPtr->SetStationRec(adjust_.bstBinaryRecords_.at(stn));
+                        if (stnPtr->IsNotUnused())
+                            stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+                                adjust_.datum_.GetEllipsoidRef(), &adjust_.projection_, dynaml);
+                });
+            else
+                // Print stations in DynaML format
+                for_each(vStationList.begin(), vStationList.end(),
+                    [&stn_file, &stnPtr, this](const UINT32& stn) {
+                        stnPtr->SetStationRec(adjust_.bstBinaryRecords_.at(stn));
+                        stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+                            adjust_.datum_.GetEllipsoidRef(), &adjust_.projection_, dynaml);
+                });
+
+            stn_file << "</DnaXmlFormat>" << std::endl;
+
+            break;
+        case dna:
+
+            if (flagUnused)
+                // Print stations in DNA format
+                for_each(vStationList.begin(), vStationList.end(),
+                    [&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+                        stnPtr->SetStationRec(adjust_.bstBinaryRecords_.at(stn));
+                        if (stnPtr->IsNotUnused())
+                            stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
+                                adjust_.datum_.GetEllipsoidRef(), &adjust_.projection_, dna, &dsw);
+                });
+            else
+                // Print stations in DNA format
+                for_each(vStationList.begin(), vStationList.end(),
+                    [&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+                        stnPtr->SetStationRec(adjust_.bstBinaryRecords_.at(stn));
+                        stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+                            adjust_.datum_.GetEllipsoidRef(), &adjust_.projection_, dna, &dsw);
+                });
+
+            break;
+        default:
+            break;
+        }
+
+
+        stn_file.close();
+    }
+    catch (const std::ofstream::failure& f) {
+        adjust_.SignalExceptionAdjustment(f.what(), 0);
+    }
+    catch (const XMLInteropException& e)  {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+}
+
 // Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
