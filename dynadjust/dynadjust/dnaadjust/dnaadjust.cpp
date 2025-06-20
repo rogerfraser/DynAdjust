@@ -9253,7 +9253,8 @@ void dna_adjust::PrintAdjStation(std::ostream& os,
 	it_vstn_t stn_it(bstBinaryRecords_.begin());
 	stn_it += stn;
 
-	// station and constraint
+	// Use new printer infrastructure for station name and constraint
+	networkadjust::DynAdjustPrinter printer(*this);
 	os << std::setw(STATION) << std::left << stn_it->stationName;
 	os << std::setw(CONSTRAINT) << std::left << stn_it->stationConst;
 
@@ -9312,77 +9313,9 @@ void dna_adjust::PrintAdjStation(std::ostream& os,
 			&projection_, true);		// compute zone
 	}
 
-	for (_it_str_const it_s=projectSettings_.o._stn_coord_types.begin(); it_s!=projectSettings_.o._stn_coord_types.end(); ++it_s)
-	{
-		char c = it_s[0];
-
-		switch (c)
-		{
-		case 'P':
-			// latitude
-			// Which angular format?
-			if (projectSettings_.o._angular_type_stn == DMS)
-				os << std::setprecision(4 + PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
-					RadtoDms(estLatitude);
-			else
-				os << std::setprecision(4 + PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
-					Degrees(estLatitude);
-			break;
-		case 'L':
-			// longitude
-			// Which angular format?
-			if (projectSettings_.o._angular_type_stn == DMS)
-				os << std::setprecision(4+PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) << 
-					RadtoDmsL(estLongitude);
-			else
-				os << std::setprecision(4 + PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) <<
-					DegreesL(estLongitude);
-			break;
-		case 'E':
-			// Easting
-			os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LAT_EAST) << E;
-			break;
-		case 'N':
-			// Northing
-			os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LON_NORTH) << N;
-			break;
-		case 'z':
-			// Zone
-			os << std::setprecision(0) << std::fixed << std::right << std::setw(ZONE) << Zo;
-			break;
-		case 'H':
-			// Orthometric height
-			if (isAdjustmentQuestionable_)
-				os << std::right << StringFromTW((estHeight - stn_it->geoidSep), HEIGHT, PRECISION_MTR_STN);
-			else
-				os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << 
-					estHeight - stn_it->geoidSep;
-			break;
-		case 'h':
-			// Ellipsoidal height
-			if (isAdjustmentQuestionable_)
-				os << std::right << StringFromTW(estHeight, HEIGHT, PRECISION_MTR_STN);
-			else
-				os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << 
-					estHeight;
-			break;
-		case 'X':
-			// Cartesian X
-			os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
-				stationEstimates->get(mat_idx, 0);
-			break;
-		case 'Y':
-			// Cartesian Y
-			os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
-				stationEstimates->get(mat_idx+1, 0);
-			break;
-		case 'Z':
-			// Cartesian Z
-			os << std::setprecision(PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
-				stationEstimates->get(mat_idx+2, 0);
-			break;
-		}
-	}
+	// Use new printer infrastructure for coordinate formatting
+	printer.PrintStationCoordinatesByType(os, stn_it, stationEstimates, mat_idx, 
+	                                      estLatitude, estLongitude, estHeight, E, N, Zo);
 
 	os << std::setw(PAD2) << " ";
 
@@ -9432,16 +9365,8 @@ void dna_adjust::PrintAdjStation(std::ostream& os,
 	PropagateVariances_LocalCart(var_cart, var_local, 
 		estLatitude, estLongitude, false);
 	
-	if (isAdjustmentQuestionable_)
-		os <<
-			StringFromTW(sqrt(var_local.get(0, 0)), STDDEV, PRECISION_MTR_STN) <<
-			StringFromTW(sqrt(var_local.get(1, 1)), STDDEV, PRECISION_MTR_STN) <<
-			StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, PRECISION_MTR_STN);
-	else
-		os <<
-			std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(0, 0)), PRECISION_MTR_STN) <<
-			std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(1, 1)), PRECISION_MTR_STN) <<
-			std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(2, 2)), PRECISION_MTR_STN);
+	// Use new printer infrastructure for uncertainty formatting
+	printer.PrintStationUncertainties(os, var_local);
 
 	if (projectSettings_.o._stn_corr)
 	{

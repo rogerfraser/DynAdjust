@@ -765,9 +765,114 @@ void DynAdjustPrinter::PrintPositionalUncertaintyOutput() {
 void DynAdjustPrinter::PrintStationAdjustmentResults(std::ostream& os, const UINT32& block,
                                                     const UINT32& stn, const UINT32& mat_idx,
                                                     const matrix_2d* estimates, matrix_2d* variances) {
-    // Coordinate with existing PrintAdjStation function for complex coordinate transformations
-    os << "Station adjustment results for station " << stn << " in block " << (block + 1) << 
-        " printed using existing detailed implementation." << std::endl;
+    it_vstn_t stn_it(adjust_.bstBinaryRecords_.begin() + stn);
+    
+    // Print station name and constraint using existing infrastructure
+    PrintStationCoordinates<GeographicCoordinates>(os, stn_it, estimates, variances);
+    
+    // Delegate to existing implementation for complex coordinate transformations
+    // and uncertainty calculations while using our new coordinate formatters
+    adjust_.PrintAdjStation(os, block, stn, mat_idx, estimates, variances, true, false, true);
+}
+
+// Enhanced coordinate transformation utilities for PrintAdjStation refactoring
+void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os, 
+                                                     const it_vstn_t& stn_it,
+                                                     const matrix_2d* estimates,
+                                                     const UINT32& mat_idx,
+                                                     double est_lat, double est_lon, double est_height,
+                                                     double easting, double northing, double zone) {
+    // Print coordinates based on project settings coordinate types
+    for (auto it_s = adjust_.projectSettings_.o._stn_coord_types.begin(); 
+         it_s != adjust_.projectSettings_.o._stn_coord_types.end(); ++it_s) {
+        
+        char coord_type = it_s[0];
+        
+        switch (coord_type) {
+        case 'P': // Latitude
+            PrintLatitudeCoordinate(os, est_lat);
+            break;
+        case 'L': // Longitude
+            PrintLongitudeCoordinate(os, est_lon);
+            break;
+        case 'E': // Easting
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << easting;
+            break;
+        case 'N': // Northing
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << northing;
+            break;
+        case 'z': // Zone
+            os << std::setprecision(0) << std::fixed << std::right << std::setw(6) << zone;
+            break;
+        case 'H': // Orthometric height
+            PrintOrthometricHeight(os, est_height, stn_it);
+            break;
+        case 'h': // Ellipsoidal height
+            PrintEllipsoidalHeight(os, est_height);
+            break;
+        case 'X': // Cartesian X
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+                estimates->get(mat_idx, 0);
+            break;
+        case 'Y': // Cartesian Y
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+                estimates->get(mat_idx+1, 0);
+            break;
+        case 'Z': // Cartesian Z
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+                estimates->get(mat_idx+2, 0);
+            break;
+        }
+    }
+}
+
+void DynAdjustPrinter::PrintLatitudeCoordinate(std::ostream& os, double latitude) {
+    if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+            RadtoDms(latitude);
+    } else {
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+            Degrees(latitude);
+    }
+}
+
+void DynAdjustPrinter::PrintLongitudeCoordinate(std::ostream& os, double longitude) {
+    if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) << 
+            RadtoDmsL(longitude);
+    } else {
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+            DegreesL(longitude);
+    }
+}
+
+void DynAdjustPrinter::PrintOrthometricHeight(std::ostream& os, double height, const it_vstn_t& stn_it) {
+    if (adjust_.isAdjustmentQuestionable_) {
+        os << std::right << StringFromTW((height - stn_it->geoidSep), UINT16(10), adjust_.PRECISION_MTR_STN);
+    } else {
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << 
+            height - stn_it->geoidSep;
+    }
+}
+
+void DynAdjustPrinter::PrintEllipsoidalHeight(std::ostream& os, double height) {
+    if (adjust_.isAdjustmentQuestionable_) {
+        os << std::right << StringFromTW(height, UINT16(10), adjust_.PRECISION_MTR_STN);
+    } else {
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << height;
+    }
+}
+
+void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const matrix_2d& var_local) {
+    if (adjust_.isAdjustmentQuestionable_) {
+        os << StringFromTW(sqrt(var_local.get(0, 0)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(1, 1)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(2, 2)), UINT16(8), adjust_.PRECISION_MTR_STN);
+    } else {
+        os << std::setw(8) << std::right << StringFromT(sqrt(var_local.get(0, 0)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(1, 1)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(2, 2)), adjust_.PRECISION_MTR_STN);
+    }
 }
 
 } // namespace networkadjust
