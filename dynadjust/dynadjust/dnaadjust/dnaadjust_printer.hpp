@@ -152,6 +152,7 @@ class DynAdjustPrinter {
                            matrix_2d* stationVariances, bool printBlockID, bool recomputeGeographicCoords, 
                            bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
     void PrintFileHeaderInformation();
+    void PrintGPSClusterComputedMeasurements(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>

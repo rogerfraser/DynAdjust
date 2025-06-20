@@ -2986,5 +2986,113 @@ void DynAdjustPrinter::PrintFileHeaderInformation()
     adjust_.xyz_file << OUTPUTLINE << std::endl;
 }
 
+void DynAdjustPrinter::PrintGPSClusterComputedMeasurements(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+{
+    // Is this a Y cluster specified in latitude, longitude, height?
+    if (_it_msr->measType == 'Y')
+    {
+        if (_it_msr->station3 == LLH_type_i)
+        {
+            // Print phi, lambda, H
+            adjust_.PrintCompMeasurements_YLLH(_it_msr, design_row);
+            return;
+        }
+    }
+
+    UINT32 cluster_msr, cluster_count(_it_msr->vectorCount1);
+    UINT32 covariance_count;
+    bool nextElement(false);
+    double computed, correction;
+
+    for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+    {
+        if (nextElement)
+            adjust_.adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
+        else
+            nextElement = true;
+
+        covariance_count = _it_msr->vectorCount2;
+
+        // first station
+        adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+        
+        // Print second station?
+        switch (_it_msr->measType)
+        {
+        case 'G':
+        case 'X':
+            adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+            break;
+        default:
+            adjust_.adj_file << std::left << std::setw(STATION) << " ";
+        }
+
+        // third station
+        adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+        switch (printMode)
+        {
+        case computedMsrs:
+            correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+            computed = _it_msr->term1 + correction;
+            break;
+        case ignoredMsrs:
+        default:
+            correction = _it_msr->measCorr;
+            computed = _it_msr->measAdj;
+            break;
+        }
+
+        // Print linear measurement, taking care of user requirements for precision	
+        adjust_.PrintCompMeasurementsLinear('X', computed, correction, _it_msr);
+
+        design_row++;
+        _it_msr++;
+    
+        switch (printMode)
+        {
+        case computedMsrs:
+            correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+            computed = _it_msr->term1 + correction;
+            break;
+        case ignoredMsrs:
+        default:
+            correction = _it_msr->measCorr;
+            computed = _it_msr->measAdj;
+            break;
+        }
+
+        // Print linear measurement, taking care of user requirements for precision	
+        adjust_.PrintCompMeasurementsLinear('Y', computed, correction, _it_msr);
+
+        design_row++;
+        _it_msr++;
+    
+        switch (printMode)
+        {
+        case computedMsrs:
+            correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+            computed = _it_msr->term1 + correction;
+            break;
+        case ignoredMsrs:
+        default:
+            correction = _it_msr->measCorr;
+            computed = _it_msr->measAdj;
+            break;
+        }
+
+        // Print linear measurement, taking care of user requirements for precision	
+        adjust_.PrintCompMeasurementsLinear('Z', computed, correction, _it_msr);
+
+        design_row++;
+
+        // skip covariances until next point
+        _it_msr += covariance_count * 3;
+        
+        if (covariance_count > 0)
+            _it_msr++;
+    }
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
