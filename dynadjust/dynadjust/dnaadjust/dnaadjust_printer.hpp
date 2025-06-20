@@ -218,6 +218,9 @@ class DynAdjustPrinter {
     void PrintAdjStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx,
                         const matrix_2d* stationEstimates, matrix_2d* stationVariances,
                         bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+    
+    // GPS cluster measurement printing
+    void PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
 
     // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
     void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,
