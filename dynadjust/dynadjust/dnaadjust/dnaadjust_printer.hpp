@@ -128,6 +128,11 @@ class DynAdjustPrinter {
     void PrintAdjustedNetworkStations();
     void PrintNetworkStationCorrections();
     
+    // Stage 5: Complex measurement handlers
+    void PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintIgnoredMeasurements(bool printHeader);
+    void PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
     void PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block = 0);
@@ -202,6 +207,7 @@ class DynAdjustPrinter {
     // Helper functions
     constexpr int GetStationCount(char measurement_type) const;
     constexpr bool IsAngularType(char measurement_type) const;
+    void PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_block, bool adjustedMeasurements);
 
     // Station count lookup table
     static constexpr std::array kStationCounts{

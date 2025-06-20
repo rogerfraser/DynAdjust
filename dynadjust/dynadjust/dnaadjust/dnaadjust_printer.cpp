@@ -992,5 +992,351 @@ void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const matrix_
     }
 }
 
+// Stage 5: Complex measurement printing functions
+void DynAdjustPrinter::PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
+    // Generate table heading with optional iteration/block information
+    std::string table_heading("Adjusted Measurements");
+    
+    if (adjust_.projectSettings_.o._adj_msr_iteration) {
+        std::stringstream ss;
+        if (adjust_.projectSettings_.a.adjust_mode == PhasedMode && adjust_.forward_) {
+            UINT32 block = msr_block.at(0).second.first;
+            ss << " (Block " << block + 1 << ", ";
+            if (adjust_.v_blockMeta_.at(block)._blockLast || adjust_.v_blockMeta_.at(block)._blockIsolated)
+                ss << "rigorous)";
+            else
+                ss << "in isolation)";
+            table_heading.append(ss.str());
+        }
+        else if (adjust_.projectSettings_.a.adjust_mode == PhasedMode && adjust_.isIterationComplete_) {
+            ss << " (Iteration " << adjust_.CurrentIteration() << ")";
+            table_heading.append(ss.str());
+        }
+    }
+
+    // Print header using existing infrastructure
+    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading,
+        adjustedMsrs, msr_block.at(0).second.first + 1, true);
+    
+    // Sort measurements according to project settings
+    try {
+        switch (adjust_.projectSettings_.o._sort_adj_msr) {
+        case type_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyType(msr_block);
+            break;
+        case inst_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyToStn(msr_block);
+            break;
+        case targ_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyFromStn(msr_block);
+            break;
+        case meas_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyValue(msr_block);
+            break;
+        case corr_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyResidual(msr_block);
+            break;
+        case a_sd_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyAdjSD(msr_block);
+            break;
+        case n_st_adj_msr_sort_ui:
+            adjust_.SortMeasurementsbyNstat(msr_block);
+            break;
+        case orig_adj_msr_sort_ui:
+        default:
+            std::sort(msr_block.begin(), msr_block.end());
+            break;
+        }
+    }
+    catch (...) {
+        std::stringstream ss;
+        ss << "Failed to sort measurements according to the ";
+        
+        switch (adjust_.projectSettings_.o._sort_adj_msr) {
+        case orig_adj_msr_sort_ui:
+            ss << "original file order";
+            break;
+        case type_adj_msr_sort_ui:
+            ss << "measurement type";
+            break;
+        case inst_adj_msr_sort_ui:
+            ss << "first measurement station";
+            break;
+        case targ_adj_msr_sort_ui:
+            ss << "second measurement station";
+            break;
+        case meas_adj_msr_sort_ui:
+            ss << "measurement value";
+            break;
+        case corr_adj_msr_sort_ui:
+            ss << "measurement correction";
+            break;
+        case a_sd_adj_msr_sort_ui:
+            ss << "adjusted measurement standard deviation";
+            break;
+        case n_st_adj_msr_sort_ui:
+            ss << "measurement n-statistic";
+            break;
+        }
+        
+        ss << std::endl;
+        adjust_.SignalExceptionAdjustment(ss.str(), 0);
+    }
+
+    // Print measurements using consolidated dispatcher
+    PrintMeasurementRecords(msr_block, true);
+    
+    adjust_.adj_file << std::endl;
+}
+
+void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
+    // Print heading
+    adjust_.adj_file << std::endl;
+    std::string table_heading("Ignored Measurements (a-posteriori)");
+    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading, ignoredMsrs, 0, false);
+
+    vUINT32 ignored_msrs;
+    it_vUINT32 _it_ign;
+    it_vmsr_t _it_msr, _it_tmp;
+
+    // Collect ignored measurements with proper filtering
+    for (_it_msr = adjust_.bmsBinaryRecords_.begin();
+         _it_msr != adjust_.bmsBinaryRecords_.end();
+         ++_it_msr) {
+        
+        switch (_it_msr->measType) {
+        case 'D':	// Direction set
+            // Don't include internal directions
+            if (_it_msr->measStart > xMeas)
+                continue;
+            break;
+        case 'G':	// GPS Baseline cluster
+        case 'X':	// GPS Baseline cluster
+        case 'Y':	// GPS Point cluster
+            // Don't include covariance terms
+            if (_it_msr->measStart != xMeas)
+                continue;
+
+            if (_it_msr->vectorCount1 > 1)
+                if ((_it_msr->vectorCount1 - _it_msr->vectorCount2) > 1)
+                    continue;
+            break;
+        }
+
+        // Include ignored measurements with valid stations
+        if (_it_msr->ignore) {
+            _it_tmp = _it_msr;
+            // Check each ignored measurement for the presence of
+            // stations that are invalid (and therefore unadjusted).
+            if (!adjust_.IgnoredMeasurementContainsInvalidStation(&_it_msr))
+                continue;
+
+            ignored_msrs.push_back(static_cast<UINT32>(_it_tmp - adjust_.bmsBinaryRecords_.begin()));
+        }
+    }
+
+    if (ignored_msrs.empty()) {
+        adjust_.adj_file << std::endl << std::endl;
+        return;
+    }
+
+    // Update Ignored measurement records
+    UINT32 clusterID(MAX_UINT32_VALUE);
+
+    // Initialise ignored measurements on the first adjustment only.
+    _it_msr = adjust_.bmsBinaryRecords_.begin() + ignored_msrs.at(0);
+    bool storeOriginalMeasurement(false);
+    if (_it_msr->measAdj == 0. && _it_msr->measCorr == 0. && _it_msr->preAdjCorr == 0. && _it_msr->preAdjMeas == 0.)
+        storeOriginalMeasurement = true;
+
+    std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end());
+
+    // Reduce measurements and compute stats
+    for (_it_ign = ignored_msrs.begin(); _it_ign != ignored_msrs.end(); ++_it_ign) {
+        _it_msr = adjust_.bmsBinaryRecords_.begin() + (*_it_ign);
+        // Update ignore measurements
+        adjust_.UpdateIgnoredMeasurements(&_it_msr, storeOriginalMeasurement);
+    }
+
+    // Print measurements using custom logic for ignored measurements
+    for (_it_ign = ignored_msrs.begin(); _it_ign != ignored_msrs.end(); ++_it_ign) {
+        _it_msr = adjust_.bmsBinaryRecords_.begin() + (*_it_ign);
+
+        // When a target direction is found, continue to next element.  
+        if (_it_msr->measType == 'D')
+            if (_it_msr->vectorCount1 < 1)
+                continue;
+
+        if (_it_msr->measStart != xMeas)
+            continue;
+
+        // For cluster measurements, only print measurement type if from a new cluster
+        switch (_it_msr->measType) {
+        case 'D':	// Direction set
+        case 'X':	// GPS Baseline cluster
+        case 'Y':	// GPS Point cluster
+            if (_it_msr->clusterID != clusterID) {
+                adjust_.adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
+                clusterID = _it_msr->clusterID;
+            }
+            else
+                adjust_.adj_file << "  ";
+            break;
+        default:
+            adjust_.adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
+        }
+
+        UINT32 design_row(0);
+
+        // Use existing comp measurement functions for ignored measurements
+        switch (_it_msr->measType) {
+        case 'A':	// Horizontal angle
+            adjust_.PrintCompMeasurements_A(0, _it_msr, design_row, ignoredMsrs);
+            break;
+        case 'B':	// Geodetic azimuth
+        case 'K':	// Astronomic azimuth
+        case 'V':	// Zenith distance
+        case 'Z':	// Vertical angle
+            adjust_.PrintCompMeasurements_BKVZ(0, _it_msr, design_row, ignoredMsrs);
+            break;
+        case 'C':	// Chord dist
+        case 'E':	// Ellipsoid arc
+        case 'L':	// Level difference
+        case 'M':	// MSL arc
+        case 'S':	// Slope distance
+            adjust_.PrintCompMeasurements_CELMS(_it_msr, design_row, ignoredMsrs);
+            break;
+        case 'D':	// Direction set
+            adjust_.PrintCompMeasurements_D(_it_msr, design_row, true);
+            break;
+        case 'H':	// Orthometric height
+        case 'R':	// Ellipsoidal height
+            adjust_.PrintCompMeasurements_HR(0, _it_msr, design_row, ignoredMsrs);
+            break;
+        case 'I':	// Astronomic latitude
+        case 'J':	// Astronomic longitude
+        case 'P':	// Geodetic latitude
+        case 'Q':	// Geodetic longitude
+            adjust_.PrintCompMeasurements_IJPQ(0, _it_msr, design_row, ignoredMsrs);
+            break;
+        case 'G':	// GPS Baseline (treat as single-baseline cluster)
+        case 'X':	// GPS Baseline cluster
+        case 'Y':	// GPS Point cluster
+            adjust_.PrintCompMeasurements_GXY(0, _it_msr, design_row, ignoredMsrs);
+            break;
+        }
+    }
+
+    adjust_.adj_file << std::endl << std::endl;
+}
+
+void DynAdjustPrinter::PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
+    // Generate table heading
+    std::string table_heading("Computed Measurements");
+    
+    // Print header
+    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading, computedMsrs, 0, false);
+    
+    // Print measurements using consolidated dispatcher
+    PrintMeasurementRecords(msr_block, false);
+    
+    adjust_.adj_file << std::endl;
+}
+
+// Helper function that consolidates measurement printing logic
+void DynAdjustPrinter::PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_block, bool adjustedMeasurements) {
+    it_vmsr_t _it_msr;
+    UINT32 clusterID(MAX_UINT32_VALUE);
+
+    for (auto _it_block_msr = msr_block.begin(); _it_block_msr != msr_block.end(); ++_it_block_msr) {
+        _it_msr = adjust_.bmsBinaryRecords_.begin() + (_it_block_msr->first);
+        
+        // Skip non-measurement elements (Y, Z, covariance components)
+        if (_it_msr->measStart != xMeas)
+            continue;
+
+        // Skip target directions
+        if (_it_msr->measType == 'D')
+            if (_it_msr->vectorCount1 < 1)
+                continue;
+
+        // For cluster measurements, only print measurement type if from a new cluster
+        switch (_it_msr->measType) {
+        case 'D':	// Direction set
+        case 'X':	// GPS Baseline cluster
+        case 'Y':	// GPS Point cluster
+            if (_it_msr->clusterID != clusterID) {
+                adjust_.adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
+                clusterID = _it_msr->clusterID;
+            }
+            else
+                adjust_.adj_file << "  ";
+            break;
+        default:
+            adjust_.adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
+        }
+
+        // Dispatch to appropriate measurement handler using consolidated approach
+        UINT32 design_row(0);
+        switch (_it_msr->measType) {
+        case 'A':	// Horizontal angle
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_A(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_A(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+            break;
+        case 'B':	// Geodetic azimuth
+        case 'K':	// Astronomic azimuth
+        case 'V':	// Zenith distance
+        case 'Z':	// Vertical angle
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_BKVZ(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_BKVZ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+            break;
+        case 'C':	// Chord dist
+        case 'E':	// Ellipsoid arc
+        case 'L':	// Level difference
+        case 'M':	// MSL arc
+        case 'S':	// Slope distance
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_CELMS(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
+            break;
+        case 'D':	// Direction set
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_D(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_D(_it_msr, design_row, false);
+            break;
+        case 'H':	// Orthometric height
+        case 'R':	// Ellipsoidal height
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_HR(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_HR(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+            break;
+        case 'I':	// Astronomic latitude
+        case 'J':	// Astronomic longitude
+        case 'P':	// Geodetic latitude
+        case 'Q':	// Geodetic longitude
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_IJPQ(_it_msr);
+            else
+                adjust_.PrintCompMeasurements_IJPQ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+            break;
+        case 'G':	// GPS Baseline (treat as single-baseline cluster)
+        case 'X':	// GPS Baseline cluster
+        case 'Y':	// GPS Point cluster
+            if (adjustedMeasurements)
+                adjust_.PrintAdjMeasurements_GXY(_it_msr, _it_block_msr->second);
+            else
+                adjust_.PrintCompMeasurements_GXY(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+            break;
+        }
+    }
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
