@@ -3271,32 +3271,8 @@ void dna_adjust::ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time
 
 void dna_adjust::PrintAdjustmentStatus()
 {
-	// print adjustment status
-	adj_file << std::endl << OUTPUTLINE << std::endl;
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "SOLUTION";
-
-	if (projectSettings_.a.report_mode)
-	{
-		adj_file << "Printing results of last adjustment only" << std::endl;
-		return;
-	}
-	
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case Phased_Block_1Mode:
-		if (adjustStatus_ == ADJUST_SUCCESS)
-			adj_file << "Estimates solved for Block 1 only" << std::endl;
-		else
-			adj_file << "Failed to solve Block 1 estimates" << std::endl;
-		break;
-	default:
-		if (adjustStatus_ == ADJUST_SUCCESS && 
-			CurrentIteration() <= projectSettings_.a.max_iterations &&
-			fabs(maxCorr_) <= projectSettings_.a.iteration_threshold)
-			adj_file << "Converged" << std::endl;
-		else
-			adj_file << "Failed to converge" << std::endl;
-	}
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjustmentStatus();
 }
 	
 
@@ -12172,41 +12148,15 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 	
 void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
 {
-	// Print computed angular measurements
-	PrintMeasurementsAngular(cardinal, computed, correction, _it_msr, false);
-
-	// Print measurement correction
-	PrintMeasurementCorrection(cardinal, _it_msr);
-
-	// Print measurement database ids
-	if (projectSettings_.o._database_ids)
-		PrintMeasurementDatabaseID(_it_msr);
-
-	adj_file << std::endl;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintComparativeMeasurements<AngularMeasurement>(cardinal, computed, correction, _it_msr);
 }
 	
 
 void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
 {
-	// If a user wants to print apriori computed measurements, via 
-	//   --output-iter-cmp-msr
-	// it is likely an attempt is being made to diagnose a problematic 
-	// adjustment.  For this cause, test if a linear measurement correction
-	// is in the order of 1 Km
-	if (!isAdjustmentQuestionable_)
-		isAdjustmentQuestionable_ = (fabs(correction) > 999.9999);
-
-	// Print computed linear measurements
-	PrintMeasurementsLinear(cardinal, computed, correction, _it_msr, false);
-
-	// Print measurement correction
-	PrintMeasurementCorrection(cardinal, _it_msr);
-
-	// Print measurement database ids
-	if (projectSettings_.o._database_ids)
-		PrintMeasurementDatabaseID(_it_msr);
-
-	adj_file << std::endl;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintComparativeMeasurements<LinearMeasurement>(cardinal, computed, correction, _it_msr);
 }
 	
 
@@ -12782,14 +12732,14 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintAdjustedMeasurements<AngularMeasurement>(cardinal, _it_msr, initialise_dbindex);
 }
 	
 
 void dna_adjust::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintAdjustedMeasurements<LinearMeasurement>(cardinal, _it_msr, initialise_dbindex);
 }
 	
@@ -12956,88 +12906,34 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 
 void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	// set iterator to the database index
-	if (initialise_dbindex)
-	{
-		size_t dbindx = std::distance(bmsBinaryRecords_.begin(), _it_msr);
-		_it_dbid = v_msr_db_map_.begin() + dbindx;
-	}
-
-	// Print measurement id
-	if (_it_dbid->is_msr_id_set)
-		adj_file << std::setw(STDDEV) << std::right << _it_dbid->msr_id;
-	else
-		adj_file << std::setw(STDDEV) << " ";
-
-	// Print cluster id?
-	switch (_it_msr->measType)
-	{
-	case 'D':
-	case 'G':
-	case 'X':
-	case 'Y':
-		if (_it_dbid->is_cls_id_set)
-			adj_file << std::setw(STDDEV) << std::right << _it_dbid->cluster_id;
-		else
-			adj_file << std::setw(STDDEV) << " ";
-	}
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementDatabaseID(_it_msr, initialise_dbindex);
 }
 	
 
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	UINT16 PRECISION_STAT(2);
-
-	if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
-		adj_file << StringFromTW(removeNegativeZero(_it_msr->NStat, 2), STAT, PRECISION_STAT);		// N Stat
-	else
-		adj_file << std::setw(STAT) << std::setprecision(2) << std::fixed << std::right << 
-			removeNegativeZero(_it_msr->NStat, 2);													// N Stat	
-
-	if (projectSettings_.o._adj_msr_tstat)
-	{
-		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
-			adj_file << StringFromTW(removeNegativeZero(_it_msr->TStat, 2), STAT, PRECISION_STAT);	// T Stat
-		else
-			adj_file << std::setw(STAT) << std::setprecision(2) << std::fixed << std::right << 
-				removeNegativeZero(_it_msr->TStat, 2);												// T Stat
-	}
-
-	adj_file << std::setw(REL) << std::setprecision(2) << std::fixed << std::right << _it_msr->PelzerRel;				// Pelzer's reliability
-
-	// Print measurement correction
-	PrintMeasurementCorrection(cardinal, _it_msr);
-
-	// Print asterisk for values which exceed the critical value
-	if (fabs(_it_msr->NStat) > criticalValue_)
-		adj_file << std::setw(OUTLIER) << std::right << "*";
-	else
-		adj_file << std::setw(OUTLIER) << std::right << " ";
-
-	// Print measurement database ids
-	if (projectSettings_.o._database_ids)
-		PrintMeasurementDatabaseID(_it_msr, initialise_dbindex);
-
-	adj_file << std::endl;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
 }
 
 void dna_adjust::PrintAdjMeasurements_A(it_vmsr_t& _it_msr)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintMeasurementWithStations(_it_msr, 'A');
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
@@ -13734,14 +13630,14 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 	
 void dna_adjust::PrintAdjMeasurements_HR(it_vmsr_t& _it_msr)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	
 
 void dna_adjust::PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr)
 {
-	DynAdjustPrinter printer(*this);
+	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
 }
 	

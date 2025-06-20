@@ -13,7 +13,7 @@ include_directories(../dynadjust)
 include_directories(../dynadjust/include)
 
 # Find required packages
-find_package(Boost REQUIRED COMPONENTS filesystem system)
+find_package(Boost REQUIRED COMPONENTS filesystem system timer chrono)
 
 # Platform-specific libraries
 if(APPLE)
@@ -164,6 +164,26 @@ target_compile_definitions(test_measurement_processor PRIVATE
     __BINARY_DESC__="Unit tests for MeasurementProcessor class"
 )
 
+# Test 8: DynAdjust Printer test
+add_executable(test_dnaadjust_printer
+    test_dnaadjust_printer_simple.cpp
+    ../dynadjust/include/measurement_types/dnameasurement.cpp
+    ${IO_COMMON_SOURCES}
+)
+
+target_link_libraries(test_dnaadjust_printer
+    ${PLATFORM_LIBS}
+    Boost::filesystem
+    Boost::system
+    Boost::timer
+    Boost::chrono
+)
+
+target_compile_definitions(test_dnaadjust_printer PRIVATE
+    __BINARY_NAME__="test_dnaadjust_printer"
+    __BINARY_DESC__="Unit tests for DynAdjustPrinter class"
+)
+
 # Enable testing
 enable_testing()
 
@@ -175,16 +195,17 @@ add_test(NAME AmlFileLoaderTest COMMAND test_aml_file_loader)
 add_test(NAME BmsFileLoaderTest COMMAND test_bms_file_loader)
 add_test(NAME NetworkDataLoaderTest COMMAND test_network_data_loader)
 add_test(NAME MeasurementProcessorTest COMMAND test_measurement_processor)
+add_test(NAME DynAdjustPrinterTest COMMAND test_dnaadjust_printer)
 
 # Custom target to run all tests
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer
     COMMENT "Running all tests"
 )
 
 # Custom target equivalent to 'make all'
 add_custom_target(tests_all
-    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer
     COMMENT "Building all tests"
 )

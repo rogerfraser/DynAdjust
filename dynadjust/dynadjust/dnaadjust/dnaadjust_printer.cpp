@@ -136,5 +136,134 @@ void DynAdjustPrinter::PrintAdjustedMeasurements<LinearMeasurement>(
     adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
+// Template specializations for comparative measurements
+template<>
+void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
+    char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
+    // Print computed angular measurements
+    adjust_.PrintMeasurementsAngular(cardinal, computed, correction, it_msr, false);
+    
+    // Print measurement correction
+    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+    
+    // Print measurement database ids if enabled
+    if (adjust_.projectSettings_.o._database_ids) {
+        PrintMeasurementDatabaseID(it_msr, true);
+    }
+    
+    adjust_.adj_file << std::endl;
+}
+
+template<>
+void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
+    char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
+    // Check if adjustment is questionable for linear measurements
+    if (!adjust_.isAdjustmentQuestionable_) {
+        adjust_.isAdjustmentQuestionable_ = (fabs(correction) > 999.9999);
+    }
+    
+    // Print computed linear measurements
+    adjust_.PrintMeasurementsLinear(cardinal, computed, correction, it_msr, false);
+    
+    // Print measurement correction
+    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+    
+    // Print measurement database ids if enabled
+    if (adjust_.projectSettings_.o._database_ids) {
+        PrintMeasurementDatabaseID(it_msr, true);
+    }
+    
+    adjust_.adj_file << std::endl;
+}
+
+// Utility function implementations
+void DynAdjustPrinter::PrintAdjustmentStatus() {
+    // Print adjustment status
+    adjust_.adj_file << std::endl << OUTPUTLINE << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "SOLUTION";
+
+    if (adjust_.projectSettings_.a.report_mode) {
+        adjust_.adj_file << "Printing results of last adjustment only" << std::endl;
+        return;
+    }
+    
+    switch (adjust_.projectSettings_.a.adjust_mode) {
+    case Phased_Block_1Mode:
+        if (adjust_.adjustStatus_ == ADJUST_SUCCESS)
+            adjust_.adj_file << "Estimates solved for Block 1 only" << std::endl;
+        else
+            adjust_.adj_file << "Failed to solve Block 1 estimates" << std::endl;
+        break;
+    default:
+        if (adjust_.adjustStatus_ == ADJUST_SUCCESS && 
+            adjust_.CurrentIteration() <= adjust_.projectSettings_.a.max_iterations &&
+            fabs(adjust_.maxCorr_) <= adjust_.projectSettings_.a.iteration_threshold)
+            adjust_.adj_file << "Converged" << std::endl;
+        else
+            adjust_.adj_file << "Failed to converge" << std::endl;
+    }
+}
+
+void DynAdjustPrinter::PrintMeasurementDatabaseID(const it_vmsr_t& it_msr, bool initialise_dbindex) {
+    // Set iterator to the database index
+    if (initialise_dbindex) {
+        size_t dbindx = std::distance(adjust_.bmsBinaryRecords_.begin(), it_msr);
+        adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + dbindx;
+    }
+
+    // Print measurement id
+    if (adjust_._it_dbid->is_msr_id_set)
+        adjust_.adj_file << std::setw(STDDEV) << std::right << adjust_._it_dbid->msr_id;
+    else
+        adjust_.adj_file << std::setw(STDDEV) << " ";
+
+    // Print cluster id?
+    switch (it_msr->measType) {
+    case 'D':
+    case 'G':
+    case 'X':
+    case 'Y':
+        if (adjust_._it_dbid->is_cls_id_set)
+            adjust_.adj_file << std::setw(STDDEV) << std::right << adjust_._it_dbid->cluster_id;
+        else
+            adjust_.adj_file << std::setw(STDDEV) << " ";
+    }
+}
+
+void DynAdjustPrinter::PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+    UINT16 PRECISION_STAT(2);
+
+    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0))
+        adjust_.adj_file << StringFromTW(removeNegativeZero(it_msr->NStat, 2), STAT, PRECISION_STAT);
+    else
+        adjust_.adj_file << std::setw(STAT) << std::setprecision(2) << std::fixed << std::right << 
+            removeNegativeZero(it_msr->NStat, 2);
+
+    if (adjust_.projectSettings_.o._adj_msr_tstat) {
+        if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->NStat) > adjust_.criticalValue_ * 4.0))
+            adjust_.adj_file << StringFromTW(removeNegativeZero(it_msr->TStat, 2), STAT, PRECISION_STAT);
+        else
+            adjust_.adj_file << std::setw(STAT) << std::setprecision(2) << std::fixed << std::right << 
+                removeNegativeZero(it_msr->TStat, 2);
+    }
+
+    adjust_.adj_file << std::setw(REL) << std::setprecision(2) << std::fixed << std::right << it_msr->PelzerRel;
+
+    // Print measurement correction
+    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+
+    // Print asterisk for values which exceed the critical value
+    if (fabs(it_msr->NStat) > adjust_.criticalValue_)
+        adjust_.adj_file << std::setw(OUTLIER) << std::right << "*";
+    else
+        adjust_.adj_file << std::setw(OUTLIER) << std::right << " ";
+
+    // Print measurement database ids
+    if (adjust_.projectSettings_.o._database_ids)
+        PrintMeasurementDatabaseID(it_msr, initialise_dbindex);
+
+    adjust_.adj_file << std::endl;
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
