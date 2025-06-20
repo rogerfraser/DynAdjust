@@ -1897,5 +1897,161 @@ void DynAdjustPrinter::PrintPreAdjustmentCorrection(const char cardinal, const i
     }
 }
 
+// Stage 6: Export functions
+void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
+    // Measurements
+    std::ofstream msr_file;
+    try {
+        // Create STN/XML file
+        file_opener(msr_file, msrFile);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+
+    dna_msr_fields dml, dmw;
+    std::stringstream ss;
+
+    try {
+        UINT32 count(static_cast<UINT32>(adjust_.v_blockStationsMapUnique_.size()));
+        ss << "Source data:  Coordinates and uncertainties for " << 
+            count << " unique stations in " << adjust_.blockCount_ << " blocks " <<
+            "estimated from least squares adjustment.";
+        std::string headerComment(ss.str());
+        
+        // Print header based on format type
+        switch (t) {
+        case dynaml:
+            // Write header and comments
+            dynaml_header(msr_file, "Measurement File", adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s());
+            dynaml_comment(msr_file, "File type:    Measurement file");
+            dynaml_comment(msr_file, "Project name: " + adjust_.projectSettings_.g.network_name);
+            dynaml_comment(msr_file, headerComment);
+            dynaml_comment(msr_file, "Adj file:     " + adjust_.projectSettings_.o._adj_file);
+            break;
+
+        case dna:
+            // Get file format field widths
+            determineDNAMSRFieldParameters<UINT16>("3.01", dml, dmw);
+
+            // Write header and comments
+            dna_header(msr_file, "3.01", "MSR", adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s(), adjust_.blockCount_);
+            dna_comment(msr_file, "File type:    Measurement file");
+            dna_comment(msr_file, "Project name: " + adjust_.projectSettings_.g.network_name);
+            dna_comment(msr_file, headerComment);
+            dna_comment(msr_file, "Adj file:     " + adjust_.projectSettings_.o._adj_file);
+            break;
+        default:
+            break;
+        }
+    }
+    catch (const std::ofstream::failure& f) {
+        adjust_.SignalExceptionAdjustment(f.what(), 0);
+    }
+    catch (const XMLInteropException& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+
+    try {
+        matrix_2d *estimates = nullptr, *variances = nullptr;
+        dnaMsrPtr msr_ptr;
+        std::string comment;
+
+        // Create a Y cluster for each block
+        for (UINT32 block(0); block < adjust_.blockCount_; ++block) {
+            // Get the appropriate coordinate and uncertainty estimates
+            switch (adjust_.projectSettings_.a.adjust_mode) {
+            case Phased_Block_1Mode:
+                if (block > 0) {
+                    block = adjust_.blockCount_;
+                    continue;
+                }
+                [[fallthrough]];
+            case PhasedMode:
+                // If staged, load up the block from memory mapped files
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.DeserialiseBlockFromMappedFile(block, 2, 
+                        sf_rigorous_stns, sf_rigorous_vars);
+
+                estimates = &adjust_.v_rigorousStations_.at(block);
+                variances = &adjust_.v_rigorousVariances_.at(block);
+                break;
+            case SimultaneousMode:
+                estimates = &adjust_.v_estimatedStations_.at(block);
+                variances = &adjust_.v_normals_.at(block);
+            }
+
+            msr_ptr.reset(new CDnaGpsPointCluster(block, adjust_.datum_.GetName(), adjust_.datum_.GetEpoch_s()));
+            msr_ptr.get()->PopulateMsr(&adjust_.bstBinaryRecords_, 
+                &adjust_.v_blockStationsMap_.at(block), &adjust_.v_parameterStationList_.at(block),
+                block, &adjust_.datum_, estimates, variances);
+
+            if (adjust_.projectSettings_.a.adjust_mode == PhasedMode)
+                // If staged, unload the block
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.UnloadBlock(block, 2, 
+                        sf_rigorous_stns, sf_rigorous_vars);
+
+            ss.str("");
+
+            // Print station coordinate estimates as a GNSS Y cluster
+            switch (t) {
+            case dynaml:
+                ss << std::endl <<
+                    "    - Estimated station coordinates and uncertainties";
+                if (adjust_.blockCount_ > 1)
+                    ss << " for block " << (block + 1);
+                ss << std::endl <<
+                    "    - Type (Y) GPS point cluster (set of " << adjust_.v_blockStationsMap_.at(block).size() << " stations)";
+                if (adjust_.blockCount_ > 1) {
+                    ss << ":" << std::endl <<
+                        "      - " << adjust_.v_ISL_.at(block).size() << " inner station";
+                    if (adjust_.v_ISL_.at(block).size() != 1)
+                        ss << "s";
+                    ss << std::endl <<
+                        "      - " << adjust_.v_JSL_.at(block).size() << " junction station";
+                    if (adjust_.v_JSL_.at(block).size() != 1)
+                        ss << "s";
+                    ss << std::endl;
+                }
+                else
+                    ss << std::endl;
+
+                ss << " ";
+                comment = ss.str();
+                // Print station coordinate estimates in DynaML format
+                msr_ptr.get()->WriteDynaMLMsr(&msr_file, comment);
+                break;
+            case dna:
+                // Print station coordinate estimates in DNA format
+                msr_ptr.get()->WriteDNAMsr(&msr_file, dmw, dml);
+                break;
+            default:
+                break;
+            }
+        }
+
+        switch (t) {
+        case dynaml:
+            msr_file << "</DnaXmlFormat>" << std::endl;
+            break;
+        case dna:
+        default:
+            break;
+        }
+
+        msr_file.close();
+    }
+    catch (const std::ofstream::failure& f) {
+        adjust_.SignalExceptionAdjustment(f.what(), 0);
+    }
+    catch (const XMLInteropException& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
