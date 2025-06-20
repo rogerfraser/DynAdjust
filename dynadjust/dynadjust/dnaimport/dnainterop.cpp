@@ -3676,12 +3676,12 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(projectSettings_.i.bst_file, binaryStn, bst_meta_);
+		BstFileLoader bst;
+		bst.LoadFile(projectSettings_.i.bst_file, binaryStn, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
+		BmsFileLoader bms;
+		bms.LoadFile(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -4808,15 +4808,15 @@ void dna_import::SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeas
 	// of database IDs
 	m_dbidRecordCount = m_binaryRecordCount;
 
-	dna_io_bms bms;
+	BmsFileLoader bms;
 
 	try {
         snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
 		bms_meta_.binCount = m_binaryRecordCount;
-		bms_meta_.inputFileCount = bms.create_msr_input_file_meta(vinput_file_meta, &(bms_meta_.inputFileMeta));
+		bms_meta_.inputFileCount = bms.CreateMsrInputFileMeta(vinput_file_meta, &(bms_meta_.inputFileMeta));
 		bms_meta_.reftran = false;
 		bms_meta_.geoid = false;
-		bms.write_bms_file(bms_filename, vMeasurements, bms_meta_);
+		bms.WriteFile(bms_filename, vMeasurements, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -4828,16 +4828,16 @@ void dna_import::SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStat
 	pvstring vUnusedStns, vifm_t& vinput_file_meta,
 	bool flagUnused)
 {	
-	dna_io_bst bst;
+	BstFileLoader bst;
 	
 	try {
         snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
-		bst_meta_.binCount = static_cast<UINT32>(vStations->size());
-		bst_meta_.inputFileCount = bst.create_stn_input_file_meta(vinput_file_meta, &(bst_meta_.inputFileMeta));
+		bst_meta_.binCount = static_cast<std::uint64_t>(vStations->size());
+		bst_meta_.inputFileCount = bst.CreateStnInputFileMeta(vinput_file_meta, &(bst_meta_.inputFileMeta));
 		bst_meta_.reduced = true;
 		bst_meta_.reftran = false;
 		bst_meta_.geoid = false;
-		bst.write_bst_file(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
+		bst.WriteFile(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -4892,12 +4892,12 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 	
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bst_file, &bstBinaryRecords, bst_meta_);
+		BstFileLoader bst;
+		bst.LoadFile(bst_file, &bstBinaryRecords, bst_meta_);
 
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bms_file, &bmsBinaryRecords, bms_meta_);
+		BmsFileLoader bms;
+		bms.LoadFile(bms_file, &bmsBinaryRecords, bms_meta_);
 
 		// Load aml file.  Throws runtime_error on failure.
 		aml.load_aml_file(aml_file, &vAssocMsrList, &bmsBinaryRecords);
@@ -4998,8 +4998,8 @@ void dna_import::SerialiseAsl(const std::string& filename, pvASLPtr vAssocStnLis
 {
 	try {
 		// write the asl file.
-		dna_io_asl asl;
-		asl.write_asl_file(filename, vAssocStnList);
+		AslFileLoader asl;
+		asl.WriteFile(filename, vAssocStnList);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5013,8 +5013,8 @@ void dna_import::SerialiseAslTextFile(const std::string& filename, pvASLPtr vAss
 {
 	try {
 		// write the ASCII version of the asl file.
-		dna_io_asl asl;
-		asl.write_asl_file_txt(filename + ".txt", vAssocStnList, vStations);
+		AslFileLoader asl;
+		asl.WriteTextFile(filename + ".txt", vAssocStnList, vStations);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5640,8 +5640,8 @@ void dna_import::SerialiseMap(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file.
-		dna_io_map map;
-		map.write_map_file(stnmap_file, &vStnsMap_sortName_);
+		dynadjust::iostreams::MapFileLoader map;
+		map.WriteFile(stnmap_file, &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5653,8 +5653,8 @@ void dna_import::SerialiseMapTextFile(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file as raw text.
-		dna_io_map map;
-		map.write_map_file_txt(stnmap_file + ".txt", &vStnsMap_sortName_);
+		dynadjust::iostreams::MapFileLoader map;
+		map.WriteTextFile(stnmap_file + ".txt", &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);

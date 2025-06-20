@@ -1064,8 +1064,8 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 	UINT32 stn, stnCount(0);
 	
 	try {
-		dna_io_asl asl;
-		stnCount = asl.load_asl_file(aslfileName, &vAssocStnList_, &vfreeStnList_);
+		AslFileLoader asl;
+		stnCount = asl.LoadFile(aslfileName, &vAssocStnList_, &vfreeStnList_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
@@ -1103,8 +1103,8 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 void dna_segment::LoadStationMap(const std::string& stnmap_file)
 {
 	try {
-		dna_io_map map;
-		map.load_map_file(stnmap_file, &stnsMap_);
+		dynadjust::iostreams::MapFileLoader map;
+		map.LoadFile(stnmap_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
@@ -1116,12 +1116,12 @@ void dna_segment::LoadBinaryFiles(const std::string& bstrfileName, const std::st
 	binary_file_meta_t	bst_meta_, bms_meta_;
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bstrfileName, &bstBinaryRecords_, bst_meta_);
+		BstFileLoader bst;
+		bst.LoadFile(bstrfileName, &bstBinaryRecords_, bst_meta_);
 	
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFileLoader bms;
+		bms.LoadFile(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);

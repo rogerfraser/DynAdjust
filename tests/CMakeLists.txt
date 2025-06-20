@@ -48,125 +48,105 @@ target_compile_definitions(test_matrix PRIVATE
     __BINARY_DESC__="Unit tests for matrix operations"
 )
 
-# Test 2: DNA I/O BST test
-add_executable(test_dna_io_bst
-    test_dna_io_bst.cpp
-    ../dynadjust/include/io/dnaiobst.cpp
+# Test 2: BST File Loader test
+add_executable(test_bst_file_loader
+    test_bst_file_loader.cpp
+    ../dynadjust/include/io/bst_file_loader.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_dna_io_bst
+target_link_libraries(test_bst_file_loader
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_dna_io_bst PRIVATE
-    __BINARY_NAME__="test_dna_io_bst"
-    __BINARY_DESC__="Unit tests for dna_io_bst class"
+target_compile_definitions(test_bst_file_loader PRIVATE
+    __BINARY_NAME__="test_bst_file_loader"
+    __BINARY_DESC__="Unit tests for BstFileLoader class"
 )
 
-# Test 3: DNA I/O ASL test
-add_executable(test_dna_io_asl
-    test_dna_io_asl.cpp
-    ../dynadjust/include/io/dnaioasl.cpp
+# Test 3: ASL File Loader test
+add_executable(test_asl_file_loader
+    test_asl_file_loader.cpp
+    ../dynadjust/include/io/asl_file_loader.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_dna_io_asl
+target_link_libraries(test_asl_file_loader
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_dna_io_asl PRIVATE
-    __BINARY_NAME__="test_dna_io_asl"
-    __BINARY_DESC__="Unit tests for dna_io_asl class"
+target_compile_definitions(test_asl_file_loader PRIVATE
+    __BINARY_NAME__="test_asl_file_loader"
+    __BINARY_DESC__="Unit tests for AslFileLoader class"
 )
 
-# Test 4: DNA I/O AML test
-add_executable(test_dna_io_aml
-    test_dna_io_aml.cpp
+# Test 4: AML File Loader test
+add_executable(test_aml_file_loader
+    test_aml_file_loader.cpp
     ../dynadjust/include/io/dnaioaml.cpp
-    ../dynadjust/include/io/dnaiobms.cpp
+    ../dynadjust/include/io/bms_file_loader.cpp
     ../dynadjust/include/measurement_types/dnamsrtally.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_dna_io_aml
+target_link_libraries(test_aml_file_loader
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_dna_io_aml PRIVATE
-    __BINARY_NAME__="test_dna_io_aml"
-    __BINARY_DESC__="Unit tests for dna_io_aml class"
+target_compile_definitions(test_aml_file_loader PRIVATE
+    __BINARY_NAME__="test_aml_file_loader"
+    __BINARY_DESC__="Unit tests for AML file loader"
 )
 
-# Test 5: DNA I/O BMS test
-add_executable(test_dna_io_bms
-    test_dna_io_bms.cpp
-    ../dynadjust/include/io/dnaiobms.cpp
+# Test 5: BMS File Loader test
+add_executable(test_bms_file_loader
+    test_bms_file_loader.cpp
+    ../dynadjust/include/io/bms_file_loader.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_dna_io_bms
+target_link_libraries(test_bms_file_loader
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_dna_io_bms PRIVATE
-    __BINARY_NAME__="test_dna_io_bms"
-    __BINARY_DESC__="Unit tests for dna_io_bms class"
+target_compile_definitions(test_bms_file_loader PRIVATE
+    __BINARY_NAME__="test_bms_file_loader"
+    __BINARY_DESC__="Unit tests for BmsFileLoader class"
 )
 
-# Test 6: Network Data Manager test
-add_executable(test_network_data_manager
-    test_network_data_manager.cpp
-    ../dynadjust/dynadjust/dnaadjust/network_data_manager.cpp
-    ../dynadjust/dynadjust/dnaadjust/associated_station_loader.cpp
-    ../dynadjust/dynadjust/dnaadjust/binary_measurement_loader.cpp
-    ../dynadjust/dynadjust/dnaadjust/binary_station_loader.cpp
+# Test 6: Network Data Loader test
+add_executable(test_network_data_loader
+    test_network_data_loader.cpp
+    ../dynadjust/dynadjust/dnaadjust/network_data_loader.cpp
     ../dynadjust/dynadjust/dnaadjust/measurement_processor.cpp
-    ../dynadjust/include/io/dnaioasl.cpp
-    ../dynadjust/include/io/dnaiobst.cpp
-    ../dynadjust/include/io/dnaiobms.cpp
+    ../dynadjust/include/io/asl_file_loader.cpp
+    ../dynadjust/include/io/bst_file_loader.cpp
+    ../dynadjust/include/io/bms_file_loader.cpp
+    ../dynadjust/include/io/map_file_loader.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_network_data_manager
+target_link_libraries(test_network_data_loader
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_network_data_manager PRIVATE
-    __BINARY_NAME__="test_network_data_manager"
-    __BINARY_DESC__="Unit tests for NetworkDataManager class"
+target_compile_definitions(test_network_data_loader PRIVATE
+    __BINARY_NAME__="test_network_data_loader"
+    __BINARY_DESC__="Unit tests for NetworkDataLoader class"
 )
 
-# Test 7: Associated Station Loader test
-add_executable(test_associated_station_loader
-    test_associated_station_loader.cpp
-    ../dynadjust/dynadjust/dnaadjust/associated_station_loader.cpp
-    ../dynadjust/include/io/dnaioasl.cpp
-    ${IO_COMMON_SOURCES}
-)
 
-target_link_libraries(test_associated_station_loader
-    ${PLATFORM_LIBS}
-    Boost::filesystem
-    Boost::system
-)
-
-target_compile_definitions(test_associated_station_loader PRIVATE
-    __BINARY_NAME__="test_associated_station_loader"
-    __BINARY_DESC__="Unit tests for AssociatedStationLoader class"
-)
-
-# Test 8: Measurement Processor test
+# Test 7: Measurement Processor test
 add_executable(test_measurement_processor
     test_measurement_processor.cpp
     ../dynadjust/dynadjust/dnaadjust/measurement_processor.cpp
@@ -189,23 +169,22 @@ enable_testing()
 
 # Add tests
 add_test(NAME MatrixTest COMMAND test_matrix)
-add_test(NAME DNAIOBSTTest COMMAND test_dna_io_bst)
-add_test(NAME DNAIOASLTest COMMAND test_dna_io_asl)
-add_test(NAME DNAIOAMLTest COMMAND test_dna_io_aml)
-add_test(NAME DNAIOBMSTest COMMAND test_dna_io_bms)
-add_test(NAME NetworkDataManagerTest COMMAND test_network_data_manager)
-add_test(NAME AssociatedStationLoaderTest COMMAND test_associated_station_loader)
+add_test(NAME BstFileLoaderTest COMMAND test_bst_file_loader)
+add_test(NAME AslFileLoaderTest COMMAND test_asl_file_loader)
+add_test(NAME AmlFileLoaderTest COMMAND test_aml_file_loader)
+add_test(NAME BmsFileLoaderTest COMMAND test_bms_file_loader)
+add_test(NAME NetworkDataLoaderTest COMMAND test_network_data_loader)
 add_test(NAME MeasurementProcessorTest COMMAND test_measurement_processor)
 
 # Custom target to run all tests
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_matrix test_dna_io_bst test_dna_io_asl test_dna_io_aml test_dna_io_bms test_network_data_manager test_associated_station_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
     COMMENT "Running all tests"
 )
 
 # Custom target equivalent to 'make all'
 add_custom_target(tests_all
-    DEPENDS test_matrix test_dna_io_bst test_dna_io_asl test_dna_io_aml test_dna_io_bms test_network_data_manager test_associated_station_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
     COMMENT "Building all tests"
 )

@@ -335,14 +335,8 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 	}
 	catch (const NetMemoryException& e) {
 		std::stringstream ss;
-		double memory;
-		try { GetMemoryFootprint(memory, GIGABYTE_SIZE); }
-		catch (...) { /*do nothing*/ }
-
 		ss << "PrepareAdjustment(): Process terminated while allocating memory for the " << std::endl << "  adjustment matrices. " <<
 			"Details: " << std::endl << "  " << e.what() << std::endl;
-		ss << "  The memory footprint consumed by " << __BINARY_NAME__ << " is " << 
-			std::fixed << std::setprecision(2) << memory << " GB" << std::endl;
 		adj_file << "- Error" << std::endl << "  " << ss.str();
 		SignalExceptionAdjustment(ss.str(), currentBlock_);
 	}
@@ -428,18 +422,6 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 
 		adj_file <<  " done.";
 
-		if (projectSettings_.g.verbose > 0)
-		{
-			double memory;
-			std::stringstream ss;
-			try {
-				GetMemoryFootprint(memory, GIGABYTE_SIZE);
-				ss << std::endl << "+ The memory footprint consumed by " << __BINARY_NAME__ << " is " <<
-					std::fixed << std::setprecision(2) << memory << " GB" << std::endl;
-				adj_file << ss.str();
-			}
-			catch (...) { /*do nothing*/ }
-		}
 	}
 }
 
@@ -451,8 +433,8 @@ void dna_adjust::UpdateBinaryFiles()
 
 	try {
 		// Write binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.write_bst_file(projectSettings_.a.bst_file, &bstBinaryRecords_, bst_meta_);
+		BstFileLoader bst;
+		bst.WriteFile(projectSettings_.a.bst_file, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionAdjustment(e.what(), 0);
@@ -463,8 +445,8 @@ void dna_adjust::UpdateBinaryFiles()
 
 	try {
 		// Write binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.write_bms_file(projectSettings_.a.bms_file, &bmsBinaryRecords_, bms_meta_);
+		BmsFileLoader bms;
+		bms.WriteFile(projectSettings_.a.bms_file, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionAdjustment(e.what(), 0);
@@ -595,14 +577,8 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 	}
 	catch (const NetMemoryException& e) {
 		std::stringstream ss;
-		double memory;
-		try { GetMemoryFootprint(memory, GIGABYTE_SIZE); }
-		catch (...) {}
-
 		ss << "UpdateAdjustment(): Process terminated while allocating memory for the " << std::endl << "  adjustment matrices. " <<
 			"Details: " << std::endl << "  " << e.what() << std::endl;
-		ss << "  The memory footprint consumed by " << __BINARY_NAME__ << " is " << 
-			std::fixed << std::setprecision(2) << memory << " GB" << std::endl;
 		adj_file << "- Error:" << std::endl << "  " << ss.str();
 		SignalExceptionAdjustment(ss.str(), block);
 	}
@@ -618,201 +594,6 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 }
 		
 
-void dna_adjust::GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit)
-{
-	UINT32 b, i, w(PRINT_VAR_PAD+NUMERIC_WIDTH);
-	UINT32 precision(2);
-	size_t size(0);
-
-	std::stringstream ss, st;
-	if (projectSettings_.g.verbose > 0)
-	{
-		// Print title
-		ss << std::endl << std::left << std::setw(PRINT_VAR_PAD) << "+ Memory footprint:";
-		st << "Size";
-		switch (unit)
-		{
-		case GIGABYTE_SIZE:
-			st << "(GB) ";
-			precision = 2;
-			break;
-		case MEGABYTE_SIZE:
-			st << "(MB) ";
-			precision = 1;
-			break;
-		case KILOBYTE_SIZE:
-		default:
-			st << "(kB) ";
-			precision = 0;	
-			break;
-		}
-
-		ss << std::right << std::setw(NUMERIC_WIDTH) << st.str() << std::endl;
-
-		// Print line
-		ss << " ";
-		for (i=0; i<w; ++i)
-			ss << "-";
-		ss << std::endl;
-	}
-	
-	double tmp;
-	memory = 0.0;
-	
-	//////////////
-	// binary stations
-	memory += (tmp = static_cast<double>(bstBinaryRecords_.size()) / unit * sizeof(station_t));
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Binary station file" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-	
-	//////////////
-	// binary measurements
-	memory += (tmp = static_cast<double>(bmsBinaryRecords_.size()) / unit * sizeof(measurement_t));
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Binary measurement file" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-	
-	//////////////
-	// Associated Station List
-	memory += (tmp = static_cast<double>(vAssocStnList_.size()) / unit * sizeof(CAStationList));
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Associated station list" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-	
-	//////////////
-	// Associated Measurement List
-	memory += (tmp = static_cast<double>(vAssocMsrList_.size()) / unit * sizeof(UINT32));
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Associated measurement list" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-	
-	//////////////
-	// double type variables
-	size = 0;
-	size += v_sigmaZero_.size();
-	size += v_chiSquaredUpperLimit_.size();
-	size += v_chiSquaredLowerLimit_.size();
-	memory += (tmp = static_cast<double>(size) / unit * sizeof(double));
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Statistical variables" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-	
-	//////////////
-	// matrix_2d type variables
-	tmp = 0;
-	for (b=0; b<blockCount_; ++b)
-	{
-		tmp += (static_cast<double>(v_originalStations_.at(b).get_size()));
-		tmp += (static_cast<double>(v_design_.at(b).get_size()));
-		tmp += (static_cast<double>(v_measMinusComp_.at(b).get_size()));
-		tmp += (static_cast<double>(v_AtVinv_.at(b).get_size()));
-		tmp += (static_cast<double>(v_normals_.at(b).get_size()));
-		tmp += (static_cast<double>(v_estimatedStations_.at(b).get_size()));
-		
-		if (projectSettings_.a.adjust_mode == PhasedMode)
-		{
-			tmp += (static_cast<double>(v_rigorousStations_.at(b).get_size()));
-			tmp += (static_cast<double>(v_junctionVariances_.at(b).get_size()));
-			tmp += (static_cast<double>(v_junctionVariancesFwd_.at(b).get_size()));
-			tmp += (static_cast<double>(v_junctionEstimatesFwd_.at(b).get_size()));
-			tmp += (static_cast<double>(v_junctionEstimatesRev_.at(b).get_size()));
-		}
-		tmp += (static_cast<double>(v_rigorousVariances_.at(b).get_size()));
-		tmp += (static_cast<double>(v_precAdjMsrsFull_.at(b).get_size()));
-		tmp += (static_cast<double>(v_corrections_.at(b).get_size()));
-	}
-
-	tmp *= sizeof(double);
-	tmp /= unit;
-	memory += tmp;
-
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Matrix variables" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-
-	if (projectSettings_.a.multi_thread)
-	{
-		tmp = 0;
-		for (b=0; b<blockCount_; ++b)
-		{
-			if (!v_designR_.empty())
-				tmp += (static_cast<double>(v_designR_.at(b).get_size()));
-			if (!v_measMinusCompR_.empty())
-				tmp += (static_cast<double>(v_measMinusCompR_.at(b).get_size()));
-			if (!v_AtVinvR_.empty())
-				tmp += (static_cast<double>(v_AtVinvR_.at(b).get_size()));
-			if (!v_normalsR_.empty())
-				tmp += (static_cast<double>(v_normalsR_.at(b).get_size()));
-			if (!v_estimatedStationsR_.empty())
-				tmp += (static_cast<double>(v_estimatedStationsR_.at(b).get_size()));
-			if (!v_junctionVariancesR_.empty())
-				tmp += (static_cast<double>(v_junctionVariancesR_.at(b).get_size()));
-			if (!v_normalsRC_.empty())
-				tmp += (static_cast<double>(v_normalsRC_.at(b).get_size()));
-			if (!v_correctionsR_.empty())
-				tmp += (static_cast<double>(v_correctionsR_.at(b).get_size()));
-		}
-
-		tmp *= sizeof(double);
-		tmp /= unit;
-		memory += tmp;
-
-		if (projectSettings_.g.verbose > 0)
-			ss << std::left << std::setw(PRINT_VAR_PAD) << "  MT matrix variables" << 
-				std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	}	
-
-	//////////////
-
-	//////////////
-	// UINT32
-	size = 0;
-	size += v_ContiguousNetList_.size();
-	size += v_pseudoMeasCountFwd_.size();
-	size += v_measurementParams_.size();
-	size += v_measurementCount_.size();
-	size += v_measurementVarianceCount_.size();
-	size += v_unknownParams_.size();
-	size += v_unknownsCount_.size();
-	size += v_parameterStationCount_.size();
-
-	for (b=0; b<blockCount_; ++b)
-	{
-		size += v_ISL_.at(b).size();
-		if (projectSettings_.a.adjust_mode == PhasedMode)
-		{
-			size += v_JSL_.at(b).size();
-			size += v_CML_.at(b).size();
-		}
-		size += v_parameterStationList_.at(b).size();
-	}
-	tmp = static_cast<double>(size);
-	tmp *= sizeof(UINT32);
-	tmp /= unit;
-	memory += tmp;
-
-	if (projectSettings_.g.verbose > 0)
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Arrays, counters and indices" << 
-			std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << tmp << std::endl;
-	//////////////
-
-
-	if (projectSettings_.g.verbose > 0)
-	{
-		ss << " ";
-		for (i=0; i<w; ++i)
-			ss << "-";
-		ss << std::endl;
-		ss << std::left << std::setw(PRINT_VAR_PAD) << "  Total" << std::right << std::setw(NUMERIC_WIDTH) << std::fixed << std::setprecision(precision) << memory << std::endl << std::endl;
-		debug_file << ss.str();
-	}
-}
 	
 
 void dna_adjust::PopulateEstimatedStationMatrix(const UINT32& block, UINT32& unknownParams)
@@ -14071,8 +13852,8 @@ void dna_adjust::SetDefaultReferenceFrame()
 	//      cause output to be set to an empty string ("").
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file_meta(projectSettings_.a.bst_file, bst_meta_);
+		BstFileLoader bst;
+		bst.LoadFileMeta(projectSettings_.a.bst_file, bst_meta_);
 		datum_.SetDatumFromEpsg(bst_meta_.epsgCode, bst_meta_.epoch);
 	}
 	catch (const std::runtime_error& e) {
@@ -14080,273 +13861,14 @@ void dna_adjust::SetDefaultReferenceFrame()
 	}
 }
 
-void dna_adjust::LoadNetworkFilesOld()
+void dna_adjust::LoadNetworkFiles()
 {
-	adj_file << "+ Loading network files" << std::endl;
-	
-	try {
-		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bstn_count_ = bst.load_bst_file(projectSettings_.a.bst_file, &bstBinaryRecords_, bst_meta_);
-	}
-	catch (const std::runtime_error& e) {
-		SignalExceptionAdjustment(e.what(), 0);
-	}
-
-	// Initialise values.
-	// Note: The premise underlying the way various programs treat heights is as follows:
-	//	- import reads in all heights, but, due to the absence of an attribute or element in
-	//    the DynaML schema that states the whether the height system is orthometric or
-	//	  ellipsoidal, the height system is unknown.
-	//	- geoid populates the geoid separation and deflections. It is only when the user
-	//    supplies the convert-stn-hts option that it is assumed all heights are orthometric, in
-	//    which case the heights are converted to ellipsoidal.
-	//  - adjust does not alter station heights, and so adjust assumes currentHeight and 
-	//    initialHeight are ellipsoid heights.  Of course, H measurements are converted to R
-	//    measurements. If geoid is not run and the user has supplied 
-	//	  orthometric heights, the adjustment will not produce realistic results.
-	//    If a the wrong system (or height) is supplied, one of two things, depending on
-	//    the height constraint flag, occur.  For instance, if an orthometric height is supplied,
-	//    and geoid information is not available, and the station is Free in the height component,
-	//    the error will simply result in a large station height correction.  If the wrong height
-	//    is supplied and the station is constrained, then erroneous values will result.
-	//  - It is the user's responsibility to ensure the right heights, geoid values and constraints
-	//    are supplied.
-
-	// Take any additional user-supplied constraints (CCC,CCF,etc) and 
-	// apply to binary station records
-	ApplyAdditionalConstraints();
-
-	vUINT32 v_ISLTemp;
-	try {
-		// open the asl file. the asl file is required to ensure invalid stations are
-		// excluded from the adjustment. invalid stations are those with no measurements.
-		dna_io_asl asl;
-		asl_count_ = asl.load_asl_file(projectSettings_.s.asl_file, &vAssocStnList_, &v_ISLTemp);
-	}
-	catch (const std::runtime_error& e) {
-		SignalExceptionAdjustment(e.what(), 0);
-	}
-
-	// remove stations from the stations list that are invalid and update 'true' station count
-	RemoveInvalidISLStations(v_ISLTemp);
-
-	unknownParams_ = unknownsCount_ = static_cast<UINT32>(v_ISLTemp.size() * 3);
-	UINT32 i;
-
-	// Copy to v_ISL for simultaneous adjustments
-	// For phased adjustments, v_ISL will be populated by LoadSegmentationFile()
-	if (projectSettings_.a.adjust_mode == SimultaneousMode)
-	{
-		// only copy to v_ISL in simultaneous mode
-		v_ISL_.push_back(v_ISLTemp);
-
-		v_unknownsCount_.clear();
-		v_unknownsCount_.push_back(unknownParams_);
-		
-		// check memory availability for block station map
-		if (v_blockStationsMap_.at(0).max_size() <= v_ISL_.at(0).size())
-		{
-			std::stringstream ss;
-			ss << "LoadNetworkFiles(): Could not allocate sufficient memory for blockStationsMap." << std::endl;
-			SignalExceptionAdjustment(ss.str(), 0);
-		}
-
-		// fill block station map, and create pseudo measurement list
-		for (i=0; i<v_ISL_.at(0).size(); ++i)
-			v_blockStationsMap_.at(0)[v_ISL_.at(0).at(i)] = i;
-	}
-	
-	try {
-		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bmsr_count_ = bms.load_bms_file(projectSettings_.a.bms_file, &bmsBinaryRecords_, bms_meta_);
-	}
-	catch (const std::runtime_error& e) {
-		SignalExceptionAdjustment(e.what(), 0);
-	}
-
-	UINT32 m(0), clusterID(0);
-	it_vmsr_t _it_msr;
-
-	UINT16 axis(0);
-
-	// Consider the following sequence of program calls:
-	//	>	import -n unisqr1 uni_sqrstn.xml uni_sqrmsr.xml
-	//	>	adjust unisqr1
-	//	>	geoid -g ausgeoid09.gsb unisqr1 --convert
-	//	>	adjust unisqr1 --output-adj-msr
-	//
-	// For some reason, these adjustment results don't agree exactly with
-	// results from the following:
-	//	>	import -n unisqr uni_sqrstn.xml uni_sqrmsr.xml
-	//	>	geoid -g ausgeoid09.gsb unisqr --convert
-	//	>	adjust unisqr --output-adj-msr
-	//
-	// Tests on uni_sqrstn.xml and uni_sqrmsr.xml result in the following differences:
-	//
-	//    dX       | dY      | dZ
-	//    ---------+---------+--------
-	//     0       | 0.0003  | 0
-	//    -0.0006  | 0       |-0.0006
-	//
-	// Not much of a difference, but different.
-	// 
-	// Adjustments agree perfectly for GPS-only networks, which indicates that the problem is
-	// most likely to do with the application of deflections of the vertical
-	
-
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case SimultaneousMode:
-		v_CML_.clear();
-		v_CML_.push_back(vUINT32(bmsr_count_));
-		
-		v_measurementCount_.clear();
-		v_measurementCount_.push_back(0);
-
-		v_measurementVarianceCount_.clear();
-		v_measurementVarianceCount_.push_back(0);
-
-		// Create measurement tally to determine the measurement
-		// types that have been supplied
-		for (_it_msr=bmsBinaryRecords_.begin(), i=0, m=0; 
-			_it_msr!=bmsBinaryRecords_.end();
-			++_it_msr, ++i)
-		{
-
-			// Don't include ignored measurements in the CML or 
-			// in the measurement count.  Ignored measurements are still 
-			// kept in bmsBinaryRecords_, but not in 
-			// the list of measurements (i.e. CML) for this adjustment
-			if (_it_msr->ignore)
-				continue;
-
-			// Don't include covariance terms in the CML or 
-			// in the measurement count
-			if (_it_msr->measStart > zMeas)
-				continue;
-
-			switch (_it_msr->measType)
-			{
-			case 'Y':
-			case 'X':	
-				// Is this an xMeas on a new cluster?
-				if (clusterID != _it_msr->clusterID)
-				{
-					// Yes, so capture the fist xMeas only
-					v_CML_.at(0).at(m++) = i;
-					clusterID = _it_msr->clusterID;
-				}
-				
-				break;
-			default:
-				v_CML_.at(0).at(m++) = i;
-			}				
-
-			if (_it_msr->measType == 'D')
-			{
-				// The first direction holds number of target directions plus RO.  But
-				// since it is possible for target directions to be ignored, take
-				// the number of non-ignored measurements (vectorCount2)								
-				// Since directions are reduced to angles, subtract one.
-				// Target directions are assigned zero vectorCount1
-				if (_it_msr->vectorCount2 > 0)
-				{
-					v_measurementCount_.at(0) += _it_msr->vectorCount2 - 1;
-					
-					// The following is needed if the upper triangular variance matrix
-					// for each direction set measurement (as required for propagating)
-					v_measurementVarianceCount_.at(0) += _it_msr->vectorCount2 - 1;
-				}
-				continue;
-			}
-
-			switch (_it_msr->measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				// add the 
-				v_measurementCount_.at(0)++;
-
-				// The following is needed if the upper triangular variance matrix
-				// for each GNSS measurement (as is required for propagating)
-				v_measurementVarianceCount_.at(0) += 1 + axis++;
-
-				if (axis > 2)
-					axis = 0;
-				
-				continue;
-			}
-				
-			// add the measurement!	
-			v_measurementCount_.at(0)++;
-			
-			// The following is needed if the upper triangular variance matrix
-			// for each GNSS measurement (as is required for propagating)
-			v_measurementVarianceCount_.at(0)++;
-		}
-		
-		if (m == 0)
-		{
-			std::stringstream ss;
-			ss << "No measurements were found." << std::endl << 
-				"  If measurements were successfully loaded on import, ensure that\n  all measurements have not been ignored." << std::endl;
-			SignalExceptionAdjustment(ss.str(), 0);
-		}
-
-		// resize to cater for measurements which were ignored
-		if (m != i)
-			v_CML_.at(0).resize(m);
-
-		// strip all but the start measurements
-		RemoveNonMeasurements(0);
-
-		measurementParams_ = measurementCount_ = v_measurementCount_.at(0);
-	}
-
-	// Fix for phased mode: ensure v_measurementParams_ is properly set
-	v_measurementParams_ = v_measurementCount_;
-	
-	// Set scalar measurement parameters for all adjustment modes
-	if (!v_measurementCount_.empty()) {
-		measurementParams_ = measurementCount_ = v_measurementCount_.at(0);
-	} else if (projectSettings_.a.adjust_mode == PhasedMode || projectSettings_.a.adjust_mode == Phased_Block_1Mode) {
-		// For phased mode, set measurement parameters to total measurement count
-		measurementParams_ = measurementCount_ = bmsr_count_;
-	}
-}
-
-void dna_adjust::LoadNetworkFilesNew()
-{
-    adj_file << "+ Loading network files (new implementation)" << std::endl;
+    adj_file << "+ Loading network files" << std::endl;
     
     try {
-        NetworkDataManager networkManager(projectSettings_);
+        NetworkDataLoader loader(projectSettings_);
         
-        networkManager.setErrorHandler([this](const std::string& msg, UINT32 block) {
-            SignalExceptionAdjustment(msg, block);
-        });
-        
-        networkManager.setConstraintApplier([this]() {
-            ApplyAdditionalConstraints();
-        });
-        
-        networkManager.setInvalidStationRemover([this](vUINT32& v_ISLTemp) {
-            RemoveInvalidISLStations(v_ISLTemp);
-        });
-        
-        networkManager.setNonMeasurementRemover([this](UINT32 block) {
-            RemoveNonMeasurements(block);
-        });
-        
-        networkManager.setMeasurementCountUpdater([this](UINT32 measurementParams, UINT32 measurementCount) {
-            measurementParams_ = measurementParams;
-            measurementCount_ = measurementCount;
-        });
-        
-        bool success = networkManager.loadNetworkFiles(
+        bool success = loader.LoadInto(
             &bstBinaryRecords_,
             bst_meta_,
             &vAssocStnList_,
@@ -14367,7 +13889,7 @@ void dna_adjust::LoadNetworkFilesNew()
             SignalExceptionAdjustment("LoadNetworkFilesNew(): Failed to load network files", 0);
         }
         
-        // Ensure v_blockStationsMap_ matches the state that LoadNetworkFilesOld preserves
+        // Ensure v_blockStationsMap_ matches expected state
         if (v_blockStationsMap_.empty()) {
             v_blockStationsMap_.resize(1);
         }
@@ -14377,87 +13899,6 @@ void dna_adjust::LoadNetworkFilesNew()
     }
 }
 
-void dna_adjust::LoadNetworkFiles()
-{
-    adj_file << "+ Loading and comparing network files" << std::endl;
-    
-    // Capture initial state
-    NetworkState initialState = captureCurrentState();
-    
-    // Load using old implementation
-    LoadNetworkFilesOld();
-    NetworkState oldState = captureCurrentState();
-    
-    // Clear state and load using new implementation
-    clearState();
-    LoadNetworkFilesNew();
-    NetworkState newState = captureCurrentState();
-    
-    // Compare results
-    bool statesMatch = compareNetworkStates(oldState, newState);
-    
-    if (statesMatch) {
-        std::cerr << "  Network loading implementations match!" << std::endl;
-    } else {
-        std::cerr << "  WARNING: Network loading implementations differ!" << std::endl;
-    }
-}
-
-NetworkState dna_adjust::captureCurrentState() const
-{
-    NetworkState state;
-    state.bstn_count = bstn_count_;
-    state.asl_count = asl_count_;
-    state.bmsr_count = bmsr_count_;
-    state.unknownParams = unknownParams_;
-    state.unknownsCount = unknownsCount_;
-    state.measurementParams = measurementParams_;
-    state.measurementCount = measurementCount_;
-    state.v_measurementCount = v_measurementCount_;
-    state.v_measurementVarianceCount = v_measurementVarianceCount_;
-    state.v_measurementParams = v_measurementParams_;
-    state.v_unknownsCount = v_unknownsCount_;
-    state.v_ISL = v_ISL_;
-    state.v_CML = v_CML_;
-    state.v_blockStationsMap = v_blockStationsMap_;
-    
-    return state;
-}
-
-void dna_adjust::clearState()
-{
-    bstn_count_ = 0;
-    asl_count_ = 0;
-    bmsr_count_ = 0;
-    unknownParams_ = 0;
-    unknownsCount_ = 0;
-    measurementParams_ = 0;
-    measurementCount_ = 0;
-    
-    bstBinaryRecords_.clear();
-    bmsBinaryRecords_.clear();
-    vAssocStnList_.clear();
-    
-    v_measurementCount_.clear();
-    v_measurementVarianceCount_.clear();
-    v_measurementParams_.clear();
-    v_unknownsCount_.clear();
-    v_ISL_.clear();
-    v_CML_.clear();
-    v_blockStationsMap_.clear();
-}
-
-bool dna_adjust::compareNetworkStates(const NetworkState& oldState, const NetworkState& newState)
-{
-    std::ostringstream comparison_output;
-    bool match = diff_network_state(oldState, newState, comparison_output);
-    
-    adj_file << "  Network state comparison:" << std::endl;
-    adj_file << comparison_output.str() << std::endl;
-    
-    
-    return match;
-}
 
 void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
 {
@@ -14591,92 +14032,14 @@ void dna_adjust::InitialiseTypeBUncertainties()
 	}
 }
 
-// Take any additional user-supplied constraints (CCC,CCF,etc) and 
-// apply to binary station records
-void dna_adjust::ApplyAdditionalConstraints()
-{
-	if (projectSettings_.a.station_constraints.empty())
-		return;
-
-	// load station map
-	v_string_uint32_pair vStnsMap;
-	if (projectSettings_.a.map_file.empty())
-		projectSettings_.a.map_file = projectSettings_.g.input_folder + FOLDER_SLASH + projectSettings_.g.network_name + ".map";
-	LoadStationMap(&vStnsMap, projectSettings_.a.map_file);
-
-	std::string constraint;
-	vstring constraintStns;
-	_it_vstr const_it;
-
-	try {
-		// Extract constraints from comma delimited string
-		SplitDelimitedString<std::string>(
-			projectSettings_.a.station_constraints,	// the comma delimited string
-			std::string(","),							// the delimiter
-			&constraintStns);						// the respective values
-	}
-	catch (...) {
-		return;
-	}
-
-	if (projectSettings_.i.apply_discontinuities)
-	{
-		// Test for whether stations have been renamed, in which case, the
-		// look for non empty values in stn.stationNameOrig
-		AddDiscontinuitySites(constraintStns);
-	}
-
-	it_pair_string_vUINT32 it_stnmap_range;
-
-	for (const_it=constraintStns.begin(); const_it!=constraintStns.end(); ++const_it) 
-	{
-		// find this station in the station map
-		it_stnmap_range = equal_range(vStnsMap.begin(), vStnsMap.end(), (*const_it), StationNameIDCompareName());
-		if (it_stnmap_range.first == it_stnmap_range.second)
-		{
-			if (projectSettings_.i.apply_discontinuities)
-			{
-				// It is likely that these stations were renamed during 
-				// discontinuity processing, so continue 
-				if (++const_it == constraintStns.end())
-					break;
-				continue;
-			}
-
-			std::stringstream ss;
-			ss << "The supplied constraint station " << (*const_it) << " is not in the stations map.  Please ensure that " << 
-				(*const_it) << " is included in the list of stations." << std::endl;
-
-			SignalExceptionAdjustment(ss.str(), 0);
-		}
-
-		// get constraint
-		if (++const_it == constraintStns.end())
-			break;
-
-		constraint = *const_it;
-		// convert to upper case
-		str_toupper<int>(constraint);
-
-		if (!CDnaStation::IsValidConstraint(constraint))
-		{
-			std::stringstream ss;
-			ss << "The supplied station constraint " << constraint << " is not a valid constraint." << std::endl;
-			SignalExceptionAdjustment(ss.str(), 0);
-		}
-
-		// set constraint
-		snprintf(bstBinaryRecords_.at(it_stnmap_range.first->second).stationConst, STN_CONST_WIDTH, "%s", (constraint).c_str());
-	}
-}
 	
 
 void dna_adjust::LoadStationMap(pv_string_uint32_pair stnsMap, const std::string& stnmap_file)
 {
 	try {
 		// Load station map.  Throws runtime_error on failure.
-		dna_io_map map;
-		map.load_map_file(stnmap_file, stnsMap);
+		dynadjust::iostreams::MapFileLoader map;
+		map.LoadFile(stnmap_file, stnsMap);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionAdjustment(e.what(), 0);
@@ -15027,30 +14390,6 @@ void dna_adjust::RemoveDuplicateStations(vUINT32& vStations)
 // Required since the binary stations list may contain stations with no measurements
 // Not required for phased adjustment since these stations are removed during the
 // segmentation algorithm.
-void dna_adjust::RemoveInvalidISLStations(vUINT32& v_ISLTemp)
-{
-	CompareValidity<CAStationList, UINT32> aslValidityCompareFunc(&vAssocStnList_, FALSE);
-	std::sort(v_ISLTemp.begin(), v_ISLTemp.end(), aslValidityCompareFunc);
-	erase_if(v_ISLTemp, aslValidityCompareFunc);
-	std::sort(v_ISLTemp.begin(), v_ISLTemp.end());
-}
-	
-
-// Used for simultaneous adjustments
-void dna_adjust::RemoveNonMeasurements(const UINT32& block)
-{
-	if (v_CML_.at(block).size() < 2)
-		return;
-	// Strip anything that is not xMeas
-	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(&bmsBinaryRecords_, xMeas);
-	std::sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), measstartCompareFunc);
-	erase_if(v_CML_.at(block), measstartCompareFunc);
-	
-	// Sort CML on file order (default option)
-	CompareMsrFileOrder<measurement_t, UINT32> fileorderCompareFunc(&bmsBinaryRecords_);
-	std::sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
-	
-}
 	
 
 void dna_adjust::SortMeasurementsbyType(v_uint32_u32u32_pair& msr_block)

@@ -3452,12 +3452,12 @@ void dna_plot::LoadBinaryFiles()
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		stationCount_ = bst.load_bst_file(projectSettings_.i.bst_file, &bstBinaryRecords_, bst_meta_);
+		BstFileLoader bst;
+		stationCount_ = bst.LoadFile(projectSettings_.i.bst_file, &bstBinaryRecords_, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(projectSettings_.i.bms_file, &bmsBinaryRecords_, bms_meta_);
+		BmsFileLoader bms;
+		bms.LoadFile(projectSettings_.i.bms_file, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -3571,8 +3571,8 @@ void dna_plot::LoadStationMap()
 {
 	try {
 		// Load station map.  Throws runtime_error on failure.
-		dna_io_map map;
-		map.load_map_file(projectSettings_.i.map_file, &stnsMap_);
+		dynadjust::iostreams::MapFileLoader map;
+		map.LoadFile(projectSettings_.i.map_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);

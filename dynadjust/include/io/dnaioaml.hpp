@@ -30,7 +30,7 @@
 #endif
 
 #include <include/io/dnaiobase.hpp>
-#include <include/io/dnaiobms.hpp>
+#include <include/io/bms_file_loader.hpp>
 
 namespace dynadjust {
 namespace iostreams {
@@ -44,15 +44,15 @@ public:
 
 	dna_io_aml& operator=(const dna_io_aml& rhs);
 
-	void load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords);
+	void load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, measurements::pvmsr_t bmsRecords);
 	void write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml);
-	void write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
+	void write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const measurements::pvASLPtr vAssocStnList, measurements::vdnaStnPtr* vStations);
 
-	void create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pair& vAssocMsrList, 
-		vmsrtally& stnmsrTally, vmsr_t& bmsBinaryRecords);
+	void create_msr_to_stn_tally(const measurements::pvASLPtr vAssocStnList, v_aml_pair& vAssocMsrList, 
+		measurements::vmsrtally& stnmsrTally, measurements::vmsr_t& bmsBinaryRecords);
 
 	void write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords, 
-		pvUINT32 vStationList, vmsrtally& v_stnmsrTally, MsrTally* parsemsrTally);
+		pvUINT32 vStationList, measurements::vmsrtally& v_stnmsrTally, measurements::MsrTally* parsemsrTally);
 	
 protected:
 
