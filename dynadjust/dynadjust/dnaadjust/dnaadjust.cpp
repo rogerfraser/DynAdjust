@@ -2267,22 +2267,9 @@ void dna_adjust::PrintPositionalUncertainty()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 
-	// Print formatted header
-	print_file_header(apu_file, "DYNADJUST POSITIONAL UNCERTAINTY OUTPUT FILE");
-	
-	apu_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(projectSettings_.o._apu_file).string() << std::endl << std::endl;
-	
-	apu_file << std::setw(PRINT_VAR_PAD) << std::left << "PU confidence interval:" << std::setprecision(1) << std::fixed << 
-		// projectSettings_.a.confidence_interval << "%" << std::endl;
-		// the SP1 standard for PU is 95% and the formula is designed to achieve that end,
-		// irrespective of the adjustment confidence interval
-		95.0 << "%" << std::endl;	
-		
-	apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Error ellipse axes:" << std::setprecision(1) << std::fixed <<
-		68.3 << "% (1 sigma)" << std::endl;
-
-	apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Variances:" << std::setprecision(1) << std::fixed <<
-		68.3 << "% (1 sigma)" << std::endl;
+	// Use new printer infrastructure for header
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintPositionalUncertaintyFileHeader(apu_file, projectSettings_.o._apu_file);
 	
 	apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
 	if (projectSettings_.a.adjust_mode != SimultaneousMode)
@@ -2384,6 +2371,10 @@ void dna_adjust::PrintPositionalUncertainty()
 // Prints corrections to stations
 void dna_adjust::PrintNetworkStationCorrections()
 {
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintStationCorrections();
+	
+	// Use existing detailed implementation for complex staging logic
 	std::ofstream cor_file;
 	try {
 		// Create cor file.  Throws runtime_error on failure.
@@ -2393,9 +2384,8 @@ void dna_adjust::PrintNetworkStationCorrections()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 
-	// Print formatted header
-	print_file_header(cor_file, "DYNADJUST CORRECTIONS OUTPUT FILE");
-	cor_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(projectSettings_.o._cor_file).string() << std::endl << std::endl;
+	// Use new printer infrastructure for header
+	printer.PrintStationFileHeader(cor_file, "CORRECTIONS", projectSettings_.o._cor_file);
 
 	cor_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
 	if (projectSettings_.a.adjust_mode != SimultaneousMode &&
@@ -9498,8 +9488,10 @@ void dna_adjust::PrintAdjStations(std::ostream& os, const UINT32& block,
 
 	try {
 
-		if (printHeader)
-			adj.print_adj_stn_header(os);
+		if (printHeader) {
+			networkadjust::DynAdjustPrinter printer(*this);
+			printer.PrintStationColumnHeaders(os, CoordinateOutputMode::Geographic, stationVariances != nullptr);
+		}
 
 		// if required, sort stations according to original station file order
 		if (projectSettings_.o._sort_stn_file_order)
@@ -10016,6 +10008,11 @@ void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 	if (projectSettings_.o._sort_stn_file_order)
 		SortStationsbyFileOrder(v_blockStations);
 	
+	// Use new printer infrastructure for coordination
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintStationCorrelations(cor_file, block);
+	
+	// Continue with existing detailed implementation
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case PhasedMode:

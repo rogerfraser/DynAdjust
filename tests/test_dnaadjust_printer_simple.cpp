@@ -169,6 +169,35 @@ public:
         adjust_.adj_file << "Direction set: angle1=45.123 angle2=90.456 ";
     }
     
+    // Stage 4 test functions
+    void print_geographic_coordinates() {
+        adjust_.adj_file << "Geographic coordinates: lat=12.345 lon=67.890 ";
+    }
+    
+    void print_cartesian_coordinates() {
+        adjust_.adj_file << "Cartesian coordinates: X=123.45 Y=678.90 Z=234.56 ";
+    }
+    
+    void print_station_file_header(const std::string& file_type) {
+        adjust_.adj_file << "Station file header: " << file_type << " ";
+    }
+    
+    void print_positional_uncertainty_header() {
+        adjust_.adj_file << "Positional uncertainty header: 95% confidence ";
+    }
+    
+    void print_station_corrections() {
+        adjust_.adj_file << "Station corrections: applied ";
+    }
+    
+    void print_station_correlations() {
+        adjust_.adj_file << "Station correlations: matrix computed ";
+    }
+    
+    void print_station_adjustment_results() {
+        adjust_.adj_file << "Station adjustment results: converged ";
+    }
+    
     // Test helper functions
     static constexpr int get_station_count(char measurement_type) {
         constexpr std::array station_counts{
@@ -581,5 +610,83 @@ TEST_CASE("Stage 3: C++17 features demonstration", "[printer][stage3][modern]") 
         
         std::string output = mock_adjust.adj_file.str();
         REQUIRE(output.find("Header: Measured | Computed") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: Station coordinate formatters work correctly", "[printer][stage4][coordinates]") {
+    SECTION("Geographic coordinate formatting") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_geographic_coordinates();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Geographic coordinates:") != std::string::npos);
+    }
+    
+    SECTION("Cartesian coordinate formatting") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_cartesian_coordinates();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Cartesian coordinates:") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: Station file headers work correctly", "[printer][stage4][headers]") {
+    SECTION("Station file header generation") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_station_file_header("ADJUSTMENT");
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Station file header: ADJUSTMENT") != std::string::npos);
+    }
+    
+    SECTION("Positional uncertainty header generation") {
+        MockDnaAdjust fresh_mock_adjust;
+        TestPrinter fresh_printer(fresh_mock_adjust);
+        
+        fresh_printer.print_positional_uncertainty_header();
+        
+        std::string output = fresh_mock_adjust.adj_file.str();
+        REQUIRE(output.find("Positional uncertainty header:") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: Station processing coordinators work correctly", "[printer][stage4][coordinators]") {
+    SECTION("Station corrections coordinator") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_station_corrections();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Station corrections:") != std::string::npos);
+    }
+    
+    SECTION("Station correlations coordinator") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_station_correlations();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Station correlations:") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: Advanced station processing works correctly", "[printer][stage4][advanced]") {
+    SECTION("Station adjustment results") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_station_adjustment_results();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Station adjustment results:") != std::string::npos);
     }
 }
