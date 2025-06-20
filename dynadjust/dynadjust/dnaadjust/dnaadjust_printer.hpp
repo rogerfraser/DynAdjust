@@ -141,6 +141,7 @@ class DynAdjustPrinter {
     void PrintIgnoredMeasurements(bool printHeader);
     void PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
     void PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr);
+    void PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr);
     void PrintComputedMeasurements(const UINT32& block, const std::string& type);
     
     // Stage 3: Specialized measurement handlers

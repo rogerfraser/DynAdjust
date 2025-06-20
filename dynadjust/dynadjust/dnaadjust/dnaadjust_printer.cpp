@@ -1897,6 +1897,158 @@ void DynAdjustPrinter::PrintPreAdjustmentCorrection(const char cardinal, const i
     }
 }
 
+void DynAdjustPrinter::PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr)
+{
+    // Get an iterator to this measurement which will be needed later when
+    // obtaining variance matrices via GetGPSVarianceMatrix()
+    it_vmsr_t _it_msr_begin(_it_msr);
+    
+    // create a temporary copy of this Y measurement and transform/propagate
+    // cartesian elements to geographic
+    vmsr_t y_msr;
+    CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
+    
+    it_vmsr_t _it_y_msr(y_msr.begin());
+    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+    
+    UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
+    matrix_2d mpositions(cluster_count * 3, 1);
+    double latitude, longitude, height;
+
+    it_vstn_t stn1_it;
+
+    // 1. Convert coordinates from cartesian to geographic
+    adjust_.ReduceYLLHMeasurementsforPrinting(y_msr, mpositions, adjustedMsrs);
+    
+    _it_y_msr = y_msr.begin();
+
+    matrix_2d var_cart_adj(3, 3), var_geo_adj(3, 3);
+
+    // 2. Convert adjusted precisions
+    for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+    {
+        covr = cluster_msr * 3;
+        covariance_count = _it_y_msr->vectorCount2;
+
+        var_cart_adj.put(0, 0, _it_y_msr->measAdjPrec);
+        _it_y_msr++;
+        var_cart_adj.put(1, 1, _it_y_msr->measAdjPrec);
+        _it_y_msr++;	
+        var_cart_adj.put(2, 2, _it_y_msr->measAdjPrec);
+
+        latitude = mpositions.get(covr, 0);
+        longitude = mpositions.get(covr+1, 0);
+        height = mpositions.get(covr+2, 0);
+
+        PropagateVariances_GeoCart<double>(var_cart_adj, &var_geo_adj,
+            latitude, longitude, height,
+            adjust_.datum_.GetEllipsoidRef(), 
+            false);	 		// Cartesian -> Geographic
+
+        _it_y_msr-=2;
+        _it_y_msr->measAdjPrec = var_geo_adj.get(0, 0);
+
+        _it_y_msr++;
+        _it_y_msr->measAdjPrec = var_geo_adj.get(1, 1);
+        
+        _it_y_msr++;	
+        _it_y_msr->measAdjPrec = var_geo_adj.get(2, 2);
+        
+        // skip covariances until next point
+        _it_y_msr += covariance_count * 3;
+        
+        if (covariance_count > 0)
+            _it_y_msr++;
+    }
+
+    _it_y_msr = y_msr.begin();
+
+    // 3. Convert apriori measurement precisions
+
+    // Get measurement cartesian variance matrix
+    matrix_2d var_cart;
+    GetGPSVarianceMatrix(_it_msr_begin, &var_cart);
+    var_cart.filllower();
+
+    // Propagate the cartesian variance matrix to geographic
+    PropagateVariances_GeoCart_Cluster<double>(var_cart, &var_cart,
+        mpositions, 
+        adjust_.datum_.GetEllipsoidRef(), 
+        false); 		// Cartesian -> Geographic
+
+    SetGPSVarianceMatrix(_it_y_msr, var_cart);
+    
+    // Now print the temporary measurement
+    bool nextElement(false);
+
+    for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+    {
+        stn1_it = adjust_.bstBinaryRecords_.begin() + _it_y_msr->station1;
+
+        if (nextElement)
+            adjust_.adj_file << std::left << std::setw(PAD2) << _it_y_msr->measType;
+        else
+            nextElement = true;
+
+        covariance_count = _it_y_msr->vectorCount2;
+
+        // update statistics
+        // Latitude
+        _it_y_msr->residualPrec = _it_y_msr->term2 - _it_y_msr->measAdjPrec;
+        if (_it_y_msr->residualPrec < 0.0)
+            _it_y_msr->residualPrec = fabs(_it_y_msr->residualPrec);
+        _it_y_msr->PelzerRel = sqrt(_it_y_msr->term2) / sqrt(_it_y_msr->residualPrec);
+        if (_it_y_msr->PelzerRel < 0. || _it_y_msr->PelzerRel > STABLE_LIMIT)
+            _it_y_msr->PelzerRel = UNRELIABLE;
+        _it_y_msr->NStat = _it_y_msr->measCorr / sqrt(_it_y_msr->residualPrec);
+        _it_y_msr++;
+        
+        // Longitude
+        _it_y_msr->residualPrec = _it_y_msr->term3 - _it_y_msr->measAdjPrec;
+        if (_it_y_msr->residualPrec < 0.0)
+            _it_y_msr->residualPrec = fabs(_it_y_msr->residualPrec);
+        _it_y_msr->PelzerRel = sqrt(_it_y_msr->term3) / sqrt(_it_y_msr->residualPrec);
+        if (_it_y_msr->PelzerRel < 0. || _it_y_msr->PelzerRel > STABLE_LIMIT)
+            _it_y_msr->PelzerRel = UNRELIABLE;
+        _it_y_msr->NStat = _it_y_msr->measCorr / sqrt(_it_y_msr->residualPrec);
+        _it_y_msr++;
+
+        // Orthometric height
+        _it_y_msr->residualPrec = _it_y_msr->term4 - _it_y_msr->measAdjPrec;
+        if (_it_y_msr->residualPrec < 0.0)
+            _it_y_msr->residualPrec = fabs(_it_y_msr->residualPrec);
+        _it_y_msr->PelzerRel = sqrt(_it_y_msr->term4) / sqrt(_it_y_msr->residualPrec);
+        if (_it_y_msr->PelzerRel < 0. || _it_y_msr->PelzerRel > STABLE_LIMIT)
+            _it_y_msr->PelzerRel = UNRELIABLE;
+        _it_y_msr->NStat = _it_y_msr->measCorr / sqrt(_it_y_msr->residualPrec);
+        
+        _it_y_msr-=2;
+        
+        // first, second, third stations
+        adjust_.adj_file << std::left << std::setw(STATION) << 
+            stn1_it->stationName <<
+            std::left << std::setw(STATION) << " " <<		// second station
+            std::left << std::setw(STATION) << " ";		// third station
+
+        // Print X
+        adjust_.PrintAdjMeasurementsAngular('P', _it_y_msr);
+    
+        // Print Y
+        _it_y_msr++;	
+        adjust_.PrintAdjMeasurementsAngular('L', _it_y_msr);
+
+        // Print Z
+        _it_y_msr++;	
+        adjust_.PrintAdjMeasurementsLinear('H', _it_y_msr);
+
+        // skip covariances until next point
+        _it_y_msr += covariance_count * 3;
+        
+        if (covariance_count > 0)
+            _it_y_msr++;
+    }
+}
+
 // Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
