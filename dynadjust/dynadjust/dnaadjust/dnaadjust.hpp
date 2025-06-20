@@ -209,6 +209,8 @@ class DNAADJUST_API dna_adjust {
 #else
 class dna_adjust {
 #endif
+    friend class DynAdjustPrinter;
+    
   public:
     dna_adjust();
     virtual ~dna_adjust();
