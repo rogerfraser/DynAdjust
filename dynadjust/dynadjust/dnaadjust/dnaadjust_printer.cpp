@@ -3842,5 +3842,44 @@ void DynAdjustPrinter::PrintPosUncertainty(std::ostream& os, const UINT32& block
     }
 }
 
+void DynAdjustPrinter::PrintPosUncertainties(std::ostream& os, const UINT32& block, const matrix_2d* stationVariances)
+{
+    vUINT32 v_blockStations(adjust_.v_parameterStationList_.at(block));
+
+    // if required, sort stations according to original station file order
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+        adjust_.SortStationsbyFileOrder(v_blockStations);
+    
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case PhasedMode:
+    case Phased_Block_1Mode:        // only the first block is rigorous
+        os << "Block " << block + 1 << std::endl;
+        break;
+    }
+
+    // Print header
+    PrintPosUncertaintiesHeader(os);
+
+    UINT32 mat_idx, stn;
+
+    // Print stations according to the user-defined sort order
+    for (UINT32 i=0; i<adjust_.v_blockStationsMap_.at(block).size(); ++i)
+    {
+        stn = v_blockStations.at(i);
+        mat_idx = adjust_.v_blockStationsMap_.at(block)[stn] * 3;
+
+        PrintPosUncertainty(os,
+            block, stn, mat_idx,
+            stationVariances, i, &v_blockStations);
+    }
+
+    os << std::endl;
+
+    // return sort order to alpha-numeric
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+        adjust_.SortStationsbyID(v_blockStations);
+}
+
 } // namespace networkadjust
 } // namespace dynadjust

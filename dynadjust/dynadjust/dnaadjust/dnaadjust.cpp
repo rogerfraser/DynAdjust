@@ -8699,41 +8699,8 @@ void dna_adjust::PrintPosUncertainty(std::ostream& os, /*ostream* csv,*/ const U
 
 void dna_adjust::PrintPosUncertainties(std::ostream &os, const UINT32& block, const matrix_2d* stationVariances)
 {
-	vUINT32 v_blockStations(v_parameterStationList_.at(block));
-
-	// if required, sort stations according to original station file order
-	if (projectSettings_.o._sort_stn_file_order)
-		SortStationsbyFileOrder(v_blockStations);
-	
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case PhasedMode:
-	case Phased_Block_1Mode:		// only the first block is rigorous
-		os << "Block " << block + 1 << std::endl;
-		break;
-	}
-
-	// Print header
-	PrintPosUncertaintiesHeader(os);
-
-	UINT32 mat_idx, stn;
-
-	// Print stations according to the user-defined sort order
-	for (UINT32 i=0; i<v_blockStationsMap_.at(block).size(); ++i)
-	{
-		stn = v_blockStations.at(i);
-		mat_idx = v_blockStationsMap_.at(block)[stn] * 3;
-
-		PrintPosUncertainty(os, //'\0', 
-			block, stn, mat_idx,
-			stationVariances, i, &v_blockStations);
-	}
-
-	os << std::endl;
-
-	// return sort order to alpha-numeric
-	if (projectSettings_.o._sort_stn_file_order)
-		SortStationsbyID(v_blockStations);
+	DynAdjustPrinter printer(*this);
+	printer.PrintPosUncertainties(os, block, stationVariances);
 }
 	
 
