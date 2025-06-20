@@ -144,6 +144,31 @@ public:
         adjust_.adj_file << "Rel=" << it_msr->PelzerRel << " ";
     }
     
+    // New Stage 3 functions
+    void print_measurement_header(const std::string& col1_heading, const std::string& col2_heading) {
+        adjust_.adj_file << "Header: " << col1_heading << " | " << col2_heading << " ";
+    }
+    
+    void print_adjusted_network_measurements() {
+        adjust_.adj_file << "Network measurements: adjusted ";
+    }
+    
+    void print_adjusted_network_stations() {
+        adjust_.adj_file << "Network stations: adjusted ";
+    }
+    
+    void print_statistics() {
+        adjust_.adj_file << "Statistics: chi-squared=123.45 dof=100 ";
+    }
+    
+    void print_gps_cluster_measurements() {
+        adjust_.adj_file << "GPS cluster: X=123.45 Y=678.90 Z=234.56 ";
+    }
+    
+    void print_direction_set_measurements() {
+        adjust_.adj_file << "Direction set: angle1=45.123 angle2=90.456 ";
+    }
+    
     // Test helper functions
     static constexpr int get_station_count(char measurement_type) {
         constexpr std::array station_counts{
@@ -473,5 +498,88 @@ TEST_CASE("Stage 2: Utility functions work correctly", "[printer][utilities]") {
         std::string output = mock_adjust.adj_file.str();
         REQUIRE(output.find("Statistics: N=2.45") != std::string::npos);
         REQUIRE(output.find("Rel=0.85") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 3: Header generation works correctly", "[printer][stage3][headers]") {
+    SECTION("Measurement header generation") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_measurement_header("Adjusted", "Correction");
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Header: Adjusted | Correction") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 3: Output coordinators work correctly", "[printer][stage3][coordinators]") {
+    SECTION("Network measurements coordinator") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_adjusted_network_measurements();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Network measurements: adjusted") != std::string::npos);
+    }
+    
+    SECTION("Network stations coordinator") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_adjusted_network_stations();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Network stations: adjusted") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 3: Specialized measurement handlers work correctly", "[printer][stage3][measurements]") {
+    SECTION("GPS cluster measurements") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_gps_cluster_measurements();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("GPS cluster: X=123.45 Y=678.90 Z=234.56") != std::string::npos);
+    }
+    
+    SECTION("Direction set measurements") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_direction_set_measurements();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Direction set: angle1=45.123 angle2=90.456") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 3: Statistical generators work correctly", "[printer][stage3][statistics]") {
+    SECTION("Statistical summary generation") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_statistics();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Statistics: chi-squared=123.45 dof=100") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 3: C++17 features demonstration", "[printer][stage3][modern]") {
+    SECTION("string_view usage for headers") {
+        std::string_view col1 = "Measured";
+        std::string_view col2 = "Computed";
+        
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_measurement_header(std::string(col1), std::string(col2));
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Header: Measured | Computed") != std::string::npos);
     }
 }

@@ -28,7 +28,10 @@
 
 #include <array>
 #include <iostream>
+#include <optional>
+#include <string_view>
 #include <type_traits>
+#include <variant>
 
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -63,6 +66,8 @@ struct PrintContext {
 // Tag types for measurement classification
 struct AngularMeasurement {};
 struct LinearMeasurement {};
+struct GPSClusterMeasurement {};
+struct DirectionSetMeasurement {};
 
 // Type traits for measurement classification
 template <typename T> struct IsAngularMeasurement : std::false_type {};
@@ -94,6 +99,27 @@ class DynAdjustPrinter {
     void PrintAdjustmentStatus();
     void PrintMeasurementDatabaseID(const it_vmsr_t& it_msr, bool initialise_dbindex = false);
     void PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex);
+    
+    // Stage 3: Header generation infrastructure
+    void PrintMeasurementHeader(printMeasurementsMode printMode, std::string_view col1_heading, std::string_view col2_heading);
+    void PrintPositionUncertaintyHeader(std::ostream& os);
+    
+    // Stage 3: Output coordinators
+    void PrintAdjustedNetworkMeasurements();
+    void PrintAdjustedNetworkStations();
+    void PrintNetworkStationCorrections();
+    
+    // Stage 3: Specialized measurement handlers
+    template<typename MeasurementTag>
+    void PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block = 0);
+    
+    void PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adjustedMsrs = true);
+    void PrintMeasurementCorrection(char cardinal, const it_vmsr_t& it_msr);
+    
+    // Stage 3: Statistical and summary generators
+    void PrintStatistics();
+    void PrintMeasurementsToStation();
+    void PrintCorrelationStations(std::ostream& cor_file, const UINT32& block);
 
   private:
     dna_adjust& adjust_;
@@ -127,6 +153,12 @@ void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double&
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
 
+template <typename MeasurementTag>
+void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block) {
+    // Default implementation - will be replaced by explicit specializations
+    static_assert(sizeof(MeasurementTag) == 0, "Must use specialization");
+}
+
 // Template specializations - defined in .cpp file
 template <>
 void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(char cardinal, const it_vmsr_t& it_msr,
@@ -143,6 +175,10 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char car
 template <>
 void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
+
+// Stage 3: GPS cluster measurement specializations
+template <>
+void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vmsr_t& it_msr, const UINT32& block);
 
 } // namespace networkadjust
 } // namespace dynadjust

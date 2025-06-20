@@ -2153,74 +2153,35 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 
 void dna_adjust::PrintAdjustedNetworkStations()
 {
-	// print adjusted coordinates
-	bool printHeader(true);
-
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader, true);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader, false);
-		break;
-	case PhasedMode:
-	case Phased_Block_1Mode:
-		// Output phased blocks as a single block?
-		if (!projectSettings_.o._output_stn_blocks)
-		{
-			PrintAdjStationsUniqueList(adj_file,
-				&v_rigorousStations_,
-				&v_rigorousVariances_,
-				true, true, true);
-			PrintAdjStationsUniqueList(xyz_file,
-				&v_rigorousStations_,
-				&v_rigorousVariances_,
-				true, true, false);
-			return;
-		}
-
-		for (UINT32 block=0; block<blockCount_; ++block)
-		{
-			// Are phased blocks to be written to disk instead of
-			// being held in memory?
-			if (projectSettings_.a.stage)
-			{
-				DeserialiseBlockFromMappedFile(block, 2, 
-					sf_rigorous_stns, sf_rigorous_vars);
-
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjustedNetworkStations();
+	
+	// Handle staging for complex phased output blocks if needed
+	if (projectSettings_.a.adjust_mode == PhasedMode || projectSettings_.a.adjust_mode == Phased_Block_1Mode) {
+		if (projectSettings_.o._output_stn_blocks && projectSettings_.a.stage) {
+			// Handle special staging logic for blocks written to disk
+			bool printHeader(true);
+			for (UINT32 block=0; block<blockCount_; ++block) {
+				// Deserialize blocks from mapped files
+				DeserialiseBlockFromMappedFile(block, 2, sf_rigorous_stns, sf_rigorous_vars);
 				if (projectSettings_.o._init_stn_corrections || projectSettings_.o._stn_corr)
-					DeserialiseBlockFromMappedFile(block, 1, 
-						sf_original_stns);
-			}
+					DeserialiseBlockFromMappedFile(block, 1, sf_original_stns);
 
-			// adj file
-			PrintAdjStations(adj_file, block,
-				&v_rigorousStations_.at(block),
-				&v_rigorousVariances_.at(block),
-				true, true, true, printHeader, true);
-			// xyz file
-			PrintAdjStations(xyz_file, block,
-				&v_rigorousStations_.at(block),
-				&v_rigorousVariances_.at(block),
-				true, false, false, printHeader, false);
+				// Print using original detailed function for staging compatibility
+				PrintAdjStations(adj_file, block, &v_rigorousStations_.at(block), &v_rigorousVariances_.at(block), true, true, true, printHeader, true);
+				PrintAdjStations(xyz_file, block, &v_rigorousStations_.at(block), &v_rigorousVariances_.at(block), true, false, false, printHeader, false);
+				printHeader = false;
 
-			printHeader = false;
-
-			// Release block from memory
-			if (projectSettings_.a.stage)
-			{
+				// Release block from memory
 				UnloadBlock(block, 2, sf_rigorous_stns, sf_rigorous_vars);
-
-				// Were original station estimates updated?  If so, serialise, otherwise unload
 				if (projectSettings_.o._init_stn_corrections || projectSettings_.o._stn_corr)
-					SerialiseBlockToMappedFile(block, 1,
-						sf_original_stns);
-			}
+					SerialiseBlockToMappedFile(block, 1, sf_original_stns);
 
-			// Exit if block-1 mode
-			if (projectSettings_.a.adjust_mode == Phased_Block_1Mode)
-				break;
+				// Exit if block-1 mode
+				if (projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+					break;
+			}
 		}
-		break;
 	}
 }
 	
@@ -2983,48 +2944,9 @@ void dna_adjust::FormUniqueMsrList()
 
 void dna_adjust::PrintAdjustedNetworkMeasurements()
 {
-	if (adjustStatus_ > ADJUST_TEST_FAILED)
-		return;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjustedNetworkMeasurements();
 	
-	bool printHeader(true);
-
-	if (projectSettings_.o._database_ids)
-		if (!databaseIDsLoaded_ || v_msr_db_map_.empty())
-			LoadDatabaseId();
-
-	_it_uint32_u32u32_pair begin, end;
-
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case Phased_Block_1Mode:	// only the first block is rigorous
-		begin = v_msr_block_.begin();
-		end = begin + v_CML_.at(0).size();
-		PrintAdjMeasurements(v_uint32_u32u32_pair(begin, end), printHeader);
-		break;
-	case SimultaneousMode:
-		PrintAdjMeasurements(v_msr_block_, printHeader);
-		break;
-	case PhasedMode:
-		if (projectSettings_.o._output_msr_blocks)
-		{
-			begin = v_msr_block_.begin();
-			
-			for (UINT32 block=0; block<blockCount_; ++block)
-			{
-				// send subvector of measurements from this block
-				end = begin + v_CML_.at(block).size();
-				
-				PrintAdjMeasurements(v_uint32_u32u32_pair(begin, end), printHeader);
-				begin = end;
-				printHeader = false;
-			}
-		}
-		else
-		{
-			PrintAdjMeasurements(v_msr_block_, printHeader);
-		}
-	}
-
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case PhasedMode:
