@@ -8679,38 +8679,8 @@ void dna_adjust::SortStationsbyID(vUINT32& v_blockStations)
 
 void dna_adjust::PrintPosUncertaintiesHeader(std::ostream& os)
 {
-	os << std::setw(STATION) << std::left << "Station" <<
-		std::setw(PAD2) << " " << 
-		std::right << std::setw(LAT_EAST) << CDnaStation::CoordinateName('P') << 
-		std::right << std::setw(LON_NORTH) << CDnaStation::CoordinateName('L') << 
-		std::right << std::setw(STAT) << "Hz PosU" << 
-		std::right << std::setw(STAT) << "Vt PosU" << 
-		std::right << std::setw(PREC) << "Semi-major" << 
-		std::right << std::setw(PREC) << "Semi-minor" << 
-		std::right << std::setw(PREC) << "Orientation";
-
-	switch (projectSettings_.o._apu_vcv_units)
-	{
-	case ENU_apu_ui:
-		os <<  
-			std::right << std::setw(MSR) << "Variance(e)" << 
-			std::right << std::setw(MSR) << "Variance(n)" << 
-			std::right << std::setw(MSR) << "Variance(up)" << std::endl;
-		break;
-	case XYZ_apu_ui:
-	default:
-		os <<  
-			std::right << std::setw(MSR) << "Variance(X)" << 
-			std::right << std::setw(MSR) << "Variance(Y)" << 
-			std::right << std::setw(MSR) << "Variance(Z)" << std::endl;
-		break;
-	}
-
-	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
-
-	for (i=0; i<j; ++i)
-		os << "-";
-	os << std::endl;
+	DynAdjustPrinter printer(*this);
+	printer.PrintPosUncertaintiesHeader(os);
 }
 	
 
@@ -8909,63 +8879,8 @@ void dna_adjust::PrintPosUncertainties(std::ostream &os, const UINT32& block, co
 
 void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 {
-	vUINT32 v_blockStations(v_parameterStationList_.at(block));
-	
-	// if required, sort stations according to original station file order
-	if (projectSettings_.o._sort_stn_file_order)
-		SortStationsbyFileOrder(v_blockStations);
-	
-	// Use new printer infrastructure for coordination
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintStationCorrelations(cor_file, block);
-	
-	// Continue with existing detailed implementation
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case PhasedMode:
-	case Phased_Block_1Mode:		// only the first block is rigorous
-		cor_file << "Block " << block + 1 << std::endl;
-		break;
-	}
-
-	cor_file << std::setw(STATION) << std::left << "Station" <<
-		std::setw(PAD2) << " " << 
-		std::right << std::setw(MSR) << "Azimuth" << 
-		std::right << std::setw(MSR) << "V. Angle" << 
-		std::right << std::setw(MSR) << "S. Distance" << 
-		std::right << std::setw(MSR) << "H. Distance" << 
-		std::right << std::setw(HEIGHT) << "east" << 
-		std::right << std::setw(HEIGHT) << "north" << 
-		std::right << std::setw(HEIGHT) << "up" << std::endl;
-
-	UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
-
-	for (i=0; i<j; ++i)
-		cor_file << "-";
-	cor_file << std::endl;
-
-	UINT32 mat_idx, stn;
-
-	pv_mat_2d estimates(&v_rigorousStations_);
-	if (projectSettings_.a.adjust_mode == SimultaneousMode)
-		estimates = &v_estimatedStations_;
-
-	// Print stations according to the user-defined sort order
-	for (i=0; i<v_blockStationsMap_.at(block).size(); ++i)
-	{
-		stn = v_blockStations.at(i);
-		mat_idx = v_blockStationsMap_.at(block)[stn] * 3;
-
-		PrintCorStation(cor_file, block, stn, mat_idx, 
-			&estimates->at(block));
-	}
-
-	cor_file << std::endl;
-
-	// return sort order to alpha-numeric
-	if (projectSettings_.o._sort_stn_file_order)
-		SortStationsbyID(v_blockStations);
-
+	DynAdjustPrinter printer(*this);
+	printer.PrintCorStations(cor_file, block);
 }
 
 void dna_adjust::PrintCorStationsUniqueList(std::ostream &cor_file)
