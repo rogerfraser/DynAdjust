@@ -2290,6 +2290,112 @@ void DynAdjustPrinter::PrintEstimatedStationCoordinates(const std::string& stnFi
     }
 }
 
+bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sinex_filename)
+{
+    std::ofstream sinex_file;
+    std::string sinexFilename;
+    std::string sinexBasename = adjust_.projectSettings_.g.output_folder + FOLDER_SLASH + adjust_.projectSettings_.g.network_name;
+    std::stringstream ssBlock;
+
+    matrix_2d *estimates = nullptr, *variances = nullptr;
+
+    bool success(true);
+
+    // Print a sinex file for each block
+    for (UINT32 block(0); block<adjust_.blockCount_; ++block)
+    {
+        sinexFilename = sinexBasename;
+
+        // Add block number for phased adjustments
+        switch (adjust_.projectSettings_.a.adjust_mode)
+        {
+        case Phased_Block_1Mode:
+            if (block > 0)
+            {
+                block = adjust_.blockCount_;
+                continue;
+            }
+            [[fallthrough]];
+        case PhasedMode:
+            ssBlock.str("");
+            ssBlock << "-block" << block + 1;
+            sinexFilename += ssBlock.str();
+
+            // if staged, load up the block from memory mapped files
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.DeserialiseBlockFromMappedFile(block, 2, 
+                    sf_rigorous_stns, sf_rigorous_vars);
+
+            estimates = &adjust_.v_rigorousStations_.at(block);
+            variances = &adjust_.v_rigorousVariances_.at(block);
+            break;
+        case SimultaneousMode:
+            estimates = &adjust_.v_estimatedStations_.at(block);
+            variances = &adjust_.v_normals_.at(block);
+        }
+
+        // add reference frame to file name
+        sinexFilename += "." + adjust_.projectSettings_.r.reference_frame;		
+
+        // add conventional file extension
+        sinexFilename += ".snx";
+
+        if (block < 1)
+            sinex_filename = sinexFilename;
+        
+        try {
+            // Open output file stream.  Throws runtime_error on failure.
+            file_opener(sinex_file, sinexFilename);
+        }
+        catch (const std::runtime_error& e) {
+            adjust_.SignalExceptionAdjustment(e.what(), 0);
+        }
+
+        dna_io_snx snx;
+
+        try {
+            // Print results for adjustment in SINEX format.
+            // Throws runtime_error on failure.
+            snx.serialise_sinex(&sinex_file, &adjust_.bstBinaryRecords_,
+                adjust_.bst_meta_, adjust_.bms_meta_, estimates, variances, adjust_.projectSettings_,
+                adjust_.measurementParams_, adjust_.unknownsCount_, adjust_.sigmaZero_,
+                &adjust_.v_blockStationsMap_.at(block), &adjust_.v_parameterStationList_.at(block),
+                adjust_.blockCount_, block,
+                &adjust_.datum_);
+        }
+        catch (const std::runtime_error& e) {
+            adjust_.SignalExceptionAdjustment(e.what(), 0);
+        }
+
+        if (adjust_.projectSettings_.a.adjust_mode == PhasedMode)
+            // if staged, unload the block
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.UnloadBlock(block, 2, 
+                    sf_rigorous_stns, sf_rigorous_vars);
+
+        sinex_file.close();
+
+        if (!snx.warnings_exist())
+            continue;
+
+        success = false;
+
+        sinexFilename += ".err";
+        try {
+            // Open output file stream.  Throws runtime_error on failure.
+            file_opener(sinex_file, sinexFilename);
+        }
+        catch (const std::runtime_error& e) {
+            adjust_.SignalExceptionAdjustment(e.what(), 0);
+        }
+
+        snx.print_warnings(&sinex_file, sinexFilename);
+        sinex_file.close();		
+    }
+
+    return success;
+}
+
 // Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
@@ -2444,6 +2550,194 @@ void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::st
     catch (const XMLInteropException& e) {
         adjust_.SignalExceptionAdjustment(e.what(), 0);
     }
+}
+
+void DynAdjustPrinter::PrintPositionalUncertaintiesList(std::ostream& os, const v_mat_2d* stationVariances)
+{
+    // Print header
+    adjust_.PrintPosUncertaintiesHeader(os);
+
+    UINT32 block(UINT_MAX), stn, mat_index;
+    _it_u32u32_uint32_pair _it_bsmu;
+
+    // Determine sort order of block Stations Map
+    if (adjust_.projectSettings_.a.stage || adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+    {
+        // sort by blocks to create efficiency when deserialising matrix info
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), 
+            CompareBlockStationMapUnique_byBlock<u32u32_uint32_pair>());
+    }
+    else if (adjust_.projectSettings_.o._sort_stn_file_order)
+    {
+        CompareBlockStationMapUnique_byFileOrder<station_t, u32u32_uint32_pair> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), stnorderCompareFunc);
+    }
+    else
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end());
+    
+    std::stringstream stationRecord;
+    v_uint32_string_pair stationsOutput;
+    stationsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
+
+    std::ostream* outstream(&os);
+    if (adjust_.projectSettings_.a.stage)
+        outstream = &stationRecord;
+
+    // Print stations according to the user-defined sort order
+    for (_it_bsmu=adjust_.v_blockStationsMapUnique_.begin();
+        _it_bsmu!=adjust_.v_blockStationsMapUnique_.end(); ++_it_bsmu)
+    {
+        // If this is not the first block, exit if block-1 mode
+        if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+            if (_it_bsmu->second > 0)
+                break;
+
+        if (adjust_.projectSettings_.a.stage)
+        {
+            if (block != _it_bsmu->second)
+            {
+                // unload previous block
+                if (_it_bsmu->second > 0)
+                    adjust_.UnloadBlock(_it_bsmu->second-1, 1, 
+                        sf_rigorous_vars);
+                // load up this block
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 1, 
+                        sf_rigorous_vars);
+            }
+        }
+
+        block = _it_bsmu->second;
+        stn = _it_bsmu->first.first;
+        mat_index = _it_bsmu->first.second * 3;
+
+        adjust_.PrintPosUncertainty(*outstream,
+            block, stn, mat_index, 
+                &stationVariances->at(block));
+
+        if (adjust_.projectSettings_.a.stage)
+        {
+            stationsOutput.push_back(uint32_string_pair(stn, stationRecord.str()));
+            stationRecord.str("");
+        }
+    }
+
+    if (adjust_.projectSettings_.a.stage)
+    {
+        adjust_.UnloadBlock(block, 1, sf_rigorous_vars);
+
+        // if required, sort stations according to original station file order
+        if (adjust_.projectSettings_.o._sort_stn_file_order)
+        {
+            CompareOddPairFirst_FileOrder<station_t, UINT32, std::string> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+            std::sort(stationsOutput.begin(), stationsOutput.end(), stnorderCompareFunc);
+        }
+        else
+            std::sort(stationsOutput.begin(), stationsOutput.end(), CompareOddPairFirst<UINT32, std::string>());
+
+        for_each(stationsOutput.begin(), stationsOutput.end(),
+            [&stationsOutput, &os] (std::pair<UINT32, std::string>& posRecord) { 
+                os << posRecord.second;
+            }
+        );
+    }
+}
+
+void DynAdjustPrinter::PrintStationCorrectionsList(std::ostream& cor_file)
+{
+    vUINT32 v_blockStations;
+    vstring stn_corr_records(adjust_.bstBinaryRecords_.size());
+
+    cor_file << std::setw(STATION) << std::left << "Station" <<
+        std::setw(PAD2) << " " << 
+        std::right << std::setw(MSR) << "Azimuth" << 
+        std::right << std::setw(MSR) << "V. Angle" << 
+        std::right << std::setw(MSR) << "S. Distance" << 
+        std::right << std::setw(MSR) << "H. Distance" << 
+        std::right << std::setw(HEIGHT) << "east" << 
+        std::right << std::setw(HEIGHT) << "north" << 
+        std::right << std::setw(HEIGHT) << "up" << std::endl;
+
+    UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+
+    for (i=0; i<j; ++i)
+        cor_file << "-";
+    cor_file << std::endl;
+
+    UINT32 block(UINT_MAX), stn, mat_index;
+    _it_u32u32_uint32_pair _it_bsmu;
+    
+    std::stringstream stationRecord;
+    v_uint32_string_pair correctionsOutput;
+    correctionsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
+
+    pv_mat_2d estimates(&adjust_.v_rigorousStations_);
+    if (adjust_.projectSettings_.a.adjust_mode == SimultaneousMode)
+        estimates = &adjust_.v_estimatedStations_;
+
+    std::ostream* outstream(&cor_file);
+    if (adjust_.projectSettings_.a.stage)
+        outstream = &stationRecord;
+
+    // No need to sort order of block Stations Map - this was done in
+    // PrintAdjStationsUniqueList
+
+    for (_it_bsmu=adjust_.v_blockStationsMapUnique_.begin();
+        _it_bsmu!=adjust_.v_blockStationsMapUnique_.end(); ++_it_bsmu)
+    {
+        // If this is not the first block, exit if block-1 mode
+        if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+            if (_it_bsmu->second > 0)
+                break;
+
+        if (adjust_.projectSettings_.a.stage)
+        {
+            if (block != _it_bsmu->second)
+            {
+                // unload previous block
+                if (_it_bsmu->second > 0)
+                    adjust_.UnloadBlock(_it_bsmu->second-1, 2, 
+                        sf_rigorous_stns, sf_original_stns);
+
+                // load up this block
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 2,
+                        sf_rigorous_stns, sf_original_stns);
+            }
+        }
+
+        block = _it_bsmu->second;
+        stn = _it_bsmu->first.first;
+        mat_index = _it_bsmu->first.second * 3;
+
+        adjust_.PrintCorStation(*outstream, block, stn, mat_index,
+            &estimates->at(block));
+            
+        if (adjust_.projectSettings_.a.stage)
+        {
+            correctionsOutput.push_back(uint32_string_pair(stn, stationRecord.str()));
+            stationRecord.str("");
+        }
+    }
+
+    if (adjust_.projectSettings_.a.stage)
+        adjust_.UnloadBlock(block, 2, 
+            sf_rigorous_stns, sf_original_stns);
+
+    // if required, sort stations according to original station file order
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+    {
+        CompareOddPairFirst_FileOrder<station_t, UINT32, std::string> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(correctionsOutput.begin(), correctionsOutput.end(), stnorderCompareFunc);
+    }
+    else
+        std::sort(correctionsOutput.begin(), correctionsOutput.end(), CompareOddPairFirst<UINT32, std::string>());
+
+    for_each(correctionsOutput.begin(), correctionsOutput.end(),
+        [&correctionsOutput, &cor_file] (std::pair<UINT32, std::string>& corrRecord) { 
+            cor_file << corrRecord.second;
+        }
+    );
 }
 
 } // namespace networkadjust
