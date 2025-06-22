@@ -2410,56 +2410,8 @@ void dna_adjust::CreateMsrToStnTally()
 
 void dna_adjust::PrintMeasurementsToStation()
 {
-	// Create Measurement tally.  Loads up the AML file.
-	CreateMsrToStnTally();
-
-	// Print measurement to station summary header
-	std::string header("Measurements to Station ");
-	MsrToStnSummaryHeader(adj_file, header);
-
-	_it_vmsrtally it_vstnmsrs;
-
-	vUINT32 vStationList(bstBinaryRecords_.size());
-	it_vUINT32 _it_stn(vStationList.begin());
-
-	// initialise vector with 0,1,2,...,n-2,n-1,n
-	initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(bstBinaryRecords_.size()));
-	
-	// Print measurement to station summary, sort stations as required
-	switch (projectSettings_.o._sort_msr_to_stn)
-	{
-	case meas_stn_sort_ui:
-	{
-		// sort summary according to measurement to station count
-		CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_);
-		std::sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
-	}
-	break;
-	case orig_stn_sort_ui:
-	default:
-	{
-		// sort summary according to original station file order
-		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
-		std::sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
-	}
-	break;
-	}
-
-	// Print measurements to each station and the total count for each station
-	for (_it_stn=vStationList.begin(); _it_stn != vStationList.end(); ++_it_stn)
-		v_stnmsrTally_.at(*_it_stn).coutSummaryMsrToStn(adj_file, bstBinaryRecords_.at(*_it_stn).stationName);
-	
-	// Print "the bottom line"
-	MsrToStnSummaryHeaderLine(adj_file);
-
-	// Print the total count per measurement
-	MsrTally msrTally;
-	for (it_vstnmsrs=v_stnmsrTally_.begin(); it_vstnmsrs!=v_stnmsrTally_.end(); ++it_vstnmsrs)
-		msrTally += *it_vstnmsrs;
-	
-	msrTally.coutSummaryMsrToStn(adj_file, "Totals");
-	
-	adj_file << std::endl << std::endl;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementsToStation();
 }
 	
 
@@ -7497,61 +7449,8 @@ void dna_adjust::OutputLargestCorrection(std::string& formatted_msg)
 
 void dna_adjust::PrintStatistics(bool printPelzer)
 {
-	// print statistics
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of unknown parameters" << std::fixed << std::setprecision(0) << unknownParams_;
-	if (allStationsFixed_)
-		adj_file << "  (All stations held constrained)";
-	adj_file << std::endl;
-
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of measurements" << std::fixed << std::setprecision(0) << measurementParams_;
-	if (potentialOutlierCount_ > 0)
-	{
-		adj_file << "  (" << potentialOutlierCount_ << " potential outlier";
-		if (potentialOutlierCount_ > 1)
-			adj_file << "s";
-		adj_file << ")";
-	}
-	adj_file << std::endl;
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Degrees of freedom" << std::fixed << std::setprecision(0) << degreesofFreedom_ << std::endl;
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared" << std::fixed << std::setprecision(2) << chiSquared_ << std::endl;
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Rigorous Sigma Zero" << std::fixed << std::setprecision(3) << sigmaZero_ << std::endl;
-	if (printPelzer)
-		adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Global (Pelzer) Reliability" << std::fixed << std::setw(8) << std::setprecision(3) << globalPelzerReliability_ << 
-			"(excludes non redundant measurements)" << std::endl;
-	
-	adj_file << std::endl;
-	
-	std::stringstream ss("");
-	ss << "Chi-Square test (" << std::setprecision(1) << std::fixed << projectSettings_.a.confidence_interval << "%)";
-	adj_file << std::setw(PRINT_VAR_PAD) << std::left << ss.str();
-	ss.str("");
-	ss << std::fixed << std::setprecision(3) << 
-		chiSquaredLowerLimit_ << " < " << 
-		sigmaZero_ << " < " << 
-		chiSquaredUpperLimit_;
-	adj_file << std::setw(CHISQRLIMITS) << std::left << ss.str();
-	
-	ss.str("");
-	if (degreesofFreedom_ < 1)
-		ss << "NO REDUNDANCY";
-	else
-	{
-		ss << "*** ";
-		switch (passFail_)
-		{
-		case test_stat_pass: 
-			ss << "PASSED";		// within upper and lower
-			break;
-		case test_stat_warning:
-			ss << "WARNING";	// less than lower limit
-			break;
-		case test_stat_fail:
-			ss << "FAILED";		// greater than upper limit
-			break;
-		}
-		ss << " ***";
-	}
-	adj_file << std::setw(PASS_FAIL) << std::right << ss.str() << std::endl << std::endl;
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintStatistics(printPelzer);
 }
 	
 
