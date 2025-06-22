@@ -9823,152 +9823,15 @@ void dna_adjust::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_
 // the adjusted angles.
 void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored)
 {
-	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
-	
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	double computed;
-	
-	std::string ignoreFlag(" ");
-	if (_it_msr->ignore)
-		ignoreFlag = "*";
-
-	UINT32 angle_count;
-	if (printIgnored)
-		angle_count = _it_msr->vectorCount1 - 1;
-	else
-		angle_count = _it_msr->vectorCount2 - 1;
-
-	adj_file << std::setw(PAD3) << std::left << ignoreFlag << std::setw(PAD2) << std::left << angle_count;
-
-	// Print measurement database ids
-	if (projectSettings_.o._database_ids)
-	{
-		// Measured + Computed + Correction + Meas SD + Pre Adj Corr
-		UINT32 b(MSR + MSR + CORR + PREC + PACORR);
-		adj_file << std::setw(b) << " ";
-
-		PrintMeasurementDatabaseID(_it_msr);
-	}
-	adj_file << std::endl;
-
-	_it_msr++;
-
-	for (UINT32 a(0); a<angle_count; ++a)
-	{
-		// Skip over ignored directions if the direction set is not ignored.
-		// If the direction set is ignored, and --output-ignored-msrs option is supplied, then
-		// don't skip (i.e. continue with printing all ignored directions in the set)
-		if (_it_msr->ignore && !printIgnored)
-		{
-			while (skip < ignored)
-			{
-				skip++;
-				_it_msr++;
-				if (!_it_msr->ignore)
-					break;
-			}
-		}
-
-		computed = _it_msr->term1 + _it_msr->measCorr;
-
-		adj_file << std::left << std::setw(PAD2) << " ";						// measurement type
-		adj_file << std::left << std::setw(STATION) << " ";					// station1	(Instrument)
-		adj_file << std::left << std::setw(STATION) << " ";					// station2 (RO)
-		adj_file << std::left << std::setw(STATION) << 
-			bstBinaryRecords_.at(_it_msr->station2).stationName;	// target
-		
-		// Print angular measurement, taking care of user requirements for 
-		// type, format and precision
-		PrintCompMeasurementsAngular(' ', computed, _it_msr->measCorr, _it_msr);
-		
-		design_row++;
-		_it_msr++;
-	}
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintCompMeasurements_D(_it_msr, design_row, printIgnored);
 }
 	
 
 void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row)
 {
-	// create a temporary copy of this Y measurement and transform/propagate
-	// cartesian elements to geographic
-	vmsr_t y_msr;
-	CopyClusterMsr<vmsr_t>(bmsBinaryRecords_, _it_msr, y_msr);
-	
-	it_vmsr_t _it_y_msr(y_msr.begin());
-	snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
-
-	UINT32 cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
-	matrix_2d mpositions(cluster_count * 3, 1);
-
-	it_vstn_t stn1_it;
-	
-	// 1. Convert coordinates from cartesian to geographic
-	ReduceYLLHMeasurementsforPrinting(y_msr, mpositions, computedMsrs);
-
-	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
-		design_row += 3;
-
-	_it_y_msr = y_msr.begin();
-
-	matrix_2d var_cart_adj(3, 3), var_geo_adj(3, 3);
-
-	// 2. Convert apriori measurement precisions
-
-	// Get measurement cartesian variance matrix
-	matrix_2d var_cart;
-	GetGPSVarianceMatrix(_it_y_msr, &var_cart);
-	var_cart.filllower();
-
-	// Propagate the cartesian variance matrix to geographic
-	PropagateVariances_GeoCart_Cluster<double>(var_cart, &var_cart,
-		mpositions, 
-		datum_.GetEllipsoidRef(), 
-		false); 		// Cartesian -> Geographic
-
-	SetGPSVarianceMatrix(_it_y_msr, var_cart);
-	
-	// Now print the temporary measurement
-	bool nextElement(false);
-
-	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
-	{
-		stn1_it = bstBinaryRecords_.begin() + _it_y_msr->station1;
-
-		if (nextElement)
-			adj_file << std::left << std::setw(PAD2) << _it_y_msr->measType;
-		else
-			nextElement = true;
-
-		covariance_count = _it_y_msr->vectorCount2;
-
-		// first, second, third stations
-		adj_file << std::left << std::setw(STATION) << 
-			stn1_it->stationName <<
-			std::left << std::setw(STATION) << " " <<		// second station
-			std::left << std::setw(STATION) << " ";		// third station
-
-		// Print latitude
-		PrintCompMeasurementsAngular('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
-	
-		// Print longitude
-		_it_y_msr++;
-		PrintCompMeasurementsAngular('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
-
-		// Print height
-		_it_y_msr++;
-		PrintCompMeasurementsLinear('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
-
-		// skip covariances until next point
-		_it_y_msr += covariance_count * 3;
-		
-		if (covariance_count > 0)
-			_it_y_msr++;
-	}
-	
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintCompMeasurements_YLLH(_it_msr, design_row);
 }
 	
 
@@ -10113,61 +9976,9 @@ void dna_adjust::PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr)
 // respective directions to angles.  Therefore, the "adjusted measurements" are
 // the adjusted angles.
 void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
-{		
-	// normal format
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-	adj_file << std::left << std::setw(STATION) << " ";
-
-	std::string ignoreFlag(" ");
-	if (_it_msr->ignore)
-		ignoreFlag = "*";
-
-	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
-	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
-
-	adj_file << std::setw(PAD3) << std::left << ignoreFlag << std::setw(PAD2) << std::left << angle_count;
-
-	if (projectSettings_.o._database_ids)
-	{
-		// Measured + Computed + Correction + Measured + Adjusted + Residual + N Stat + T Stat + Pelzer + Pre Adj Corr + Outlier
-		UINT32 b(MSR + MSR + CORR + PREC + PREC + PREC + STAT + REL + PACORR + OUTLIER);
-		if (projectSettings_.o._adj_msr_tstat)
-			b += STAT;
-		adj_file << std::setw(b) << " ";
-
-		PrintMeasurementDatabaseID(_it_msr);
-	}
-	adj_file << std::endl;
-
-	_it_msr++;
-
-	for (a=0; a<angle_count; ++a)
-	{
-		// cater for ignored directions
-		if (_it_msr->ignore)
-		{
-			while (skip < ignored)
-			{
-				skip++;
-				_it_msr++;
-				if (!_it_msr->ignore)
-					break;
-			}
-		}
-
-		adj_file << std::left << std::setw(PAD2) << " ";						// measurement type
-		adj_file << std::left << std::setw(STATION) << " ";					// station1	(Instrument)
-		adj_file << std::left << std::setw(STATION) << " ";					// station2 (RO)
-		adj_file << std::left << std::setw(STATION) << 
-			bstBinaryRecords_.at(_it_msr->station2).stationName;	// target
-
-		// Print angular measurement, taking care of user requirements for 
-		// type, format and precision	
-		PrintAdjMeasurementsAngular(' ', _it_msr);
-
-		_it_msr++;
-	}
+{
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjMeasurements_D(_it_msr);
 }
 
 void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode)
