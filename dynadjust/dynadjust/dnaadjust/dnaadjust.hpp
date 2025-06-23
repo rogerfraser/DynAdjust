@@ -50,13 +50,11 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/chrono/time_point.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <exception>
 #include <boost/filesystem.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/timer/timer.hpp>
+#include <chrono>
 
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
@@ -105,6 +103,31 @@ namespace dynadjust {
 namespace networkadjust {
 
 extern std::mutex maxCorrMutex;
+
+// High-precision timer class to replace boost::timer::cpu_timer
+class cpu_timer {
+public:
+    struct cpu_times {
+        std::chrono::nanoseconds wall;
+        std::chrono::nanoseconds user;
+        std::chrono::nanoseconds system;
+    };
+
+    cpu_timer() { start(); }
+    
+    void start() {
+        start_time_ = std::chrono::high_resolution_clock::now();
+    }
+    
+    cpu_times elapsed() const {
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto wall_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time_);
+        return {wall_duration, wall_duration, wall_duration}; // For simplicity, user and system = wall
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_time_;
+};
 
 // forward declaration of dna_adjust
 class dna_adjust;
@@ -428,9 +451,9 @@ class dna_adjust {
     RebuildNormals(const UINT32 block, adjustOperation direction,
                    bool AddConstraintStationstoNormals, bool BackupNormals);
     void UpdateAdjustment(bool iterate);
-    void ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time);
+    void ValidateandFinaliseAdjustment(cpu_timer& tot_time);
     void PrintAdjustmentStatus();
-    void PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_);
+    void PrintAdjustmentTime(cpu_timer& time, _TIMER_TYPE_);
     void PrintIteration(const UINT32& iteration);
 
     void InitialiseAdjustment();

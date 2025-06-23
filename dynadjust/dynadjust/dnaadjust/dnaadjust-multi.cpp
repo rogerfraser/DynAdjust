@@ -96,8 +96,8 @@ void dna_adjust::AdjustPhasedMultiThread()
 	UINT32 i;
 	bool iterate(true);
 
-	boost::posix_time::milliseconds iteration_time(boost::posix_time::milliseconds(0));
-	boost::timer::cpu_timer it_time, tot_time;
+	std::chrono::milliseconds iteration_time(std::chrono::milliseconds(0));
+	cpu_timer it_time, tot_time;
 
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	std::shared_ptr<std::thread> f, r, c;
@@ -167,7 +167,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		for_each(mt_adjust_threads.begin(), mt_adjust_threads.end(), std::mem_fn(&std::thread::join));
 #endif
 		// This point is reached when the threads have finished
-		iteration_time = boost::posix_time::milliseconds(it_time.elapsed().wall/MILLI_TO_NANO);
+		iteration_time = std::chrono::duration_cast<std::chrono::milliseconds>(it_time.elapsed().wall);
 
 		//delete mt_adjust_threads;
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
@@ -194,10 +194,12 @@ void dna_adjust::AdjustPhasedMultiThread()
 			break;
 
 		ss.str("");
-		if (iteration_time > boost::posix_time::seconds(1))
-			ss << boost::posix_time::seconds(static_cast<long>(iteration_time.total_seconds()));
-		else
-			ss << iteration_time;
+		if (iteration_time >= std::chrono::seconds(1)) {
+			auto seconds = std::chrono::duration_cast<std::chrono::seconds>(iteration_time);
+			ss << seconds.count() << "s";
+		} else {
+			ss << iteration_time.count() << "ms";
+		}
 
 		///////////////////////////////////
 		// protected write to adj file (not needed here since write to
@@ -466,7 +468,7 @@ void adjust_forward_thread::operator()()
 	// notify all threads waiting on combineAdjustmentQueue
 	//combineAdjustmentQueue.notify_all();
 
-	//this_thread::sleep(boost::posix_time::milliseconds(10));
+	//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	// notify all threads waiting on combineAdjustmentQueue
 	//combineAdjustmentQueue.notify_all();	
@@ -613,7 +615,7 @@ void adjust_process_combine_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!combineAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				boost::this_thread::sleep(boost::posix_time::milliseconds(2));
+				std::this_thread::sleep_for(std::chrono::milliseconds(2));
 				continue;
 			}
 
@@ -732,7 +734,7 @@ void adjust_process_prepare_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!prepareAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				boost::this_thread::sleep(boost::posix_time::milliseconds(2));
+				std::this_thread::sleep_for(std::chrono::milliseconds(2));
 				continue;
 			}
 

@@ -2407,8 +2407,8 @@ void dna_adjust::AdjustSimultaneous()
 	
 	std::ostringstream ss;
 	std::string corr_msg;
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
-	boost::timer::cpu_timer it_time, tot_time;
+	std::chrono::milliseconds elapsed_time(std::chrono::milliseconds(0));
+	cpu_timer it_time, tot_time;
 
 	bool iterate;
 
@@ -2490,7 +2490,7 @@ void dna_adjust::AdjustSimultaneous()
 	ValidateandFinaliseAdjustment(tot_time);
 }
 
-void dna_adjust::ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time)
+void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 {
 	isAdjusting_ = false;
 
@@ -2535,13 +2535,13 @@ void dna_adjust::PrintAdjustmentStatus()
 }
 	
 
-void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_ timerType)
+void dna_adjust::PrintAdjustmentTime(cpu_timer& time, _TIMER_TYPE_ timerType)
 {
 	networkadjust::DynAdjustPrinter printer(*this);
 	
 	// Store total time if needed
 	if (timerType != iteration_time) {
-		total_time_ = std::chrono::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		total_time_ = std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall);
 	}
 	
 	printer.PrintAdjustmentTime(time, static_cast<int>(timerType));
@@ -2564,7 +2564,7 @@ void dna_adjust::AdjustPhased()
 	UINT32 i;
 	bool iterate(true);
 
-	boost::timer::cpu_timer it_time, tot_time;
+	cpu_timer it_time, tot_time;
 		
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
@@ -2662,7 +2662,7 @@ void dna_adjust::AdjustPhasedBlock1()
 	if (projectSettings_.g.verbose)
 		debug_file << std::endl << std::endl;
 		
-	boost::timer::cpu_timer it_time, tot_time;
+	cpu_timer it_time, tot_time;
 		
 	// Only the reverse adjustment is needed to achieve rigorous
 	// estimates for block 1

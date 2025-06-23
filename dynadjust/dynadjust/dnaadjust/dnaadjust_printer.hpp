@@ -51,6 +51,7 @@ namespace networkadjust {
 
 // Forward declarations
 class dna_adjust;
+class cpu_timer;
 
 // Print context structure containing all necessary references for printing
 struct PrintContext {
@@ -121,7 +122,7 @@ class DynAdjustPrinter {
 
     // Utility functions
     void PrintIteration(const UINT32& iteration);
-    void PrintAdjustmentTime(boost::timer::cpu_timer& time, int timer_type);
+    void PrintAdjustmentTime(cpu_timer& time, int timer_type);
     void PrintAdjustmentStatus();
     void PrintMeasurementDatabaseID(const it_vmsr_t& it_msr, bool initialise_dbindex = false);
     void PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex);

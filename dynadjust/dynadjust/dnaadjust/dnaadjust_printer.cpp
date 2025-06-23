@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
-#include <boost/timer/timer.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 
 namespace dynadjust {
@@ -75,18 +74,18 @@ void DynAdjustPrinter::PrintIteration(const UINT32& iteration) {
         adjust_.debug_file << iteration_message.str();		
 }
 
-void DynAdjustPrinter::PrintAdjustmentTime(boost::timer::cpu_timer& time, int timer_type) {
-    using namespace boost::posix_time;
-    
-    // calculate and print total time
-    milliseconds ms(milliseconds(time.elapsed().wall/1000000));
-    time_duration t(ms);
+void DynAdjustPrinter::PrintAdjustmentTime(cpu_timer& time, int timer_type) {
+    // calculate and print total time using std::chrono
+    auto wall_time = time.elapsed().wall;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(wall_time);
     
     std::stringstream ss;
-    if (t > seconds(1))
-        ss << seconds(static_cast<long>(t.total_seconds()));
-    else
-        ss << t;
+    if (ms >= std::chrono::seconds(1)) {
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(ms);
+        ss << seconds.count() << "s";
+    } else {
+        ss << ms.count() << "ms";
+    }
 
     if (timer_type == 0) // iteration_time equivalent
         adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Elapsed time" << ss.str() << std::endl;
