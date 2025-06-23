@@ -25,14 +25,14 @@
 namespace dynadjust {
 namespace networkadjust {
 
-boost::mutex combine_blockMutex;
-boost::mutex current_blockMutex, current_iterationMutex, maxCorrMutex;
-boost::mutex adj_file_mutex, xyz_file_mutex, dbg_file_mutex;
+std::mutex combine_blockMutex;
+std::mutex current_blockMutex, current_iterationMutex, maxCorrMutex;
+std::mutex adj_file_mutex, xyz_file_mutex, dbg_file_mutex;
 
 // multi thread adjustment variables
 concurrent_queue<UINT32> combineAdjustmentQueue;
 concurrent_queue<UINT32> prepareAdjustmentQueue;
-boost::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
+std::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
 
 dna_adjust::dna_adjust()
 	: isPreparing_(false)
@@ -161,19 +161,19 @@ dna_adjust::~dna_adjust()
 
 UINT32 dna_adjust::CurrentIteration() const 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	return currentIteration_; 
 }
 
 UINT32& dna_adjust::incrementIteration() 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	return ++currentIteration_; 
 }
 
 void dna_adjust::initialiseIteration(const UINT32& iteration) 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	currentIteration_ = iteration; 
 }
 
@@ -2541,8 +2541,7 @@ void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_
 	
 	// Store total time if needed
 	if (timerType != iteration_time) {
-		boost::posix_time::milliseconds ms(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
-		total_time_ = ms;
+		total_time_ = std::chrono::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 	}
 	
 	printer.PrintAdjustmentTime(time, static_cast<int>(timerType));
@@ -9912,7 +9911,7 @@ void dna_adjust::SignalExceptionAdjustment(const std::string& msg, const UINT32 
 		error_msg = ss.str();
 	}
 	
-	throw boost::enable_current_exception(std::runtime_error(error_msg));
+	throw std::runtime_error(error_msg);
 }
 
 void dna_adjust::SetDefaultReferenceFrame()

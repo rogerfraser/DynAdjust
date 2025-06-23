@@ -1304,7 +1304,7 @@ int main(int argc, char* argv[])
 			// Load variance matrices into memory
 			DeserialiseVarianceMatrices(&netAdjust, &p);
 
-		elapsed_time = netAdjust.adjustTime();
+		elapsed_time = boost::posix_time::milliseconds(netAdjust.adjustTime().count());
 
 		// Print summary message
 		PrintSummaryMessage(&netAdjust, &p, &elapsed_time);
