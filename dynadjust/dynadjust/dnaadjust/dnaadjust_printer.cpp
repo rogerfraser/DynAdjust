@@ -461,8 +461,7 @@ void DynAdjustPrinter::PrintMeasurementsHeader(bool printHeader, const std::stri
 
 // Stage 3: Output coordinators
 void DynAdjustPrinter::PrintAdjustedNetworkMeasurements() {
-    // Delegate to the existing complex implementation for now
-    // This is a simplified coordinator that handles basic cases
+    // Complete implementation with ignored measurements handling
     if (adjust_.adjustStatus_ > ADJUST_TEST_FAILED)
         return;
     
@@ -486,6 +485,18 @@ void DynAdjustPrinter::PrintAdjustedNetworkMeasurements() {
     case PhasedMode:
         // Use existing logic for complex phased mode
         adjust_.PrintAdjMeasurements(adjust_.v_msr_block_, printHeader);
+        break;
+    }
+
+    // Handle ignored measurements for applicable modes
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case PhasedMode:
+    case SimultaneousMode:
+        if (adjust_.projectSettings_.o._print_ignored_msrs)
+            // Print comparison between ignored and computed 
+            // measurements from adjusted coordinates
+            PrintIgnoredMeasurements(true);		
         break;
     }
 }
@@ -953,6 +964,84 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
         if (covariance_count > 0)
             _it_y_msr++;
     }
+}
+
+void DynAdjustPrinter::PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station3).stationName;
+
+    double computed, correction;
+    switch (printMode)
+    {
+    case computedMsrs:
+        correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+        computed = _it_msr->term1 + correction + _it_msr->preAdjCorr;
+        break;
+    case ignoredMsrs:
+    default:
+        correction = _it_msr->measCorr;
+        computed = _it_msr->measAdj;
+        break;
+    }
+    
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision    
+    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+
+    design_row++;
+}
+
+void DynAdjustPrinter::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+    double computed, correction;
+    switch (printMode)
+    {
+    case computedMsrs:
+        correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+        computed = _it_msr->term1 + correction + _it_msr->preAdjCorr;
+        break;
+    case ignoredMsrs:
+    default:
+        correction = _it_msr->measCorr;
+        computed = _it_msr->measAdj;
+        break;
+    }
+    
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision    
+    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+    
+    design_row++;
+}
+
+void DynAdjustPrinter::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+    double computed;
+    switch (printMode)
+    {
+    case computedMsrs:
+        computed = _it_msr->term1 - _it_msr->measCorr - _it_msr->preAdjCorr;
+        break;
+    case ignoredMsrs:
+    default:
+        computed = _it_msr->measAdj;
+        break;
+    }
+    
+    // Print linear measurement, taking care of user requirements for precision    
+    adjust_.PrintCompMeasurementsLinear(' ', computed, _it_msr->measCorr, _it_msr);
+
+    design_row++;
 }
 
 // Stage 4: Station coordinate formatter implementations
@@ -4550,6 +4639,135 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         adjust_.PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
         break;
     }
+}
+
+void DynAdjustPrinter::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+{
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+    double computed, correction;
+    
+    switch (printMode)
+    {
+    case computedMsrs:
+        correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+        computed = _it_msr->term1 + correction - _it_msr->preAdjCorr;
+        break;
+    case ignoredMsrs:
+    default:
+        correction = _it_msr->measCorr;
+        computed = _it_msr->measAdj;
+        break;
+    }
+
+    // Print linear measurement, taking care of user requirements for precision	
+    adjust_.PrintCompMeasurementsLinear(' ', computed, correction, _it_msr);
+        
+    design_row++;
+}
+
+void DynAdjustPrinter::PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+{
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+    double computed, correction;
+    
+    switch (printMode)
+    {
+    case computedMsrs:
+        correction = -adjust_.v_measMinusComp_.at(block).get(design_row, 0);
+        computed = _it_msr->term1 + correction + _it_msr->preAdjCorr;
+        break;
+    case ignoredMsrs:
+    default:
+        correction = _it_msr->measCorr;
+        computed = _it_msr->measAdj;
+        break;
+    }
+
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision	
+    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+        
+    design_row++;
+}
+
+void DynAdjustPrinter::PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr, const std::runtime_error& e, std::stringstream& ss, 
+    const std::string& calling_function, const UINT32 msr_count)
+{
+    it_vmsr_t _it_msr_temp(_it_msr);
+
+    switch (_it_msr->measType)
+    {
+    case 'D':
+        ss << calling_function << "(): Cannot compute the" << std::endl <<
+            "  variance matrix for a round of " << msr_count << " directions commencing" << std::endl <<
+            "  with stations " << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName << " and " <<
+            adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName << ":" << std::endl;
+
+        ss << "    ..." << std::endl <<
+            "    <Value>" << FormatDmsString(RadtoDms(_it_msr->term1), adjust_.PRECISION_SEC_MSR, true, false) << "</Value>" << std::endl <<
+            "    ..." << std::endl << std::endl;
+        break;
+    case 'G':
+        ss << calling_function << "(): Cannot invert the" << std::endl <<
+            "  variance matrix for a GPS baseline between stations " << 
+            adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName << " and " <<
+            adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName << ":" << std::endl;
+
+        ss << "    ..." << std::endl <<
+            "    <x>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</x>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <y>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</y>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <z>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</z>" << std::endl <<
+            "    ..." << std::endl << std::endl;
+        break;
+    case 'X':
+        ss << calling_function << "(): Cannot invert the" << std::endl <<
+            "  variance matrix for a " << msr_count << "-baseline GPS baseline cluster commencing" << std::endl <<
+            "  with stations " << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName << " and " <<
+            adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName << ":" << std::endl;
+
+        ss << "    ..." << std::endl <<
+            "    <x>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</x>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <y>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</y>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <z>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</z>" << std::endl <<
+            "    ..." << std::endl << std::endl;
+        break;
+    case 'Y':
+        ss << calling_function << "(): Cannot invert the" << std::endl <<
+            "  variance matrix for a " << msr_count << "-station GPS point cluster commencing" << std::endl <<
+            "  with station " << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName << ":" << std::endl;
+
+        ss << "    ..." << std::endl <<
+            "    <x>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</x>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <y>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</y>" << std::endl;
+        _it_msr_temp++;
+        ss << "    <z>" << std::fixed << std::setprecision(adjust_.PRECISION_MTR_MSR) << _it_msr_temp->term1 << "</z>" << std::endl <<
+            "    ..." << std::endl << std::endl;
+        break;
+    }
+    
+    ss <<
+        "  Detailed description:   " << e.what() << std::endl <<
+        "  Options: " << std::endl <<
+        "  - Check the validity of the variance matrix and any relevant " << std::endl <<
+        "    scalars and re-attempt the adjustment." << std::endl <<
+        "  - If this fails, set the ignore flag in the measurement file and re-import " << std::endl <<
+        "    the station and measurement files." << std::endl;
+
+    adjust_.adj_file << "  " << ss.str() << std::endl;
+    adjust_.adj_file.flush();
 }
 
 } // namespace networkadjust

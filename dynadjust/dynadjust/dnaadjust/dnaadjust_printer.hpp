@@ -159,6 +159,13 @@ class DynAdjustPrinter {
     void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored);
     void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
     void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
+    void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr, const std::runtime_error& e, std::stringstream& ss, 
+                                        const std::string& calling_function, const UINT32 msr_count);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
