@@ -81,12 +81,19 @@ class DynAdjustPrinter {
     template <typename MeasurementType>
     void PrintAdjustedMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
 
+    // Template-based comparative measurement printing
+    template <typename MeasurementType>
+    void PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+
     // Consolidated station formatter for measurement types A, BKVZ, CELMS, HR, IJPQ
     void PrintMeasurementWithStations(it_vmsr_t& it_msr, char measurement_type);
 
     // Utility functions
     void PrintIteration(const UINT32& iteration);
     void PrintAdjustmentTime(boost::timer::cpu_timer& time, int timer_type);
+    void PrintAdjustmentStatus();
+    void PrintMeasurementDatabaseID(const it_vmsr_t& it_msr, bool initialise_dbindex = false);
+    void PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex);
 
   private:
     dna_adjust& adjust_;
@@ -114,6 +121,12 @@ void DynAdjustPrinter::PrintAdjustedMeasurements(char cardinal, const it_vmsr_t&
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
 
+template <typename MeasurementType>
+void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
+    // Default implementation - will be replaced by explicit specializations
+    static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
+}
+
 // Template specializations - defined in .cpp file
 template <>
 void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(char cardinal, const it_vmsr_t& it_msr,
@@ -122,6 +135,14 @@ void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(char cardin
 template <>
 void DynAdjustPrinter::PrintAdjustedMeasurements<LinearMeasurement>(char cardinal, const it_vmsr_t& it_msr,
                                                                     bool initialise_dbindex);
+
+template <>
+void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char cardinal, const double& computed, 
+                                                                        const double& correction, const it_vmsr_t& it_msr);
+
+template <>
+void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
+                                                                       const double& correction, const it_vmsr_t& it_msr);
 
 } // namespace networkadjust
 } // namespace dynadjust

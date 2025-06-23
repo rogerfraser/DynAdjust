@@ -118,6 +118,32 @@ public:
         adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
     }
     
+    // New Stage 2 functions for comparative measurements
+    void print_comparative_angular_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
+        adjust_.adj_file << "Comparative angular measurement: " << computed << " ";
+        adjust_.adj_file << "Correction: " << correction << " ";
+    }
+    
+    void print_comparative_linear_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
+        adjust_.adj_file << "Comparative linear measurement: " << computed << " ";
+        adjust_.adj_file << "Correction: " << correction << " ";
+        adjust_.adj_file << "Questionable: " << (fabs(correction) > 999.9999 ? "true" : "false") << " ";
+    }
+    
+    void print_adjustment_status() {
+        adjust_.adj_file << "Mock adjustment status: ";
+        adjust_.adj_file << "Status line here ";
+    }
+    
+    void print_measurement_database_id(const it_vmsr_t& it_msr, bool initialise_dbindex = false) {
+        adjust_.adj_file << "DB ID: " << (initialise_dbindex ? "initialized" : "not_initialized") << " ";
+    }
+    
+    void print_measurement_statistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+        adjust_.adj_file << "Statistics: N=" << it_msr->NStat << " ";
+        adjust_.adj_file << "Rel=" << it_msr->PelzerRel << " ";
+    }
+    
     // Test helper functions
     static constexpr int get_station_count(char measurement_type) {
         constexpr std::array station_counts{
@@ -339,5 +365,113 @@ TEST_CASE("Printer demonstrates C++17 features", "[printer][modern]") {
         
         REQUIRE(is_angular == true);
         REQUIRE(is_linear == true);
+    }
+}
+
+TEST_CASE("Stage 2: Comparative measurement printing works correctly", "[printer][comparative]") {
+    SECTION("Comparative angular measurement printing") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('A'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_comparative_angular_measurement(' ', 45.123, 0.001, it_msr);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Comparative angular measurement: 45.123") != std::string::npos);
+        REQUIRE(output.find("Correction: 0.001") != std::string::npos);
+    }
+    
+    SECTION("Comparative linear measurement with large correction") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_comparative_linear_measurement(' ', 1234.567, 1000.5, it_msr);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Comparative linear measurement: 1234.57") != std::string::npos);
+        REQUIRE(output.find("Correction: 1000.5") != std::string::npos);
+        REQUIRE(output.find("Questionable: true") != std::string::npos);
+    }
+    
+    SECTION("Comparative linear measurement with small correction") {
+        MockDnaAdjust fresh_mock_adjust;
+        TestPrinter fresh_printer(fresh_mock_adjust);
+        
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        fresh_printer.print_comparative_linear_measurement(' ', 1234.567, 0.5, it_msr);
+        
+        std::string output = fresh_mock_adjust.adj_file.str();
+        REQUIRE(output.find("Comparative linear measurement: 1234.57") != std::string::npos);
+        REQUIRE(output.find("Correction: 0.5") != std::string::npos);
+        REQUIRE(output.find("Questionable: false") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 2: Utility functions work correctly", "[printer][utilities]") {
+    SECTION("Adjustment status printing") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_adjustment_status();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Mock adjustment status:") != std::string::npos);
+        REQUIRE(output.find("Status line here") != std::string::npos);
+    }
+    
+    SECTION("Database ID printing with initialization") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_measurement_database_id(it_msr, true);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("DB ID: initialized") != std::string::npos);
+    }
+    
+    SECTION("Database ID printing without initialization") {
+        MockDnaAdjust fresh_mock_adjust;
+        TestPrinter fresh_printer(fresh_mock_adjust);
+        
+        vmsr_t measurements;
+        measurements.push_back(createTestMeasurement('C'));
+        it_vmsr_t it_msr = measurements.begin();
+        
+        fresh_printer.print_measurement_database_id(it_msr, false);
+        
+        std::string output = fresh_mock_adjust.adj_file.str();
+        REQUIRE(output.find("DB ID: not_initialized") != std::string::npos);
+    }
+    
+    SECTION("Measurement statistics printing") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        vmsr_t measurements;
+        measurement_t msr = createTestMeasurement('A');
+        msr.NStat = 2.45;
+        msr.PelzerRel = 0.85;
+        measurements.push_back(msr);
+        it_vmsr_t it_msr = measurements.begin();
+        
+        printer.print_measurement_statistics(' ', it_msr, true);
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Statistics: N=2.45") != std::string::npos);
+        REQUIRE(output.find("Rel=0.85") != std::string::npos);
     }
 }
