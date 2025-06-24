@@ -381,7 +381,12 @@ void CopyClusterMsr(T& cluster, const msriterator _it_msr, T& clusterCopy)
 
 	while (_it_msr_last != cluster.end())
 	{
-		if ((++_it_msr_temp)->measType != 'Y')
+        if ((++_it_msr_temp) == cluster.end()) 
+		{
+            ++_it_msr_last;
+            break;
+        }
+		if (_it_msr_temp->measType != 'Y')
 		{
 			++_it_msr_last;
 			break;
