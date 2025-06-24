@@ -272,7 +272,7 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 	InitialiseAdjustment();
 	
 	// Load network files
-	LoadNetworkFiles();
+  	LoadNetworkFiles();
 
 	// Load type b uncertainties, method handler, and the station map
 	InitialiseTypeBUncertainties();
@@ -2083,7 +2083,9 @@ void dna_adjust::AddConstraintStationstoNormalsForward(const UINT32& block)
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 		if (projectSettings_.g.verbose > 6)
-			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
+			debug_file << "Parameter station " << bstBinaryRecords_.at((*_it_const)).stationName 
+				<< " (" << bstBinaryRecords_.at((*_it_const)).stationConst << ") " 
+				<< std::scientific << std::setprecision(16) << var_cart << std::endl;
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2200,12 +2202,17 @@ void dna_adjust::AddConstraintStationstoNormalsSimultaneous(const UINT32& block)
 		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 		if (projectSettings_.g.verbose > 6)
-			debug_file << "parameter station " << bstBinaryRecords_.at((*_it_const)).stationName << std::scientific << std::setprecision(16) << var_cart << std::endl;
+            debug_file << "Parameter station " << bstBinaryRecords_.at((*_it_const)).stationName 
+				<< " (" << bstBinaryRecords_.at((*_it_const)).stationConst << ") " 
+                << std::scientific << std::setprecision(16) << var_cart << std::endl;
 		
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
 		v_normals_.at(block).blockadd(stn, stn, var_cart, 0, 0, 3, 3);
 	}
+
+	if (projectSettings_.g.verbose > 6)
+        debug_file << "Constrained normals " << std::scientific << std::setprecision(16) << v_normals_.at(block) << std::endl;
 }
 	
 
@@ -5310,7 +5317,7 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 	}
 
 	if (projectSettings_.g.verbose > 5)
-		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << var_cart;
+		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << *var_cart;
 	
 }
 	
@@ -5451,7 +5458,7 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 	}
 
 	if (projectSettings_.g.verbose > 5)
-		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << var_cart;
+		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << *var_cart;
 	
 }
 	
@@ -5679,7 +5686,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 	}
 
 	if (projectSettings_.g.verbose > 5)
-		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << var_cart;
+		debug_file << std::endl << "Inv V.dxyz " << std::fixed << std::setprecision(16) << std::setw(26) << *var_cart;
 	
 }
 	
@@ -6343,6 +6350,8 @@ void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_
 	AddMsrtoMeasMinusComp(_it_msr, design_row, 
 		(estimatedStations->get(stn2+2, 0) - estimatedStations->get(stn1+2, 0)), 
 		measMinusComp, false);
+    if (projectSettings_.g.verbose > 5)
+        debug_file << std::endl;
 		
 	if (buildnewMatrices || projectSettings_.a.stage)
 	{
@@ -7431,6 +7440,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			AddMsrtoMeasMinusComp(_it_msr, design_row, 
 				estimatedStations->get(stn1+2, 0),
 				measMinusComp, false);
+            if (projectSettings_.g.verbose > 5)
+                debug_file << std::endl;
 		
 			if (buildnewMatrices || projectSettings_.a.stage)
 				// Add Z elements to design matrix
@@ -7650,7 +7661,7 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		if (projectSettings_.a.adjust_mode != SimultaneousMode)
 			debug_file << (forward_ ? " (Forward)" : " (Reverse)");
 		debug_file << std::endl;
-		debug_file << "Precisions" << std::fixed << std::setprecision(16) << v_normals_.at(block) << std::endl;
+		debug_file << "Precisions " << std::fixed << std::setprecision(16) << v_normals_.at(block) << std::endl;
 	}
 	
 	// compute weighted "measured minus computed"
@@ -7696,13 +7707,13 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		if (projectSettings_.a.adjust_mode != SimultaneousMode)
 			debug_file << (forward_ ? " (Forward)" : " (Reverse)");
 		debug_file << std::endl;
-		debug_file << "Weighted measurements" << std::fixed << std::setprecision(16) << At_Vinv_m << std::endl;
+		debug_file << "Weighted measurements " << std::fixed << std::setprecision(16) << At_Vinv_m << std::endl;
 
 		debug_file << "Block " << block + 1;
 		if (projectSettings_.a.adjust_mode != SimultaneousMode)
 			debug_file << (forward_ ? " (Forward)" : " (Reverse)");
 		debug_file << std::endl;
-		debug_file << "Corrections" << std::fixed << std::setprecision(16) << v_corrections_.at(block) << std::endl;
+		debug_file << "Corrections " << std::fixed << std::setprecision(16) << v_corrections_.at(block) << std::endl;
 		debug_file.flush();
 
 		if (projectSettings_.a.multi_thread)
@@ -13376,11 +13387,9 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 		switch (print_mode)
 		{
 		case computedMsrs:
-			x = _it_y_msr->term1;
-			_it_y_msr++;
-			y = _it_y_msr->term1;
-			_it_y_msr++;
-			z = _it_y_msr->term1;
+			latitude = stn1_it->currentLatitude;
+            longitude = stn1_it->currentLongitude;
+            height = stn1_it->currentHeight;
 			break;
 		case adjustedMsrs:
 		default:
@@ -13389,20 +13398,18 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 			y = _it_y_msr->measAdj;
 			_it_y_msr++;
 			z = _it_y_msr->measAdj;
+
+			// Convert to geographic
+            CartToGeo<double>(x, y, z, &latitude, &longitude, &height, datum_.GetEllipsoidRef());
+            _it_y_msr -= 2;
 			break;
 		}
-		
-		// Convert to geographic
-		CartToGeo<double>(x, y, z, 
-			&latitude, &longitude, &height, 
-			datum_.GetEllipsoidRef());
 
 		// Reduce ellipsoidal height to orthometric height
-		if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
-			height -= stn1_it->geoidSep;		
+        if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
+            height -= stn1_it->geoidSep;
 
-		// Assign computed values
-		_it_y_msr -= 2;
+		// Assign computed values		
 		_it_y_msr->measAdj = latitude;
 		_it_y_msr->measCorr = latitude - _it_y_msr->preAdjMeas;
 		mpositions.put(covr, 0, latitude);
