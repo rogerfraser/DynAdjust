@@ -37,7 +37,7 @@
 #include <math.h>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>

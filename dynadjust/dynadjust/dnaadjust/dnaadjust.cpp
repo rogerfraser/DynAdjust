@@ -2100,7 +2100,7 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 			if (!projectSettings_.a.report_mode)
 			{
 				adj_file << std::endl << "  Optimised for concurrent processing via multi-threading." << std::endl;
-				adj_file << "  The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads." << std::endl;
+				adj_file << "  The active CPU supports the execution of " << std::thread::hardware_concurrency() << " concurrent threads." << std::endl;
 				adj_file << std::endl;
 			}
 			AdjustPhasedMultiThread();

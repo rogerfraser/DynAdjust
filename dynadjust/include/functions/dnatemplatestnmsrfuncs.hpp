@@ -48,7 +48,7 @@
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement_types.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 using namespace dynadjust::measurements;
 
@@ -814,7 +814,7 @@ public:
 template <typename M = CDnaMeasurement>
 class CompareMsr {
 public:
-	bool operator()(const boost::shared_ptr<M> left, const boost::shared_ptr<M> right) {
+	bool operator()(const std::shared_ptr<M> left, const std::shared_ptr<M> right) {
 		if (left->GetIgnore() == right->GetIgnore()) {
 			if (iequals(left->GetType(), right->GetType()))
 			{

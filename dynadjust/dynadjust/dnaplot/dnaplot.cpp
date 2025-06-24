@@ -21,6 +21,7 @@
 //============================================================================
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
+#include <thread>
 
 #include <include/functions/dnastrutils.hpp>
 
@@ -220,7 +221,7 @@ void dna_plot::InvokeGnuplot()
 	std::string system_file_cmd = "gnuplot " + boost::filesystem::absolute(pprj_->p._gnuplot_cmd_file).string();
 
 	// set up a thread group to execute the gnuplot in parallel
-	boost::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
+	std::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
 	
 	// go!
 	gnuplot_thread.join();
@@ -2121,16 +2122,18 @@ void dna_plot::CreateGMTPlotEnvironment(project_settings* pprj)
 
 void dna_plot::InvokeGMT()
 {
-	// set up a thread group to execute the GMT scripts in parallel
-	boost::thread_group gmt_plot_threads;
+	// set up threads to execute the GMT scripts in parallel
+	std::vector<std::thread> gmt_plot_threads;
 	
 	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
 	{
-		gmt_plot_threads.create_thread(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
+		gmt_plot_threads.emplace_back(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
 	}
 
 	// go!
-	gmt_plot_threads.join_all();
+	for (auto& t : gmt_plot_threads) {
+		t.join();
+	}
 }
 
 // Aggregate individual PDFs created for each block (for

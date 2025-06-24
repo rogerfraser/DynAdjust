@@ -30,7 +30,6 @@
 	#endif
 #endif
 
-#include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

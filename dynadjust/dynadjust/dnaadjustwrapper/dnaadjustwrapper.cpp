@@ -24,11 +24,12 @@
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
 
 #include <include/functions/dnastrutils.hpp>
+#include <thread>
 
 #include "threading_init.hpp"
 
 extern bool running;
-extern boost::mutex cout_mutex;
+extern std::mutex cout_mutex;
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;
@@ -1243,7 +1244,7 @@ int main(int argc, char* argv[])
 			if (p.a.multi_thread)
 			{
 				std::cout << std::endl << "+ Optimised for concurrent processing via multi-threading." << std::endl << std::endl;
-				std::cout << "+ The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads.";
+				std::cout << "+ The active CPU supports the execution of " << std::thread::hardware_concurrency() << " concurrent threads.";
 			}
 			std::cout << std::endl;
 			break;
@@ -1286,7 +1287,7 @@ int main(int argc, char* argv[])
 		running = true;
 
         int nthreads_la = init_linear_algebra_threads();
-        boost::thread progress(dna_adjust_progress_thread(&netAdjust, &p));
+        std::thread progress(dna_adjust_progress_thread(&netAdjust, &p));
 
         // Do adjustment using linear algebra threads
         dna_adjust_thread(&netAdjust, &p, &adjustStatus)(); 

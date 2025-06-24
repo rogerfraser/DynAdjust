@@ -31,14 +31,15 @@
 
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <iomanip>
+#include <ctime>
 
 using std::ostringstream;
 using std::locale;
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts-iostream.hpp>

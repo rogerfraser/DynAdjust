@@ -53,7 +53,7 @@
 #include <include/parameters/dnaprojection.hpp>
 #include <include/io/dnaiodnatypes.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 using namespace dynadjust::datum_parameters;
 
@@ -67,7 +67,7 @@ class CAStationList;
 class CDnaStation;
 
 // station types
-typedef boost::shared_ptr<CDnaStation> dnaStnPtr;
+typedef std::shared_ptr<CDnaStation> dnaStnPtr;
 typedef std::vector<dnaStnPtr> vdnaStnPtr, * pvdnaStnPtr;		// vector of dnaStnPtr
 typedef vdnaStnPtr::iterator _it_vdnastnptr;
 typedef vdnaStnPtr::const_iterator _it_vdnastnptr_const;
@@ -75,7 +75,7 @@ typedef std::pair<_it_vdnastnptr, _it_vdnastnptr> it_pair_dnastnptr;
 
 typedef std::vector<CAStationList> vASL, *pvASL;
 typedef vASL::iterator _it_vasl;
-typedef boost::shared_ptr<CAStationList> ASLPtr;
+typedef std::shared_ptr<CAStationList> ASLPtr;
 typedef std::vector<ASLPtr> vASLPtr, *pvASLPtr;
 
 
@@ -163,7 +163,7 @@ public:
 	//inline CDnaStation& operator[](int iIndex) { return this[iIndex]; }
 
 	friend bool operator<(const CDnaStation& left, const CDnaStation& right);
-	friend bool operator<(const boost::shared_ptr<CDnaStation>& left, const boost::shared_ptr<CDnaStation>& right);
+	friend bool operator<(const std::shared_ptr<CDnaStation>& left, const std::shared_ptr<CDnaStation>& right);
 	
 	inline int CompareStationName(const std::string& s) { return m_strName.compare(s); }
 	inline std::string GetName() const { return m_strName; }

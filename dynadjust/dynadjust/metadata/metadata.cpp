@@ -7,20 +7,17 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <mutex>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
 
-boost::mutex cout_mutex;
-boost::mutex import_file_mutex;
+std::mutex cout_mutex;
+std::mutex import_file_mutex;
 
 #include <include/exception/dnaexception.hpp>
 

@@ -37,6 +37,7 @@
 #include <functional>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 #include <math.h>
 #include <iostream>
 #include <boost/tokenizer.hpp>

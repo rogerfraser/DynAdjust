@@ -34,7 +34,7 @@
 #include <include/measurement_types/dnameasurement.hpp>
 
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace dynadjust {
 namespace measurements {

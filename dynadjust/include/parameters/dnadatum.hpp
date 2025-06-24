@@ -33,8 +33,6 @@
 #include <string>
 #include <sstream>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
 
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

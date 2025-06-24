@@ -41,11 +41,10 @@
 #include <cstdarg>
 #include <math.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include <include/exception/dnaexception.hpp>
 #include <include/config/dnaexports.hpp>

@@ -32,8 +32,6 @@
 #include <algorithm>
 #include <functional>
 
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
 
 #include <include/config/dnatypes.hpp>
 

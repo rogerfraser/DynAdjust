@@ -23,12 +23,14 @@
 #include <dynadjust/dnaimportwrapper/dnaimportwrapper.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnastrutils.hpp>
+#include <mutex>
+#include <thread>
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header)
 {
@@ -924,14 +926,16 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 		running = true;
 		firstFile = bool(i == 0);
 
-		boost::thread_group ui_interop_threads;
+		std::vector<std::thread> ui_interop_threads;
 		if (!p.g.quiet)
-			ui_interop_threads.create_thread(dna_import_progress_thread(&parserDynaML, &p));
-		ui_interop_threads.create_thread(dna_import_thread(&parserDynaML, &p, input_file,
+			ui_interop_threads.emplace_back(dna_import_progress_thread(&parserDynaML, &p));
+		ui_interop_threads.emplace_back(dna_import_thread(&parserDynaML, &p, input_file,
 			vStations, &stnCount, vMeasurements, &msrCount,
 			&clusterID, &input_file_meta, firstFile, &status_msg,
 			&elapsed_time));
-		ui_interop_threads.join_all();
+		for (auto& t : ui_interop_threads) {
+			t.join();
+		}
 
 		switch (parserDynaML.GetStatus())
 		{
@@ -1745,7 +1749,7 @@ int main(int argc, char* argv[])
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
-	boost::timer::cpu_timer time;
+	cpu_timer time;
 	
 	
 	// Import discontinuity file and apply discontinuities
@@ -2959,7 +2963,7 @@ int main(int argc, char* argv[])
 		imp_file << ssEnsembleWarning.str();
 	}
 	
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
+	boost::posix_time::milliseconds elapsed_time(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 	std::string time_message = formatedElapsedTime<std::string>(&elapsed_time, "+ Total file handling process took ");
 
 	if (!p.g.quiet)

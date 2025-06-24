@@ -39,7 +39,7 @@ bool operator<(const CDnaStation& left, const CDnaStation& right)
 	return left.m_strName < right.m_strName;
 }
 
-bool operator<(const boost::shared_ptr<CDnaStation>& left, const boost::shared_ptr<CDnaStation>& right)
+bool operator<(const std::shared_ptr<CDnaStation>& left, const std::shared_ptr<CDnaStation>& right)
 {
 	return left.get()->m_strName < right.get()->m_strName;
 }

@@ -21,9 +21,11 @@
 //============================================================================
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <thread>
+#include <chrono>
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 dna_adjust_thread::dna_adjust_thread(dna_adjust* dnaAdj, project_settings* p,
 		_ADJUST_STATUS_* adjustStatus)
@@ -112,7 +114,7 @@ void dna_adjust_thread::handlePrepareAdjustError(const std::string& error_msg)
 void dna_adjust_thread::handleProcessAdjustError(const std::string& error_msg)
 {
 	running = false;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	printErrorMsg(error_msg);
 }
 
@@ -207,7 +209,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	case SimultaneousMode:
 		while (running && _dnaAdj->IsPreparing())
 		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
 		
 		if (_dnaAdj->ExceptionRaised())
@@ -238,7 +240,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 				coutMessage(sst.str());
 				currentBlock = block;
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
 
 		if (_dnaAdj->ExceptionRaised())
@@ -287,7 +289,7 @@ void dna_adjust_progress_thread::processAdjustment()
 					
 				coutMessage(ss.str());
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(80));
+			std::this_thread::sleep_for(std::chrono::milliseconds(80));
 		}
 		
 		break;
@@ -316,7 +318,7 @@ void dna_adjust_progress_thread::processAdjustment()
 				first_time = true;
 			}
 
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 					
 			// print new block to screen when adjusting only
 			if (block != currentBlock && _dnaAdj->IsAdjusting())

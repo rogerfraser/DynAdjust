@@ -37,7 +37,7 @@
 #include <math.h>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind/bind.hpp>
 
 #include <include/config/dnatypes.hpp>
@@ -427,10 +427,10 @@ public:
 	CompareClusterID(const std::vector<M>* m, const U& id=0)
 		: _m(m), _id(id) {}
 	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
+	bool operator()(const std::shared_ptr<U> lhs, const U& rhs) {
 		return (*(lhs.get()) < _m->at(rhs).clusterID);
 	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
+	bool operator()(const U& lhs, const std::shared_ptr<U> rhs) {
 		return (_m->at(lhs).clusterID < *(rhs.get()));
 	}
 	// Sort by clusterID then by file order.
@@ -463,7 +463,7 @@ private:
 // A = CAStationList, U = UINT32
 // Example use:
 // CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_, vAssocStnList_.at(_it_stnmap->second).GetAssocMsrCount());
-// boost::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
+// std::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
 
 template<typename A, typename U>
 class CompareMeasCount
@@ -472,10 +472,10 @@ public:
 	CompareMeasCount(const std::vector<A>* a) : _a(a) {}
 
 	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
+	bool operator()(const std::shared_ptr<U> lhs, const U& rhs) {
 		return (*(lhs.get()) < _a->at(rhs).GetAssocMsrCount());
 	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
+	bool operator()(const U& lhs, const std::shared_ptr<U> rhs) {
 		return (_a->at(lhs).GetAssocMsrCount() < *(rhs.get()));
 	}
 	bool operator()(const U& lhs, const U& rhs)
@@ -1444,17 +1444,17 @@ template<typename S, typename T>
 class CompareStnName_CDnaStn
 {
 public:
-	bool operator()(const boost::shared_ptr<S> lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const std::shared_ptr<S> rhs) {
 		if (lhs.get()->GetName() == rhs.get()->GetName())
 			return (lhs.get()->GetfileOrder() < rhs.get()->GetfileOrder());
 		return keyLess(lhs.get()->GetName(), rhs.get()->GetName());
 	}
 
-	bool operator()(const T lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const T lhs, const std::shared_ptr<S> rhs) {
 		return keyLess(lhs, rhs.get()->GetName());
 	}
 
-	bool operator()(const boost::shared_ptr<S> lhs, const T rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const T rhs) {
 		return keyLess(lhs.get()->GetName(), rhs);
 	}
 
@@ -1470,7 +1470,7 @@ template<typename S>
 class CompareStnFileOrder_CDnaStn
 {
 public:
-	bool operator()(const boost::shared_ptr<S> lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const std::shared_ptr<S> rhs) {
 		if (lhs.get()->GetfileOrder() == rhs.get()->GetfileOrder())
 			return (lhs.get()->GetName() < rhs.get()->GetName());
 		return (lhs.get()->GetfileOrder() < rhs.get()->GetfileOrder());
@@ -1678,10 +1678,10 @@ class CompareIgnoredMsr
 {
 public:
 	CompareIgnoredMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		return msr->GetIgnore();
 	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetIgnore() == rhs->GetIgnore())
 			return lhs->GetFirst() < rhs->GetFirst();
 		return lhs->GetIgnore() < rhs->GetIgnore();
@@ -1709,10 +1709,10 @@ class CompareInsufficientMsr
 {
 public:
 	CompareInsufficientMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		return msr->GetInsufficient();
 	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetInsufficient() == rhs->GetInsufficient())
 			return lhs->GetFirst() < rhs->GetFirst();
 		return lhs->GetInsufficient() < rhs->GetInsufficient();
@@ -1725,7 +1725,7 @@ class CompareEmptyClusterMeas
 {
 public:
 	CompareEmptyClusterMeas() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		switch (msr->GetTypeC())
 		{
 		case 'X':
@@ -1737,7 +1737,7 @@ public:
 		}
 		//return msr->GetTotal() == 0;
 	}
-	//bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	//bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 	//	return lhs->GetTotal() < rhs->GetTotal();
 	//}
 };
@@ -1748,7 +1748,7 @@ class CompareClusterMsrFunc
 {
 public:
 	CompareClusterMsrFunc() {}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetTypeC() != rhs->GetTypeC())
 			return lhs->GetTypeC() < rhs->GetTypeC();
 		else
@@ -1765,7 +1765,7 @@ public:
 	CompareMeasType(const std::string& s) :  _s(s) {}
 	inline void SetComparand(const char& s) { _s = s; }
 
-	bool operator()(boost::shared_ptr<M> m) {
+	bool operator()(std::shared_ptr<M> m) {
 		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)  {
 			if (m->GetTypeC() == *_it_s)
 				return true;
@@ -1786,7 +1786,7 @@ public:
 	CompareNonMeasType(const std::string& s) :  _s(s), _bFd(false) {}
 	inline void SetComparand(const std::string& s) { _s = s; }
 
-	bool operator()(boost::shared_ptr<M> m) {
+	bool operator()(std::shared_ptr<M> m) {
 		_bFd = true;
 		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)
 			_bFd = _bFd && m->GetTypeC() != *_it_s;

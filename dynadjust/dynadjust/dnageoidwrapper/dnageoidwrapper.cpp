@@ -1063,7 +1063,7 @@ int main(int argc, char* argv[])
 		std::cout << "... ";
 	}
 	
-	boost::timer::cpu_timer time;
+	cpu_timer time;
 
 	char dnageoFile[601], *geoFileptr;
 	geoFileptr = NULL;
@@ -1166,7 +1166,8 @@ int main(int argc, char* argv[])
 
 	// wall time is in nanoseconds
 	// cout << time.elapsed().wall << std::endl << std::endl;
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
+	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count();
+	boost::posix_time::milliseconds elapsed_time(elapsed_ms);
 	std::cout << std::endl << formatedElapsedTime<std::string>(&elapsed_time, "+ Geoid file interpolation took ") << std::endl << std::endl;
 	
 	return EXIT_SUCCESS;

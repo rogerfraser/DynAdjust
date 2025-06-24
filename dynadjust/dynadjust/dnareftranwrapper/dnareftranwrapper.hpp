@@ -39,12 +39,7 @@
 
 #include <dynadjust/dnareftran/dnareftran.hpp>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>

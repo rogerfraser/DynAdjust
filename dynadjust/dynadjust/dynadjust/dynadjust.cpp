@@ -7,18 +7,17 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -282,7 +281,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run reftran (optional)
@@ -303,7 +302,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run geoid (optional)
@@ -324,7 +323,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 		
 	// Run segment (optional)
@@ -345,7 +344,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run adjust (optional)
@@ -366,7 +365,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 
 	return CloseLogandReturn(dynadjust_log, EXIT_SUCCESS);

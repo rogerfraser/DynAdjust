@@ -33,7 +33,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include <boost/timer/timer.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaoptions.hpp>

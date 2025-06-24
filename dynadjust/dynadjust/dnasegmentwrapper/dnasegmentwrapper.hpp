@@ -38,12 +38,11 @@
 #include <time.h>
 #include <string.h>
 #include <set>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -65,7 +64,10 @@ using namespace dynadjust::networksegment;
 using namespace dynadjust::exception;
 
 extern bool running;
-extern boost::mutex cout_mutex;
+extern std::mutex cout_mutex;
+
+// Use cpu_timer from dynadjust::networksegment namespace
+using dynadjust::networksegment::cpu_timer;
 
 class dna_segment_thread
 {
@@ -114,7 +116,7 @@ public:
 			std::cout << "+ Creating block " << std::setw(PROGRESS_PAD_39) << " ";
 			cout_mutex.unlock();
 		}
-		boost::timer::cpu_timer time;
+		cpu_timer time;
 		try {
 			*_segmentStatus = SEGMENT_EXCEPTION_RAISED;
 			*_segmentStatus = _dnaSeg->SegmentNetwork(_p);
@@ -128,14 +130,14 @@ public:
 		}
 		catch (const std::runtime_error& e) {
 			running = false;
-			boost::this_thread::sleep(boost::posix_time::milliseconds(250));
+			std::this_thread::sleep_for(std::chrono::milliseconds(250));
 			cout_mutex.lock();
 			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			cout_mutex.unlock();
 			return;
 		}
 
-		*_s = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		*_s = boost::posix_time::milliseconds(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 		running = false;
 		
 		if (!_p->g.quiet)
@@ -179,7 +181,7 @@ public:
 					currentBlock = block;
 				}
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(75));
+			std::this_thread::sleep_for(std::chrono::milliseconds(75));
 		}	
 	}
 

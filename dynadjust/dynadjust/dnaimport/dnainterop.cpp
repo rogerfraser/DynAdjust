@@ -21,6 +21,7 @@
 //============================================================================
 
 //#include <include/functions/dnaparallelfuncs.hpp>
+#include <mutex>
 #include <dynadjust/dnaimport/dnainterop.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
@@ -49,7 +50,7 @@ UINT32		g_fileOrder;
 namespace dynadjust {
 namespace dynamlinterop {
 
-boost::mutex import_file_mutex;
+std::mutex import_file_mutex;
 
 dna_import::dna_import()
 	: percentComplete_(-99.)
@@ -641,7 +642,7 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
-        std::lock_guard<boost::mutex> lock(import_file_mutex);
+        std::lock_guard<std::mutex> lock(import_file_mutex);
 
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
 		dna_io_snx snx;

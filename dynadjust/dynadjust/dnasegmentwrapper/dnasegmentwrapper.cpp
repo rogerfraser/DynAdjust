@@ -21,11 +21,13 @@
 //============================================================================
 
 #include <dynadjust/dnasegmentwrapper/dnasegmentwrapper.hpp>
+#include <mutex>
+#include <thread>
 
 using namespace dynadjust;
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p)
 {
@@ -333,12 +335,14 @@ int main(int argc, char* argv[])
 		netSegment.InitialiseSegmentation();
 		running = true;
 
-		// segment blocks using group thread
-		boost::thread_group ui_segment_threads;
+		// segment blocks using threads
+		std::vector<std::thread> ui_segment_threads;
 		if (!p.g.quiet)
-			ui_segment_threads.create_thread(dna_segment_progress_thread(&netSegment, &p));
-		ui_segment_threads.create_thread(dna_segment_thread(&netSegment, &p, &segmentStatus, &elapsed_time, &status_msg));
-		ui_segment_threads.join_all();
+			ui_segment_threads.emplace_back(dna_segment_progress_thread(&netSegment, &p));
+		ui_segment_threads.emplace_back(dna_segment_thread(&netSegment, &p, &segmentStatus, &elapsed_time, &status_msg));
+		for (auto& t : ui_segment_threads) {
+			t.join();
+		}
 		
 		switch (netSegment.GetStatus())
 		{

@@ -39,7 +39,7 @@
 #include <math.h>
 //#include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>

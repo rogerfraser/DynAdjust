@@ -19,7 +19,7 @@
 #include <math.h>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <include/math/dnamatrix_contiguous.hpp>
 

@@ -34,10 +34,8 @@
 
 #include <include/measurement_types/dnageometries.hpp>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/timer/timer.hpp>
+#include <memory>
 #include <boost/chrono/time_point.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 
 #include <include/io/dnaiotpb.hpp>

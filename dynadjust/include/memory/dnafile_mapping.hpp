@@ -33,14 +33,14 @@
 
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/filesystem.hpp>
 
 namespace dynadjust { 
 namespace memory {
 
-typedef boost::shared_ptr<boost::interprocess::mapped_region> MapRegPtr;
-typedef boost::shared_ptr<boost::interprocess::file_mapping> FileMapPtr;
+typedef std::shared_ptr<boost::interprocess::mapped_region> MapRegPtr;
+typedef std::shared_ptr<boost::interprocess::file_mapping> FileMapPtr;
 
 class block_map_t
 {

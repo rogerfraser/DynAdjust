@@ -211,7 +211,7 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 	if (debug_level_ > 2)
 		trace_file << "Block " << currentBlock_ << "..." << std::endl;
 	
-	boost::timer::cpu_timer time;
+	cpu_timer time;
 
 	v_ContiguousNetList_.clear();
 	v_ContiguousNetList_.push_back(currentNetwork_ = 0);
@@ -253,7 +253,7 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 
 	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
 	if (debug_level_ > 1)
-		elapsed_time = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		elapsed_time = boost::posix_time::milliseconds(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 	
 	isProcessing_ = false;	
 

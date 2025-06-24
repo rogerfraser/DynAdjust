@@ -39,13 +39,9 @@
 #include <cstdarg>
 #include <math.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/chrono/time_point.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
 
 
 #include <include/config/dnaexports.hpp>
