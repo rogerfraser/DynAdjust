@@ -187,14 +187,14 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string message;
 	if (!tpb.validate_plate_files(global_plates_, plate_motion_eulers_, message))
 	{
 		ss << "         " << message << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	try {
@@ -202,7 +202,7 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	
@@ -1877,7 +1877,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -1913,7 +1913,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	

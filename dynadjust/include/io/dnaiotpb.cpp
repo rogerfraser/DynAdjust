@@ -71,10 +71,10 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -138,11 +138,11 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
 		if (tpb_file.eof())
@@ -150,7 +150,7 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			tpb_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}	
 
 	return;
@@ -174,10 +174,10 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -228,11 +228,11 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
 		if (tpp_file.eof())
@@ -240,7 +240,7 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 			tpp_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return;

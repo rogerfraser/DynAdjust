@@ -33,7 +33,6 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <boost/exception_ptr.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
 

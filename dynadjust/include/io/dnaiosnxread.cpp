@@ -54,7 +54,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 	{
 		std::stringstream ss;
 		ss << "parse_sinex(): The SINEX file  " << fileName << " did not contain a header record." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	try {
@@ -70,14 +70,14 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 			return;
 		std::stringstream ss;
 		ss << "parse_sinex(): An error was encountered when attempting to read SINEX file  " << fileName << "." << std::endl << "  " << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& f) {
 		std::stringstream ss;
 		ss << "  - line " << lineNo;
 		ss << ", column " <<  columnNo << std::endl;
 		ss << "  - " << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	
@@ -123,7 +123,7 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 			catch (...) {
 				std::stringstream ss;
 				ss << "parse_sinex_data(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}		
 		}
 	
@@ -133,14 +133,14 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 			return;
 		std::stringstream ss;
 		ss << "parse_discontinuity_file(): An error was encountered when attempting to read SINEX file  " << fileName << "." << std::endl << "  " << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& f) {
 		std::stringstream ss;
 		ss << "  - line " << lineNo;
 		ss << ", column " <<  columnNo << std::endl;
 		ss << "  - " << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	
@@ -253,7 +253,7 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 	}
 	catch (...) {
 		ss << "parse_sinex_header(): Could not read from the SINEX file.  " << std::endl << ".";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	try {
@@ -272,7 +272,7 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 	catch (...)
 	{
 		ss << "parse_sinex_header(): Could not extract date and time information from the header record:  " << std::endl << "    " << sBuf << ".";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return true;
@@ -312,12 +312,12 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStation
 			std::stringstream ss;
 			ss << "parse_sinex_data(): Error parsing SINEX file:  " << std::endl << 
 				"    " << e.what();
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 		catch (...) {
 			std::stringstream ss;
 			ss << "parse_sinex_data(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}		
 	}
 
@@ -426,7 +426,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 	{
 		std::stringstream ss;
 		ss << "format_station_names(): Inconsistent number of stations in SINEX file.";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	_it_vsite_id_tuple _it_site(siteOccurrence_.begin());
@@ -613,7 +613,7 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 			ss.str("");
 			columnNo = 1;
 			ss << "parse_sinex_discontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}			
 	}
 
@@ -712,7 +712,7 @@ void dna_io_snx::parse_sinex_sites(std::ifstream** snx_file, UINT32& lineNo, UIN
 			ss.str("");
 			columnNo = 1;
 			ss << "parse_sinex_discontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}			
 	}
 
@@ -758,7 +758,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 			ss.str("");
 			columnNo = 1;
 			ss << "parse_sinex_epochs(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 
 		// Perform some file consistency checks
@@ -777,7 +777,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 					"    " << "SITE/ID block has " << siteOccurrence_.size() << " sites" << std::endl <<
 					"    " << "SOLUTION/EPOCHS block contains additional sites not listed in SITE/ID.  Next record is:" << std::endl <<
 					"    " << sBuf << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}
 		
 			if (!boost::equals(site, stn))
@@ -788,7 +788,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 					"    is inconsistent:  " << std::endl << 
 					"    " << "Index " << file_rec << " in SITE/ID block is " << siteOccurrence_.at(file_rec).site_name << std::endl <<
 					"    " << "Index " << file_rec << " in SOLUTION/EPOCHS block is " << stn << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));			
+				throw std::runtime_error(ss.str());			
 			}
 		}
 
@@ -822,7 +822,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 			columnNo = 1;
 			ss << "parse_sinex_epochs(): Failed to add a new record to the site occurrence list." << std::endl <<
 				"    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 	}
 
@@ -890,7 +890,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 		ss << "parse_sinex_stn(): Cannot apply discontinuities to the stations" << std::endl <<
 			"    if the station epochs have not been loaded beforehand.  To rectify this problem," << std::endl <<
 			"    reformat the SINEX file so that the +SOLUTION/EPOCHS block appears before the +SOLUTION/ESTIMATE block.";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string sBuf(sinexRec), site, tmp, stn;
@@ -952,13 +952,13 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				ss << "  - line " << lineNo;
 				ss << ", column " <<  columnNo << std::endl;
 				ss << "  - " << f.what();
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}
 			catch (...) {
 				ss.str("");
 				columnNo = 47;
 				ss << "parse_sinex_stn(): Could not extract X coordinate estimate from the record:  " << std::endl << "    " << sBuf << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}
 			continue;
 		}
@@ -977,7 +977,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				"    " << "SOLUTION/EPOCHS block has " << siteOccurrence_.size() << " sites" << std::endl <<
 				"    " << "SOLUTION/ESTIMATE block contains additional sites not listed in SOLUTION/EPOCHS.  Next record is:" << std::endl <<
 				"    " << sBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 
 		if (!boost::equals(site, stn))
@@ -988,7 +988,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				"    is inconsistent:  " << std::endl << 
 				"    " << "Index " << file_rec << " in SOLUTION/EPOCHS block is " << siteOccurrence_.at(file_rec).site_name << std::endl <<
 				"    " << "Index " << file_rec << " in SOLUTION/ESTIMATE block is " << stn << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));			
+			throw std::runtime_error(ss.str());			
 		}
 
 		// Capture the Y coordinate
@@ -1002,7 +1002,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				ss.str("");
 				columnNo = 47;
 				ss << "parse_sinex_stn(): Could not extract Y coordinate estimate from the record:  " << std::endl << "    " << sBuf << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}
 			continue;
 		}
@@ -1018,7 +1018,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				ss.str("");
 				columnNo = 47;
 				ss << "parse_sinex_stn(): Could not extract Z coordinate estimate from the record:  " << std::endl << "    " << sBuf << ".";
-				throw boost::enable_current_exception(std::runtime_error(ss.str()));
+				throw std::runtime_error(ss.str());
 			}				
 
 			// Add this station to the vStations vector
@@ -1062,7 +1062,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		ss << "parse_sinex_msr(): Cannot apply discontinuities to the measurements" << std::endl <<
 			"    if the station epochs have not been loaded beforehand.  To rectify this problem," << std::endl <<
 			"    reformat the SINEX file so that the +SOLUTION/EPOCHS block appears before the +SOLUTION/ESTIMATE block.";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 	}
 
 	std::string sBuf(sinexRec), tmp;
@@ -1113,7 +1113,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		{
 			ss.str("");
 			ss << "parse_sinex_msr: Failed to read covariance elements from the record  " << cBuf << ".";
-			throw boost::enable_current_exception(std::runtime_error(ss.str()));
+			throw std::runtime_error(ss.str());
 		}
 
 		// if the number of covariance elements has reached the number of stations, break out.

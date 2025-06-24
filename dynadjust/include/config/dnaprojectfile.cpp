@@ -102,7 +102,7 @@ void CDnaProjectFile::LoadProjectFile(const std::string& projectFile)
 		std::stringstream err_msg;
 		err_msg << "LoadProjectFile(): Project file " << 
 		projectFile << " does not exist." << std::endl;	
-		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+		throw std::runtime_error(err_msg.str());
 	}
 }
 
@@ -123,10 +123,10 @@ void CDnaProjectFile::LoadProjectFile()
 	}
 	catch (const std::runtime_error& e) {
 		err_msg << e.what();
-		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+		throw std::runtime_error(err_msg.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+		throw std::runtime_error(err_msg.str());
 	}
 
 	err_msg.str("");
@@ -149,7 +149,7 @@ void CDnaProjectFile::LoadProjectFile()
 				break;
 			
 			err_msg << f.what() << std::endl;
-			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+			throw std::runtime_error(err_msg.str());
 		}
 		catch (...)
 		{
@@ -157,7 +157,7 @@ void CDnaProjectFile::LoadProjectFile()
 				break;
 
 			err_msg << "Could not read file." << std::endl;
-			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+			throw std::runtime_error(err_msg.str());
 		}
 
 
@@ -286,10 +286,10 @@ void CDnaProjectFile::LoadProjectFile()
 		}
 		catch (const std::runtime_error& e) {
 			err_msg << e.what();
-			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+			throw std::runtime_error(err_msg.str());
 		}
 		catch (...) {
-			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+			throw std::runtime_error(err_msg.str());
 		}
 	}
 
@@ -303,7 +303,7 @@ void CDnaProjectFile::InitialiseGeneralSettings()
 	{
 		std::stringstream ss;
 		ss << "The project file does not provide the network name. " << std::endl << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -316,7 +316,7 @@ void CDnaProjectFile::InitialiseImportSettings()
 	{
 		std::stringstream ss;
 		ss << "Nothing to do - the project file does not list any files to import. " << std::endl << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
@@ -429,7 +429,7 @@ void CDnaProjectFile::InitialiseReftranSettings()
 	{
 		std::stringstream ss;
 		ss << "Nothing to do - the project file does not specify a reference frame." << std::endl << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
@@ -470,7 +470,7 @@ void CDnaProjectFile::InitialiseGeoidSettings()
 	{
 		std::stringstream ss;
 		ss << "Nothing to do - the project file does not provide a network name. " << std::endl << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	
 	settings_.n.bst_file = formPath<std::string>(settings_.g.input_folder, settings_.g.network_name, "bst");		// binary stations file
@@ -481,7 +481,7 @@ void CDnaProjectFile::InitialiseGeoidSettings()
 	{
 		std::stringstream ss;
 		ss << "Nothing to do - the project file does not provide an NTv2 grid file path. " << std::endl << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -515,7 +515,7 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 		if (settings_.g.network_name.empty())
 			ss << std::endl << "network name has not been specified specified, and " << std::endl << "               ";  
 		ss << settings_.a.bst_file << " and " << settings_.a.bms_file << " do not exist." << std::endl << std::endl;  
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	
 	// Station appearance file
@@ -1698,10 +1698,10 @@ void CDnaProjectFile::PrintProjectFile()
 	}
 	catch (const std::runtime_error& e) {
 		err_msg << e.what();
-		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+		throw std::runtime_error(err_msg.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
+		throw std::runtime_error(err_msg.str());
 	}
 
 	err_msg.str("");

@@ -32,7 +32,6 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <boost/exception_ptr.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <include/parameters/dnaconsts-datums.hpp>
@@ -182,7 +181,7 @@ U epsgCodeFromName(const S& datumName)
 	
 	std::stringstream ss;
 	ss << "  epsgCodeFromName: '" << datumName << "' is not a supported reference frame label." << std::endl;
-	throw boost::enable_current_exception(std::runtime_error(ss.str()));
+	throw std::runtime_error(ss.str());
 }
 
 template <typename S>
@@ -281,7 +280,7 @@ S epsgStringFromName(const S& datumName)
 
 	std::stringstream ss;
 	ss << "  epsgStringFromName: '" << datumName << "' is either unknown or not yet supported." << std::endl;
-	throw boost::enable_current_exception(std::runtime_error(ss.str()));
+	throw std::runtime_error(ss.str());
 }
 
 template <typename U>
@@ -355,7 +354,7 @@ bool isEpsgDatumStatic(const U& epsgCode)
 		return false;
 	default:
 		ss << "  isEpsgDatumStatic: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	return false;
 }
@@ -455,7 +454,7 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 	default:
 		std::stringstream ss;
 		ss << "  spheroidFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -550,7 +549,7 @@ std::string referenceepochFromEpsgCode(const U& epsgCode)
 	default:
 		std::stringstream ss;
 		ss << "  referenceepochFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	return "";
 }
@@ -655,7 +654,7 @@ S datumFromEpsgCode(const U& epsgCode)
 	default:
 		std::stringstream ss;
 		ss << "  datumFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	return "";
 }
@@ -748,7 +747,7 @@ bool validateEpsgCode(const U& epsgCode)
 	default:
 		std::stringstream ss;
 		ss << "  validateEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	return false;
 }

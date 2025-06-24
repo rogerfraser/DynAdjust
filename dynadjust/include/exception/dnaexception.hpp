@@ -33,7 +33,6 @@
 #include <stdexcept>
 
 #include <include/config/dnatypes.hpp>
-#include <boost/exception_ptr.hpp>
 
 typedef enum _PARSE_STATUS_ {
 	PARSE_SUCCESS = 0,

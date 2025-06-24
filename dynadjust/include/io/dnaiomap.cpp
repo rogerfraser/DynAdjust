@@ -41,10 +41,10 @@ void dna_io_map::load_map_file(const std::string& map_filename, pv_string_uint32
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	
 	ss.str("");
@@ -74,14 +74,14 @@ void dna_io_map::load_map_file(const std::string& map_filename, pv_string_uint32
 	}
 	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	map_file.close();
@@ -104,10 +104,10 @@ void dna_io_map::write_map_file(const std::string& map_filename, pv_string_uint3
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -133,14 +133,14 @@ void dna_io_map::write_map_file(const std::string& map_filename, pv_string_uint3
 	}
 	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	map_file.close();
@@ -159,10 +159,10 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -183,14 +183,14 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 	}
 	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	map_file.close();
@@ -228,10 +228,10 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //	}
 //	catch (const std::runtime_error& e) {
 //		ss << e.what();
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //	catch (...) {
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //	
 //	ss.str("");
@@ -319,7 +319,7 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //			return;
 //		}
 //		ss << f.what();
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //	catch (const std::runtime_error& e) {
 //		if (renaming_file.eof())
@@ -328,7 +328,7 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //			return;
 //		}
 //		ss << e.what();
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //	catch (...) {
 //		if (renaming_file.eof())
@@ -336,7 +336,7 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //			renaming_file.close();
 //			return;
 //		}
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //
 //	renaming_file.close();

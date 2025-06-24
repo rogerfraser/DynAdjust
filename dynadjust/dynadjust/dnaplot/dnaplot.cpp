@@ -2836,7 +2836,7 @@ void dna_plot::PrintPlateBoundaries(const UINT32& block)
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 block_index(block);

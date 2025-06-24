@@ -481,7 +481,7 @@ _COORD_TYPE_ CDnaStation::GetCoordTypeC(const std::string& sType)
 	// If this point is reached, sType is an unknown coordinate type, so throw!
 	std::stringstream ss;
 	ss << "  '" << sType << "' is not a recognised coordinate type." << std::endl;
-	throw boost::enable_current_exception(std::runtime_error(ss.str()));
+	throw std::runtime_error(ss.str());
 
 	return LLH_type_i;
 }

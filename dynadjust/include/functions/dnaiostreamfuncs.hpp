@@ -39,7 +39,6 @@ using std::locale;
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/exception_ptr.hpp>
 
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
@@ -99,14 +98,14 @@ void file_opener(
 			ss << "file_opener(): An error was encountered when opening " << 
 				str << ". \n  Check that the file is not already opened.";
 		ss << std::endl << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	if (!stream.good()) {
 		std::stringstream ss;
 		ss << "file_opener(): An error was encountered when opening " << 
 			str << ". \n  Check that the file is not already opened.";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 

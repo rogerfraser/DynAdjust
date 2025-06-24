@@ -58,10 +58,10 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	
 	ss.str("");
@@ -191,7 +191,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		if (scalar_file.eof())
@@ -200,7 +200,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			return;
 		}
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
 		if (scalar_file.eof())
@@ -208,7 +208,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			scalar_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	scalar_file.close();

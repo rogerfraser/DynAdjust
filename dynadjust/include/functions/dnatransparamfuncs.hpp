@@ -33,7 +33,6 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <boost/exception_ptr.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnatransformationparameters.hpp>
@@ -181,7 +180,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineGDA94Parameters(): "));
+		throw std::runtime_error("determineGDA94Parameters: ");
 	}
 }
 	
@@ -316,7 +315,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineGDA2020Parameters(): "));
+		throw std::runtime_error("determineGDA2020Parameters: ");
 	}
 }
 	
@@ -428,7 +427,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1988Parameters(): "));
+		throw std::runtime_error("determineITRF1988Parameters: ");
 	}
 }
 
@@ -539,7 +538,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:		
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1989Parameters(): "));
+		throw std::runtime_error("determineITRF1989Parameters: ");
 	}
 }
 
@@ -650,7 +649,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1990Parameters(): "));
+		throw std::runtime_error("determineITRF1990Parameters: ");
 	}
 }
 
@@ -761,7 +760,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:		
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1991Parameters(): "));
+		throw std::runtime_error("determineITRF1991Parameters: ");
 	}
 }
 
@@ -872,7 +871,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1992Parameters(): "));
+		throw std::runtime_error("determineITRF1992Parameters: ");
 	}
 }
 
@@ -983,7 +982,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1993Parameters(): "));
+		throw std::runtime_error("determineITRF1993Parameters: ");
 	}
 }
 
@@ -1094,7 +1093,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1994Parameters(): "));
+		throw std::runtime_error("determineITRF1994Parameters: ");
 	}
 }
 
@@ -1213,7 +1212,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1996Parameters(): "));
+		throw std::runtime_error("determineITRF1996Parameters: ");
 	}
 }
 
@@ -1332,7 +1331,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:		
-		throw boost::enable_current_exception(std::runtime_error("determineITRF1997Parameters(): "));
+		throw std::runtime_error("determineITRF1997Parameters: ");
 	}
 }
 
@@ -1484,7 +1483,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF2000Parameters(): "));
+		throw std::runtime_error("determineITRF2000Parameters: ");
 	}
 }
 
@@ -1601,7 +1600,7 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF2005Parameters(): "));
+		throw std::runtime_error("determineITRF2005Parameters: ");
 	}
 }
 
@@ -1749,7 +1748,7 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF2008Parameters(): "));
+		throw std::runtime_error("determineITRF2008Parameters: ");
 	}
 }
 	
@@ -1896,7 +1895,7 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF2014Parameters(): "));
+		throw std::runtime_error("determineITRF2014Parameters: ");
 	}
 }
 
@@ -2040,7 +2039,7 @@ void determineITRF2020Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i_xyz:
 	case WGS84_G2139_i:
 	default:
-		throw boost::enable_current_exception(std::runtime_error("determineITRF2020Parameters(): "));
+		throw std::runtime_error("determineITRF2020Parameters: ");
 	}
 }
 
@@ -2191,7 +2190,7 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 				REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		default:
-			throw boost::enable_current_exception(std::runtime_error(""));
+			throw std::runtime_error("");
 		}
 	}
 	catch (std::runtime_error& e)
@@ -2202,7 +2201,7 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 			"  " << datumFromEpsgCode<std::string, UINT32>(tParam.from_to_.first) << " and " << 
 			datumFromEpsgCode<std::string, UINT32>(tParam.from_to_.second) <<
 			" have not been defined yet." << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 

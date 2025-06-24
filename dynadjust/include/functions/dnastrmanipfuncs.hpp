@@ -319,7 +319,7 @@ typename std::enable_if<std::is_signed<T>::value, T>::type LongFromString(const 
 	{
 		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return t;
@@ -336,7 +336,7 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 	{
 		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return t;
@@ -359,14 +359,14 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 //	{
 //		std::stringstream ss;
 //		ss << "String to long conversion error: " << s << " is not an integer." << end;
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //
 //	if (*end)
 //	{
 //		std::stringstream ss;
 //		ss << "String to long conversion error: non-convertible part: " << end;
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //
 //	return t;

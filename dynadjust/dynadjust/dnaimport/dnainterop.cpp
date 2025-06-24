@@ -3728,7 +3728,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -3764,7 +3764,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 

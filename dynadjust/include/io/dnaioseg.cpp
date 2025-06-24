@@ -48,10 +48,10 @@ void dna_io_seg::load_seg_file_header_f(const std::string& seg_filename, UINT32&
 	}
 	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 }
 	
@@ -103,14 +103,14 @@ void dna_io_seg::load_seg_file_header(const std::string& seg_filename, std::istr
 	}
 	catch (const std::ios_base::failure& f) {
 		ss_err << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 }
 
@@ -132,10 +132,10 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 	}
 	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	
 	ss_err.str("");
@@ -186,19 +186,19 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			getline(seg_file, sBuf);
 
 			if (sBuf.compare(0, 20, "--------------------") == 0)
-				throw boost::enable_current_exception(std::runtime_error("  Segmentation file is corrupt."));
+				throw std::runtime_error("  Segmentation file is corrupt.");
 
 			// Block number
 			try {
 				tmp = trimstr(sBuf.substr(column, BLOCK));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Block number."));
+					throw std::runtime_error("  Unable to retrieve Block number.");
 				blkCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Block number from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			column += BLOCK;
@@ -207,13 +207,13 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			try {
 				tmp = trimstr(sBuf.substr(column, NETID));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Network ID."));
+					throw std::runtime_error("  Unable to retrieve Network ID.");
 				netID = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Network ID from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			column += NETID;
@@ -222,13 +222,13 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			try {
 				tmp = trimstr(sBuf.substr(column, JUNCT));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Junction station count."));
+					throw std::runtime_error("  Unable to retrieve Junction station count.");
 				jslCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Junction station count from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			column += JUNCT;
@@ -237,13 +237,13 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			try {
 				tmp = trimstr(sBuf.substr(column, INNER));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Inner station count."));
+					throw std::runtime_error("  Unable to retrieve Inner station count.");
 				islCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Inner station count from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			column += INNER;
@@ -252,13 +252,13 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			try {
 				tmp = trimstr(sBuf.substr(column, MEASR));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Measurement count."));
+					throw std::runtime_error("  Unable to retrieve Measurement count.");
 				msrCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Measurement count from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			column += MEASR;
@@ -267,17 +267,17 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			try {
 				tmp = trimstr(sBuf.substr(column));
 				if (tmp.empty())
-					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Total station count."));
+					throw std::runtime_error("  Unable to retrieve Total station count.");
 				stnCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
 				ss_err << "  Segmentation file is corrupt: Could not extract Total station count from the record:  " << std::endl << "    " << sBuf << std::endl;
-				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
+				throw std::runtime_error(ss_err.str());
 			}
 
 			if (stnCount != islCount + jslCount)
-				throw boost::enable_current_exception(std::runtime_error("  Segmentation file is corrupt."));
+				throw std::runtime_error("  Segmentation file is corrupt.");
 
 			v_JSL.at(t) = vUINT32(jslCount);
 			v_ISL.at(t) = vUINT32(islCount);
@@ -292,7 +292,7 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 		}
 		
 		if (blkCount != blockCount)
-			throw boost::enable_current_exception(std::runtime_error("load_seg_file(): Segmentation file is corrupt."));
+			throw std::runtime_error("load_seg_file: Segmentation file is corrupt.");
 
 		// skip header info
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');			// ------------------------
@@ -310,7 +310,7 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 			seg_file.getline(line, PRINT_LINE_LENGTH);		// Block #
 			sscanf(line+5, "%ud", &blk);
 			if (b+1 != blk)
-				throw boost::enable_current_exception(std::runtime_error("load_seg_file(): segmentation file is corrupt."));
+				throw std::runtime_error("load_seg_file: segmentation file is corrupt.");
 			
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// Junction stns:
@@ -395,14 +395,14 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 	}
 	catch (const std::ios_base::failure& f) {
 		ss_err << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
+		throw std::runtime_error(ss_err.str());
 	}
 
 	seg_file.close();
@@ -606,10 +606,10 @@ void dna_io_seg::write_seg_file(const std::string& seg_filename, const std::stri
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	// Print formatted header
@@ -734,10 +734,10 @@ void dna_io_seg::write_stn_appearance(const std::string& sap_filename, const v_s
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	// write the list
@@ -767,10 +767,10 @@ void dna_io_seg::load_stn_appearance(const std::string& sap_filename, v_stn_bloc
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	// write the list

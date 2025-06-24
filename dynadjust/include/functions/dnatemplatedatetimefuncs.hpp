@@ -371,14 +371,14 @@ boost::gregorian::date dateFromString_safe(const std::string& dateString)
 		std::stringstream ss;
 		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"" << std::endl <<
 			"  Details: " << e.what() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...)
 	{
 		std::stringstream ss;
 		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"." << std::endl <<
 			"  Check that the epoch is formatted as dd.mm.yyyy" << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
