@@ -48,7 +48,6 @@
 #include <chrono>
 #include <functional>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/chrono/time_point.hpp>
 #include <exception>
 #include <boost/filesystem.hpp>

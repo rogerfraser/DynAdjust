@@ -21,6 +21,7 @@
 //============================================================================
 
 #include <include/io/dnaioscalar.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
@@ -82,23 +83,23 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			line++;
 			getline(scalar_file, sBuf);
 
-			if (boost::iequals(trimstr(sBuf), "SCALARS"))
+			if (iequals(trimstr(sBuf), "SCALARS"))
 				break;
 
-			if (boost::iequals(trimstr(sBuf.substr(0, 16)), "Baseline count"))
+			if (iequals(trimstr(sBuf.substr(0, 16)), "Baseline count"))
 			{
 				scalarCount = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
-			if (boost::iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
+			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
 			{
 				stationWidth = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
 		}
-		while (!boost::iequals(trimstr(sBuf), "SCALARS"));
+		while (!iequals(trimstr(sBuf), "SCALARS"));
 		
 		bslScaling->reserve(scalarCount);
 		
@@ -114,10 +115,10 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			if (trimstr(sBuf).length() < stationWidth+1)
 				continue;
 
-			if (boost::iequals(trimstr(sBuf.substr(0, 20)), "Station 1"))
+			if (iequals(trimstr(sBuf.substr(0, 20)), "Station 1"))
 				continue;
 
-			if (boost::iequals(trimstr(sBuf.substr(0, 3)), "---"))
+			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
 				continue;
 
 			// Ignore lines with blank station name

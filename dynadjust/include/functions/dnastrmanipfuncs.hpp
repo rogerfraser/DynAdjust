@@ -42,6 +42,7 @@
 #include <boost/tokenizer.hpp>
 
 #include <include/functions/dnatemplatecalcfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/core.hpp>
@@ -60,7 +61,7 @@ T val_uint(const U& value)
 template <class T, class U>
 T valorno_uint(const U& value, T& var)
 {
-	if (boost::iequals(value, "no"))
+	if (iequals(value, "no"))
 		return var = 0;
 
 	var = 1;
@@ -70,7 +71,7 @@ T valorno_uint(const U& value, T& var)
 template <class T>
 T valorno_string(const T& value)
 {
-	if (boost::iequals(value, "no"))
+	if (iequals(value, "no"))
 		return "";
 	return value;
 }
@@ -78,9 +79,9 @@ T valorno_string(const T& value)
 template <class T, class U>
 T yesno_uint(const U& value)
 {
-	if (boost::iequals(value, "yes"))
+	if (iequals(value, "yes"))
 		return 1;
-	//if (boost::iequals(value, "no"))
+	//if (iequals(value, "no"))
 		return 0;
 
 }
@@ -349,11 +350,11 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 //	T t;
 //	std::string s(typeid(t).name());
 //
-//	if (boost::iequals(s, "unsigned int") || boost::iequals(s, "unsigned long") ||	// msvc
-//	    boost::iequals(s, "j") || boost::iequals(s, "m"))								// gcc
+//	if (iequals(s, "unsigned int") || iequals(s, "unsigned long") ||	// msvc
+//	    iequals(s, "j") || iequals(s, "m"))								// gcc
 //		t = strtoul(str.c_str(), &end,  10);
-//	else if (boost::iequals(s, "int") || boost::iequals(s, "long") ||					// msvc
-//	    boost::iequals(s, "i") || boost::iequals(s, "l"))								// gcc
+//	else if (iequals(s, "int") || iequals(s, "long") ||					// msvc
+//	    iequals(s, "i") || iequals(s, "l"))								// gcc
 //		t = strtol(str.c_str(), &end,  10);
 //	else
 //	{

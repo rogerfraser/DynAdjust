@@ -22,6 +22,8 @@
 
 #include <dynadjust/dnareftranwrapper/dnareftranwrapper.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 using namespace dynadjust;
 
 void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header, UINT32& epsgCode, bool userSuppliedFrame, bool userSuppliedEpoch)
@@ -174,7 +176,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	if (vm.count(EPOCH))
 	{
 		// Get today's date?
-		if (boost::iequals(p.r.epoch, "today"))
+		if (iequals(p.r.epoch, "today"))
 			p.r.epoch = stringFromToday<boost::gregorian::date>();
 		// Has the user supplied the year only?
 		else if (p.r.epoch.rfind(".") == std::string::npos)
@@ -257,7 +259,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (!isEpsgDatumStatic(epsgCode))
 	{
-		if (boost::iequals(p.r.epoch, "today"))
+		if (iequals(p.r.epoch, "today"))
 			p.r.epoch = stringFromToday<boost::gregorian::date>();
 		fileName.append(".").append(p.r.epoch);
 	}

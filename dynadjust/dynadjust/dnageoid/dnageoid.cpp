@@ -22,6 +22,8 @@
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 namespace dynadjust { namespace geoidinterpolation {
 
 dna_geoid_interpolation::dna_geoid_interpolation()
@@ -924,7 +926,7 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 		}
 	}
 	// a new filename or filetype?
-	else if (!boost::iequals(m_pGridfile->filename, fileName))
+	else if (!iequals(m_pGridfile->filename, fileName))
 	{
 		ClearGridFileMemory();
 		if ((m_Grid_Success = OpenGridFile(fileName, fileType, 
@@ -1174,7 +1176,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	// Change to Radians if required
 	geoidConversion conversionType(geoidConversion::Same);
 	std::string shiftType(grid->chGs_type);
-	if (boost::iequals(trimstr(shiftType), "radians"))
+	if (iequals(trimstr(shiftType), "radians"))
 		conversionType = SecondsToRadians;
 
 	// Print default header block and subgrid header block information.
@@ -1277,7 +1279,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!boost::iequals(m_pGridfile->filename, gridFile))
+	if (!iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1315,11 +1317,11 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 
 	geoidConversion conversionType;
 
-	if (boost::iequals(shiftTypeFrom, "seconds") &&
-		boost::iequals(shiftTypeTo, "radians"))
+	if (iequals(shiftTypeFrom, "seconds") &&
+		iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (boost::iequals(shiftTypeFrom, "radians") &&
-		boost::iequals(shiftTypeTo, "seconds"))
+	else if (iequals(shiftTypeFrom, "radians") &&
+		iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1377,7 +1379,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 				case Same:
 				default:
 					// as-is, so cater for precision
-					if (boost::iequals(shiftTypeTo, "radians"))
+					if (iequals(shiftTypeTo, "radians"))
 						f_out << std::scientific << std::setprecision(3);
 					f_out << std::setw(10) << std::setprecision(6) << fValue2;
 					f_out << std::setw(10) << std::setprecision(6) << fValue3;
@@ -1426,7 +1428,7 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!boost::iequals(m_pGridfile->filename, gridFile))
+	if (!iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1463,11 +1465,11 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 
 	geoidConversion conversionType;
 
-	if (boost::iequals(shiftTypeFrom, "seconds") &&
-		boost::iequals(shiftTypeTo, "radians"))
+	if (iequals(shiftTypeFrom, "seconds") &&
+		iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (boost::iequals(shiftTypeFrom, "radians") &&
-		boost::iequals(shiftTypeTo, "seconds"))
+	else if (iequals(shiftTypeFrom, "radians") &&
+		iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1736,15 +1738,15 @@ bool dna_geoid_interpolation::IsWithinLowerLongitudeGridInterval(n_gridfileindex
 int dna_geoid_interpolation::DetermineFileType(const char *cType)
 {
 	// case insensitive
-	if (boost::iequals(cType, ASC))		// asc "ASCII" file
+	if (iequals(cType, ASC))		// asc "ASCII" file
 		return TYPE_ASC;			
-	else if (boost::iequals(cType, GSB))	// gsb "Binary" file
+	else if (iequals(cType, GSB))	// gsb "Binary" file
 		return TYPE_GSB;			
-	else if (boost::iequals(cType, TXT) ||	// dat/txt/prn file
-			 boost::iequals(cType, DAT) ||	// ..
-			 boost::iequals(cType, PRN))	// ..
+	else if (iequals(cType, TXT) ||	// dat/txt/prn file
+			 iequals(cType, DAT) ||	// ..
+			 iequals(cType, PRN))	// ..
 		return TYPE_DAT;
-	else if (boost::iequals(cType, CSV))	// csv file
+	else if (iequals(cType, CSV))	// csv file
 		return TYPE_CSV;
 	else
 		return -1;					// Unsupported filetype
@@ -2584,7 +2586,7 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	ptheGrid->ptrIndex = new n_gridfileindex[ptheGrid->iNumsubgrids];
 
 	std::string shiftType(ptheGrid->chGs_type);
-	if (boost::iequals(trimstr(shiftType), "radians"))
+	if (iequals(trimstr(shiftType), "radians"))
 		m_isRadians = true;
 	else
 		m_isRadians = false;

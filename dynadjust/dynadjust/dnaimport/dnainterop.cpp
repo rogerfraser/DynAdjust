@@ -24,6 +24,7 @@
 #include <dynadjust/dnaimport/dnainterop.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 #include <include/io/DynaML-schema.hxx>
 
@@ -341,8 +342,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	else if (
 		// use boost::algorithm::ifind_first, which is a case insensitive implementation of the find first algorithm. 
 		strncmp(first_chars, "!#=DNA", 6) == 0 ||	// dna file?
-		boost::ifind_first(fileName, ".stn") ||			// dna station file
-		boost::ifind_first(fileName, ".msr"))				// dna measurement file
+		icontains(fileName, ".stn") ||			// dna station file
+		icontains(fileName, ".msr"))				// dna measurement file
 	{
 		// Set the file type
 		input_file_meta->filetype = dna;
@@ -1557,7 +1558,7 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
 
-		ignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		ignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		switch (cType)
 		{
@@ -1850,13 +1851,13 @@ void dna_import::ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 	
 	// Number of baselines
 	UINT32 bslCount(1);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		msr_ptr->SetTotal(ParseMsrCountValue(sBuf, bslCount, "ParseDNAMSRGPSBaselines"));
 	msr_ptr->SetRecordedTotal(bslCount);
 	bslTmp.SetRecordedTotal(bslCount);
 
 	msr_ptr->GetBaselines_ptr()->reserve(bslCount);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		g_parsemsr_tally.X += bslCount * 3;
 	else
 		g_parsemsr_tally.G += bslCount * 3;
@@ -2864,7 +2865,7 @@ UINT32 dna_import::ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 		import_file_mutex.unlock();
 
 		// get ignore flag for sub direction and remove accordingly
-		subignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		subignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		if (subignoreMsr)
 		{

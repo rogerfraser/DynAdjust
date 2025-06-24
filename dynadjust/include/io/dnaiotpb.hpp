@@ -31,6 +31,7 @@
 
 #include <include/io/dnaiobase.hpp>
 #include <include/config/dnatypes.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust {
 namespace iostreams {

@@ -39,7 +39,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/bind/bind.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>

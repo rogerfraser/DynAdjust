@@ -23,6 +23,8 @@
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 #include "threading_init.hpp"
 
 extern bool running;
@@ -726,10 +728,10 @@ void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	bst.LoadFileMeta(p.a.bst_file, bst_meta);
 	bms.LoadFileMeta(p.a.bms_file, bms_meta);
 
-	bst_meta_import = (boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-		boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-	bms_meta_import = (boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-		boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+	bst_meta_import = (iequals(bst_meta.modifiedBy, __import_app_name__) ||
+		iequals(bst_meta.modifiedBy, __import_dll_name__));
+	bms_meta_import = (iequals(bms_meta.modifiedBy, __import_app_name__) ||
+		iequals(bms_meta.modifiedBy, __import_dll_name__));
 }
 
 int main(int argc, char* argv[])

@@ -36,6 +36,7 @@
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/parameters/dnadatum.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::math;
 using namespace dynadjust::datum_parameters;
@@ -109,7 +110,7 @@ class CompareSiteTuplesByName {
 public:
 	bool operator()(const T& left, const T& right) {
 		// if the station names are equal
-		if (boost::equals(left.site_name, right.site_name))
+		if (equals(left.site_name, right.site_name))
 			// sort on file order
 			return left.file_index < right.file_index;
 		// sort on station name
@@ -158,7 +159,7 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 	UINT32 doy, year;
 	
 	// find the next occurrence of this site
-	while (boost::equals(site_name, begin->site_name))
+	while (equals(site_name, begin->site_name))
 	{
 		// Check if discontinuities exist at this site, if not, skip
 		if (!begin->discontinuity_exists)

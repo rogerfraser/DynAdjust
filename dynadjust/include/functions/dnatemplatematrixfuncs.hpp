@@ -38,7 +38,6 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/config/dnatypes.hpp>

@@ -17,7 +17,6 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
 
 boost::mutex cout_mutex;
@@ -35,6 +34,7 @@ boost::mutex import_file_mutex;
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 #include <include/parameters/dnadatum.hpp>
 
@@ -302,13 +302,13 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, std::string& de
 						if ((pos = referenceFrame.find("-->", 0)) != std::string::npos)
 							referenceFrame = trimstr(referenceFrame.substr(0, pos));
 
-						if (boost::iequals(referenceFrame, "unsure"))
+						if (iequals(referenceFrame, "unsure"))
 						{
 							referenceFrame = defaultFrame;
 							unsureFrameCount++;
 						}
 
-						if (boost::iequals(referenceFrame, "WGS84"))
+						if (iequals(referenceFrame, "WGS84"))
 						{
 							referenceFrame = "ITRF1989";
 						}
@@ -324,7 +324,7 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, std::string& de
 						if ((pos = epoch.find("-->", 0)) != std::string::npos)
 							epoch = trimstr(epoch.substr(0, pos));
 
-						if (boost::iequals(epoch, "unsure"))
+						if (iequals(epoch, "unsure"))
 						{
 							epoch = "01.01.2005";
 							unsureEpochCount++;

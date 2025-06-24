@@ -40,7 +40,6 @@
 //#include <iostream>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>

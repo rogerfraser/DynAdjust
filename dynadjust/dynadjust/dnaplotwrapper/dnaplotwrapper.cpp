@@ -22,6 +22,8 @@
 
 #include <dynadjust/dnaplotwrapper/dnaplotwrapper.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mode)
 {
 	std::string str_mode;
@@ -642,9 +644,9 @@ int main(int argc, char* argv[])
 		p.g.output_folder.pop_back();
 	if ((lastindex = p.g.output_folder.find_last_of("\\")) != std::string::npos)
 		p.g.output_folder.pop_back();
-	if (boost::equals(p.g.output_folder.substr(0, 2), "./"))
+	if (equals(p.g.output_folder.substr(0, 2), "./"))
 		p.g.output_folder = p.g.output_folder.substr(2);
-	if (boost::equals(p.g.output_folder.substr(0, 2), ".\\"))
+	if (equals(p.g.output_folder.substr(0, 2), ".\\"))
 		p.g.output_folder = p.g.output_folder.substr(2);
 
 	// binary station file
@@ -783,10 +785,10 @@ int main(int argc, char* argv[])
 				bst.LoadFileMeta(p.i.bst_file, bst_meta);
 				bms.LoadFileMeta(p.i.bms_file, bms_meta);
 
-				bool bst_meta_import(boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-					boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-				bool bms_meta_import(boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-					boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+				bool bst_meta_import(iequals(bst_meta.modifiedBy, __import_app_name__) ||
+					iequals(bst_meta.modifiedBy, __import_dll_name__));
+				bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
+					iequals(bms_meta.modifiedBy, __import_dll_name__));
 
 				if ((bst_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bst_file))) || 
 					(bms_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))))

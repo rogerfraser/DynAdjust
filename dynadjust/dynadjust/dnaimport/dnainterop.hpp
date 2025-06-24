@@ -45,7 +45,6 @@
 #include <boost/bind/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include <include/exception/dnaexception.hpp>

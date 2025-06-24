@@ -22,6 +22,8 @@
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 namespace dynadjust { 
 namespace networkplot {
 
@@ -3665,7 +3667,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Stations printed in blocks
 		strLine = trimstr(std::string(line));		
-		if (!boost::iequals(strLine.substr(0, 16), "Stations printed"))
+		if (!iequals(strLine.substr(0, 16), "Stations printed"))
 		{
 			std::stringstream ss;
 			ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -3680,7 +3682,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Variance matrix units
 		strLine = trimstr(std::string(line));
-		if (boost::iequals(strLine.substr(PRINT_VAR_PAD, 3), "XYZ"))
+		if (iequals(strLine.substr(PRINT_VAR_PAD, 3), "XYZ"))
 			vcv_units = XYZ_apu_ui;
 		else
 			vcv_units = ENU_apu_ui;
@@ -3688,7 +3690,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Full covariance matrix
 		strLine = trimstr(std::string(line));
-		if (!boost::iequals(strLine.substr(0, 15), "Full covariance"))
+		if (!iequals(strLine.substr(0, 15), "Full covariance"))
 		{
 			std::stringstream ss;
 			ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -3718,7 +3720,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 				strLine = trimstr(std::string(line));
 				
-				if (!boost::iequals(strLine.substr(0, 5), "Block"))
+				if (!iequals(strLine.substr(0, 5), "Block"))
 				{
 					std::stringstream ss;
 					ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -4032,7 +4034,7 @@ void dna_plot::LoadCorrectionsFile()
 		
 		// Get the yes/no string and convert to bool
 		strLine = trimstr(std::string(line));
-		if (!boost::iequals(strLine.substr(0, 16), "Stations printed"))
+		if (!iequals(strLine.substr(0, 16), "Stations printed"))
 		{
 			std::stringstream ss;
 			// TODO - make use of Boost current function
@@ -4067,7 +4069,7 @@ void dna_plot::LoadCorrectionsFile()
 
 				strLine = trimstr(std::string(line));
 				
-				if (!boost::iequals(strLine.substr(0, 5), "Block"))
+				if (!iequals(strLine.substr(0, 5), "Block"))
 				{
 					std::stringstream ss;
 					ss << "LoadCorrectionsFile(): " << projectSettings_.o._cor_file << " is corrupt." << std::endl;

@@ -76,7 +76,6 @@
 #include <dynadjust/dnageoid/bicubic_interpolation.hpp>
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/filesystem/operations.hpp>
 
 using namespace dynadjust::measurements;

@@ -22,6 +22,8 @@
 
 #include <dynadjust/dnageoidwrapper/dnageoidwrapper.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 using namespace dynadjust;
 
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid)
@@ -205,7 +207,7 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 
 	bool isRadians(false);
 	std::string shiftType(grid_properties.chGs_type);
-	if (boost::iequals(trimstr(shiftType), "radians"))
+	if (iequals(trimstr(shiftType), "radians"))
 		isRadians = true;
 
 	std::string formattedLimit;
@@ -754,8 +756,8 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (!boost::iequals(extension.substr(1), GSB) &&
-			!boost::iequals(extension.substr(1), ASC))
+		if (!iequals(extension.substr(1), GSB) &&
+			!iequals(extension.substr(1), ASC))
 		{
 			std::cout << std::endl << "- Error: NTv2 grid file type cannot be determined from file extension \"" << extension << "\"." << std::endl << 
 				"         Supported types are ." << GSB << " and ." << ASC << " only." << std::endl << std::endl;
@@ -763,14 +765,14 @@ int main(int argc, char* argv[])
 		}
 
 		if (vm.count(EXPORT_NTV2_ASCII_FILE) &&
-			boost::iequals(extension.substr(1), ASC))
+			iequals(extension.substr(1), ASC))
 		{
 			std::cout << std::endl << "- Error: Export to ASCII NTv2 grid file option only supported for " << GSB " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		if (vm.count(EXPORT_NTV2_BINARY_FILE) &&
-			boost::iequals(extension.substr(1), GSB))
+			iequals(extension.substr(1), GSB))
 		{
 			std::cout << std::endl << "- Error: Export to Binary NTv2 grid file option only supported for " << ASC " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
@@ -787,7 +789,7 @@ int main(int argc, char* argv[])
 	{
 		gs_type = trimstr(gs_type);
 		// Unknown type?
-		if (!boost::iequals(gs_type, "seconds") && !boost::iequals(gs_type, "radians"))
+		if (!iequals(gs_type, "seconds") && !iequals(gs_type, "radians"))
 			gs_type = "seconds";
 		str_toupper<int>(gs_type);
 	}

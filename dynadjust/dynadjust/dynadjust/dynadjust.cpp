@@ -17,7 +17,6 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 
 boost::mutex cout_mutex;
 
@@ -33,6 +32,7 @@ boost::mutex cout_mutex;
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 #include <include/config/dnaprojectfile.hpp>
 
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(PROJECT_FILE) && vm.count(NETWORK_NAME))
 	{
-		if (boost::equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
+		if (equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
 		{
 			std::cout << std::endl << "- Error: project file name doesn't match network name.  Provide" << std::endl;  
 			std::cout << std::endl << "         either a project file path or the network name. " << std::endl << std::endl;  

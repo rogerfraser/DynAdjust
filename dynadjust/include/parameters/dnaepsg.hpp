@@ -32,11 +32,11 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <include/parameters/dnaconsts-datums.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust {
 namespace epsg {
@@ -115,68 +115,68 @@ typedef struct {
 template <typename U, typename S>
 U epsgCodeFromName(const S& datumName)
 {
-	if (boost::iequals(datumName, AGD66_s))
+	if (iequals(datumName, AGD66_s))
 		return AGD66_i;		
-	if (boost::iequals(datumName, AGD84_s))
+	if (iequals(datumName, AGD84_s))
 		return AGD84_i;		
-	if (boost::iequals(datumName, GDA94_s))
+	if (iequals(datumName, GDA94_s))
 		return GDA94_i_xyz;	
-	if (boost::iequals(datumName, GDA2020_s))
+	if (iequals(datumName, GDA2020_s))
 		return GDA2020_i_xyz;
 	// ITRF
-	if (boost::iequals(datumName, ITRF2020_s))
+	if (iequals(datumName, ITRF2020_s))
 		return ITRF2020_i_xyz;
-	if (boost::iequals(datumName, ITRF2014_s))
+	if (iequals(datumName, ITRF2014_s))
 		return ITRF2014_i_xyz;
-	if (boost::iequals(datumName, ITRF2008_s))
+	if (iequals(datumName, ITRF2008_s))
 		return ITRF2008_i_xyz;
-	if (boost::iequals(datumName, ITRF2005_s))
+	if (iequals(datumName, ITRF2005_s))
 		return ITRF2005_i_xyz;
-	if (boost::iequals(datumName, ITRF2000_s))
+	if (iequals(datumName, ITRF2000_s))
 		return ITRF2000_i_xyz;
-	if (boost::iequals(datumName, ITRF1997_s) || boost::iequals(datumName, ITRF1997_s_brief))
+	if (iequals(datumName, ITRF1997_s) || iequals(datumName, ITRF1997_s_brief))
 		return ITRF1997_i_xyz;
-	if (boost::iequals(datumName, ITRF1996_s) || boost::iequals(datumName, ITRF1996_s_brief))
+	if (iequals(datumName, ITRF1996_s) || iequals(datumName, ITRF1996_s_brief))
 		return ITRF1996_i_xyz;
-	if (boost::iequals(datumName, ITRF1994_s) || boost::iequals(datumName, ITRF1994_s_brief))
+	if (iequals(datumName, ITRF1994_s) || iequals(datumName, ITRF1994_s_brief))
 		return ITRF1994_i_xyz;
-	if (boost::iequals(datumName, ITRF1993_s) || boost::iequals(datumName, ITRF1993_s_brief))
+	if (iequals(datumName, ITRF1993_s) || iequals(datumName, ITRF1993_s_brief))
 		return ITRF1993_i_xyz;
-	if (boost::iequals(datumName, ITRF1992_s) || boost::iequals(datumName, ITRF1992_s_brief))
+	if (iequals(datumName, ITRF1992_s) || iequals(datumName, ITRF1992_s_brief))
 		return ITRF1992_i_xyz;
-	if (boost::iequals(datumName, ITRF1991_s) || boost::iequals(datumName, ITRF1991_s_brief))
+	if (iequals(datumName, ITRF1991_s) || iequals(datumName, ITRF1991_s_brief))
 		return ITRF1991_i_xyz;
-	if (boost::iequals(datumName, ITRF1990_s) || boost::iequals(datumName, ITRF1990_s_brief))
+	if (iequals(datumName, ITRF1990_s) || iequals(datumName, ITRF1990_s_brief))
 		return ITRF1990_i_xyz;
-	if (boost::iequals(datumName, ITRF1989_s) || boost::iequals(datumName, ITRF1989_s_brief))
+	if (iequals(datumName, ITRF1989_s) || iequals(datumName, ITRF1989_s_brief))
 		return ITRF1989_i_xyz;
-	if (boost::iequals(datumName, ITRF1988_s) || boost::iequals(datumName, ITRF1988_s_brief))
+	if (iequals(datumName, ITRF1988_s) || iequals(datumName, ITRF1988_s_brief))
 		return ITRF1988_i_xyz;
 	// WGS84
-	if (boost::iequals(datumName, WGS84_s) || 
-		boost::iequals(datumName, WGS84_ensemble_s) ||
-		boost::iequals(datumName, WGS84_alias_s))
+	if (iequals(datumName, WGS84_s) || 
+		iequals(datumName, WGS84_ensemble_s) ||
+		iequals(datumName, WGS84_alias_s))
 		return WGS84_i_xyz;
-	if (boost::iequals(datumName, WGS84_transit_s) ||
-		boost::iequals(datumName, WGS84_transit_alias_s))
+	if (iequals(datumName, WGS84_transit_s) ||
+		iequals(datumName, WGS84_transit_alias_s))
 		return WGS84_transit_i_xyz;
-	if (boost::iequals(datumName, WGS84_G730_s) ||
-		boost::iequals(datumName, WGS84_G730_alias_s))
+	if (iequals(datumName, WGS84_G730_s) ||
+		iequals(datumName, WGS84_G730_alias_s))
 		return WGS84_G730_i_xyz;
-	if (boost::iequals(datumName, WGS84_G873_s) ||
-		boost::iequals(datumName, WGS84_G873_alias_s))
+	if (iequals(datumName, WGS84_G873_s) ||
+		iequals(datumName, WGS84_G873_alias_s))
 		return WGS84_G873_i_xyz;
-	if (boost::iequals(datumName, WGS84_G1150_s) ||
-		boost::iequals(datumName, WGS84_G1150_alias_s))
+	if (iequals(datumName, WGS84_G1150_s) ||
+		iequals(datumName, WGS84_G1150_alias_s))
 		return WGS84_G1150_i_xyz;
-	if (boost::iequals(datumName, WGS84_G1674_s) ||
-		boost::iequals(datumName, WGS84_G1674_alias_s))
+	if (iequals(datumName, WGS84_G1674_s) ||
+		iequals(datumName, WGS84_G1674_alias_s))
 		return WGS84_G1674_i_xyz;
-	if (boost::iequals(datumName, WGS84_G1762_s) ||
-		boost::iequals(datumName, WGS84_G1762_alias_s))
+	if (iequals(datumName, WGS84_G1762_s) ||
+		iequals(datumName, WGS84_G1762_alias_s))
 		return WGS84_G1762_i_xyz;
-	if (boost::iequals(datumName, WGS84_G2139_s) ||
-		boost::iequals(datumName, WGS84_G2139_alias_s))
+	if (iequals(datumName, WGS84_G2139_s) ||
+		iequals(datumName, WGS84_G2139_alias_s))
 		return WGS84_G2139_i_xyz;
 	
 	std::stringstream ss;
@@ -771,8 +771,8 @@ bool isEpsgWGS84Ensemble(const U& epsgCode)
 template <typename U>
 bool isEpsgStringWGS84Ensemble(const U& epsgString)
 {	
-	if (boost::iequals(epsgString, WGS84_c) ||
-		boost::iequals(epsgString, WGS84_ensemble_c))
+	if (iequals(epsgString, WGS84_c) ||
+		iequals(epsgString, WGS84_ensemble_c))
 		return true;
 
 	return false;
@@ -811,15 +811,15 @@ bool isEpsgWGS84(const U& epsgCode)
 template <typename U>
 bool isEpsgStringWGS84(const U& epsgString)
 {
-	if (boost::iequals(epsgString, WGS84_c) ||
-		boost::iequals(epsgString, WGS84_ensemble_c) ||
-		boost::iequals(epsgString, WGS84_transit_c) ||
-		boost::iequals(epsgString, WGS84_G730_c) ||
-		boost::iequals(epsgString, WGS84_G873_c) ||
-		boost::iequals(epsgString, WGS84_G1150_c) ||
-		boost::iequals(epsgString, WGS84_G1674_c) ||
-		boost::iequals(epsgString, WGS84_G1762_c) ||
-		boost::iequals(epsgString, WGS84_G2139_c))
+	if (iequals(epsgString, WGS84_c) ||
+		iequals(epsgString, WGS84_ensemble_c) ||
+		iequals(epsgString, WGS84_transit_c) ||
+		iequals(epsgString, WGS84_G730_c) ||
+		iequals(epsgString, WGS84_G873_c) ||
+		iequals(epsgString, WGS84_G1150_c) ||
+		iequals(epsgString, WGS84_G1674_c) ||
+		iequals(epsgString, WGS84_G1762_c) ||
+		iequals(epsgString, WGS84_G2139_c))
 		return true;
 
 	return false;

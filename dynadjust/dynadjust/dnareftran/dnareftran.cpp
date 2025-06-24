@@ -21,6 +21,8 @@
 
 #include <dynadjust/dnareftran/dnareftran.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 namespace dynadjust { 
 namespace referenceframe {
 
@@ -142,7 +144,7 @@ void dna_reftran::IdentifyStationPlate()
 		stnPlate.second = p++;
 		vplateMap_.push_back(stnPlate);		
 
-		//if (boost::iequals(_it_plates->first, "AU"))
+		//if (iequals(_it_plates->first, "AU"))
 		//	std::cout << std::endl << _it_plates->first << std::endl << 
 		//		boost::geometry::wkt(platePolygon) << std::endl;
 

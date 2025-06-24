@@ -21,6 +21,7 @@
 //============================================================================
 
 #include <include/io/dnaiotbu.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust {
 namespace iostreams {
@@ -121,7 +122,7 @@ void dna_io_tbu::read_tbu_header(std::ifstream* ptr, std::string& version, INPUT
 
 	// Attempt to get the file's version
 	try {
-		if (boost::iequals("!#=DNA", sBuf.substr(0, 6)))
+		if (iequals("!#=DNA", sBuf.substr(0, 6)))
 			version = trimstr(sBuf.substr(6, 6));
 	}
 	catch (const std::runtime_error& e) {
@@ -146,7 +147,7 @@ void dna_io_tbu::read_tbu_header(std::ifstream* ptr, std::string& version, INPUT
 	}
 
 	// Check this is a Type B file
-	if (boost::iequals(type, "tbu"))
+	if (iequals(type, "tbu"))
 		idt = tbu_data;
 	else
 	{

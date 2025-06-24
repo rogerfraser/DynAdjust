@@ -23,6 +23,7 @@
 #include <include/io/dnaiosnx.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <include/measurement_types/dnagpspoint.hpp>
 
 namespace dynadjust { 
@@ -110,7 +111,7 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 			getline((*snx_file), sBuf);
 
 			// End of data?
-			if (boost::iequals(sBuf.substr(0, 7), ENDSNX))
+			if (iequals(sBuf.substr(0, 7), ENDSNX))
 				break;
 
 			try {
@@ -299,7 +300,7 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStation
 		getline((**snx_file), sBuf);
 
 		// End of data?
-		if (boost::iequals(sBuf.substr(0, 7), ENDSNX))
+		if (iequals(sBuf.substr(0, 7), ENDSNX))
 			break;
 
 		try {
@@ -363,7 +364,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 		//  2. the first occurrence of discontinuity for site_name
 		// To prevent searching through the entire array again on 2. , check if 
 		// _it_discont->site_name = site_name
-		if (!boost::equals(site_name, _it_discont->site_name))
+		if (!equals(site_name, _it_discont->site_name))
 		{
 			// Save the iterator
 			_it_discont_site = _it_discont;
@@ -392,7 +393,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 		_it_discont_site = _it_discont;
 
 		// find the next occurrence of this site
-		while (boost::equals(site_name, _it_discont_site->site_name))
+		while (equals(site_name, _it_discont_site->site_name))
 		{
 			// Test if the start epoch of this site is within this discontinuity window
 			if (site_date >= _it_discont_site->date_start &&
@@ -438,7 +439,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 	// Now update station vector
 	for_each(vStations->begin(), vStations->end(),
 		[&_it_site](const dnaStnPtr& stn) {
-			if (!boost::equals(_it_site->site_name, _it_site->formatted_name))
+			if (!equals(_it_site->site_name, _it_site->formatted_name))
 			{
 				stn->SetOriginalName();
 				stn->SetName(_it_site->formatted_name);
@@ -455,7 +456,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 	// Now update measurement vector
 	for_each(vgpsPnts->begin(), vgpsPnts->end(),
 		[&_it_site](CDnaGpsPoint& pnt) {
-			if (!boost::equals(_it_site->site_name, _it_site->formatted_name))
+			if (!equals(_it_site->site_name, _it_site->formatted_name))
 				pnt.SetFirst(_it_site->formatted_name);
 			_it_site++;
 	});
@@ -568,7 +569,7 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 			model = trimstr(sBuf.substr(42, 1));				// model
 
 			// Is this a discontinuity in position?  If not, continue to next
-			if (!boost::iequals(model, "P"))
+			if (!iequals(model, "P"))
 				continue;
 
 			// If there are multiple solutions, then there must be a discontinuity, but only if
@@ -637,7 +638,7 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 			break;
 		
 		// Are station names equal?
-		if (boost::equals(it_discont->site_name, it_discont_next->site_name))
+		if (equals(it_discont->site_name, it_discont_next->site_name))
 		{
 			// Then this is a discontinuity site!
 			it_discont->discontinuity_exists = true;
@@ -780,7 +781,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 				throw std::runtime_error(ss.str());
 			}
 		
-			if (!boost::equals(site, stn))
+			if (!equals(site, stn))
 			{
 				ss.str("");
 				columnNo = 1;
@@ -857,7 +858,7 @@ void dna_io_snx::reduce_sinex_sites()
 		// if this station occurs again:
 		//   - increment the next occurrence of it
 		//   - set the index of the first occurrence
-		if (boost::equals(it_site->site_name, it_site_next->site_name))
+		if (equals(it_site->site_name, it_site_next->site_name))
 		{
 			// increment next occurrence.  Note, if SOLUTION/EPOCHS block has been read, 
 			// this will have already been set
@@ -980,7 +981,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 			throw std::runtime_error(ss.str());
 		}
 
-		if (!boost::equals(site, stn))
+		if (!equals(site, stn))
 		{
 			ss.str("");
 			columnNo = 1;

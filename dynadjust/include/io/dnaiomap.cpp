@@ -25,6 +25,7 @@
 #include <include/io/dnaiomap.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
@@ -252,27 +253,27 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //			line++;
 //			getline(renaming_file, sBuf);
 //
-//			if (boost::iequals(trimstr(sBuf), "STATION NAMES"))
+//			if (iequals(trimstr(sBuf), "STATION NAMES"))
 //				break;
 //
 //			// blank or whitespace?
 //			if (trimstr(sBuf).empty())		
 //				continue;
 //
-//			if (boost::iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
+//			if (iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
 //			{
 //				stationCount = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 //				continue;
 //			}
 //
-//			if (boost::iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
+//			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
 //			{
 //				stationWidth = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 //				continue;
 //			}
 //
 //		}
-//		while (!boost::iequals(trimstr(sBuf), "STATION NAMES"));
+//		while (!iequals(trimstr(sBuf), "STATION NAMES"));
 //		
 //		stnRenaming->reserve(stationCount);
 //		
@@ -288,10 +289,10 @@ void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_u
 //			if (trimstr(sBuf).length() < stationWidth)
 //				continue;
 //
-//			if (boost::iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
+//			if (iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
 //				continue;
 //
-//			if (boost::iequals(trimstr(sBuf.substr(0, 3)), "---"))
+//			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
 //				continue;
 //
 //			// Ignore lines with blank station name

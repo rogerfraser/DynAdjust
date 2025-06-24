@@ -23,6 +23,7 @@
 #include <include/measurement_types/dnastation.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/exception/dnaexception.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::epsg;
 using namespace dynadjust::datum_parameters;
@@ -285,16 +286,16 @@ void CDnaStation::SetConstraints(const std::string& sConstraints)
 	m_cHtConstraint = (char)(*m_strConstraints.substr(2, 1).c_str());
 
 	// Free in all 3 dimensions
-	if (boost::iequals(m_strConstraints, "FFF"))
+	if (iequals(m_strConstraints, "FFF"))
 		m_constraintType = free_3D;
 	// Constrained in all 3 dimensions
-	else if (boost::iequals(m_strConstraints, "CCC"))
+	else if (iequals(m_strConstraints, "CCC"))
 		m_constraintType = constrained_3D;
 	// Horizontal or 2D adjustment
-	else if (boost::iequals(m_strConstraints, "FFC"))
+	else if (iequals(m_strConstraints, "FFC"))
 		m_constraintType = free_2D;
 	// Vertical or 1D adjustment
-	else if (boost::iequals(m_strConstraints, "CCF"))
+	else if (iequals(m_strConstraints, "CCF"))
 		m_constraintType = free_1D;
 	else
 		m_constraintType = custom_constraint;
@@ -440,21 +441,21 @@ void CDnaStation::ReduceStations_XYZ(const CDnaEllipsoid* m_eEllipsoid, const CD
 
 bool CDnaStation::IsValidConstraint(const std::string& sConst)
 {
-	if (boost::iequals(sConst, "CCC"))
+	if (iequals(sConst, "CCC"))
 		return true;
-	if (boost::iequals(sConst, "CCF"))
+	if (iequals(sConst, "CCF"))
 		return true;
-	if (boost::iequals(sConst, "CFF"))
+	if (iequals(sConst, "CFF"))
 		return true;
-	if (boost::iequals(sConst, "FFF"))
+	if (iequals(sConst, "FFF"))
 		return true;
-	if (boost::iequals(sConst, "FFC"))
+	if (iequals(sConst, "FFC"))
 		return true;
-	if (boost::iequals(sConst, "FCC"))
+	if (iequals(sConst, "FCC"))
 		return true;
-	if (boost::iequals(sConst, "FCF"))
+	if (iequals(sConst, "FCF"))
 		return true;
-	if (boost::iequals(sConst, "CFC"))
+	if (iequals(sConst, "CFC"))
 		return true;
 	return false;
 }
@@ -463,19 +464,19 @@ bool CDnaStation::IsValidConstraint(const std::string& sConst)
 _COORD_TYPE_ CDnaStation::GetCoordTypeC(const std::string& sType)
 {
 	// case insensitive
-	if (boost::iequals(sType, XYZ_type))
+	if (iequals(sType, XYZ_type))
 		return XYZ_type_i;
-	else if (boost::iequals(sType, UTM_type))
+	else if (iequals(sType, UTM_type))
 		return UTM_type_i;				// height is assumed to be orthometric
-	else if (boost::iequals(sType, ENU_type))
+	else if (iequals(sType, ENU_type))
 		return ENU_type_i;
 
 	// case sensitive
-	else if (boost::equals(sType, LLh_type))
+	else if (equals(sType, LLh_type))
 		return LLh_type_i;				// ellipsoid height
 	
 	// default
-	else if (boost::equals(sType, LLH_type))
+	else if (equals(sType, LLH_type))
 		return LLH_type_i;					// orthometric height (default)
 
 	// If this point is reached, sType is an unknown coordinate type, so throw!

@@ -23,6 +23,7 @@
 #include <include/io/dnaiodna.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/measurement_types/dnameasurement_types.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::epsg;
@@ -263,7 +264,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 
 	// Attempt to get the file's version
 	try {
-		if (boost::iequals("!#=DNA", sBuf.substr(0, 6)))
+		if (iequals("!#=DNA", sBuf.substr(0, 6)))
 			version = trimstr(sBuf.substr(6, 6));
 	}
 	catch (const std::runtime_error& e) {
@@ -283,7 +284,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 	}
 
 	// Version 1
-	if (boost::iequals(version, "1.00"))
+	if (iequals(version, "1.00"))
 	{
 		idt = unknown;							// could be stn or msr
 		count = 100;							// set default 100 stations
@@ -303,16 +304,16 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 	}
 
 	// Station file
-	if (boost::iequals(type, "stn"))
+	if (iequals(type, "stn"))
 		idt = stn_data;
 	// Measurement file
-	else if (boost::iequals(type, "msr"))
+	else if (iequals(type, "msr"))
 		idt = msr_data;
 	// Geoid information file
-	else if (boost::iequals(type, "geo"))
+	else if (iequals(type, "geo"))
 		idt = geo_data;
 	// Station renaming
-	else if (boost::iequals(type, "ren"))
+	else if (iequals(type, "ren"))
 		idt = ren_data;
 	else
 	{

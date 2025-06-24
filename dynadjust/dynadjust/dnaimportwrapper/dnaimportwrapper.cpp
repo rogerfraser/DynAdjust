@@ -22,6 +22,7 @@
 
 #include <dynadjust/dnaimportwrapper/dnaimportwrapper.hpp>
 #include <include/parameters/dnaepsg.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;
@@ -240,7 +241,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	if (vm.count(EPOCH))
 	{
 		// Get today's date?
-		if (boost::iequals(p.i.epoch, "today"))
+		if (iequals(p.i.epoch, "today"))
 			p.i.epoch = stringFromToday<boost::gregorian::date>();
 		// Has the user supplied the year only?
 		else if (p.i.epoch.rfind(".") == std::string::npos)
@@ -629,7 +630,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	{
 		for (UINT32 i(0); i<vinput_file_meta->size(); ++i)
 		{
-			if (!boost::iequals(epsgCode, vinput_file_meta->at(i).epsgCode))
+			if (!iequals(epsgCode, vinput_file_meta->at(i).epsgCode))
 			{
 				std::string inputFrame(datumFromEpsgString<std::string>(vinput_file_meta->at(i).epsgCode));
 				ssEpsgWarning << std::endl << "- Warning: The default reference frame (" << p.i.reference_frame  << ")" << 
@@ -746,10 +747,10 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 			bst.LoadFileMeta(p.i.bst_file, bst_meta);
 			bms.LoadFileMeta(p.i.bms_file, bms_meta);
 
-			bool bst_meta_import(boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-				boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-			bool bms_meta_import(boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-				boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+			bool bst_meta_import(iequals(bst_meta.modifiedBy, __import_app_name__) ||
+				iequals(bst_meta.modifiedBy, __import_dll_name__));
+			bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
+				iequals(bms_meta.modifiedBy, __import_dll_name__));
 
 			if ((bst_meta_import && (boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bst_file))) ||
 				(bms_meta_import && (boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))))
@@ -1132,7 +1133,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				// when reference frame has been supplied and the value in the file doesn't match
 				else if (p.i.user_supplied_frame)
 				{
-					if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+					if (!iequals(projectEpsgCode, input_file_meta.epsgCode))
 					{
 						std::stringstream ssEpsgWarning;
 						ssEpsgWarning << "  - Warning: File reference frame (" << inputFileDatum << ") differs from project frame (" << p.i.reference_frame << ").";
@@ -1184,7 +1185,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				// when epoch has been supplied and the value in the file doesn't match
 				else if (p.i.user_supplied_epoch)
 				{
-					if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+					if (!iequals(p.i.epoch, input_file_meta.epoch))
 					{
 						std::stringstream ssEpochWarning;
 						ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ").";
@@ -1216,7 +1217,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					*imp_file << ssEpsgWarning.str() << std::endl;					
 				}
 				// Is the datum in the file different to the project datum?
-				else if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+				else if (!iequals(projectEpsgCode, input_file_meta.epsgCode))
 				{
 					std::stringstream ssEpsgWarning;
 					if (referenceframeChanged)
@@ -1247,7 +1248,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					*imp_file << ssEpochWarning.str() << std::endl;
 				}
 				// Is the epoch in the file different to the project epoch?
-				else if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+				else if (!iequals(p.i.epoch, input_file_meta.epoch))
 				{
 					std::stringstream ssEpochWarning;
 					
