@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnaplotwrapper.cpp
 // Author       : Roger Fraser
@@ -23,6 +24,13 @@
 #include <dynadjust/dnaplotwrapper/dnaplotwrapper.hpp>
 
 #include <include/functions/dnastrutils.hpp>
+
+// Helper function to convert std::filesystem::file_time_type to time_t
+time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
 
 void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mode)
 {
@@ -711,7 +719,7 @@ int main(int argc, char* argv[])
 	}
 	
 
-	if (!boost::filesystem::exists(p.i.bst_file) || !boost::filesystem::exists(p.i.bms_file))
+	if (!std::filesystem::exists(p.i.bst_file) || !std::filesystem::exists(p.i.bms_file))
 	{
 		std::cout << std::endl << std::endl << "- Nothing to do: network";
 		if (!vm.count(NETWORK_NAME))
@@ -725,7 +733,7 @@ int main(int argc, char* argv[])
 	{
 		if (!p.p._compute_corrections)
 		{
-			if (!boost::filesystem::exists(p.o._cor_file))
+			if (!std::filesystem::exists(p.o._cor_file))
 			{
 				std::cout << std::endl << std::endl << 
 					"- Error: The required corrections file does not exist:" << std::endl;  
@@ -743,7 +751,7 @@ int main(int argc, char* argv[])
 
 	if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
 	{
-		if (!boost::filesystem::exists(p.o._apu_file))
+		if (!std::filesystem::exists(p.o._apu_file))
 		{
 			std::cout << std::endl << std::endl << 
 				"- Error: The required positional uncertainty file does not exist:" << std::endl;  
@@ -764,7 +772,7 @@ int main(int argc, char* argv[])
 	//
 	if (p.p._plot_phased_blocks || graph_mode)
 	{
-		if (!boost::filesystem::exists(p.s.seg_file))
+		if (!std::filesystem::exists(p.s.seg_file))
 		{
 			std::cout << std::endl << std::endl << 
 				"- Error: The required segmentation file does not exist:" << std::endl;  
@@ -773,8 +781,8 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bst_file) ||
-			boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))
+		if (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bst_file) ||
+			std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bms_file))
 		{
 			if (!vm.count(SEG_FILE))
 			{
@@ -790,15 +798,16 @@ int main(int argc, char* argv[])
 				bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
 					iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-				if ((bst_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bst_file))) || 
-					(bms_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))))
+				if ((bst_meta_import && (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bst_file))) || 
+					(bms_meta_import && (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bms_file))))
 				{
 					std::cout << std::endl << std::endl << 
 						"- Error: The binary station and measurement files have been modified since" << std::endl <<
 						"  the segmentation file was created:" << std::endl;
 
-					time_t t_bst(boost::filesystem::last_write_time(p.i.bst_file)), t_bms(boost::filesystem::last_write_time(p.i.bms_file));
-					time_t t_seg(boost::filesystem::last_write_time(p.s.seg_file));
+					time_t t_bst = file_time_to_time_t(std::filesystem::last_write_time(p.i.bst_file));
+					time_t t_bms = file_time_to_time_t(std::filesystem::last_write_time(p.i.bms_file));
+					time_t t_seg = file_time_to_time_t(std::filesystem::last_write_time(p.s.seg_file));
 
 					std::cout << "   " << leafStr<std::string>(p.i.bst_file) << "  last modified on  " << ctime(&t_bst);
 					std::cout << "   " << leafStr<std::string>(p.i.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;

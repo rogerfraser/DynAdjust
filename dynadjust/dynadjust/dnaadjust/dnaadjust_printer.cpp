@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnaadjust_printer.cpp
 // Copyright    : Copyright 2025 Geoscience Australia
@@ -1051,7 +1052,7 @@ void DynAdjustPrinter::PrintStationFileHeader(std::ostream& os, std::string_view
     print_file_header(os, std::string("DYNADJUST ") + std::string(file_type) + " OUTPUT FILE");
     
     os << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << 
-        boost::filesystem::system_complete(filename).string() << std::endl << std::endl;
+        std::filesystem::absolute(filename).string() << std::endl << std::endl;
 }
 
 void DynAdjustPrinter::PrintStationColumnHeaders(std::ostream& os, CoordinateOutputMode mode, bool include_uncertainties) {
@@ -2536,7 +2537,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
 
         if (adjust_.projectSettings_.o._apply_type_b_file)
             apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
     }
 
     apu_file << OUTPUTLINE << std::endl << std::endl;
@@ -3258,16 +3259,16 @@ void DynAdjustPrinter::PrintFileHeaderInformation()
     // Print formatted header
     print_file_header(adjust_.xyz_file, "DYNADJUST COORDINATE OUTPUT FILE");
 
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._adj_file).string() << std::endl << std::endl;
-    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._xyz_file).string() << std::endl << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(adjust_.projectSettings_.o._adj_file).string() << std::endl << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(adjust_.projectSettings_.o._xyz_file).string() << std::endl << std::endl;
 
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
     adjust_.adj_file << adjust_.projectSettings_.a.command_line_arguments << std::endl << std::endl;
 
     if (adjust_.projectSettings_.i.input_files.empty())
     {
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bst_file).string() << std::endl;
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bms_file).string() << std::endl;
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(adjust_.projectSettings_.a.bst_file).string() << std::endl;
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(adjust_.projectSettings_.a.bms_file).string() << std::endl;
     }
     else
     {
@@ -3288,8 +3289,8 @@ void DynAdjustPrinter::PrintFileHeaderInformation()
     
 
     // Geoid model
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
-    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << std::filesystem::absolute(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << std::filesystem::absolute(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
 
     
     switch (adjust_.projectSettings_.a.adjust_mode)
@@ -3352,9 +3353,9 @@ void DynAdjustPrinter::PrintFileHeaderInformation()
         if (adjust_.projectSettings_.o._apply_type_b_file)
         {
             adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
             adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
         }
     }
 

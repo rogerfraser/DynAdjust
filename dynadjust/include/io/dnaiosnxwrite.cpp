@@ -185,7 +185,7 @@ void dna_io_snx::print_warnings(std::ofstream* warning_file, const std::string& 
 {
 	// Print formatted header
 	print_file_header(*warning_file, "DYNADJUST SINEX OUTPUT WARNINGS FILE");
-	*warning_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(fileName).string() << std::endl;
+	*warning_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(fileName).string() << std::endl;
 
 	*warning_file << OUTPUTLINE << std::endl << std::endl;
 

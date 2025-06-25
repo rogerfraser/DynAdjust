@@ -13,8 +13,7 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/detail/absolute_path.hpp>
+#include <filesystem>
 
 std::mutex cout_mutex;
 std::mutex import_file_mutex;
@@ -473,10 +472,10 @@ int main(int argc, char* argv[])
 
 		time.start();
 
-		if (!boost::filesystem::exists(input_file))
+		if (!std::filesystem::exists(input_file))
 		{
 			input_file = formPath<std::string>(p.g.input_folder, input_file);
-			if (!boost::filesystem::exists(input_file))
+			if (!std::filesystem::exists(input_file))
 			{	
 				std::cout << "- Error:  " << input_file << " does not exist" << std::endl;
 				return EXIT_FAILURE;
@@ -485,7 +484,7 @@ int main(int argc, char* argv[])
 
 		// Form output file path
 		std::stringstream ss_outputfile("");
-		ss_outputfile << boost::filesystem::path(input_file).stem().generic_string();
+		ss_outputfile << std::filesystem::path(input_file).stem().generic_string();
 		ss_outputfile << ".edit.xml";
 		output_file = ss_outputfile.str();
 

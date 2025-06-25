@@ -38,7 +38,6 @@
 #include <iostream>
 
 #include <memory>
-#include <boost/bind/bind.hpp>
 
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>

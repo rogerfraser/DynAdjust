@@ -15,7 +15,7 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 std::mutex cout_mutex;
 
@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(PROJECT_FILE) && vm.count(NETWORK_NAME))
 	{
-		if (equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
+		if (equals(std::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
 		{
 			std::cout << std::endl << "- Error: project file name doesn't match network name.  Provide" << std::endl;  
 			std::cout << std::endl << "         either a project file path or the network name. " << std::endl << std::endl;  
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 	if (vm.count(NETWORK_NAME))
 		p.g.project_file = formPath<std::string>(".", p.g.network_name, "dnaproj");
 	
-	if (!boost::filesystem::exists(p.g.project_file))
+	if (!std::filesystem::exists(p.g.project_file))
 	{
 		std::cout << std::endl << 
 			"- Error: Project file  " << p.g.project_file <<

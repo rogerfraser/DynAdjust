@@ -99,7 +99,7 @@ vmat_file_map::vmat_file_map(const std::string& filePath, bool remove_mapped_fil
 vmat_file_map::~vmat_file_map() 
 {
 	if (remove_mapped_file_)
-		if (boost::filesystem::exists(filePath_))
+		if (std::filesystem::exists(filePath_))
 			boost::interprocess::file_mapping::remove(filePath_.c_str());
 }
 	

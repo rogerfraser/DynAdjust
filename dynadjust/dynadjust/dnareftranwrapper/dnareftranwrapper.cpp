@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnareftranwrapper.cpp
 // Author       : Roger Fraser
@@ -31,16 +32,16 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 	// Print formatted header
 	print_file_header(*f_out, header);
 
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(out_file).string() << std::endl << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(out_file).string() << std::endl << std::endl;
 	
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
 	*f_out << p->r.command_line_arguments << std::endl << std::endl;
 
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Network name:" <<  p->g.network_name << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Input folder: " << boost::filesystem::system_complete(p->g.input_folder).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << boost::filesystem::system_complete(p->g.output_folder).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p->r.bst_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(p->r.bms_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Input folder: " << std::filesystem::absolute(p->g.input_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << std::filesystem::absolute(p->g.output_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(p->r.bst_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(p->r.bms_file).string() << std::endl;
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target reference frame:" << p->r.reference_frame;
 
 	if (userSuppliedFrame)
@@ -113,7 +114,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
@@ -145,7 +146,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (!vm.count(REFERENCE_FRAME))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
@@ -205,7 +206,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(TECTONIC_PLATE_BDY_FILE))
 	{
-		if (!boost::filesystem::exists(p.r.tpb_file))
+		if (!std::filesystem::exists(p.r.tpb_file))
 		{
 			std::cout << std::endl << "- Error: ";
 			std::cout << std::endl << "tectonic plate boundary file " << std::endl << "               ";
@@ -216,7 +217,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(TECTONIC_PLATE_POLE_FILE))
 	{
-		if (!boost::filesystem::exists(p.r.tpp_file))
+		if (!std::filesystem::exists(p.r.tpp_file))
 		{
 			std::cout << std::endl << "- Error: ";
 			std::cout << std::endl << "Euler pole parameters file " << std::endl << "               ";
@@ -237,7 +238,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	else
 		p.r.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-	if (!boost::filesystem::exists(p.r.bst_file) || !boost::filesystem::exists(p.r.bms_file))
+	if (!std::filesystem::exists(p.r.bst_file) || !std::filesystem::exists(p.r.bms_file))
 	{
 		std::cout << std::endl << "- Nothing to do: ";  
 			
@@ -890,7 +891,7 @@ int main(int argc, char* argv[])
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (boost::filesystem::exists(p.g.project_file))
+	if (std::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsReftran(p);

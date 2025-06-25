@@ -38,7 +38,7 @@
 using std::ostringstream;
 using std::locale;
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <include/config/dnaversion-stream.hpp>
@@ -93,7 +93,7 @@ void file_opener(
 	}
 	catch (const std::ios_base::failure& f) {
 		std::stringstream ss;
-		if (fileMustExist && !boost::filesystem::exists(str.c_str()))
+		if (fileMustExist && !std::filesystem::exists(str.c_str()))
 			ss << "file_opener(): Can't find " << str << ".";
 		else
 			ss << "file_opener(): An error was encountered when opening " << 

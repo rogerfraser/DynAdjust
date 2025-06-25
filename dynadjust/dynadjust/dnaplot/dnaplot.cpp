@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnaplot.cpp
 // Author       : Roger Fraser
@@ -166,7 +167,7 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	// Set up the environment
 	pprj_ = pprj;
 
-	if (!boost::filesystem::exists(pprj_->g.output_folder))
+	if (!std::filesystem::exists(pprj_->g.output_folder))
 	{
 		std::stringstream ss("CreategnuplotGraphEnvironment(): Output path does not exist... \n\n    ");
 		ss << pprj_->g.output_folder << ".";
@@ -218,7 +219,7 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 void dna_plot::InvokeGnuplot()
 {
 	// Invoke gnuplot using absolute path				
-	std::string system_file_cmd = "gnuplot " + boost::filesystem::absolute(pprj_->p._gnuplot_cmd_file).string();
+	std::string system_file_cmd = "gnuplot " + std::filesystem::absolute(pprj_->p._gnuplot_cmd_file).string();
 
 	// set up a thread group to execute the gnuplot in parallel
 	std::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
@@ -633,7 +634,7 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 void dna_plot::InitialiseGMTParameters()
 {
 	// Set initial parameters
-	if (!boost::filesystem::exists(pprj_->g.output_folder))
+	if (!std::filesystem::exists(pprj_->g.output_folder))
 	{
 		std::stringstream ss("InitialiseGMTParameters(): Output path does not exist... \n\n    ");
 		ss << pprj_->g.output_folder << ".";
@@ -1077,7 +1078,7 @@ void dna_plot::InitialiseGMTFilenames()
 		gmt_filename = pprj_->g.output_folder + FOLDER_SLASH + gmt_filename;
 
 		// Create absolute path				
-		gmt_filename = boost::filesystem::absolute(gmt_filename).string();
+		gmt_filename = std::filesystem::absolute(gmt_filename).string();
 
 		// Add to the list
 		v_gmt_cmd_filenames_.push_back(gmt_filename);

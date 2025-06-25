@@ -44,7 +44,8 @@
 
 #include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <include/functions/dnastrutils.hpp>
-#include <boost/lexical_cast.hpp>
+#include <charconv>
+#include <stdexcept>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/operator.hpp>
@@ -53,10 +54,30 @@ using boost::spirit::qi::double_;
 using boost::spirit::qi::float_;
 using boost::spirit::qi::parse;
 
+// Helper template to convert between types (replacement for boost::lexical_cast)
+template <typename T, typename U>
+T lexical_cast(const U& value)
+{
+	std::stringstream ss;
+	ss << value;
+	T result;
+	if (!(ss >> result) || !ss.eof()) {
+		throw std::runtime_error("lexical_cast failed");
+	}
+	return result;
+}
+
+// Specialization for string to string (no-op)
+template <>
+inline std::string lexical_cast<std::string, std::string>(const std::string& value)
+{
+	return value;
+}
+
 template <class T, class U>
 T val_uint(const U& value)
 {
-	return boost::lexical_cast<T, U>(value);
+	return lexical_cast<T, U>(value);
 }
 
 template <class T, class U>
@@ -66,7 +87,7 @@ T valorno_uint(const U& value, T& var)
 		return var = 0;
 
 	var = 1;
-	return boost::lexical_cast<T, U>(value);
+	return lexical_cast<T, U>(value);
 }
 
 template <class T>

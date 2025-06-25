@@ -21,7 +21,7 @@
 //============================================================================
 
 #include <include/io/dnaiopdf.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <include/functions/dnastrutils.hpp>
 namespace dynadjust { 
 namespace iostreams {

@@ -26,6 +26,7 @@
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrutils.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/config/dnaoptions-helper.hpp>
 
@@ -93,7 +94,7 @@ CDnaProjectFile::CDnaProjectFile(const std::string& projectFile, const UINT16& v
 void CDnaProjectFile::LoadProjectFile(const std::string& projectFile)
 {
 	// load project file
-	if (boost::filesystem::exists(projectFile))
+	if (std::filesystem::exists(projectFile))
 	{
 		settings_.g.project_file = projectFile;
 		LoadProjectFile();
@@ -324,7 +325,7 @@ void CDnaProjectFile::InitialiseImportSettings()
 	
 	if (!settings_.i.bst_file.empty())
 	{
-		if (!boost::filesystem::exists(settings_.i.bst_file))
+		if (!std::filesystem::exists(settings_.i.bst_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
@@ -336,7 +337,7 @@ void CDnaProjectFile::InitialiseImportSettings()
 
 	if (!settings_.i.bms_file.empty())
 	{
-		if (!boost::filesystem::exists(settings_.i.bms_file))
+		if (!std::filesystem::exists(settings_.i.bms_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
@@ -358,7 +359,7 @@ void CDnaProjectFile::InitialiseImportSettings()
 
 	if (!settings_.i.seg_file.empty())
 	{
-		if (!boost::filesystem::exists(settings_.i.seg_file))
+		if (!std::filesystem::exists(settings_.i.seg_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
@@ -377,7 +378,7 @@ void CDnaProjectFile::InitialiseImportSettings()
 	
 	if (!settings_.i.scalar_file.empty())
 	{
-		if (!boost::filesystem::exists(settings_.i.scalar_file))			
+		if (!std::filesystem::exists(settings_.i.scalar_file))			
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
@@ -508,7 +509,7 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 	settings_.a.bst_file = firstPart + "bst";	// binary stations file
 	settings_.a.bms_file = firstPart + "bms";	// binary measurements file
 
-	if (!boost::filesystem::exists(settings_.a.bst_file) || !boost::filesystem::exists(settings_.a.bms_file))
+	if (!std::filesystem::exists(settings_.a.bst_file) || !std::filesystem::exists(settings_.a.bms_file))
 	{
 		std::stringstream ss;
 		ss << "- Nothing to do: ";  
@@ -631,7 +632,7 @@ void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const std::
 	{
 		if (val.empty())
 			return;
-		settings_.g.verbose = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.g.verbose = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, PROJECT_FILE))
 	{
@@ -1067,7 +1068,7 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const std::s
 	//{
 	//	if (val.empty())
 	//		return;			
-	//	settings_.i.verify_coordinates = boost::lexical_cast<UINT16, std::string>(val);
+	//	settings_.i.verify_coordinates = lexical_cast<UINT16, std::string>(val);
 	//}
 	
 }
@@ -1090,7 +1091,7 @@ void CDnaProjectFile::LoadSettingReftran(const std::string& var, std::string& va
 	{
 		if (val.empty())
 			return;
-		settings_.r.plate_model_option = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.r.plate_model_option = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, TECTONIC_PLATE_BDY_FILE))
 	{
@@ -1098,8 +1099,8 @@ void CDnaProjectFile::LoadSettingReftran(const std::string& var, std::string& va
 			return;
 		settings_.r.tpb_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.r.tpb_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, TECTONIC_PLATE_POLE_FILE))
@@ -1108,8 +1109,8 @@ void CDnaProjectFile::LoadSettingReftran(const std::string& var, std::string& va
 			return;
 		settings_.r.tpp_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.r.tpp_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 }
@@ -1128,8 +1129,8 @@ void CDnaProjectFile::LoadSettingGeoid(const std::string& var, std::string& val)
 			return;
 		settings_.n.ntv2_geoid_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.n.ntv2_geoid_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, INPUT_FILE))
@@ -1148,19 +1149,19 @@ void CDnaProjectFile::LoadSettingGeoid(const std::string& var, std::string& val)
 	{
 		if (val.empty())
 			return;
-		settings_.n.interpolation_method = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.n.interpolation_method = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, DDEG_FORMAT))
 	{
 		if (val.empty())
 			return;
-		settings_.n.coordinate_format = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.n.coordinate_format = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, DIRECTION))
 	{
 		if (val.empty())
 			return;
-		settings_.n.ellipsoid_to_ortho = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.n.ellipsoid_to_ortho = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, CONVERT_BST_HT))
 	{
@@ -1190,8 +1191,8 @@ void CDnaProjectFile::LoadSettingSegment(const std::string& var, std::string& va
 			return;
 		settings_.s.seg_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.s.seg_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, BIN_STN_FILE))
@@ -1200,8 +1201,8 @@ void CDnaProjectFile::LoadSettingSegment(const std::string& var, std::string& va
 			return;
 		settings_.s.bst_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.s.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, BIN_MSR_FILE))
@@ -1210,21 +1211,21 @@ void CDnaProjectFile::LoadSettingSegment(const std::string& var, std::string& va
 			return;
 		settings_.s.bms_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.s.bms_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, SEG_MIN_INNER_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.min_inner_stations = boost::lexical_cast<UINT32, std::string>(val);
+		settings_.s.min_inner_stations = lexical_cast<UINT32, std::string>(val);
 	}
 	else if (iequals(var, SEG_THRESHOLD_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.max_total_stations = boost::lexical_cast<UINT32, std::string>(val);
+		settings_.s.max_total_stations = lexical_cast<UINT32, std::string>(val);
 	}
 	else if (iequals(var, SEG_FORCE_CONTIGUOUS))
 	{
@@ -1242,7 +1243,7 @@ void CDnaProjectFile::LoadSettingSegment(const std::string& var, std::string& va
 	{
 		if (val.empty())
 			return;
-		settings_.s.seg_search_level = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.s.seg_search_level = lexical_cast<UINT16, std::string>(val);
 	}
 }
 	
@@ -1254,8 +1255,8 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 			return;
 		settings_.a.bst_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.a.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, BIN_MSR_FILE))
@@ -1264,8 +1265,8 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 			return;
 		settings_.a.bms_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.a.bms_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, SEG_FILE))
@@ -1274,8 +1275,8 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 			return;
 		settings_.a.seg_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.a.seg_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 	else if (iequals(var, COMMENTS))
@@ -1340,7 +1341,7 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.a.max_iterations = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.a.max_iterations = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, STN_CONSTRAINTS))
 	{
@@ -1364,7 +1365,7 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 	//{
 	//	if (val.empty())
 	//		return;
-	//	settings_.a.inverse_method_lsq = boost::lexical_cast<UINT16, std::string>(val);
+	//	settings_.a.inverse_method_lsq = lexical_cast<UINT16, std::string>(val);
 	//}
 	else if (iequals(var, SCALE_NORMAL_UNITY))
 	{
@@ -1396,8 +1397,8 @@ void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val
 			return;
 		settings_.a.type_b_file = val;
 
-		if (!boost::filesystem::exists(val))
-			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+		if (!std::filesystem::exists(val))
+			if (std::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
 				settings_.a.type_b_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 }
@@ -1414,7 +1415,7 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._sort_msr_to_stn = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._sort_msr_to_stn = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_ADJ_STN_ITER))
 	{
@@ -1450,7 +1451,7 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_gnss_units = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._adj_gnss_units = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_ADJ_MSR_TSTAT))
 	{
@@ -1462,7 +1463,7 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._sort_adj_msr = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._sort_adj_msr = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_ADJ_MSR_DBID))
 	{
@@ -1498,7 +1499,7 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._angular_type_stn = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._angular_type_stn = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_STN_CORR))
 	{
@@ -1510,37 +1511,37 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_metres_stn = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._precision_metres_stn = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_PRECISION_SECONDS_STN))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_seconds_stn = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._precision_seconds_stn = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_PRECISION_METRES_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_metres_msr = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._precision_metres_msr = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_PRECISION_SECONDS_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_seconds_msr = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._precision_seconds_msr = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_ANGULAR_TYPE_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._angular_type_msr = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._angular_type_msr = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_DMS_FORMAT_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._dms_format_msr = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._dms_format_msr = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_POS_UNCERTAINTY))
 	{
@@ -1558,7 +1559,7 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 	{
 		if (val.empty())
 			return;
-		settings_.o._apu_vcv_units = boost::lexical_cast<UINT16, std::string>(val);
+		settings_.o._apu_vcv_units = lexical_cast<UINT16, std::string>(val);
 	}
 	else if (iequals(var, OUTPUT_STN_COR_FILE))
 	{
@@ -1723,15 +1724,15 @@ void CDnaProjectFile::PrintProjectFile()
 	dnaproj_file << OUTPUTLINE << std::endl;
 	
 	PrintRecord(dnaproj_file, NETWORK_NAME, settings_.g.network_name);								// network name
-	PrintRecord(dnaproj_file, INPUT_FOLDER, boost::filesystem::system_complete(settings_.g.input_folder).string());	// Path containing all input files
-	PrintRecord(dnaproj_file, OUTPUT_FOLDER, boost::filesystem::system_complete(settings_.g.output_folder).string());	// Path for all output files
+	PrintRecord(dnaproj_file, INPUT_FOLDER, std::filesystem::absolute(settings_.g.input_folder).string());	// Path containing all input files
+	PrintRecord(dnaproj_file, OUTPUT_FOLDER, std::filesystem::absolute(settings_.g.output_folder).string());	// Path for all output files
 	PrintRecord(dnaproj_file, VERBOSE, settings_.g.verbose);										// Give detailed information about what dnainterop is doing.
 																									// 0: No information (default)
 																									// 1: Helpful information
 																									// 2: Extended information\n3: Debug level information
 	PrintRecord(dnaproj_file, QUIET, yesno_string(settings_.g.quiet));								// Run quietly?
-	PrintRecord(dnaproj_file, PROJECT_FILE, boost::filesystem::system_complete(settings_.g.project_file).string());	// project file
-	PrintRecord(dnaproj_file, DYNADJUST_LOG_FILE, boost::filesystem::system_complete(settings_.g.log_file).string());	// dynadjust log file
+	PrintRecord(dnaproj_file, PROJECT_FILE, std::filesystem::absolute(settings_.g.project_file).string());	// project file
+	PrintRecord(dnaproj_file, DYNADJUST_LOG_FILE, std::filesystem::absolute(settings_.g.log_file).string());	// dynadjust log file
 	
 	dnaproj_file << std::endl;
 
@@ -1849,7 +1850,7 @@ void CDnaProjectFile::PrintProjectFile()
 	dnaproj_file << OUTPUTLINE << std::endl;
 
 	// Output configured to populate binary station files
-	PrintRecord(dnaproj_file, NTV2_FILEPATH, boost::filesystem::system_complete(settings_.n.ntv2_geoid_file).string());					// Full file path to geoid file
+	PrintRecord(dnaproj_file, NTV2_FILEPATH, std::filesystem::absolute(settings_.n.ntv2_geoid_file).string());					// Full file path to geoid file
 	
 	PrintRecord(dnaproj_file, METHOD, settings_.n.interpolation_method);
 	PrintRecord(dnaproj_file, DDEG_FORMAT, settings_.n.coordinate_format);

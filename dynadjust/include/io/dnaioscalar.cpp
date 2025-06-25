@@ -88,13 +88,13 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 
 			if (iequals(trimstr(sBuf.substr(0, 16)), "Baseline count"))
 			{
-				scalarCount = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+				scalarCount = lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
 			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
 			{
-				stationWidth = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+				stationWidth = lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
@@ -144,7 +144,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.v_scale = boost::lexical_cast<double, std::string>(tmp);
+					bslScalars.v_scale = lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -155,7 +155,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.p_scale = boost::lexical_cast<double, std::string>(tmp);
+					bslScalars.p_scale = lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -166,7 +166,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.l_scale = boost::lexical_cast<double, std::string>(tmp);
+					bslScalars.l_scale = lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -177,7 +177,7 @@ void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.h_scale = boost::lexical_cast<double, std::string>(tmp);
+					bslScalars.h_scale = lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;

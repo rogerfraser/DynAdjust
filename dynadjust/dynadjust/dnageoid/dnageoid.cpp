@@ -23,6 +23,7 @@
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
 #include <include/functions/dnastrutils.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
 
 namespace dynadjust { namespace geoidinterpolation {
 
@@ -2487,13 +2488,13 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 		if (gridType == TYPE_ASC)		// ascii
 		{
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iH_info = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iSubH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iSubH_info = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iNumsubgrids = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iNumsubgrids = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
 			strcpy(ptheGrid->chGs_type, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
@@ -2508,16 +2509,16 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->chSystem_t, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->daf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->daf = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbf = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbt = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbt = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 		}
 		else					// binary
 		{
@@ -2608,25 +2609,25 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->ptrIndex[i].chUpdated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dSlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dSlat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dNlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dNlat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dElong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dElong = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dWlong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dWlong = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLatinc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLatinc = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLonginc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLonginc = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].lGscount = boost::lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].lGscount = lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			// Save ASCII position in grid file for first record of lat & long shifts 
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();

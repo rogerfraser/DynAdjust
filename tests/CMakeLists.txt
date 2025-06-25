@@ -13,7 +13,7 @@ include_directories(../dynadjust)
 include_directories(../dynadjust/include)
 
 # Find required packages
-find_package(Boost REQUIRED COMPONENTS filesystem system timer chrono)
+find_package(Boost REQUIRED COMPONENTS filesystem system timer)
 
 # Platform-specific libraries
 if(APPLE)
@@ -176,7 +176,6 @@ target_link_libraries(test_dnaadjust_printer
     Boost::filesystem
     Boost::system
     Boost::timer
-    Boost::chrono
 )
 
 target_compile_definitions(test_dnaadjust_printer PRIVATE

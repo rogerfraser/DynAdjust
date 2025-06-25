@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnaadjust.cpp
 // Copyright    : Copyright 2025 Geoscience Australia
@@ -2828,7 +2829,7 @@ void dna_adjust::PurgeMatricesFromDisk()
 			// remove mapping
 			boost::interprocess::file_mapping::remove(str.c_str());
 			// If the file still exists, remove it!
-			if (boost::filesystem::exists(str))
+			if (std::filesystem::exists(str))
 			boost::interprocess::file_mapping::remove(str.c_str());
 		}
 	);	

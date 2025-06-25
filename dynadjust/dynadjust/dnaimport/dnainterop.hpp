@@ -42,9 +42,7 @@
 #include <math.h>
 
 #include <memory>
-#include <boost/bind/bind.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
+#include <filesystem>
 
 #include <include/exception/dnaexception.hpp>
 #include <include/config/dnaexports.hpp>

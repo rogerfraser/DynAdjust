@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnasegmentwrapper.cpp
 // Author       : Roger Fraser
@@ -40,7 +41,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, segmentSetting);
@@ -86,7 +87,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	else
 		p.s.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-	if (!boost::filesystem::exists(p.s.bst_file) || !boost::filesystem::exists(p.s.bms_file))
+	if (!std::filesystem::exists(p.s.bst_file) || !std::filesystem::exists(p.s.bms_file))
 	{
 		std::cout << std::endl << "- Nothing to do: ";  
 			
@@ -101,12 +102,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	if (vm.count(SEG_FILE))
 	{
 		// Does it exist?
-		if (!boost::filesystem::exists(p.s.seg_file))
+		if (!std::filesystem::exists(p.s.seg_file))
 		{
 			// Look for it in the input folder
 			p.s.seg_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.s.seg_file));
 
-			if (!boost::filesystem::exists(p.s.seg_file))
+			if (!std::filesystem::exists(p.s.seg_file))
 			{
 				std::cout << std::endl << "- Error: " <<
 					"Segmentation file " << leafStr<std::string>(p.s.seg_file) << " does not exist." << std::endl << std::endl;  
@@ -315,7 +316,7 @@ int main(int argc, char* argv[])
 	// Should segment look for a net file?
 	if (!p.s.net_file.empty())
 	{
-		if (!boost::filesystem::exists(p.s.net_file))
+		if (!std::filesystem::exists(p.s.net_file))
 		{
 			cout_mutex.lock();
 			std::cout << std::endl <<
@@ -424,7 +425,7 @@ int main(int argc, char* argv[])
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (boost::filesystem::exists(p.g.project_file))
+	if (std::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsSegment(p);

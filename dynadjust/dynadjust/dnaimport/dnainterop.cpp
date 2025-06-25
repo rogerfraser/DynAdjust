@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnainterop.cpp
 // Author       : Roger Fraser
@@ -4945,11 +4946,11 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 		// Print formatted header
 		print_file_header(m2s_stream, "DYNADJUST MEASUREMENT TO STATION OUTPUT FILE");
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(m2s_file).string() << std::endl << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(m2s_file).string() << std::endl << std::endl;
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << boost::filesystem::system_complete(aml_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(bst_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(bms_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << std::filesystem::absolute(aml_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(bst_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(bms_file).string() << std::endl;
 
 		// Print station count
 		m2s_stream << std::endl;
@@ -5403,7 +5404,7 @@ void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& pro
 
 void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
 {
-	if (!boost::filesystem::exists(p->i.stn_renamingfile))
+	if (!std::filesystem::exists(p->i.stn_renamingfile))
 	{
 		std::string s("The station renaming file cannot be found:\n");
 		s.append("    ").append(p->i.stn_renamingfile);
@@ -5537,7 +5538,7 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 
 	if (!p->i.scalar_file.empty())
 	{
-		if (!boost::filesystem::exists(p->i.scalar_file))
+		if (!std::filesystem::exists(p->i.scalar_file))
 		{
 			std::string s("The GNSS scalar file cannot be found:\n");
 			s.append("    ").append(p->i.scalar_file);
@@ -5670,7 +5671,7 @@ void dna_import::SerialiseDiscontTextFile(const std::string& discont_file)
 	std::ofstream discont_outfile;
 	
 	try {
-		boost::filesystem::path discontFile(discont_file);
+		std::filesystem::path discontFile(discont_file);
 		std::string outfileName = discontFile.filename().string();
 		outfileName.append(".discont");
 		// Open discontinuity output file.  Throws runtime_error on failure.
