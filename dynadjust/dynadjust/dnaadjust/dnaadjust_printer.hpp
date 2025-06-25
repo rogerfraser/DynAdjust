@@ -69,6 +69,25 @@ struct LinearMeasurement {};
 struct GPSClusterMeasurement {};
 struct DirectionSetMeasurement {};
 
+// Stage 4: Coordinate type tags for station formatting
+struct GeographicCoordinates {};
+struct CartesianCoordinates {};
+struct ProjectionCoordinates {};
+
+// Stage 4: Output mode enums
+enum class CoordinateOutputMode {
+    Geographic,
+    Cartesian, 
+    Projection,
+    Mixed
+};
+
+enum class UncertaintyMode {
+    Ellipses,
+    Covariances,
+    Both
+};
+
 // Type traits for measurement classification
 template <typename T> struct IsAngularMeasurement : std::false_type {};
 
@@ -121,6 +140,40 @@ class DynAdjustPrinter {
     void PrintMeasurementsToStation();
     void PrintCorrelationStations(std::ostream& cor_file, const UINT32& block);
 
+    // Stage 4: Station coordinate formatters
+    template<typename CoordinateType>
+    void PrintStationCoordinates(std::ostream& os, const it_vstn_t& stn_it, 
+                                const matrix_2d* estimates = nullptr, 
+                                const matrix_2d* variances = nullptr);
+                                
+    template<typename CoordinateType>
+    void PrintStationUncertainties(std::ostream& os, const it_vstn_t& stn_it,
+                                  const matrix_2d* variances, UncertaintyMode mode);
+
+    // Stage 4: Station file headers
+    void PrintStationFileHeader(std::ostream& os, std::string_view file_type, 
+                               std::string_view filename);
+    void PrintStationColumnHeaders(std::ostream& os, CoordinateOutputMode mode, 
+                                  bool include_uncertainties = false);
+    void PrintPositionalUncertaintyFileHeader(std::ostream& os, 
+                                             std::string_view filename);
+
+    // Stage 4: Station processing coordinators  
+    void PrintStationCorrections();
+    void PrintStationCorrelations(std::ostream& cor_file, const UINT32& block);
+    void PrintStationsInBlock(std::ostream& os, const UINT32& block,
+                             const matrix_2d* estimates, const matrix_2d* variances,
+                             CoordinateOutputMode mode);
+    void PrintUniqueStationsList(std::ostream& os, 
+                                const matrix_2d* estimates, const matrix_2d* variances,
+                                CoordinateOutputMode mode);
+
+    // Stage 4: Advanced station functions
+    void PrintPositionalUncertaintyOutput();
+    void PrintStationAdjustmentResults(std::ostream& os, const UINT32& block,
+                                      const UINT32& stn, const UINT32& mat_idx,
+                                      const matrix_2d* estimates, matrix_2d* variances);
+
   private:
     dna_adjust& adjust_;
 
@@ -159,6 +212,21 @@ void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT
     static_assert(sizeof(MeasurementTag) == 0, "Must use specialization");
 }
 
+// Stage 4: Template implementations for station coordinate formatting
+template <typename CoordinateType>
+void DynAdjustPrinter::PrintStationCoordinates(std::ostream& os, const it_vstn_t& stn_it,
+                                               const matrix_2d* estimates, const matrix_2d* variances) {
+    // Default implementation - will be replaced by explicit specializations
+    static_assert(sizeof(CoordinateType) == 0, "Must use specialization");
+}
+
+template <typename CoordinateType>
+void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const it_vstn_t& stn_it,
+                                                 const matrix_2d* variances, UncertaintyMode mode) {
+    // Default implementation - will be replaced by explicit specializations
+    static_assert(sizeof(CoordinateType) == 0, "Must use specialization");
+}
+
 // Template specializations - defined in .cpp file
 template <>
 void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(char cardinal, const it_vmsr_t& it_msr,
@@ -179,6 +247,27 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char card
 // Stage 3: GPS cluster measurement specializations
 template <>
 void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vmsr_t& it_msr, const UINT32& block);
+
+// Stage 4: Station coordinate formatting specializations
+template <>
+void DynAdjustPrinter::PrintStationCoordinates<GeographicCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
+                                                                      const matrix_2d* estimates, const matrix_2d* variances);
+
+template <>
+void DynAdjustPrinter::PrintStationCoordinates<CartesianCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
+                                                                     const matrix_2d* estimates, const matrix_2d* variances);
+
+template <>
+void DynAdjustPrinter::PrintStationCoordinates<ProjectionCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
+                                                                      const matrix_2d* estimates, const matrix_2d* variances);
+
+template <>
+void DynAdjustPrinter::PrintStationUncertainties<GeographicCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
+                                                                        const matrix_2d* variances, UncertaintyMode mode);
+
+template <>
+void DynAdjustPrinter::PrintStationUncertainties<CartesianCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
+                                                                       const matrix_2d* variances, UncertaintyMode mode);
 
 } // namespace networkadjust
 } // namespace dynadjust
