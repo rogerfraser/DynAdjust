@@ -1199,10 +1199,10 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	// write GMT parameters
 	PrintGMTParameters();
 
-	if (isLandscape)
-		gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION landscape" << std::endl << std::endl;
-	else
-		gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION portrait" << std::endl << std::endl;
+	//if (isLandscape)
+	//	gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION landscape" << std::endl << std::endl;
+	//else
+	//	gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION portrait" << std::endl << std::endl;
 	
 	gmtbat_file_ << _APP_GMTSET_ << " FONT_ANNOT " << std::fixed << std::setprecision(1) << annot_font_size_primary << "p" << std::endl;
 	gmtbat_file_ << _APP_GMTSET_ << " FONT_ANNOT_PRIMARY " << std::fixed << std::setprecision(1) << annot_font_size_primary << "p" << std::endl;
@@ -1273,8 +1273,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << "r -JM" << std::fixed << std::setprecision(1) << page_width_ << "c";
 		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
 			std::fixed << std::setprecision(5) << centre_width_ << "/" << std::fixed << std::setprecision(5) << dScaleLat_ << "/" << 
-			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
-			"-B" <<
+			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt ";
+        if (graticule_width_ < 0.0001)
+            gmtbat_file_ << "-Bafg";
+        else
+            gmtbat_file_ << "-B" <<
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_;
 
@@ -1303,8 +1306,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
 			std::fixed << std::setprecision(5) << centre_width_ << "/" << std::fixed << std::setprecision(5) << dScaleLat_ << "/" << 
-			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
-			"-B" <<
+			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt ";
+		if (graticule_width_ < 0.0001)
+            gmtbat_file_ << "-Bafg";
+        else
+            gmtbat_file_ << "-B" <<
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_;
 
@@ -1339,9 +1345,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
 			std::fixed << std::setprecision(5) << centre_width_ << "/" << std::fixed << std::setprecision(5) << dScaleLat_ << "/" << 
-			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
-			"-B" <<
-			//fixed << std::setprecision(7) << DmstoDeg(0.3) << "g" << std::fixed << std::setprecision(7) << DmstoDeg(0.3) << " -K > " << psTempFile << std::endl;
+			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt ";
+		if (graticule_width_ < 0.0001)
+            gmtbat_file_ << "-Bafg";
+        else
+            gmtbat_file_ << "-B" <<
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_;
 
@@ -1368,8 +1376,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
 			std::fixed << std::setprecision(5) << centre_width_ << "/" << std::fixed << std::setprecision(5) << dScaleLat_ << "/" << 
-			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
-			"-B" <<
+			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt ";
+        if (graticule_width_ < 0.0001)
+            gmtbat_file_ << "-Bafg";
+        else
+            gmtbat_file_ << "-B" <<
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_;
 
@@ -1397,8 +1408,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
 			std::fixed << std::setprecision(5) << centre_width_ << "/" << std::fixed << std::setprecision(5) << dScaleLat_ << "/" << 
-			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
-			"-B" <<
+			std::fixed << std::setprecision(5) << centre_height_ << "/" << std::fixed << std::setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt ";
+        if (graticule_width_ < 0.0001)
+            gmtbat_file_ << "-Bafg";
+        else
+            gmtbat_file_ << "-B" <<
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
 			std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_ << "g" << std::fixed << std::setprecision(graticule_width_precision_) << graticule_width_;
 
@@ -2239,8 +2253,8 @@ void dna_plot::CalculateLimitsFromStation()
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	pprj_->p._plot_centre_latitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLatitude;
-	pprj_->p._plot_centre_longitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLongitude;
+	pprj_->p._plot_centre_latitude = bstBinaryRecords_.at(_it_stnmap.first->second).currentLatitude;
+	pprj_->p._plot_centre_longitude = bstBinaryRecords_.at(_it_stnmap.first->second).currentLongitude;
 	
 	CalculateLimitsFromPoint();
 }
@@ -2449,19 +2463,19 @@ void dna_plot::PrintStationDataFile(std::ostream& os, it_vstn_t_const _it_stn)
 {
 	if (default_limits_) 
 	{
-		if (_it_stn->initialLatitude < lowerDeg_) 
-			lowerDeg_ = _it_stn->initialLatitude;
-		if (_it_stn->initialLatitude > upperDeg_)
-			upperDeg_ = _it_stn->initialLatitude;
-		if (_it_stn->initialLongitude < leftDeg_) 
-			leftDeg_ = _it_stn->initialLongitude;
-		if (_it_stn->initialLongitude > rightDeg_) 
-			rightDeg_ = _it_stn->initialLongitude;
+        if (_it_stn->currentLatitude < lowerDeg_) 
+			lowerDeg_ = _it_stn->currentLatitude;
+        if (_it_stn->currentLatitude > upperDeg_)
+            upperDeg_ = _it_stn->currentLatitude;
+        if (_it_stn->currentLongitude < leftDeg_) 
+			leftDeg_ = _it_stn->currentLongitude;
+        if (_it_stn->currentLongitude > rightDeg_) 
+			rightDeg_ = _it_stn->currentLongitude;
 	}
 
 	// print longitude and latitude
-	os << std::setprecision(10) << std::fixed << _it_stn->initialLongitude << "  " <<
-		_it_stn->initialLatitude << std::endl;
+    os << std::setprecision(10) << std::fixed << 
+		_it_stn->currentLongitude << "  " << _it_stn->currentLatitude << std::endl;
 }
 
 void dna_plot::PrintStationLabel(std::ostream& os, it_vstn_t_const _it_stn)
@@ -2471,8 +2485,8 @@ void dna_plot::PrintStationLabel(std::ostream& os, it_vstn_t_const _it_stn)
 
 	// Print longitude, latitude and label
 	os << std::setprecision(10) << std::fixed << 
-		_it_stn->initialLongitude << "  " <<			// E/W
-		_it_stn->initialLatitude << "   ";				// N/S
+		_it_stn->currentLongitude << "  " << // E/W
+        _it_stn->currentLatitude << "   ";                                           // N/S
 
 	// Print the label, default is station name (i.e. 200100350)
 	std::string label(_it_stn->stationName);
@@ -2802,8 +2816,8 @@ void dna_plot::PrintCorrectionArrows(const UINT32& block)
 				continue;
 
 		stn_cor << 
-			std::setw(MSR) << std::setprecision(precision) << std::fixed << std::left << bstBinaryRecords_.at(_it_stnmap.first->second).initialLongitude << "  " <<
-			std::setw(MSR) << std::setprecision(precision) << std::fixed << std::left << bstBinaryRecords_.at(_it_stnmap.first->second).initialLatitude << "  " << 
+			std::setw(MSR) << std::setprecision(precision) << std::fixed << std::left << bstBinaryRecords_.at(_it_stnmap.first->second).currentLongitude << "  " <<
+			std::setw(MSR) << std::setprecision(precision) << std::fixed << std::left << bstBinaryRecords_.at(_it_stnmap.first->second).currentLatitude << "  " << 
 			std::setw(MSR) << std::setprecision(4) << std::scientific << std::right << _it_cor->_east * pprj_->p._correction_scale <<
 			std::setw(MSR) << std::setprecision(4) << std::scientific << std::right << _it_cor->_north * pprj_->p._correction_scale <<
 			" 0 0 0 ";
@@ -3115,14 +3129,14 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 			// Print 3 - 1 - 2
 			//
 			// Third
-			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).initialLongitude;
+			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).currentLongitude;
 			ss << "  ";
-			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).initialLatitude;
+			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).currentLatitude;
 			ss << std::endl;
 
 			// test if point is within limits of custom defined box
 			if (!default_limits_)
-				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
+				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).currentLatitude, bstBinaryRecords_.at(_it_msr->station3).currentLongitude);
 
 			[[fallthrough]];
 
@@ -3156,11 +3170,11 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 				if (!default_limits_)
 				{
 					FirstisWithinLimits = WithinLimits(
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLatitude, 
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLongitude);
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLatitude, 
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLongitude);
 					SecondisWithinLimits = WithinLimits(
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLatitude, 
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLongitude);
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).currentLatitude, 
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).currentLongitude);
 
 					if (!FirstisWithinLimits && !SecondisWithinLimits && !ThirdisWithinLimits)
 						continue;
@@ -3170,15 +3184,15 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 				(*msr_file_stream) << ss.str();
 			
 				// First
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLongitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLongitude;
 				(*msr_file_stream) << "  ";
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLatitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLatitude;
 				(*msr_file_stream) << std::endl;
 			
 				// Second
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLongitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).currentLongitude;
 				(*msr_file_stream) << "  ";
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLatitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).currentLatitude;
 				(*msr_file_stream) << std::endl << ">" << std::endl;
 			}
 			break;
@@ -3192,14 +3206,14 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 		case 'R': // Ellipsoidal height
 			if (!default_limits_)
 				if (!WithinLimits(
-					bstBinaryRecords_.at(_it_msr->station1).initialLatitude, 
-					bstBinaryRecords_.at(_it_msr->station1).initialLongitude))
+					bstBinaryRecords_.at(_it_msr->station1).currentLatitude, 
+					bstBinaryRecords_.at(_it_msr->station1).currentLongitude))
 					continue;
 
 			// First
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLongitude;
 			(*msr_file_stream) << "  ";
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLatitude;
 			(*msr_file_stream) << std::endl << ">" << std::endl;
 			
 			break;
@@ -3216,14 +3230,14 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 
 				if (!default_limits_)
 					if (!WithinLimits(
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLatitude, 
-						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLongitude))
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLatitude, 
+						bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLongitude))
 						continue;
 
 				// First
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLongitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLongitude;
 				(*msr_file_stream) << "  ";
-				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLatitude;
+				(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).currentLatitude;
 				(*msr_file_stream) << std::endl << ">" << std::endl;
 			}
 		}
@@ -3261,14 +3275,14 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 			// Print 3 - 1 - 2
 			//
 			// Third
-			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).initialLongitude;
+			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).currentLongitude;
 			ss << "  ";
-			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).initialLatitude;
+			ss << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station3).currentLatitude;
 			ss << std::endl;
 
 			// test if point is within limits of custom defined box
 			if (!default_limits_)
-				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
+				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).currentLatitude, bstBinaryRecords_.at(_it_msr->station3).currentLongitude);
 
 			[[fallthrough]];
 
@@ -3294,8 +3308,8 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 
 			if (!default_limits_)
 			{
-				FirstisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station1).initialLatitude, bstBinaryRecords_.at(_it_msr->station1).initialLongitude);
-				SecondisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station2).initialLatitude, bstBinaryRecords_.at(_it_msr->station2).initialLongitude);
+				FirstisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station1).currentLatitude, bstBinaryRecords_.at(_it_msr->station1).currentLongitude);
+				SecondisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station2).currentLatitude, bstBinaryRecords_.at(_it_msr->station2).currentLongitude);
 
 				if (!FirstisWithinLimits && !SecondisWithinLimits && !ThirdisWithinLimits)
 					continue;
@@ -3307,15 +3321,15 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 			(*msr_file_stream) << ss.str();
 			
 			// First
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLongitude;
 			(*msr_file_stream) << "  ";
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLatitude;
 			(*msr_file_stream) << std::endl;
 			
 			// Second
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station2).initialLongitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station2).currentLongitude;
 			(*msr_file_stream) << "  ";
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station2).initialLatitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station2).currentLatitude;
 			(*msr_file_stream) << std::endl << ">" << std::endl;
 			break;
 		
@@ -3329,15 +3343,15 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 			
 			if (!default_limits_)
 			{
-				FirstisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station1).initialLatitude, bstBinaryRecords_.at(_it_msr->station1).initialLongitude);
+				FirstisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station1).currentLatitude, bstBinaryRecords_.at(_it_msr->station1).currentLongitude);
 				if (!FirstisWithinLimits)
 					continue;
 			}
 
 			// First
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLongitude;
 			(*msr_file_stream) << "  ";
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLatitude;
 			(*msr_file_stream) << std::endl << ">" << std::endl;			
 			break;
 
@@ -3369,9 +3383,9 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 			std::sort(YClusterStations_.begin(), YClusterStations_.end());
 
 			// First
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLongitude;
 			(*msr_file_stream) << "  ";
-			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
+			(*msr_file_stream) << std::setprecision(precision) << std::fixed << bstBinaryRecords_.at(_it_msr->station1).currentLatitude;
 			(*msr_file_stream) << std::endl << ">" << std::endl;
 
 		}
@@ -3802,8 +3816,8 @@ void dna_plot::LoadPosUncertaintyFile()
 
 					// Calculate correlations in local reference frame
 					PropagateVariances_LocalCart<double>(vcv_cart, vcv_local, 
-						bstBinaryRecords_.at(_it_stnmap.first->second).currentLatitude, 
-						bstBinaryRecords_.at(_it_stnmap.first->second).currentLongitude, false);
+						Radians(bstBinaryRecords_.at(_it_stnmap.first->second).currentLatitude), 
+						Radians(bstBinaryRecords_.at(_it_stnmap.first->second).currentLongitude), false);
 
 					posUnc._xx = vcv_local.get(0, 0);
 					posUnc._xy = vcv_local.get(0, 1);
@@ -3857,8 +3871,8 @@ void dna_plot::ComputeStationCorrection(it_vstn_t_const _it_stn, stationCorrecti
 {
 	// Compute XYZ for current estimates
 	GeoToCart<double>(
-		_it_stn->currentLatitude,
-		_it_stn->currentLongitude,
+		Radians(_it_stn->currentLatitude),
+		Radians(_it_stn->currentLongitude),
 		_it_stn->currentHeight,
 		currentEstimates.getelementref(0, 0),
 		currentEstimates.getelementref(1, 0),
@@ -3883,10 +3897,10 @@ void dna_plot::ComputeStationCorrection(it_vstn_t_const _it_stn, stationCorrecti
 		currentEstimates.get(0, 0),		// X2
 		currentEstimates.get(1, 0),		// Y2
 		currentEstimates.get(2, 0),		// Z2
-		_it_stn->currentLatitude,
-		_it_stn->currentLongitude,
-		_it_stn->currentLatitude,
-		_it_stn->currentLongitude,
+		Radians(_it_stn->initialLatitude),
+		Radians(_it_stn->initialLongitude),
+		Radians(_it_stn->currentLatitude),
+		Radians(_it_stn->currentLongitude),
 		0., 0.,
 		&stnCor._east, &stnCor._north, &stnCor._up);
 
@@ -3906,8 +3920,8 @@ void dna_plot::ComputeStationCorrection(it_vstn_t_const _it_stn, stationCorrecti
 		currentEstimates.get(0, 0),		// X2
 		currentEstimates.get(1, 0),		// Y2
 		currentEstimates.get(2, 0),		// Z2
-		_it_stn->currentLatitude,
-		_it_stn->currentLongitude,
+		Radians(_it_stn->currentLatitude),
+		Radians(_it_stn->currentLongitude),
 		&stnCor._east, &stnCor._north);
 
 	if (fabs(stnCor._east) < PRECISION_1E5)
@@ -4410,6 +4424,8 @@ void dna_plot::ReduceStationCoordinates(station_t* stationRecord)
 {
 	stationRecord->initialLatitude = Degrees(stationRecord->initialLatitude);
 	stationRecord->initialLongitude = Degrees(stationRecord->initialLongitude);
+    stationRecord->currentLatitude = Degrees(stationRecord->currentLatitude);
+    stationRecord->currentLongitude = Degrees(stationRecord->currentLongitude);
 }
 
 void dna_plot::NormaliseScale(double& scale)
