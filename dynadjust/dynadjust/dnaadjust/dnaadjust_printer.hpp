@@ -174,6 +174,17 @@ class DynAdjustPrinter {
                                       const UINT32& stn, const UINT32& mat_idx,
                                       const matrix_2d* estimates, matrix_2d* variances);
 
+    // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
+    void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,
+                                      const matrix_2d* estimates, const UINT32& mat_idx,
+                                      double est_lat, double est_lon, double est_height,
+                                      double easting, double northing, double zone);
+    void PrintLatitudeCoordinate(std::ostream& os, double latitude);
+    void PrintLongitudeCoordinate(std::ostream& os, double longitude);
+    void PrintOrthometricHeight(std::ostream& os, double height, const it_vstn_t& stn_it);
+    void PrintEllipsoidalHeight(std::ostream& os, double height);
+    void PrintStationUncertainties(std::ostream& os, const matrix_2d& var_local);
+
   private:
     dna_adjust& adjust_;
 
