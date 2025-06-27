@@ -2,12 +2,16 @@
 // dnageoidint.cpp : Defines the class behaviors for the application.
 //
 
-#include "precompile.h"
+//#include "precompile.h"
+
 #include "InputCoords.h"
 #include "RegProc.h"
 #include "dnageoidint.h"
 #include "dnageoidintDlg.h"
+
+/// \cond
 #include <tlhelp32.h>
+/// \endcond
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

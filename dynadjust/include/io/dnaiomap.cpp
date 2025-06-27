@@ -20,7 +20,9 @@
 // Description  : DynAdjust station map file io operations
 //============================================================================
 
+/// \cond
 #include <fstream>
+/// \endcond
 
 #include <include/io/dnaiomap.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>

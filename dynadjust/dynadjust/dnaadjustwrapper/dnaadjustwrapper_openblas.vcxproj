@@ -134,6 +134,7 @@
     <ClInclude Include="dnaadjustprogress.hpp" />
     <ClInclude Include="dnaadjustwrapper.hpp" />
     <ClInclude Include="precompile.h" />
+    <ClInclude Include="threading_init.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dnaadjust\dnaadjust_openblas.vcxproj">

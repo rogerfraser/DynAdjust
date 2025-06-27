@@ -29,7 +29,9 @@
 	#endif
 #endif
 
+/// \cond
 #include <iomanip>
+/// \endcond
 
 using std::setw;
 

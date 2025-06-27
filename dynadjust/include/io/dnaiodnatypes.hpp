@@ -29,8 +29,10 @@
 	#endif
 #endif
 
+/// \cond
 #include <sstream>
 #include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
 #include <include/exception/dnaexception.hpp>
 

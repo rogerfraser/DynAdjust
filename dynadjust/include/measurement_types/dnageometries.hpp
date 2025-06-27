@@ -29,10 +29,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
+/// \endcond
 
 namespace dynadjust {
 namespace geometries {

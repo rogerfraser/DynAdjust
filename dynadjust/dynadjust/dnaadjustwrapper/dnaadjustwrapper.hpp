@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -46,6 +47,7 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
+/// \endcond
 
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

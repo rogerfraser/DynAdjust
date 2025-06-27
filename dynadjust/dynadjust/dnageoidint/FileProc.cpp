@@ -1,12 +1,15 @@
 /////////////////////////////////////////////
 // Roger Fraser
 
+/// \cond
 #include "precompile.h"
 #include <winbase.h>
 #include <windows.h>
 #include <shlobj.h>
 #include <ole2.h>
 #include <io.h>
+/// \endcond
+
 //#include "Defines.h"
 #include "FileProc.h"
 

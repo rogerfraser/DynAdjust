@@ -30,9 +30,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+/// \endcond
+
 #include <include/functions/dnastrmanipfuncs.hpp>
 
 const UINT32 TIME_IMMEMORIAL = 1900;

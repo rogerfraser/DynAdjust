@@ -1,5 +1,6 @@
 // dynadjust.cpp : Defines the entry point for the console application.
 //
+/// \cond
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -18,6 +19,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
 boost::mutex cout_mutex;
 
@@ -29,7 +31,6 @@ boost::mutex cout_mutex;
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

@@ -29,6 +29,7 @@
 #endif
 #endif
 
+/// \cond
 #include <exception>
 #include <system_error>
 #include <stdexcept>
@@ -47,6 +48,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/thread/mutex.hpp>
+/// \endcond
 
 #include <include/exception/dnaexception.hpp>
 #include <include/config/dnaexports.hpp>
@@ -55,7 +57,7 @@
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnatypes-gui.hpp>
 
-#include <include/math/dnamatrix_contiguous.hpp>
+//#include <include/math/dnamatrix_contiguous.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnadatum.hpp>

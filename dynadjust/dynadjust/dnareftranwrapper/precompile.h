@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-
-#include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/config/dnatypes-gui.hpp>
+
+#include <include/io/dnaiobst.hpp>
+#include <include/io/dnaiobms.hpp>
 
 #include <include/exception/dnaexception.hpp>
 

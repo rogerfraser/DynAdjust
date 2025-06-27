@@ -29,9 +29,11 @@
 #endif
 #endif
 
+/// \cond
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+/// \endcond
 
 template<typename T>
 class concurrent_block_adjustment

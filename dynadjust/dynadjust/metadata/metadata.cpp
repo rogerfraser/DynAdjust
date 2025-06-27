@@ -1,5 +1,6 @@
 // metadata.cpp : Defines the entry point for the console application.
 //
+/// \cond
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -19,6 +20,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
+/// \endcond
 
 boost::mutex cout_mutex;
 boost::mutex import_file_mutex;

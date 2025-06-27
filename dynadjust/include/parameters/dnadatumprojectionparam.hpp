@@ -29,7 +29,9 @@
 	#endif
 #endif
 
+/// \cond
 #include <math.h>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 

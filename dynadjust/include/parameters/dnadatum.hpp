@@ -29,12 +29,14 @@
 	#endif
 #endif
 
+/// \cond
 #include <math.h>
 #include <string>
 #include <sstream>
 
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
+/// \endcond
 
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

@@ -29,7 +29,10 @@
 	#endif
 #endif
 
+/// \cond
 #include <boost/operators.hpp>
+/// \endcond
+
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
 

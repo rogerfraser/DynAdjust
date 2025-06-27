@@ -30,10 +30,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <string>
 #include <iomanip>
 #include <sstream>
 #include <boost/exception_ptr.hpp>
+/// \endcond
 
 #include <include/parameters/dnaepsg.hpp>
 

@@ -71,7 +71,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN64;_WINDOWS;_DEBUG;BUILD_GEOIDINT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_WINDOWS;USE_MKL=ON;USE_ILP64=ON;_DEBUG;BUILD_GEOIDINT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
@@ -101,7 +101,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;_WINDOWS;NDEBUG;BUILD_GEOIDINT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_WINDOWS;USE_MKL=ON;USE_ILP64=ON;NDEBUG;BUILD_GEOIDINT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
@@ -158,7 +158,7 @@
     <ResourceCompile Include="dnageoidint.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dnageoid\dnageoid.vcxproj">
+    <ProjectReference Include="..\dnageoid\dnageoid_mkl.vcxproj">
       <Project>{4b5ce96f-752c-4015-bbbc-45dfb18f8a02}</Project>
     </ProjectReference>
   </ItemGroup>

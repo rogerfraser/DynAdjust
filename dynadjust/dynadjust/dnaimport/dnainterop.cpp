@@ -20,12 +20,11 @@
 // Description  : DynAdjust Interoperability library
 //============================================================================
 
-//#include <include/functions/dnaparallelfuncs.hpp>
 #include <dynadjust/dnaimport/dnainterop.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 
-#include <include/io/DynaML-schema.hxx>
+//#include <include/io/DynaML-schema.hxx>
 
 using namespace dynadjust::epsg;
 

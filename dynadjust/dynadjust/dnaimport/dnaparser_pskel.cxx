@@ -36,8 +36,6 @@
 //
 // End prologue.
 
-#include <iostream>
-
 #include <dynadjust/dnaimport/dnaparser_pskel.hxx>
 
 #include <include/io/DynaML-schema.hxx>

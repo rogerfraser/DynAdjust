@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaversion-stream.hpp>
@@ -35,7 +35,7 @@
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnadatum.hpp>
 
-#include <include/math/dnamatrix_contiguous.hpp>
+//#include <include/math/dnamatrix_contiguous.hpp>
 
 #include <dynadjust/dnaimport/dnaparser_pskel.hxx>
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>

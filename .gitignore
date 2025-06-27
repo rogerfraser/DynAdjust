@@ -7,10 +7,11 @@ cmake_install.cmake
 # Compiled Dynamic libraries
 *.so
 
-# ignore compiled dynadjust wrappers & binaries
+# ignore compiled dynadjust wrappers & binaries & documentation
 dynadjust/build/
 dynadjust/build_gcc/
 dynadjust/bin/
+doc/
 
 *.suo
 *.VC.db

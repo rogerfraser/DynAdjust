@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
 #include <iostream>
@@ -46,7 +47,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
+/// \endcond
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
