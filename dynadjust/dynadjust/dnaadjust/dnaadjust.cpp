@@ -9498,6 +9498,14 @@ void dna_adjust::PrintAdjStationsUniqueList(std::ostream& os,
 	bool recomputeGeographicCoords, bool updateGeographicCoords,
 	bool reapplyTypeBUncertainties)
 {
+	// Use new printer infrastructure for enhanced unique stations list processing
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjStationsUniqueListWithStaging(os, stationEstimates, stationVariances,
+	                                             recomputeGeographicCoords, updateGeographicCoords,
+	                                             reapplyTypeBUncertainties);
+	return;
+	
+	// Original implementation preserved below for reference
 	try {
 		// Print header info and columns to adj file.  Throws runtime_error on failure.
 		AdjFile adj;

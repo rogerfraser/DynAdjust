@@ -167,6 +167,12 @@ class DynAdjustPrinter {
     void PrintUniqueStationsList(std::ostream& os, 
                                 const matrix_2d* estimates, const matrix_2d* variances,
                                 CoordinateOutputMode mode);
+                                
+    // Enhanced unique stations list processing
+    void PrintAdjStationsUniqueListWithStaging(std::ostream& os,
+                                              const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
+                                              bool recomputeGeographicCoords, bool updateGeographicCoords,
+                                              bool reapplyTypeBUncertainties);
 
     // Stage 4: Advanced station functions
     void PrintPositionalUncertaintyOutput();
@@ -184,6 +190,11 @@ class DynAdjustPrinter {
     void PrintOrthometricHeight(std::ostream& os, double height, const it_vstn_t& stn_it);
     void PrintEllipsoidalHeight(std::ostream& os, double height);
     void PrintStationUncertainties(std::ostream& os, const matrix_2d& var_local);
+
+    // Stage 4: Enhanced unique stations list processing utilities
+    void SortBlockStationsMapUnique();
+    void ProcessBlockStaging(_it_u32u32_uint32_pair _it_bsmu, UINT32& block);
+    void FinalizeBlockStaging(UINT32 block, v_uint32_string_pair& stationsOutput, std::ostream& os);
 
   private:
     dna_adjust& adjust_;

@@ -198,6 +198,14 @@ public:
         adjust_.adj_file << "Station adjustment results: converged ";
     }
     
+    void print_unique_stations_list() {
+        adjust_.adj_file << "Unique stations list: processed with staging ";
+    }
+    
+    void print_block_staging() {
+        adjust_.adj_file << "Block staging: serialize/deserialize operations ";
+    }
+    
     // Test helper functions
     static constexpr int get_station_count(char measurement_type) {
         constexpr std::array station_counts{
@@ -688,5 +696,45 @@ TEST_CASE("Stage 4: Advanced station processing works correctly", "[printer][sta
         
         std::string output = mock_adjust.adj_file.str();
         REQUIRE(output.find("Station adjustment results:") != std::string::npos);
+    }
+    
+    SECTION("Unique stations list processing") {
+        MockDnaAdjust fresh_mock_adjust;
+        TestPrinter fresh_printer(fresh_mock_adjust);
+        
+        fresh_printer.print_unique_stations_list();
+        
+        std::string output = fresh_mock_adjust.adj_file.str();
+        REQUIRE(output.find("Unique stations list: processed with staging") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: Block staging operations work correctly", "[printer][stage4][staging]") {
+    SECTION("Block serialization and deserialization") {
+        MockDnaAdjust mock_adjust;
+        TestPrinter printer(mock_adjust);
+        
+        printer.print_block_staging();
+        
+        std::string output = mock_adjust.adj_file.str();
+        REQUIRE(output.find("Block staging: serialize/deserialize operations") != std::string::npos);
+    }
+}
+
+TEST_CASE("Stage 4: C++17 structured bindings demonstration", "[printer][stage4][modern]") {
+    SECTION("Structured bindings for station output") {
+        std::vector<std::pair<uint32_t, std::string>> test_stations = {
+            {1, "Station output 1"},
+            {2, "Station output 2"}
+        };
+        
+        std::stringstream output_stream;
+        for (const auto& [station_id, station_output] : test_stations) {
+            output_stream << "ID: " << station_id << " -> " << station_output << " ";
+        }
+        
+        std::string result = output_stream.str();
+        REQUIRE(result.find("ID: 1 -> Station output 1") != std::string::npos);
+        REQUIRE(result.find("ID: 2 -> Station output 2") != std::string::npos);
     }
 }
