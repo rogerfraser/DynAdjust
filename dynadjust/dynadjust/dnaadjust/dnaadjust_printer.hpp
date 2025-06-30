@@ -109,6 +109,10 @@ class DynAdjustPrinter {
     template <typename MeasurementType>
     void PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
 
+    // Stage 5: Enhanced measurement formatting templates
+    template <typename MeasurementType>
+    void PrintMeasurementValue(char cardinal, const double& measurement, const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr = true);
+
     // Consolidated station formatter for measurement types A, BKVZ, CELMS, HR, IJPQ
     void PrintMeasurementWithStations(it_vmsr_t& it_msr, char measurement_type);
 
@@ -132,6 +136,7 @@ class DynAdjustPrinter {
     void PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
     void PrintIgnoredMeasurements(bool printHeader);
     void PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintComputedMeasurements(const UINT32& block, const std::string& type);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
@@ -296,6 +301,15 @@ void DynAdjustPrinter::PrintStationUncertainties<GeographicCoordinates>(std::ost
 template <>
 void DynAdjustPrinter::PrintStationUncertainties<CartesianCoordinates>(std::ostream& os, const it_vstn_t& stn_it,
                                                                        const matrix_2d* variances, UncertaintyMode mode);
+
+// Stage 5: Enhanced measurement formatting template specializations
+template <>
+void DynAdjustPrinter::PrintMeasurementValue<AngularMeasurement>(char cardinal, const double& measurement, 
+                                                                 const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr);
+
+template <>
+void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, const double& measurement, 
+                                                                const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr);
 
 } // namespace networkadjust
 } // namespace dynadjust
