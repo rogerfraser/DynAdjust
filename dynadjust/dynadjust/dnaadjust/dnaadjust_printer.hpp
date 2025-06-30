@@ -213,6 +213,12 @@ class DynAdjustPrinter {
     constexpr int GetStationCount(char measurement_type) const;
     constexpr bool IsAngularType(char measurement_type) const;
     void PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_block, bool adjustedMeasurements);
+    
+    // Stage 5: Enhanced measurement formatting helpers
+    double CalculateAngularPrecision(const it_vmsr_t& it_msr, char cardinal) const;
+    double CalculateLinearPrecision(const it_vmsr_t& it_msr, char cardinal) const;
+    void FormatAngularMeasurement(const double& preAdjMeas, const double& adjMeas, const double& precision, const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr);
+    void FormatLinearMeasurement(const double& measurement, const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr);
 
     // Station count lookup table
     static constexpr std::array kStationCounts{
