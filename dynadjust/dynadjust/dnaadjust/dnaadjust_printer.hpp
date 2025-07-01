@@ -125,6 +125,7 @@ class DynAdjustPrinter {
     
     // Stage 3: Header generation infrastructure
     void PrintMeasurementHeader(printMeasurementsMode printMode, std::string_view col1_heading, std::string_view col2_heading);
+    void PrintMeasurementsHeader(bool printHeader, const std::string& table_heading, printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
     void PrintPositionUncertaintyHeader(std::ostream& os);
     
     // Stage 3: Output coordinators
@@ -136,6 +137,7 @@ class DynAdjustPrinter {
     void PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
     void PrintIgnoredMeasurements(bool printHeader);
     void PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr);
     void PrintComputedMeasurements(const UINT32& block, const std::string& type);
     
     // Stage 3: Specialized measurement handlers

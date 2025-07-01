@@ -350,6 +350,115 @@ void DynAdjustPrinter::PrintPositionUncertaintyHeader(std::ostream& os) {
     os << std::endl << std::setfill('-') << std::setw(pad) << "" << std::setfill(' ') << std::endl;
 }
 
+void DynAdjustPrinter::PrintMeasurementsHeader(bool printHeader, const std::string& table_heading,
+    printMeasurementsMode printMode, UINT32 block, bool printBlocks) {
+    
+    if (printHeader)
+        adjust_.adj_file << std::endl << table_heading << std::endl <<
+        "------------------------------------------" << std::endl << std::endl;
+
+    if (printBlocks) {
+        switch (adjust_.projectSettings_.a.adjust_mode) {
+        case PhasedMode:
+        case Phased_Block_1Mode:
+            if (adjust_.projectSettings_.o._output_msr_blocks)
+                adjust_.adj_file << "Block " << block << std::endl;
+            break;
+        }
+    }
+
+    std::string col1_heading, col2_heading;
+
+    // determine headings
+    switch (printMode) {
+    case ignoredMsrs:
+    case computedMsrs:
+        col1_heading = "Computed";
+        col2_heading = "Difference";
+        break;
+    case adjustedMsrs:
+        col1_heading = "Adjusted";
+        col2_heading = "Correction";
+        break;
+    }
+    
+    // print header
+
+    // Adjusted, computed and ignored measurements
+    UINT32 j(PAD2 + STATION + STATION + STATION);
+    adjust_.adj_file <<
+        std::setw(PAD2) << std::left << "M" << 
+        std::setw(STATION) << std::left << "Station 1" << 
+        std::setw(STATION) << std::left << "Station 2" << 
+        std::setw(STATION) << std::left << "Station 3";
+
+    // Adjusted, computed and ignored measurements
+    j += PAD3 + PAD3 + MSR + MSR + CORR + PREC;
+    adjust_.adj_file <<
+        std::setw(PAD3) << std::left << "*" <<
+        std::setw(PAD2) << std::left << "C" <<
+        std::setw(MSR) << std::right << "Measured" <<
+        std::setw(MSR) << std::right << col1_heading <<	// Computed or Adjusted
+        std::setw(CORR) << std::right << col2_heading <<	// Difference or Correction
+        std::setw(PREC) << std::right << "Meas. SD";
+    
+    // Adjusted measurements only
+    switch (printMode) {
+    case adjustedMsrs:
+        j += PREC + PREC + STAT;
+        adjust_.adj_file <<
+            std::setw(PREC) << std::right << "Adj. SD" <<
+            std::setw(PREC) << std::right << "Corr. SD" <<
+            std::setw(STAT) << std::right << "N-stat";
+
+        // print t-statistics?
+        if (adjust_.projectSettings_.o._adj_msr_tstat) {
+            j += STAT;
+            adjust_.adj_file << std::setw(STAT) << std::right << "T-stat";			
+        }
+
+        j += REL;
+        adjust_.adj_file <<
+            std::setw(REL) << std::right << "Pelzer Rel";
+        break;
+    default:
+        break;
+    }
+    
+    // Adjusted, computed and ignored measurements
+    j += PACORR;
+    adjust_.adj_file <<
+        std::setw(PACORR) << std::right << "Pre Adj Corr";
+
+    // Adjusted measurements only
+    switch (printMode) {
+    case adjustedMsrs:
+        j += OUTLIER;
+        adjust_.adj_file <<
+            std::setw(OUTLIER) << std::right << "Outlier?";
+        break;
+    default:
+        break;
+    }
+
+    // Adjusted, computed and ignored measurements
+    // Print database ids?
+    if (adjust_.projectSettings_.o._database_ids) {
+        j += STDDEV + STDDEV;
+        adjust_.adj_file << 
+            std::setw(STDDEV) << std::right << "Meas. ID" << 
+            std::setw(STDDEV) << std::right << "Clust. ID";
+    }
+
+    adjust_.adj_file << std::endl;
+
+    UINT32 i;
+    for (i=0; i<j; ++i)
+        adjust_.adj_file << "-";
+
+    adjust_.adj_file << std::endl;
+}
+
 // Stage 3: Output coordinators
 void DynAdjustPrinter::PrintAdjustedNetworkMeasurements() {
     // Delegate to the existing complex implementation for now
@@ -1014,8 +1123,8 @@ void DynAdjustPrinter::PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block,
         }
     }
 
-    // Print header using existing infrastructure
-    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading,
+    // Print header using printer module method
+    PrintMeasurementsHeader(printHeader, table_heading,
         adjustedMsrs, msr_block.at(0).second.first + 1, true);
     
     // Sort measurements according to project settings
@@ -1093,7 +1202,7 @@ void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
     // Print heading
     adjust_.adj_file << std::endl;
     std::string table_heading("Ignored Measurements (a-posteriori)");
-    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading, ignoredMsrs, 0, false);
+    PrintMeasurementsHeader(printHeader, table_heading, ignoredMsrs, 0, false);
 
     vUINT32 ignored_msrs;
     it_vUINT32 _it_ign;
@@ -1235,7 +1344,7 @@ void DynAdjustPrinter::PrintComputedMeasurements(v_uint32_u32u32_pair msr_block,
     std::string table_heading("Computed Measurements");
     
     // Print header
-    adjust_.PrintAdjMeasurementsHeader(printHeader, table_heading, computedMsrs, 0, false);
+    PrintMeasurementsHeader(printHeader, table_heading, computedMsrs, 0, false);
     
     // Print measurements using consolidated dispatcher
     PrintMeasurementRecords(msr_block, false);
@@ -1263,8 +1372,8 @@ void DynAdjustPrinter::PrintComputedMeasurements(const UINT32& block, const std:
         table_heading.append(ss.str());
     }
 
-    // Print header using existing infrastructure
-    adjust_.PrintAdjMeasurementsHeader(true, table_heading, computedMsrs, block, false);
+    // Print header using printer module method
+    PrintMeasurementsHeader(true, table_heading, computedMsrs, block, false);
 
     // Process measurements from the specified block
     it_vUINT32 _it_block_msr;
@@ -1733,6 +1842,58 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
                 std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->measAdjPrec) <<
                 std::setw(PREC) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << sqrt(it_msr->residualPrec);
         }
+    }
+}
+
+void DynAdjustPrinter::PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr)
+{
+    switch (_it_msr->measType)
+    {
+    case 'A':
+    case 'B':
+    case 'D':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'P':
+    case 'Q':
+    case 'V':
+    case 'Z':
+        // Pre adjustment correction for deflections
+        adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 
+            removeNegativeZero(Seconds(_it_msr->preAdjCorr), adjust_.PRECISION_SEC_MSR);
+        break;
+    case 'Y':
+        // Pre adjustment correction of N-value on GPS applies to H cardinal of Y clusters in
+        // geographic format only!
+        switch (cardinal)
+        {
+        case 'H':			
+            adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << 
+                removeNegativeZero(_it_msr->preAdjCorr, adjust_.PRECISION_MTR_MSR);
+            break;
+        case 'P':
+        case 'L':
+            adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 0.0;
+            break;
+        default:	// X, Y, Z
+            adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_MTR_MSR) << std::fixed << std::right << 0.0;
+            break;
+        }
+        break;
+    case 'C':
+    case 'E':
+    case 'H':
+    case 'L':
+    case 'M':
+    case 'S':
+    case 'G':
+    case 'X':
+    default:
+        // Pre adjustment correction for N-value or reductions from MSL/ellipsoid arcs
+        adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 
+            removeNegativeZero(_it_msr->preAdjCorr, adjust_.PRECISION_SEC_MSR);
+        break;
     }
 }
 

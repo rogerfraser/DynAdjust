@@ -10158,117 +10158,8 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const std::string& t
 void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading,
 	printMeasurementsMode printMode, UINT32 block, bool printBlocks)
 {
-	if (printHeader)
-		adj_file << std::endl << table_heading << std::endl <<
-		"------------------------------------------" << std::endl << std::endl;
-
-	if (printBlocks)
-	{
-		switch (projectSettings_.a.adjust_mode)
-		{
-		case PhasedMode:
-		case Phased_Block_1Mode:
-			if (projectSettings_.o._output_msr_blocks)
-				adj_file << "Block " << block << std::endl;
-			break;
-		}
-	}
-
-	std::string col1_heading, col2_heading;
-
-	// determine headings
-	switch (printMode)
-	{
-	case ignoredMsrs:
-	case computedMsrs:
-		col1_heading = "Computed";
-		col2_heading = "Difference";
-		break;
-	case adjustedMsrs:
-		col1_heading = "Adjusted";
-		col2_heading = "Correction";
-		break;
-	}
-	
-	// print header
-
-	// Adjusted, computed and ignored measurements
-	UINT32 j(PAD2 + STATION + STATION + STATION);
-	adj_file <<
-		std::setw(PAD2) << std::left << "M" << 
-		std::setw(STATION) << std::left << "Station 1" << 
-		std::setw(STATION) << std::left << "Station 2" << 
-		std::setw(STATION) << std::left << "Station 3";
-
-	// Adjusted, computed and ignored measurements
-	j += PAD3 + PAD3 + MSR + MSR + CORR + PREC;
-	adj_file <<
-		std::setw(PAD3) << std::left << "*" <<
-		std::setw(PAD2) << std::left << "C" <<
-		std::setw(MSR) << std::right << "Measured" <<
-		std::setw(MSR) << std::right << col1_heading <<	// Computed or Adjusted
-		std::setw(CORR) << std::right << col2_heading <<	// Difference or Correction
-		std::setw(PREC) << std::right << "Meas. SD";
-	
-	// Adjusted measurements only
-	switch (printMode)
-	{
-	case adjustedMsrs:
-		j += PREC + PREC + STAT;
-		adj_file <<
-			std::setw(PREC) << std::right << "Adj. SD" <<
-			std::setw(PREC) << std::right << "Corr. SD" <<
-			std::setw(STAT) << std::right << "N-stat";
-
-		// print t-statistics?
-		if (projectSettings_.o._adj_msr_tstat)
-		{
-			j += STAT;
-			adj_file << std::setw(STAT) << std::right << "T-stat";			
-		}
-
-		j += REL;
-		adj_file <<
-			std::setw(REL) << std::right << "Pelzer Rel";
-		break;
-	default:
-		break;
-	}
-	
-	// Adjusted, computed and ignored measurements
-	j += PACORR;
-	adj_file <<
-		std::setw(PACORR) << std::right << "Pre Adj Corr";
-
-	// Adjusted measurements only
-	switch (printMode)
-	{
-	case adjustedMsrs:
-		j += OUTLIER;
-		adj_file <<
-			std::setw(OUTLIER) << std::right << "Outlier?";
-		break;
-	default:
-		break;
-	}
-
-	// Adjusted, computed and ignored measurements
-	// Print database ids?
-	if (projectSettings_.o._database_ids)
-	{
-		j += STDDEV + STDDEV;
-		adj_file << 
-			std::setw(STDDEV) << std::right << "Meas. ID" << 
-			std::setw(STDDEV) << std::right << "Clust. ID";
-	}
-
-	adj_file << std::endl;
-
-	UINT32 i;
-	for (i=0; i<j; ++i)
-		adj_file << "-";
-
-	adj_file << std::endl;
+	DynAdjustPrinter printer(*this);
+	printer.PrintMeasurementsHeader(printHeader, table_heading, printMode, block, printBlocks);
 }
 
 void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
@@ -12052,56 +11943,8 @@ void dna_adjust::PrintMeasurementsLinear(
 
 void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	switch (_it_msr->measType)
-	{
-	case 'A':
-	case 'B':
-	case 'D':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'P':
-	case 'Q':
-	case 'V':
-	case 'Z':
-		// Pre adjustment correction for deflections
-		adj_file << std::setw(PACORR) << std::setprecision(PRECISION_SEC_MSR) << std::fixed << std::right << 
-			removeNegativeZero(Seconds(_it_msr->preAdjCorr), PRECISION_SEC_MSR);
-		break;
-	case 'Y':
-		// Pre adjustment correction of N-value on GPS applies to H cardinal of Y clusters in
-		// geographic format only!
-		switch (cardinal)
-		{
-		case 'H':			
-			adj_file << std::setw(PACORR) << std::setprecision(PRECISION_MTR_MSR) << std::fixed << std::right << 
-				removeNegativeZero(_it_msr->preAdjCorr, PRECISION_MTR_MSR);
-			break;
-		case 'P':
-		case 'L':
-			adj_file << std::setw(PACORR) << std::setprecision(PRECISION_SEC_MSR) << std::fixed << std::right << 0.0;
-			break;
-		default:	// X, Y, Z
-			adj_file << std::setw(PACORR) << std::setprecision(PRECISION_MTR_MSR) << std::fixed << std::right << 0.0;
-			break;
-		}
-		break;
-	case 'C':
-	case 'E':
-	case 'H':
-	case 'L':
-	case 'M':
-	case 'S':
-	case 'G':
-	case 'X':
-	default:
-		// Pre adjustment correction for N-value or reductions from MSL/ellipsoid arcs
-		adj_file << std::setw(PACORR) << std::setprecision(PRECISION_SEC_MSR) << std::fixed << std::right << 
-			removeNegativeZero(_it_msr->preAdjCorr, PRECISION_SEC_MSR);
-		break;
-	}
-
-	
+	DynAdjustPrinter printer(*this);
+	printer.PrintPreAdjustmentCorrection(cardinal, _it_msr);
 }
 
 void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex)
