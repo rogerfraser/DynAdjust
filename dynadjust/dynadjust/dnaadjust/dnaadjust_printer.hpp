@@ -39,6 +39,9 @@
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/measurement_types/dnastation.hpp>
+#include <include/measurement_types/dnagpspoint.hpp>
+#include <include/io/dnaiodna.hpp>
+#include <include/functions/dnaiostreamfuncs.hpp>
 
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
@@ -191,6 +194,9 @@ class DynAdjustPrinter {
     void PrintStationAdjustmentResults(std::ostream& os, const UINT32& block,
                                       const UINT32& stn, const UINT32& mat_idx,
                                       const matrix_2d* estimates, matrix_2d* variances);
+
+    // Stage 6: Export functions
+    void PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t);
 
     // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
     void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,
