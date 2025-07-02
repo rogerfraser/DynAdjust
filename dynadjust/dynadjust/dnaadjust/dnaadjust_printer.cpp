@@ -2049,6 +2049,116 @@ void DynAdjustPrinter::PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr)
     }
 }
 
+void DynAdjustPrinter::PrintPositionalUncertaintyReport()
+{
+    std::ofstream apu_file;
+    try {
+        // Create apu file.  Throws runtime_error on failure.
+        file_opener(apu_file, adjust_.projectSettings_.o._apu_file);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+
+    // Use printer infrastructure for header
+    PrintPositionalUncertaintyFileHeader(apu_file, adjust_.projectSettings_.o._apu_file);
+    
+    apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
+    if (adjust_.projectSettings_.a.adjust_mode != SimultaneousMode)
+    {
+        if (adjust_.projectSettings_.o._output_stn_blocks)
+            apu_file << "Yes" << std::endl;
+        else
+        {
+            if (adjust_.projectSettings_.o._output_pu_covariances)
+                apu_file << std::left << "Yes (enforced with output-all-covariances)" << std::endl;
+            else
+                apu_file << std::left << "No" << std::endl;
+        }
+    }
+    else
+        apu_file << std::left << "No" << std::endl;
+
+    apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Variance matrix units:";
+    switch (adjust_.projectSettings_.o._apu_vcv_units)
+    {
+    case ENU_apu_ui:
+        apu_file << std::left << "ENU" << std::endl;
+        break;
+    default:
+    case XYZ_apu_ui:
+        apu_file << std::left << "XYZ" << std::endl;
+        break;
+    }
+
+    apu_file <<
+        std::setw(PRINT_VAR_PAD) << std::left << "Full covariance matrix:";
+    if (adjust_.projectSettings_.o._output_pu_covariances)
+        apu_file << std::left << "Yes" << std::endl;
+    else
+        apu_file << std::left << "No" << std::endl;
+
+    if (adjust_.projectSettings_.o._apply_type_b_file || adjust_.projectSettings_.o._apply_type_b_global)
+    {
+        if (adjust_.projectSettings_.o._apply_type_b_global)
+            apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainties:" <<
+                adjust_.projectSettings_.a.type_b_global << std::endl;
+
+        if (adjust_.projectSettings_.o._apply_type_b_file)
+            apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
+                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+    }
+
+    apu_file << OUTPUTLINE << std::endl << std::endl;
+
+    apu_file << "Positional uncertainty of adjusted station coordinates" << std::endl;
+    apu_file << "------------------------------------------------------" << std::endl;
+    
+    apu_file << std::endl;
+
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case SimultaneousMode:
+        adjust_.PrintPosUncertainties(apu_file, 0, 
+            &adjust_.v_rigorousVariances_.at(0));
+        break;
+    case PhasedMode:
+        // Output phased blocks as a single block?
+        if (!adjust_.projectSettings_.o._output_stn_blocks &&		// Print stations in blocks?
+            !adjust_.projectSettings_.o._output_pu_covariances)		// Print covariances?
+                                                                    // If covariances are required, stations
+                                                                    // must be printed in blocks.
+        {
+            adjust_.PrintPosUncertaintiesUniqueList(apu_file, 
+                &adjust_.v_rigorousVariances_);
+            return;
+        }
+
+        for (UINT32 block=0; block<adjust_.blockCount_; ++block)
+        {
+            // load up this block
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.DeserialiseBlockFromMappedFile(block, 1, 
+                    sf_rigorous_vars);
+
+            adjust_.PrintPosUncertainties(apu_file, block, 
+                &adjust_.v_rigorousVariances_.at(block));
+
+            // unload this block
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.UnloadBlock(block, 1, 
+                    sf_rigorous_vars);
+        }
+        break;
+    case Phased_Block_1Mode:		// only the first block is rigorous
+        adjust_.PrintPosUncertainties(apu_file, 0, 
+            &adjust_.v_rigorousVariances_.at(0));
+        break;
+    }
+
+    apu_file.close();
+}
+
 // Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
