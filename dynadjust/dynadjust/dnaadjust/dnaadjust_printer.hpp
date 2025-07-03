@@ -144,7 +144,10 @@ class DynAdjustPrinter {
     void PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr);
     void PrintPositionalUncertaintyReport();
     void PrintEstimatedStationCoordinates(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
+    bool PrintEstimatedStationCoordinatesToSINEX(std::string& sinex_filename);
     void PrintComputedMeasurements(const UINT32& block, const std::string& type);
+    void PrintPositionalUncertaintiesList(std::ostream& os, const v_mat_2d* stationVariances);
+    void PrintStationCorrectionsList(std::ostream& cor_file);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
