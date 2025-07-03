@@ -143,6 +143,7 @@ class DynAdjustPrinter {
     void PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr);
     void PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr);
     void PrintPositionalUncertaintyReport();
+    void PrintEstimatedStationCoordinates(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
     void PrintComputedMeasurements(const UINT32& block, const std::string& type);
     
     // Stage 3: Specialized measurement handlers
