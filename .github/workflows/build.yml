@@ -317,31 +317,8 @@ jobs:
         mkdir -p release
         mkdir -p release/DynAdjust-Windows
         echo "Copying files into release folder"
-        cp -f ./src/dynadjust/dnageoid/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnageoidwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnageoidwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaimport/Release/*.dll release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaimportwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaimportwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaplot/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaplotwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaplotwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnareftran/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnareftranwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnareftranwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnasegment/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnasegmentwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnasegmentwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaadjust/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaadjustwrapper/Release/*.dll ./release/DynAdjust-Windows/ || true
-        cp -f ./src/dynadjust/dnaadjustwrapper/Release/*.exe ./release/DynAdjust-Windows/ || true
-        echo "Renaming files to add dna prefix"
-        mv ./release/DynAdjust-Windows/adjust.exe   ./release/DynAdjust-Windows/dnaadjust.exe || true
-        mv ./release/DynAdjust-Windows/geoid.exe   ./release/DynAdjust-Windows/dnageoid.exe || true
-        mv ./release/DynAdjust-Windows/import.exe  ./release/DynAdjust-Windows/dnaimport.exe || true
-        mv ./release/DynAdjust-Windows/plot.exe    ./release/DynAdjust-Windows/dnaplot.exe || true
-        mv ./release/DynAdjust-Windows/reftran.exe ./release/DynAdjust-Windows/dnareftran.exe || true
-        mv ./release/DynAdjust-Windows/segment.exe ./release/DynAdjust-Windows/dnasegment.exe || true
+        cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
+        cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
 
     - uses: actions/upload-artifact@v4
       with:
@@ -428,13 +405,6 @@ jobs:
         echo "Copying files into release folder"
         cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
         cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
-        # echo "Renaming files to add dna prefix"
-        # mv ./release/DynAdjust-Windows/adjust.exe   ./release/DynAdjust-Windows/dnaadjust.exe
-        # mv ./release/DynAdjust-Windows/geoid.exe   ./release/DynAdjust-Windows/dnageoid.exe
-        # mv ./release/DynAdjust-Windows/import.exe  ./release/DynAdjust-Windows/dnaimport.exe
-        # mv ./release/DynAdjust-Windows/plot.exe    ./release/DynAdjust-Windows/dnaplot.exe
-        # mv ./release/DynAdjust-Windows/reftran.exe ./release/DynAdjust-Windows/dnareftran.exe
-        # mv ./release/DynAdjust-Windows/segment.exe ./release/DynAdjust-Windows/dnasegment.exe
 
     - uses: actions/upload-artifact@v4
       with:
