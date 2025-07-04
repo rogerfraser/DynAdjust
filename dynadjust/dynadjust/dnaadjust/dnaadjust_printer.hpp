@@ -148,6 +148,10 @@ class DynAdjustPrinter {
     void PrintComputedMeasurements(const UINT32& block, const std::string& type);
     void PrintPositionalUncertaintiesList(std::ostream& os, const v_mat_2d* stationVariances);
     void PrintStationCorrectionsList(std::ostream& cor_file);
+    void PrintBlockStations(std::ostream& os, const UINT32& block, const matrix_2d* stationEstimates, 
+                           matrix_2d* stationVariances, bool printBlockID, bool recomputeGeographicCoords, 
+                           bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
+    void PrintFileHeaderInformation();
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>

@@ -2740,5 +2740,251 @@ void DynAdjustPrinter::PrintStationCorrectionsList(std::ostream& cor_file)
     );
 }
 
+void DynAdjustPrinter::PrintBlockStations(std::ostream& os, const UINT32& block,
+    const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool printBlockID,
+    bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader,
+    bool reapplyTypeBUncertainties)
+{
+    vUINT32 v_blockStations(adjust_.v_parameterStationList_.at(block));
+
+    if (v_blockStations.size() * 3 != stationEstimates->rows())
+    {
+        std::stringstream ss;
+        ss << "PrintAdjStations(): Number of estimated stations in block " << block << 
+            " does not match the block station count." << std::endl;
+        adjust_.SignalExceptionAdjustment(ss.str(), 0);
+    }
+
+    dna_io_adj adj;
+
+    try {
+
+        if (printHeader) {
+            PrintStationColumnHeaders(os, CoordinateOutputMode::Geographic, stationVariances != nullptr);
+        }
+
+        // if required, sort stations according to original station file order
+        if (adjust_.projectSettings_.o._sort_stn_file_order)
+            adjust_.SortStationsbyFileOrder(v_blockStations);
+
+        switch (adjust_.projectSettings_.a.adjust_mode)
+        {
+        case SimultaneousMode:
+            adj.print_stn_info_col_header(os, 
+                adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            break;
+        case PhasedMode:
+        case Phased_Block_1Mode:		// only the first block is rigorous
+            // Print stations in each block?
+            if (adjust_.projectSettings_.o._output_stn_blocks)
+            {
+                if (printBlockID)
+                    os << "Block " << block + 1 << std::endl;
+                else if (adjust_.projectSettings_.o._adj_stn_iteration)
+                    adj.print_adj_stn_block_header(os, block);
+            
+                adj.print_stn_info_col_header(os, 
+                    adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            }
+            else 
+            {
+                if (block == 0)
+                    adj.print_stn_info_col_header(os, 
+                        adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            }
+            break;
+        }
+
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+    
+    UINT32 mat_idx, stn;
+
+    // Print stations according to the user-defined sort order
+    for (UINT32 i(0); i<adjust_.v_blockStationsMap_.at(block).size(); ++i)
+    {
+        stn = v_blockStations.at(i);
+        mat_idx = adjust_.v_blockStationsMap_.at(block)[stn] * 3;
+
+        adjust_.PrintAdjStation(os, block, stn, mat_idx,
+            stationEstimates, stationVariances, 
+            recomputeGeographicCoords, updateGeographicCoords,
+            reapplyTypeBUncertainties);
+    }
+
+    os << std::endl;
+
+    // return sort order to alpha-numeric
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+        adjust_.SortStationsbyID(v_blockStations);
+}
+
+void DynAdjustPrinter::PrintFileHeaderInformation()
+{
+    // Print formatted header
+    print_file_header(adjust_.adj_file, "DYNADJUST ADJUSTMENT OUTPUT FILE");
+    // Print formatted header
+    print_file_header(adjust_.xyz_file, "DYNADJUST COORDINATE OUTPUT FILE");
+
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._adj_file).string() << std::endl << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._xyz_file).string() << std::endl << std::endl;
+
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
+    adjust_.adj_file << adjust_.projectSettings_.a.command_line_arguments << std::endl << std::endl;
+
+    if (adjust_.projectSettings_.i.input_files.empty())
+    {
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bst_file).string() << std::endl;
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bms_file).string() << std::endl;
+    }
+    else
+    {
+        _it_vstr _it_files(adjust_.projectSettings_.i.input_files.begin());
+        std::string s("Input files:");
+        while (_it_files!=adjust_.projectSettings_.i.input_files.end())
+        {
+            adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << s << *_it_files++ << std::endl;
+            s = " ";
+        }
+    }	
+
+    // Reference frame
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Reference frame: " << adjust_.datum_.GetName() << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Reference frame: " << adjust_.datum_.GetName() << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Epoch: " << adjust_.datum_.GetEpoch_s() << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Epoch: " << adjust_.datum_.GetEpoch_s() << std::endl;
+    
+
+    // Geoid model
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
+
+    
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case PhasedMode:
+    case Phased_Block_1Mode:
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Segmentation file:" << adjust_.projectSettings_.a.seg_file << std::endl;
+    }
+
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Constrained Station S.D. (m):" << adjust_.projectSettings_.a.fixed_std_dev << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Free Station S.D. (m):" << adjust_.projectSettings_.a.free_std_dev << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Iteration threshold:" << adjust_.projectSettings_.a.iteration_threshold << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Maximum iterations:" << std::setprecision(0) << std::fixed << adjust_.projectSettings_.a.max_iterations << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Test confidence interval:" << std::setprecision(1) << std::fixed << adjust_.projectSettings_.a.confidence_interval << "%" << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Uncertainties SD(e,n,up):" << std::setprecision(1) << "68.3% (1 sigma)" << std::endl;
+    
+    if (!adjust_.projectSettings_.a.station_constraints.empty())
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Station constraints:" << adjust_.projectSettings_.a.station_constraints << std::endl;
+
+    trimstr(adjust_.projectSettings_.a.comments);
+
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Station coordinate types:";
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Station coordinate types:";
+
+    adjust_.adj_file << adjust_.projectSettings_.o._stn_coord_types << std::endl;
+    adjust_.xyz_file << adjust_.projectSettings_.o._stn_coord_types << std::endl;
+
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
+    if (adjust_.projectSettings_.a.adjust_mode != SimultaneousMode && 
+        adjust_.projectSettings_.o._output_stn_blocks)
+    {
+        adjust_.adj_file << "Yes" << std::endl;
+        adjust_.xyz_file << "Yes" << std::endl;
+    }
+    else
+    {
+        adjust_.adj_file << "No" << std::endl;
+        adjust_.xyz_file << "No" << std::endl;
+    }
+
+    if (adjust_.projectSettings_.o._stn_corr)
+    {
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Station coordinate corrections:" <<
+            "Yes" << std::endl;
+        adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Station coordinate corrections:" <<
+            "Yes" << std::endl;
+    }
+
+    if (adjust_.projectSettings_.o._apply_type_b_file || adjust_.projectSettings_.o._apply_type_b_global)
+    {
+        if (adjust_.projectSettings_.o._apply_type_b_global)
+        {
+            adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainties:" <<
+                adjust_.projectSettings_.a.type_b_global << std::endl;
+            adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainties:" <<
+                adjust_.projectSettings_.a.type_b_global << std::endl;
+        }
+
+        if (adjust_.projectSettings_.o._apply_type_b_file)
+        {
+            adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
+                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+            adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
+                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+        }
+    }
+
+    // Print user-supplied comments.
+    // This is a bit messy and could be cleaned up.
+    // Alas, the following logic is applied:
+    //	- User-supplied newlines (i.e. "\n" within the string) are dealt with
+    //  - Newline characters are inserted at between-word-spaces, such that the
+    //    line length does not exceed PRINT_VAL_PAD
+    //  - Resulting spaces at the start of a sentence on a new line are removed.
+    if (!adjust_.projectSettings_.a.comments.empty())
+    {
+        size_t s(0), t(0);
+        std::string var("Comments: "), comments(adjust_.projectSettings_.a.comments);
+        size_t pos = 0;
+
+        while (s < comments.length())
+        {
+            if (s + PRINT_VAL_PAD >= comments.length())
+            {
+                adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << var << comments.substr(s) << std::endl; 
+                break;
+            }
+            else
+            {
+                if ((pos = comments.substr(s, PRINT_VAL_PAD-1).find('\\')) != std::string::npos)
+                {
+                    if (comments.at(s+pos+1) == 'n')
+                    {
+                        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << var << comments.substr(s, pos) << std::endl;
+                        s += pos+2;
+                        if (comments.at(s) == ' ')
+                            ++s;
+                        var = " ";
+                        continue;
+                    }					
+                }
+                
+                t = 0;
+                while (comments.at(s+PRINT_VAL_PAD - t) != ' ')
+                    ++t;
+                
+                adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << var << comments.substr(s, PRINT_VAL_PAD - t);
+                s += PRINT_VAL_PAD - t;
+                
+                if (comments.at(s-1) != ' ' &&
+                    comments.at(s) != ' ' &&
+                    comments.at(s+1) != ' ')
+                    adjust_.adj_file << "-";
+                else if (comments.at(s) == ' ')
+                    ++s;
+                adjust_.adj_file << std::endl;
+            }
+            var = " ";
+        }
+    }
+
+    adjust_.adj_file << OUTPUTLINE << std::endl;
+    adjust_.xyz_file << OUTPUTLINE << std::endl;
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
