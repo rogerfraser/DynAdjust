@@ -426,8 +426,8 @@ jobs:
         mkdir -p release
         mkdir -p release/DynAdjust-Windows
         echo "Copying files into release folder"
-        cp -f ./x64/*.dll ./release/DynAdjust-Windows/
-        cp -f ./x64/*.exe ./release/DynAdjust-Windows/
+        cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
+        cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
         # echo "Renaming files to add dna prefix"
         # mv ./release/DynAdjust-Windows/adjust.exe   ./release/DynAdjust-Windows/dnaadjust.exe
         # mv ./release/DynAdjust-Windows/geoid.exe   ./release/DynAdjust-Windows/dnageoid.exe
