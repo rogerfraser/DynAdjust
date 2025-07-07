@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaplotwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -779,7 +778,7 @@ int main(int argc, char* argv[])
 				// Has import been run after the segmentation file was created?
 				binary_file_meta_t bst_meta, bms_meta;
 				BstFileLoader bst;
-				BmsFileLoader bms;
+				BmsFile bms;
 				bst.LoadFileMeta(p.i.bst_file, bst_meta);
 				bms.LoadFileMeta(p.i.bms_file, bms_meta);
 

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnasegment.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -1123,7 +1122,7 @@ void dna_segment::LoadBinaryFiles(const std::string& bstrfileName, const std::st
 		bst.LoadFile(bstrfileName, &bstBinaryRecords_, bst_meta_);
 	
 		// Load binary measurements data.  Throws runtime_error on failure.
-		BmsFileLoader bms;
+		BmsFile bms;
 		bms.LoadFile(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {

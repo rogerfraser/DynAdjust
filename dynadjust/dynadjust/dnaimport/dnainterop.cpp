@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnainterop.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -3680,7 +3679,7 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 		bst.LoadFile(projectSettings_.i.bst_file, binaryStn, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
-		BmsFileLoader bms;
+		BmsFile bms;
 		bms.LoadFile(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
@@ -4808,7 +4807,7 @@ void dna_import::SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeas
 	// of database IDs
 	m_dbidRecordCount = m_binaryRecordCount;
 
-	BmsFileLoader bms;
+	BmsFile bms;
 
 	try {
         snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
@@ -4896,7 +4895,7 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 		bst.LoadFile(bst_file, &bstBinaryRecords, bst_meta_);
 
 		// Load binary measurements data.  Throws runtime_error on failure.
-		BmsFileLoader bms;
+		BmsFile bms;
 		bms.LoadFile(bms_file, &bmsBinaryRecords, bms_meta_);
 
 		// Load aml file.  Throws runtime_error on failure.

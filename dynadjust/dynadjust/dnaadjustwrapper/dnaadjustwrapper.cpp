@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjustwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -722,7 +721,7 @@ void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	const project_settings& p, bool& bst_meta_import, bool& bms_meta_import)
 {
 	BstFileLoader bst;
-	BmsFileLoader bms;
+	BmsFile bms;
 	bst.LoadFileMeta(p.a.bst_file, bst_meta);
 	bms.LoadFileMeta(p.a.bms_file, bms_meta);
 

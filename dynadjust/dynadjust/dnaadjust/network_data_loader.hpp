@@ -1,19 +1,20 @@
 //============================================================================
 // Name         : network_data_loader.hpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : Network Data Loader for DynAdjust Network Adjustment
 //============================================================================
@@ -31,7 +32,7 @@
 #include <include/config/dnatypes.hpp>
 
 #include <include/io/asl_file.hpp>
-#include <include/io/bms_file_loader.hpp>
+#include <include/io/bms_file.hpp>
 #include <include/io/bst_file_loader.hpp>
 #include <include/io/map_file_loader.hpp>
 
@@ -120,7 +121,7 @@ private:
 
   const project_settings &settings_;
   std::unique_ptr<dynadjust::iostreams::BstFileLoader> bst_loader_;
-  std::unique_ptr<dynadjust::iostreams::BmsFileLoader> bms_loader_;
+  std::unique_ptr<dynadjust::iostreams::BmsFile> bms_loader_;
   std::unique_ptr<dynadjust::iostreams::MapFileLoader> map_loader_;
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;
 

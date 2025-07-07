@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaplot.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -79,7 +78,7 @@
 #include <include/math/dnamatrix_contiguous.hpp>
 
 #include <include/io/bst_file_loader.hpp>
-#include <include/io/bms_file_loader.hpp>
+#include <include/io/bms_file.hpp>
 #include <include/io/map_file_loader.hpp>
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiotpb.hpp>

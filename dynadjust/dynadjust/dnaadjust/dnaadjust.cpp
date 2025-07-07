@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjust.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -19,17 +18,6 @@
 //
 // Description  : DynAdjust Network Adjustment library
 //============================================================================
-
-// To determine number of lines of code, hit ctrl+shift+f (Find in files), and 
-// - enter the following into the "Find what:" box:
-//   * for Visual Studio 2012 and later, enter:    ^(?([^rn])s)*[^s+?/]+[^n]*$
-//   * for Visual Studio versions prior to 2012, enter:    ^:b*[^:b#/]+.*$
-// - choose u:\vs9\projects\geodesy\dev\ folder from "Look in", then
-// - select "Use:" and "regular expression" from "Find options"
-// - Only look at file types *.c;*.cpp;*.cxx;*.h;*.hpp;*.hxx;
-// The total count is displayed at the bottom of the Find results window.
-// At 09.05.2018, Matching lines : 56923    Matching files : 147    Total files searched : 180
-// At 22.05.2020, Matching lines : 53780    Matching files : 193    Total files searched : 193
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 
@@ -445,7 +433,7 @@ void dna_adjust::UpdateBinaryFiles()
 
 	try {
 		// Write binary measurements data.  Throws runtime_error on failure.
-		BmsFileLoader bms;
+		BmsFile bms;
 		bms.WriteFile(projectSettings_.a.bms_file, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {

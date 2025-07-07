@@ -88,7 +88,7 @@ target_compile_definitions(test_asl_file PRIVATE
 add_executable(test_aml_file_loader
     test_aml_file_loader.cpp
     ../dynadjust/include/io/dnaioaml.cpp
-    ../dynadjust/include/io/bms_file_loader.cpp
+    ../dynadjust/include/io/bms_file.cpp
     ../dynadjust/include/measurement_types/dnamsrtally.cpp
     ${IO_COMMON_SOURCES}
 )
@@ -105,21 +105,21 @@ target_compile_definitions(test_aml_file_loader PRIVATE
 )
 
 # Test 5: BMS File Loader test
-add_executable(test_bms_file_loader
-    test_bms_file_loader.cpp
-    ../dynadjust/include/io/bms_file_loader.cpp
+add_executable(test_bms_file
+    test_bms_file.cpp
+    ../dynadjust/include/io/bms_file.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_bms_file_loader
+target_link_libraries(test_bms_file
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_bms_file_loader PRIVATE
-    __BINARY_NAME__="test_bms_file_loader"
-    __BINARY_DESC__="Unit tests for BmsFileLoader class"
+target_compile_definitions(test_bms_file PRIVATE
+    __BINARY_NAME__="test_bms_file"
+    __BINARY_DESC__="Unit tests for BmsFile class"
 )
 
 # Test 6: Network Data Loader test
@@ -129,7 +129,7 @@ add_executable(test_network_data_loader
     ../dynadjust/dynadjust/dnaadjust/measurement_processor.cpp
     ../dynadjust/include/io/asl_file.cpp
     ../dynadjust/include/io/bst_file_loader.cpp
-    ../dynadjust/include/io/bms_file_loader.cpp
+    ../dynadjust/include/io/bms_file.cpp
     ../dynadjust/include/io/map_file_loader.cpp
     ${IO_COMMON_SOURCES}
 )
@@ -172,19 +172,19 @@ add_test(NAME MatrixTest COMMAND test_matrix)
 add_test(NAME BstFileLoaderTest COMMAND test_bst_file_loader)
 add_test(NAME AslFileTest COMMAND test_asl_file)
 add_test(NAME AmlFileLoaderTest COMMAND test_aml_file_loader)
-add_test(NAME BmsFileLoaderTest COMMAND test_bms_file_loader)
+add_test(NAME BmsFileTest COMMAND test_bms_file)
 add_test(NAME NetworkDataLoaderTest COMMAND test_network_data_loader)
 add_test(NAME MeasurementProcessorTest COMMAND test_measurement_processor)
 
 # Custom target to run all tests
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
     COMMENT "Running all tests"
 )
 
 # Custom target equivalent to 'make all'
 add_custom_target(tests_all
-    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
     COMMENT "Building all tests"
 )

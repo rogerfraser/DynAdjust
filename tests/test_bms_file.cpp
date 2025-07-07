@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_BmsFileLoader"
-#define __BINARY_DESC__ "Unit tests for BmsFileLoader class"
+#define __BINARY_NAME__ "test_BmsFile"
+#define __BINARY_DESC__ "Unit tests for BmsFile class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_BmsFileLoader"
+#define __BINARY_NAME__ "test_BmsFile"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for BmsFileLoader class"
+#define __BINARY_DESC__ "Unit tests for BmsFile class"
 #endif
 
-#include "../dynadjust/include/io/bms_file_loader.hpp"
+#include "../dynadjust/include/io/bms_file.hpp"
 #include "../dynadjust/include/measurement_types/dnameasurement.hpp"
 #include <filesystem>
 
@@ -137,27 +137,27 @@ void cleanup_temp_files() {
 } // namespace
 
 // Basic constructor and destructor tests
-TEST_CASE("BmsFileLoader constructor", "[BmsFileLoader][basic]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("BmsFile constructor", "[BmsFile][basic]") {
+    BmsFile bms_loader;
     REQUIRE(true);
 }
 
-TEST_CASE("BmsFileLoader copy constructor", "[BmsFileLoader][basic]") {
-    BmsFileLoader bms_loader1;
-    BmsFileLoader bms_loader2(bms_loader1);
+TEST_CASE("BmsFile copy constructor", "[BmsFile][basic]") {
+    BmsFile bms_loader1;
+    BmsFile bms_loader2(bms_loader1);
     REQUIRE(true);
 }
 
-TEST_CASE("BmsFileLoader assignment operator", "[BmsFileLoader][basic]") {
-    BmsFileLoader bms_loader1;
-    BmsFileLoader bms_loader2;
+TEST_CASE("BmsFile assignment operator", "[BmsFile][basic]") {
+    BmsFile bms_loader1;
+    BmsFile bms_loader2;
     bms_loader2 = bms_loader1;
     REQUIRE(true);
 }
 
 // Test create_msr_input_file_meta function
-TEST_CASE("create_msr_input_file_meta empty input", "[BmsFileLoader]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("create_msr_input_file_meta empty input", "[BmsFile]") {
+    BmsFile bms_loader;
     vifm_t input_files;
     input_file_meta_t* file_meta = nullptr;
 
@@ -169,8 +169,8 @@ TEST_CASE("create_msr_input_file_meta empty input", "[BmsFileLoader]") {
     delete[] file_meta;
 }
 
-TEST_CASE("create_msr_input_file_meta with mixed file types", "[BmsFileLoader]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("create_msr_input_file_meta with mixed file types", "[BmsFile]") {
+    BmsFile bms_loader;
     vifm_t input_files;
     input_file_meta_t* file_meta = nullptr;
 
@@ -193,8 +193,8 @@ TEST_CASE("create_msr_input_file_meta with mixed file types", "[BmsFileLoader]")
 }
 
 // Error handling tests
-TEST_CASE("Error handling for non-existent files", "[BmsFileLoader][error]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Error handling for non-existent files", "[BmsFile][error]") {
+    BmsFile bms_loader;
     binary_file_meta_t bms_meta;
 
     bool threw_exception = false;
@@ -204,8 +204,8 @@ TEST_CASE("Error handling for non-existent files", "[BmsFileLoader][error]") {
     REQUIRE(threw_exception);
 }
 
-TEST_CASE("Error handling for write to invalid path", "[BmsFileLoader][error]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Error handling for write to invalid path", "[BmsFile][error]") {
+    BmsFile bms_loader;
     vmsr_t measurements;
     binary_file_meta_t bms_meta;
 
@@ -220,8 +220,8 @@ TEST_CASE("Error handling for write to invalid path", "[BmsFileLoader][error]") 
 }
 
 // Load metadata from test file if available
-TEST_CASE("Load metadata from test file if available", "[BmsFileLoader][file]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Load metadata from test file if available", "[BmsFile][file]") {
+    BmsFile bms_loader;
     binary_file_meta_t bms_meta;
 
     if (std::filesystem::exists(TEST_BMS_FILE)) {
@@ -234,8 +234,8 @@ TEST_CASE("Load metadata from test file if available", "[BmsFileLoader][file]") 
 }
 
 // Load full BMS file if available
-TEST_CASE("Load BMS file if available", "[BmsFileLoader][file]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Load BMS file if available", "[BmsFile][file]") {
+    BmsFile bms_loader;
     vmsr_t measurements;
     binary_file_meta_t bms_meta;
 
@@ -256,8 +256,8 @@ TEST_CASE("Load BMS file if available", "[BmsFileLoader][file]") {
 }
 
 // Write and read back synthetic BMS data
-TEST_CASE("Write and read back synthetic BMS data", "[BmsFileLoader][roundtrip]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Write and read back synthetic BMS data", "[BmsFile][roundtrip]") {
+    BmsFile bms_loader;
     vmsr_t original_measurements;
     binary_file_meta_t original_meta;
 
@@ -311,8 +311,8 @@ TEST_CASE("Write and read back synthetic BMS data", "[BmsFileLoader][roundtrip]"
 }
 
 // Test empty BMS data
-TEST_CASE("Write and read empty BMS data", "[BmsFileLoader][empty]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Write and read empty BMS data", "[BmsFile][empty]") {
+    BmsFile bms_loader;
     vmsr_t empty_measurements;
     binary_file_meta_t empty_meta;
 
@@ -337,8 +337,8 @@ TEST_CASE("Write and read empty BMS data", "[BmsFileLoader][empty]") {
 }
 
 // Test large BMS data (uint64_t usage)
-TEST_CASE("Handle large BMS data", "[BmsFileLoader][large]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Handle large BMS data", "[BmsFile][large]") {
+    BmsFile bms_loader;
     vmsr_t large_measurements;
     binary_file_meta_t large_meta;
 
@@ -386,8 +386,8 @@ TEST_CASE("Handle large BMS data", "[BmsFileLoader][large]") {
 }
 
 // Test metadata-only operations
-TEST_CASE("Load metadata only", "[BmsFileLoader][metadata]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Load metadata only", "[BmsFile][metadata]") {
+    BmsFile bms_loader;
     vmsr_t measurements;
     binary_file_meta_t write_meta;
 
@@ -417,8 +417,8 @@ TEST_CASE("Load metadata only", "[BmsFileLoader][metadata]") {
 }
 
 // Test measurement type variety
-TEST_CASE("Handle various measurement types", "[BmsFileLoader][types]") {
-    BmsFileLoader bms_loader;
+TEST_CASE("Handle various measurement types", "[BmsFile][types]") {
+    BmsFile bms_loader;
     vmsr_t measurements;
     binary_file_meta_t meta;
 

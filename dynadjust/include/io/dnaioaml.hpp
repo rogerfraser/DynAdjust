@@ -29,7 +29,7 @@
 #endif
 
 #include <include/io/dynadjust_file.hpp>
-#include <include/io/bms_file_loader.hpp>
+#include <include/io/bms_file.hpp>
 
 namespace dynadjust {
 namespace iostreams {

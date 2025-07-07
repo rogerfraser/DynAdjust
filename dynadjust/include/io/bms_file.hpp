@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : bms_file_loader.hpp
+// Name         : bms_file.hpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,8 +19,8 @@
 // Description  : DynAdjust binary measurement file io operations
 //============================================================================
 
-#ifndef DYNADJUST_BMS_FILE_LOADER_H_
-#define DYNADJUST_BMS_FILE_LOADER_H_
+#ifndef DYNADJUST_BMS_FILE_H_
+#define DYNADJUST_BMS_FILE_H_
 
 #if defined(_MSC_VER)
   #if defined(LIST_INCLUDES_ON_BUILD)
@@ -40,13 +40,13 @@
 namespace dynadjust {
 namespace iostreams {
 
-class BmsFileLoader : public DynadjustFile {
+class BmsFile : public DynadjustFile {
  public:
-  BmsFileLoader() = default;
-  BmsFileLoader(const BmsFileLoader& bms) : DynadjustFile(bms) {}
-  virtual ~BmsFileLoader() = default;
+  BmsFile() = default;
+  BmsFile(const BmsFile& bms) : DynadjustFile(bms) {}
+  virtual ~BmsFile() = default;
 
-  BmsFileLoader& operator=(const BmsFileLoader& rhs);
+  BmsFile& operator=(const BmsFile& rhs);
 
   std::uint64_t CreateMsrInputFileMeta(vifm_t& vinput_file_meta,
                                        input_file_meta_t** input_file_meta);
@@ -76,4 +76,4 @@ class BmsFileLoader : public DynadjustFile {
 }  // namespace iostreams
 }  // namespace dynadjust
 
-#endif  // DYNADJUST_BMS_FILE_LOADER_H_
+#endif  // DYNADJUST_BMS_FILE_H_

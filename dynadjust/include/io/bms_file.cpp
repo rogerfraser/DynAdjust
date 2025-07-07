@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : bms_file_loader.cpp
+// Name         : bms_file.cpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,7 +19,7 @@
 // Description  : DynAdjust binary measurement file io operations
 //============================================================================
 
-#include <include/io/bms_file_loader.hpp>
+#include <include/io/bms_file.hpp>
 
 #include <algorithm>
 #include <fstream>
@@ -32,7 +32,7 @@
 namespace dynadjust {
 namespace iostreams {
 
-BmsFileLoader& BmsFileLoader::operator=(const BmsFileLoader& rhs) {
+BmsFile& BmsFile::operator=(const BmsFile& rhs) {
   if (this == &rhs) {
     return *this;
   }
@@ -40,7 +40,7 @@ BmsFileLoader& BmsFileLoader::operator=(const BmsFileLoader& rhs) {
   return *this;
 }
 
-std::uint64_t BmsFileLoader::CreateMsrInputFileMeta(
+std::uint64_t BmsFile::CreateMsrInputFileMeta(
     vifm_t& vinput_file_meta,
     input_file_meta_t** input_file_meta) {
   std::uint64_t msr_file_count(0);
@@ -80,7 +80,7 @@ std::uint64_t BmsFileLoader::CreateMsrInputFileMeta(
   return msr_file_count;
 }
 
-void BmsFileLoader::LoadFileMeta(const std::string& bms_filename,
+void BmsFile::LoadFileMeta(const std::string& bms_filename,
                                  binary_file_meta_t& bms_meta) {
   std::ifstream bms_file;
   std::stringstream ss;
@@ -117,7 +117,7 @@ void BmsFileLoader::LoadFileMeta(const std::string& bms_filename,
   bms_file.close();
 }
 
-std::uint64_t BmsFileLoader::LoadFile(const std::string& bms_filename,
+std::uint64_t BmsFile::LoadFile(const std::string& bms_filename,
                                       measurements::pvmsr_t vbinary_msr,
                                       binary_file_meta_t& bms_meta) {
   std::ifstream bms_file;
@@ -166,7 +166,7 @@ std::uint64_t BmsFileLoader::LoadFile(const std::string& bms_filename,
   return bms_meta.binCount;
 }
 
-std::optional<std::uint64_t> BmsFileLoader::LoadWithOptional(
+std::optional<std::uint64_t> BmsFile::LoadWithOptional(
     const std::string& bms_filename, measurements::pvmsr_t vbinary_msr,
     binary_file_meta_t& bms_meta) {
   try {
@@ -176,7 +176,7 @@ std::optional<std::uint64_t> BmsFileLoader::LoadWithOptional(
   }
 }
 
-void BmsFileLoader::WriteFile(const std::string& bms_filename,
+void BmsFile::WriteFile(const std::string& bms_filename,
                               measurements::pvmsr_t vbinary_msr,
                               binary_file_meta_t& bms_meta) {
   std::ofstream bms_file;
@@ -220,7 +220,7 @@ void BmsFileLoader::WriteFile(const std::string& bms_filename,
   bms_file.close();
 }
 
-void BmsFileLoader::WriteFile(const std::string& bms_filename,
+void BmsFile::WriteFile(const std::string& bms_filename,
                               measurements::vdnaMsrPtr* vMeasurements,
                               binary_file_meta_t& bms_meta) {
   std::ofstream bms_file;

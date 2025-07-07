@@ -250,7 +250,7 @@ void dna_io_aml::write_aml_file_txt(const std::string& bms_filename, const std::
 
 	binary_file_meta_t bms_meta;
 	try {
-		BmsFileLoader bms;
+		BmsFile bms;
 		// Load binary stations data.  Throws runtime_error on failure.
 		bms.LoadFile(bms_filename, &binaryMsrRecords, bms_meta);
 	}
