@@ -29,7 +29,7 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void DnaIoSnx::ParseSinex(std::ifstream** snx_file, const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, UINT32& fileOrder,
 					CDnaDatum& datum, bool applyDiscontinuities, 
@@ -51,17 +51,17 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 	containsDiscontinuities_ = false;
 
 	// read header line and extract epoch
-	if (!parse_sinex_header(snx_file, datum, lineNo))
+	if (!ParseSinexHeader(snx_file, datum, lineNo))
 	{
 		std::stringstream ss;
-		ss << "parse_sinex(): The SINEX file  " << fileName << " did not contain a header record." << std::endl;
+		ss << "ParseSinex(): The SINEX file  " << fileName << " did not contain a header record." << std::endl;
 		throw std::runtime_error(ss.str());
 	}
 
 	try {
 		
 		// read data
-		parse_sinex_data(snx_file, vStations, stnCount, vMeasurements, msrCount, clusterID,
+		ParseSinexData(snx_file, vStations, stnCount, vMeasurements, msrCount, clusterID,
 					parsestn_tally, parsemsr_tally, datum, 
 					stn_discontinuities, m_discontsSortedbyName,
 					fileOrder, lineNo, columnNo);
@@ -70,7 +70,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 		if ((*snx_file)->eof())
 			return;
 		std::stringstream ss;
-		ss << "parse_sinex(): An error was encountered when attempting to read SINEX file  " << fileName << "." << std::endl << "  " << f.what();
+		ss << "ParseSinex(): An error was encountered when attempting to read SINEX file  " << fileName << "." << std::endl << "  " << f.what();
 		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& f) {
@@ -83,7 +83,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const std::string& fileNa
 }
 	
 
-void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::string& fileName,
+void DnaIoSnx::ParseDiscontinuityFile(std::ifstream* snx_file, const std::string& fileName,
 	v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
 	UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus)
 {
@@ -103,7 +103,7 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 		// As the purpose of the discontinuity file is to provide dates on when discontinuities occur,
 		// there is no real imperative to capture the date from the header line
 		// Check for it anyway
-		parse_sinex_header(&snx_file, datum, lineNo);
+		ParseSinexHeader(&snx_file, datum, lineNo);
 
 		while (!snx_file->eof())			// while EOF not found
 		{
@@ -118,12 +118,12 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 
 				if (sBuf.substr(0, 1) == "+")
 					if (sBuf.substr(0, 23) == "+SOLUTION/DISCONTINUITY")
-						parse_sinex_discontinuities(snx_file, stn_discontinuities, m_discontsSortedbyName,
+						ParseSinexDiscontinuities(snx_file, stn_discontinuities, m_discontsSortedbyName,
 							lineNo, columnNo);
 			}
 			catch (...) {
 				std::stringstream ss;
-				ss << "parse_sinex_data(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
+				ss << "ParseSinexData(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
 				throw std::runtime_error(ss.str());
 			}		
 		}
@@ -147,7 +147,7 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const std::st
 	
 
 // Expects yy as two digit year, and doy as three digit day of year
-std::stringstream dna_io_snx::parse_date_from_yy_doy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const std::string& separator)
+std::stringstream DnaIoSnx::ParseDateFromYyDoy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const std::string& separator)
 {
 	std::stringstream ss_doy, ss_year, ss_date;
 
@@ -202,7 +202,7 @@ std::stringstream dna_io_snx::parse_date_from_yy_doy(const UINT32& yy, const UIN
 }
 
 // date is a string "YY:DDD:SSSSS"
-std::stringstream dna_io_snx::parse_date_from_string(const std::string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const std::string& separator)
+std::stringstream DnaIoSnx::ParseDateFromString(const std::string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const std::string& separator)
 {
 	// Year
 	UINT32 yy = LongFromString<UINT32>(date_str.substr(0, 2));
@@ -228,10 +228,10 @@ std::stringstream dna_io_snx::parse_date_from_string(const std::string& date_str
 		}
 	}
 
-	return parse_date_from_yy_doy(yy, doy, date_type, separator);
+	return ParseDateFromYyDoy(yy, doy, date_type, separator);
 }
 
-bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo)
+bool DnaIoSnx::ParseSinexHeader(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo)
 {
 	/*
 	%=SNX 2.00 AUS 11:182:57860 IGS 11:157:00000 11:157:86370 P 00054 0 S          
@@ -253,7 +253,7 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 		getline((**snx_file), sBuf);
 	}
 	catch (...) {
-		ss << "parse_sinex_header(): Could not read from the SINEX file.  " << std::endl << ".";
+		ss << "ParseSinexHeader(): Could not read from the SINEX file.  " << std::endl << ".";
 		throw std::runtime_error(ss.str());
 	}
 
@@ -267,12 +267,12 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 			average_year, 
 			average_doy);
 
-		ss = parse_date_from_yy_doy(average_year, average_doy, doy_yyyy, std::string(" "));
+		ss = ParseDateFromYyDoy(average_year, average_doy, doy_yyyy, std::string(" "));
 		datum.SetEpoch(dateFromStringstream_doy_year<boost::gregorian::date, std::stringstream>(ss));
 	}
 	catch (...)
 	{
-		ss << "parse_sinex_header(): Could not extract date and time information from the header record:  " << std::endl << "    " << sBuf << ".";
+		ss << "ParseSinexHeader(): Could not extract date and time information from the header record:  " << std::endl << "    " << sBuf << ".";
 		throw std::runtime_error(ss.str());
 	}
 
@@ -280,7 +280,7 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 }
 	
 
-void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void DnaIoSnx::ParseSinexData(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
 					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
 					v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
@@ -306,18 +306,18 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStation
 		try {
 
 			if (sBuf.substr(0, 1) == "+")
-				parse_sinex_block(snx_file, sBuf.c_str(), vStations, stnCount, vMeasurements, msrCount, clusterID,
+				ParseSinexBlock(snx_file, sBuf.c_str(), vStations, stnCount, vMeasurements, msrCount, clusterID,
 					parsestn_tally, parsemsr_tally, datum, fileOrder, lineNo, columnNo);
 		}
 		catch (std::runtime_error& e) {
 			std::stringstream ss;
-			ss << "parse_sinex_data(): Error parsing SINEX file:  " << std::endl << 
+			ss << "ParseSinexData(): Error parsing SINEX file:  " << std::endl << 
 				"    " << e.what();
 			throw std::runtime_error(ss.str());
 		}
 		catch (...) {
 			std::stringstream ss;
-			ss << "parse_sinex_data(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
+			ss << "ParseSinexData(): Could not extract data from the record:  " << std::endl << "    " << sBuf << ".";
 			throw std::runtime_error(ss.str());
 		}		
 	}
@@ -325,12 +325,12 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStation
 	// Update station names in station and measurement vectors using discontinuity file 
 	if (applyDiscontinuities_)
 		// true if  --discontinuity-file sinex_discontinuities.snx
-		format_station_names(stn_discontinuities, m_discontsSortedbyName, 
+		FormatStationNames(stn_discontinuities, m_discontsSortedbyName, 
 			vStations, vMeasurements);
 }
 	
 
-void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
+void DnaIoSnx::FormatStationNames(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
 	vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
 {
 	UINT32 site, doy, year;
@@ -465,7 +465,7 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 
 
 	
-void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void DnaIoSnx::ParseSinexBlock(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
 					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
 					UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo)
@@ -502,14 +502,14 @@ void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRe
 	if (strncmp(sinexRec, "+SOLUTION/EPOCHS", 16) == 0)
 	{
 		// OK, found epochs associated with stations
-		parse_sinex_epochs(snx_file, lineNo, columnNo);
+		ParseSinexEpochs(snx_file, lineNo, columnNo);
 		return;
 	}
 
 	if (strncmp(sinexRec, "+SOLUTION/ESTIMATE", 18) == 0)
 	{
 		// OK, found some stations
-		parse_sinex_stn(snx_file, sinexRec, vStations, stnCount,
+		ParseSinexStn(snx_file, sinexRec, vStations, stnCount,
 			parsestn_tally, datum, fileOrder, lineNo, columnNo);
 		return;
 	}
@@ -517,14 +517,14 @@ void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRe
 	if (strncmp(sinexRec, "+SOLUTION/MATRIX_ESTIMATE", 25) == 0)
 	{
 		// Ok, found some measurements
-		parse_sinex_msr(snx_file, sinexRec, vStations, vMeasurements, clusterID, msrCount,
+		ParseSinexMsr(snx_file, sinexRec, vStations, vMeasurements, clusterID, msrCount,
 			parsemsr_tally, datum, lineNo);
 		return;
 	}
 }
 	
 
-void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file, 
+void DnaIoSnx::ParseSinexDiscontinuities(std::ifstream* snx_file, 
 					v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
 					UINT32& lineNo, UINT32& columnNo)
 {
@@ -589,11 +589,11 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 			//     the sequence of time series.
 
 			// start epoch (yy:doy:sssss)
-			discont_from = parse_date_from_string(trimstr(sBuf.substr(16, 6)), doy_yyyy, date_from, std::string(" "));
+			discont_from = ParseDateFromString(trimstr(sBuf.substr(16, 6)), doy_yyyy, date_from, std::string(" "));
 			discont_start_date = dateFromStringstream_doy_year<boost::gregorian::date, std::stringstream>(discont_from);
 
 			// end epoch (yy:doy:sssss)
-			discont_to = parse_date_from_string(trimstr(sBuf.substr(29, 6)), doy_yyyy, date_to, std::string(" "));
+			discont_to = ParseDateFromString(trimstr(sBuf.substr(29, 6)), doy_yyyy, date_to, std::string(" "));
 			discont_end_date = dateFromStringstream_doy_year<boost::gregorian::date, std::stringstream>(discont_to);
 
 			////////////////////////////////////////////////////////////////////////////////////////////
@@ -613,7 +613,7 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 		catch (...) {
 			ss.str("");
 			columnNo = 1;
-			ss << "parse_sinex_discontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
+			ss << "ParseSinexDiscontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
 			throw std::runtime_error(ss.str());
 		}			
 	}
@@ -654,7 +654,7 @@ void dna_io_snx::parse_sinex_discontinuities(std::ifstream* snx_file,
 	
 
 // Read sites
-void dna_io_snx::parse_sinex_sites(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo)
+void DnaIoSnx::ParseSinexSites(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo)
 {
 	std::string sBuf("+"), stn, domes;
 	
@@ -712,19 +712,19 @@ void dna_io_snx::parse_sinex_sites(std::ifstream** snx_file, UINT32& lineNo, UIN
 		catch (...) {
 			ss.str("");
 			columnNo = 1;
-			ss << "parse_sinex_discontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
+			ss << "ParseSinexDiscontinuities(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
 			throw std::runtime_error(ss.str());
 		}			
 	}
 
 	siteIDsRead_ = true;
 
-	reduce_sinex_sites();
+	ReduceSinexSites();
 }
 	
 
 // Read station epochs
-void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo)
+void DnaIoSnx::ParseSinexEpochs(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo)
 {
 	std::string sBuf("+"), stn, site, date_start;
 	UINT32 file_rec(0), solution_id;
@@ -753,12 +753,12 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 			// solution ID
 			solution_id = val_uint<UINT32, std::string>(trimstr(sBuf.substr(9, 4)));
 			// Get start epoch (yy:doy:sssss) of data window used to process this site
-			date_start = parse_date_from_string(trimstr(sBuf.substr(16, 6)), doy_yyyy, date_from, std::string(" ")).str();
+			date_start = ParseDateFromString(trimstr(sBuf.substr(16, 6)), doy_yyyy, date_from, std::string(" ")).str();
 		}
 		catch (...) {
 			ss.str("");
 			columnNo = 1;
-			ss << "parse_sinex_epochs(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
+			ss << "ParseSinexEpochs(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << ".";
 			throw std::runtime_error(ss.str());
 		}
 
@@ -773,7 +773,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 			catch (...) {
 				ss.str("");
 				columnNo = 1;
-				ss << "parse_sinex_epochs(): The number of sites in SITE/ID and SOLUTION/EPOCHS" << std::endl <<
+				ss << "ParseSinexEpochs(): The number of sites in SITE/ID and SOLUTION/EPOCHS" << std::endl <<
 					"    is inconsistent:  " << std::endl << 
 					"    " << "SITE/ID block has " << siteOccurrence_.size() << " sites" << std::endl <<
 					"    " << "SOLUTION/EPOCHS block contains additional sites not listed in SITE/ID.  Next record is:" << std::endl <<
@@ -785,7 +785,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 			{
 				ss.str("");
 				columnNo = 1;
-				ss << "parse_sinex_epochs(): The order of sites in SITE/ID and SOLUTION/EPOCHS" << std::endl <<
+				ss << "ParseSinexEpochs(): The order of sites in SITE/ID and SOLUTION/EPOCHS" << std::endl <<
 					"    is inconsistent:  " << std::endl << 
 					"    " << "Index " << file_rec << " in SITE/ID block is " << siteOccurrence_.at(file_rec).site_name << std::endl <<
 					"    " << "Index " << file_rec << " in SOLUTION/EPOCHS block is " << stn << ".";
@@ -821,7 +821,7 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 		catch (...) {
 			ss.str("");
 			columnNo = 1;
-			ss << "parse_sinex_epochs(): Failed to add a new record to the site occurrence list." << std::endl <<
+			ss << "ParseSinexEpochs(): Failed to add a new record to the site occurrence list." << std::endl <<
 				"    " << sBuf << ".";
 			throw std::runtime_error(ss.str());
 		}
@@ -830,10 +830,10 @@ void dna_io_snx::parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UI
 	solutionEpochsRead_ = true;
 
 	if (!siteIDsRead_)
-		reduce_sinex_sites();
+		ReduceSinexSites();
 }
 	
-void dna_io_snx::reduce_sinex_sites()
+void DnaIoSnx::ReduceSinexSites()
 {
 	// sort the sites on station name
 	std::sort(siteOccurrence_.begin(), siteOccurrence_.end(), 
@@ -879,7 +879,7 @@ void dna_io_snx::reduce_sinex_sites()
 		CompareSiteTuples<site_id>());
 }
 	
-void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
+void DnaIoSnx::ParseSinexStn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
 					StnTally& parsestn_tally, CDnaDatum& datum,
 					UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo)
 {
@@ -941,7 +941,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 
 				yy = LongFromString<UINT32>(sBuf.substr(27, 2)), 
 				doy = LongFromString<UINT32>(sBuf.substr(30, 3)), 
-				ss = parse_date_from_yy_doy(yy, doy, doy_yyyy, std::string(" "));
+				ss = ParseDateFromYyDoy(yy, doy, doy_yyyy, std::string(" "));
 				stn_ptr->SetEpoch(stringFromDate(dateFromStringstream_doy_year<boost::gregorian::date, std::stringstream>(ss)));
 
 				stn_ptr->SetfileOrder(fileOrder++);
@@ -1052,7 +1052,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 }
 	
 
-void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
+void DnaIoSnx::ParseSinexMsr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
 					MsrTally& parsemsr_tally, CDnaDatum& datum, UINT32& lineNo)
 {
 	std::stringstream ss;

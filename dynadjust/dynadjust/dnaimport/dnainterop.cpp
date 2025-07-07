@@ -646,8 +646,8 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
         std::lock_guard<std::mutex> lock(import_file_mutex);
 
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
-		dna_io_snx snx;
-		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
+		DnaIoSnx snx;
+		snx.ParseSinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
 			g_parsestn_tally, g_parsemsr_tally, g_fileOrder, 
 			datum_, projectSettings_.i.apply_discontinuities==1, &stn_discontinuities_, m_discontsSortedbyName,
 			m_lineNo, m_columnNo, parseStatus_);
@@ -673,9 +673,9 @@ void dna_import::ParseDiscontinuities(const std::string& fileName)
 
 	try {
 		// Load discontinuity file.  Throws runtime_error on failure.
-		dna_io_snx snx;
+		DnaIoSnx snx;
 		projectSettings_.i.apply_discontinuities = true;
-		snx.parse_discontinuity_file(&discont_file, fileName, 
+		snx.ParseDiscontinuityFile(&discont_file, fileName, 
 			&stn_discontinuities_, m_discontsSortedbyName, 
 			m_lineNo, m_columnNo, parseStatus_);
 	}

@@ -13,7 +13,7 @@ include_directories(../dynadjust)
 include_directories(../dynadjust/include)
 
 # Find required packages
-find_package(Boost REQUIRED COMPONENTS filesystem system timer)
+find_package(Boost REQUIRED COMPONENTS filesystem system timer date_time)
 
 # Platform-specific libraries
 if(APPLE)
@@ -183,6 +183,29 @@ target_compile_definitions(test_dnaadjust_printer PRIVATE
     __BINARY_DESC__="Unit tests for DynAdjustPrinter class"
 )
 
+# Test 9: SNX File Writer test
+add_executable(test_snx_file_writer
+    test_snx_file_writer.cpp
+    ../dynadjust/include/io/snx_file_writer.cpp
+    ../dynadjust/include/parameters/dnadatum.cpp
+    ../dynadjust/include/parameters/dnaellipsoid.cpp
+    ../dynadjust/include/math/dnamatrix_contiguous.cpp
+    ../dynadjust/include/functions/dnastringfuncs.cpp
+    ${IO_COMMON_SOURCES}
+)
+
+target_link_libraries(test_snx_file_writer
+    ${PLATFORM_LIBS}
+    Boost::filesystem
+    Boost::system
+    Boost::date_time
+)
+
+target_compile_definitions(test_snx_file_writer PRIVATE
+    __BINARY_NAME__="test_snx_file_writer"
+    __BINARY_DESC__="Unit tests for SNX file writer and SINEX date formatting"
+)
+
 # Enable testing
 enable_testing()
 
@@ -195,16 +218,17 @@ add_test(NAME BmsFileLoaderTest COMMAND test_bms_file_loader)
 add_test(NAME NetworkDataLoaderTest COMMAND test_network_data_loader)
 add_test(NAME MeasurementProcessorTest COMMAND test_measurement_processor)
 add_test(NAME DynAdjustPrinterTest COMMAND test_dnaadjust_printer)
+add_test(NAME SnxFileWriterTest COMMAND test_snx_file_writer)
 
 # Custom target to run all tests
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer test_snx_file_writer
     COMMENT "Running all tests"
 )
 
 # Custom target equivalent to 'make all'
 add_custom_target(tests_all
-    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer
+    DEPENDS test_matrix test_bst_file_loader test_asl_file_loader test_aml_file_loader test_bms_file_loader test_network_data_loader test_measurement_processor test_dnaadjust_printer test_snx_file_writer
     COMMENT "Building all tests"
 )

@@ -2782,12 +2782,12 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sine
             adjust_.SignalExceptionAdjustment(e.what(), 0);
         }
 
-        dna_io_snx snx;
+        DnaIoSnx snx;
 
         try {
             // Print results for adjustment in SINEX format.
             // Throws runtime_error on failure.
-            snx.serialise_sinex(&sinex_file, &adjust_.bstBinaryRecords_,
+            snx.SerialiseSinex(&sinex_file, &adjust_.bstBinaryRecords_,
                 adjust_.bst_meta_, adjust_.bms_meta_, estimates, variances, adjust_.projectSettings_,
                 adjust_.measurementParams_, adjust_.unknownsCount_, adjust_.sigmaZero_,
                 &adjust_.v_blockStationsMap_.at(block), &adjust_.v_parameterStationList_.at(block),
@@ -2806,7 +2806,7 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sine
 
         sinex_file.close();
 
-        if (!snx.warnings_exist())
+        if (!snx.WarningsExist())
             continue;
 
         success = false;
@@ -2820,7 +2820,7 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sine
             adjust_.SignalExceptionAdjustment(e.what(), 0);
         }
 
-        snx.print_warnings(&sinex_file, sinexFilename);
+        snx.PrintWarnings(&sinex_file, sinexFilename);
         sinex_file.close();		
     }
 
