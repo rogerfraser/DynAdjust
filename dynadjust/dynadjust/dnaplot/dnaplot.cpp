@@ -3451,7 +3451,7 @@ void dna_plot::LoadBinaryFiles()
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		stationCount_ = bst.LoadFile(projectSettings_.i.bst_file, &bstBinaryRecords_, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.

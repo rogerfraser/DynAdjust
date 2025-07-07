@@ -42,7 +42,7 @@
 #include <boost/filesystem/operations.hpp>
 /// \endcond
 
-#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaoptions.hpp>

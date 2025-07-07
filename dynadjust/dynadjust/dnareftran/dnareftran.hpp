@@ -42,7 +42,7 @@
 #include <include/measurement_types/dnageometries.hpp>
 
 #include <include/io/dnaiotpb.hpp>
-#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/dnaiodna.hpp>
 

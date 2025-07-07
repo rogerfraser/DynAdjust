@@ -421,7 +421,7 @@ void dna_adjust::UpdateBinaryFiles()
 
 	try {
 		// Write binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.WriteFile(projectSettings_.a.bst_file, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
@@ -13840,7 +13840,7 @@ void dna_adjust::SetDefaultReferenceFrame()
 	//      cause output to be set to an empty string ("").
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFileMeta(projectSettings_.a.bst_file, bst_meta_);
 		datum_.SetDatumFromEpsg(bst_meta_.epsgCode, bst_meta_.epoch);
 	}

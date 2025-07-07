@@ -1118,7 +1118,7 @@ void dna_segment::LoadBinaryFiles(const std::string& bstrfileName, const std::st
 	binary_file_meta_t	bst_meta_, bms_meta_;
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFile(bstrfileName, &bstBinaryRecords_, bst_meta_);
 	
 		// Load binary measurements data.  Throws runtime_error on failure.

@@ -3675,7 +3675,7 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFile(projectSettings_.i.bst_file, binaryStn, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
@@ -4827,7 +4827,7 @@ void dna_import::SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStat
 	pvstring vUnusedStns, vifm_t& vinput_file_meta,
 	bool flagUnused)
 {	
-	BstFileLoader bst;
+	BstFile bst;
 	
 	try {
         snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
@@ -4891,7 +4891,7 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 	
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFile(bst_file, &bstBinaryRecords, bst_meta_);
 
 		// Load binary measurements data.  Throws runtime_error on failure.

@@ -49,21 +49,21 @@ target_compile_definitions(test_matrix PRIVATE
 )
 
 # Test 2: BST File Loader test
-add_executable(test_bst_file_loader
-    test_bst_file_loader.cpp
-    ../dynadjust/include/io/bst_file_loader.cpp
+add_executable(test_bst_file
+    test_bst_file.cpp
+    ../dynadjust/include/io/bst_file.cpp
     ${IO_COMMON_SOURCES}
 )
 
-target_link_libraries(test_bst_file_loader
+target_link_libraries(test_bst_file
     ${PLATFORM_LIBS}
     Boost::filesystem
     Boost::system
 )
 
-target_compile_definitions(test_bst_file_loader PRIVATE
-    __BINARY_NAME__="test_bst_file_loader"
-    __BINARY_DESC__="Unit tests for BstFileLoader class"
+target_compile_definitions(test_bst_file PRIVATE
+    __BINARY_NAME__="test_bst_file"
+    __BINARY_DESC__="Unit tests for BstFile class"
 )
 
 # Test 3: ASL File test
@@ -128,7 +128,7 @@ add_executable(test_network_data_loader
     ../dynadjust/dynadjust/dnaadjust/network_data_loader.cpp
     ../dynadjust/dynadjust/dnaadjust/measurement_processor.cpp
     ../dynadjust/include/io/asl_file.cpp
-    ../dynadjust/include/io/bst_file_loader.cpp
+    ../dynadjust/include/io/bst_file.cpp
     ../dynadjust/include/io/bms_file.cpp
     ../dynadjust/include/io/map_file_loader.cpp
     ${IO_COMMON_SOURCES}
@@ -169,7 +169,7 @@ enable_testing()
 
 # Add tests
 add_test(NAME MatrixTest COMMAND test_matrix)
-add_test(NAME BstFileLoaderTest COMMAND test_bst_file_loader)
+add_test(NAME BstFileTest COMMAND test_bst_file)
 add_test(NAME AslFileTest COMMAND test_asl_file)
 add_test(NAME AmlFileLoaderTest COMMAND test_aml_file_loader)
 add_test(NAME BmsFileTest COMMAND test_bms_file)
@@ -179,12 +179,12 @@ add_test(NAME MeasurementProcessorTest COMMAND test_measurement_processor)
 # Custom target to run all tests
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
-    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
     COMMENT "Running all tests"
 )
 
 # Custom target equivalent to 'make all'
 add_custom_target(tests_all
-    DEPENDS test_matrix test_bst_file_loader test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
+    DEPENDS test_matrix test_bst_file test_asl_file test_aml_file_loader test_bms_file test_network_data_loader test_measurement_processor
     COMMENT "Building all tests"
 )

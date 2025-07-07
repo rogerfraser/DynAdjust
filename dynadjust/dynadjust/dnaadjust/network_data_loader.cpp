@@ -27,7 +27,7 @@ namespace networkadjust {
 
 NetworkDataLoader::NetworkDataLoader(const project_settings &settings)
     : settings_(settings),
-      bst_loader_(std::make_unique<dynadjust::iostreams::BstFileLoader>()),
+      bst_loader_(std::make_unique<dynadjust::iostreams::BstFile>()),
       bms_loader_(std::make_unique<dynadjust::iostreams::BmsFile>()),
       map_loader_(std::make_unique<dynadjust::iostreams::MapFileLoader>()),
       measurement_processor_(std::make_unique<processors::MeasurementProcessor>(

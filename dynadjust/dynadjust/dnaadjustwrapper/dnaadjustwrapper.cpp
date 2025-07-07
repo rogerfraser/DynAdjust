@@ -720,7 +720,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	const project_settings& p, bool& bst_meta_import, bool& bms_meta_import)
 {
-	BstFileLoader bst;
+	BstFile bst;
 	BmsFile bms;
 	bst.LoadFileMeta(p.a.bst_file, bst_meta);
 	bms.LoadFileMeta(p.a.bms_file, bms_meta);

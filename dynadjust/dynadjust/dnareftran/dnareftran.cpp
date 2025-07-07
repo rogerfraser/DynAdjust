@@ -554,7 +554,7 @@ void dna_reftran::LoadBinaryStationFile(const std::string& bstfileName)
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
@@ -576,7 +576,7 @@ void dna_reftran::WriteBinaryStationFile(const std::string& bstfileName)
 
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.WriteFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {

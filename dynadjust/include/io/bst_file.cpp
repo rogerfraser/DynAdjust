@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : bst_file_loader.cpp
+// Name         : bst_file.cpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,7 +19,7 @@
 // Description  : DynAdjust binary station file io operations
 //============================================================================
 
-#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 
 #include <algorithm>
 #include <fstream>
@@ -59,14 +59,14 @@ namespace {
 
 }  // anonymous namespace
 
-BstFileLoader& BstFileLoader::operator=(const BstFileLoader& rhs) {
+BstFile& BstFile::operator=(const BstFile& rhs) {
   if (this != &rhs) {
     DynadjustFile::operator=(rhs);
   }
   return *this;
 }
 
-std::uint64_t BstFileLoader::CreateStnInputFileMeta(
+std::uint64_t BstFile::CreateStnInputFileMeta(
     vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta) {
   try {
     // Allocate temporary buffer large enough, copy while counting
@@ -103,7 +103,7 @@ std::uint64_t BstFileLoader::CreateStnInputFileMeta(
   }
 }
 
-void BstFileLoader::LoadFileMeta(const std::string& bst_filename,
+void BstFile::LoadFileMeta(const std::string& bst_filename,
                                  binary_file_meta_t& bst_meta) {
   try {
     auto bst_file = OpenBstForRead(bst_filename);
@@ -119,7 +119,7 @@ void BstFileLoader::LoadFileMeta(const std::string& bst_filename,
   }
 }
 
-std::uint64_t BstFileLoader::LoadFile(const std::string& bst_filename,
+std::uint64_t BstFile::LoadFile(const std::string& bst_filename,
                                       pvstn_t vbinary_stn,
                                       binary_file_meta_t& bst_meta) {
   try {
@@ -144,7 +144,7 @@ std::uint64_t BstFileLoader::LoadFile(const std::string& bst_filename,
   }
 }
 
-std::optional<std::uint64_t> BstFileLoader::LoadWithOptional(
+std::optional<std::uint64_t> BstFile::LoadWithOptional(
     const std::string& bst_filename, pvstn_t vbinary_stn,
     binary_file_meta_t& bst_meta) {
   try {
@@ -154,7 +154,7 @@ std::optional<std::uint64_t> BstFileLoader::LoadWithOptional(
   }
 }
 
-void BstFileLoader::WriteFile(const std::string& bst_filename,
+void BstFile::WriteFile(const std::string& bst_filename,
                               pvstn_t vbinary_stn,
                               binary_file_meta_t& bst_meta) {
   try {
@@ -175,7 +175,7 @@ void BstFileLoader::WriteFile(const std::string& bst_filename,
   }
 }
 
-bool BstFileLoader::WriteFile(const std::string& bst_filename,
+bool BstFile::WriteFile(const std::string& bst_filename,
                               measurements::vdnaStnPtr* vStations,
                               pvstring vUnusedStns,
                               binary_file_meta_t& bst_meta,

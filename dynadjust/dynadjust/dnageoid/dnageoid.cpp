@@ -710,7 +710,7 @@ void dna_geoid_interpolation::LoadBinaryStationFile(const std::string& bstnfileN
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.LoadFile(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
@@ -730,7 +730,7 @@ void dna_geoid_interpolation::WriteBinaryStationFile(const std::string& bstnfile
 	
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
-		BstFileLoader bst;
+		BstFile bst;
 		bst.WriteFile(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {

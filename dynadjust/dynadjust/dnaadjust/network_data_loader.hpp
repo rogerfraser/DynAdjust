@@ -33,7 +33,7 @@
 
 #include <include/io/asl_file.hpp>
 #include <include/io/bms_file.hpp>
-#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/io/map_file_loader.hpp>
 
 #include <include/functions/dnatemplatefuncs.hpp>
@@ -120,7 +120,7 @@ private:
   void AddDiscontinuitySites(vstring& constraint_stations, vstn_t& stations);
 
   const project_settings &settings_;
-  std::unique_ptr<dynadjust::iostreams::BstFileLoader> bst_loader_;
+  std::unique_ptr<dynadjust::iostreams::BstFile> bst_loader_;
   std::unique_ptr<dynadjust::iostreams::BmsFile> bms_loader_;
   std::unique_ptr<dynadjust::iostreams::MapFileLoader> map_loader_;
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;

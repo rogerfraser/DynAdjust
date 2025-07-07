@@ -777,7 +777,7 @@ int main(int argc, char* argv[])
 			{
 				// Has import been run after the segmentation file was created?
 				binary_file_meta_t bst_meta, bms_meta;
-				BstFileLoader bst;
+				BstFile bst;
 				BmsFile bms;
 				bst.LoadFileMeta(p.i.bst_file, bst_meta);
 				bms.LoadFileMeta(p.i.bms_file, bms_meta);

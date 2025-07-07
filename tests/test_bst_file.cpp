@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_BstFileLoader"
-#define __BINARY_DESC__ "Unit tests for BstFileLoader class"
+#define __BINARY_NAME__ "test_BstFile"
+#define __BINARY_DESC__ "Unit tests for BstFile class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_BstFileLoader"
+#define __BINARY_NAME__ "test_BstFile"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for BstFileLoader class"
+#define __BINARY_DESC__ "Unit tests for BstFile class"
 #endif
 
-#include "../dynadjust/include/io/bst_file_loader.hpp"
+#include "../dynadjust/include/io/bst_file.hpp"
 #include <filesystem>
 
 using namespace dynadjust::iostreams;
@@ -104,26 +104,26 @@ void cleanup_temp_files() {
 } // namespace
 
 // Basic constructor and destructor tests (known to work)
-TEST_CASE("BstFileLoader constructor", "[BstFileLoader][basic]") {
-    BstFileLoader bst_loader;
+TEST_CASE("BstFile constructor", "[BstFile][basic]") {
+    BstFile bst_loader;
     REQUIRE(true);
 }
 
-TEST_CASE("BstFileLoader copy constructor", "[BstFileLoader][basic]") {
-    BstFileLoader bst_loader1;
-    BstFileLoader bst_loader2(bst_loader1);
+TEST_CASE("BstFile copy constructor", "[BstFile][basic]") {
+    BstFile bst_loader1;
+    BstFile bst_loader2(bst_loader1);
     REQUIRE(true);
 }
 
-TEST_CASE("BstFileLoader assignment operator", "[BstFileLoader][basic]") {
-    BstFileLoader bst_loader1;
-    BstFileLoader bst_loader2;
+TEST_CASE("BstFile assignment operator", "[BstFile][basic]") {
+    BstFile bst_loader1;
+    BstFile bst_loader2;
     bst_loader2 = bst_loader1;
     REQUIRE(true);
 }
 
-TEST_CASE("create_stn_input_file_meta empty input", "[BstFileLoader]") {
-    BstFileLoader bst_loader;
+TEST_CASE("create_stn_input_file_meta empty input", "[BstFile]") {
+    BstFile bst_loader;
     vifm_t vinput_file_meta;
     input_file_meta_t* input_file_meta = nullptr;
 
@@ -135,8 +135,8 @@ TEST_CASE("create_stn_input_file_meta empty input", "[BstFileLoader]") {
     delete[] input_file_meta;
 }
 
-TEST_CASE("create_stn_input_file_meta with mixed file types", "[BstFileLoader]") {
-    BstFileLoader bst_loader;
+TEST_CASE("create_stn_input_file_meta with mixed file types", "[BstFile]") {
+    BstFile bst_loader;
     vifm_t vinput_file_meta;
     input_file_meta_t* input_file_meta = nullptr;
 
@@ -158,8 +158,8 @@ TEST_CASE("create_stn_input_file_meta with mixed file types", "[BstFileLoader]")
     delete[] input_file_meta;
 }
 
-TEST_CASE("Error handling for non-existent files", "[BstFileLoader]") {
-    BstFileLoader bst_loader;
+TEST_CASE("Error handling for non-existent files", "[BstFile]") {
+    BstFile bst_loader;
     binary_file_meta_t bst_meta;
 
     bool threw_exception = false;
@@ -169,8 +169,8 @@ TEST_CASE("Error handling for non-existent files", "[BstFileLoader]") {
     REQUIRE(threw_exception);
 }
 
-TEST_CASE("Load metadata from test file if available", "[BstFileLoader]") {
-    BstFileLoader bst_loader;
+TEST_CASE("Load metadata from test file if available", "[BstFile]") {
+    BstFile bst_loader;
     binary_file_meta_t bst_meta;
 
     if (std::filesystem::exists(TEST_BST_FILE)) {
@@ -182,8 +182,8 @@ TEST_CASE("Load metadata from test file if available", "[BstFileLoader]") {
     }
 }
 
-TEST_CASE("Write and read back synthetic data", "[BstFileLoader]") {
-    BstFileLoader bst_loader;
+TEST_CASE("Write and read back synthetic data", "[BstFile]") {
+    BstFile bst_loader;
     vstn_t stations;
     binary_file_meta_t bst_meta;
 

@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : bst_file_loader.hpp
+// Name         : bst_file.hpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,8 +19,8 @@
 // Description  : DynAdjust binary station file io operations
 //============================================================================
 
-#ifndef DYNADJUST_BST_FILE_LOADER_H_
-#define DYNADJUST_BST_FILE_LOADER_H_
+#ifndef DYNADJUST_BST_FILE_H_
+#define DYNADJUST_BST_FILE_H_
 
 #if defined(_MSC_VER)
   #if defined(LIST_INCLUDES_ON_BUILD)
@@ -40,13 +40,13 @@
 namespace dynadjust {
 namespace iostreams {
 
-class BstFileLoader : public DynadjustFile {
+class BstFile : public DynadjustFile {
  public:
-  BstFileLoader() = default;
-  BstFileLoader(const BstFileLoader& bst) : DynadjustFile(bst) {}
-  virtual ~BstFileLoader() = default;
+  BstFile() = default;
+  BstFile(const BstFile& bst) : DynadjustFile(bst) {}
+  virtual ~BstFile() = default;
 
-  BstFileLoader& operator=(const BstFileLoader& rhs);
+  BstFile& operator=(const BstFile& rhs);
 
   std::uint64_t CreateStnInputFileMeta(vifm_t& vinput_file_meta,
                                        input_file_meta_t** input_file_meta);
@@ -78,4 +78,4 @@ class BstFileLoader : public DynadjustFile {
 }  // namespace iostreams
 }  // namespace dynadjust
 
-#endif  // DYNADJUST_BST_FILE_LOADER_H_
+#endif  // DYNADJUST_BST_FILE_H_

@@ -64,7 +64,7 @@
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>
 
 #include <include/io/dnaiodna.hpp>
-#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/dnaioaml.hpp>
 #include <include/io/asl_file.hpp>
