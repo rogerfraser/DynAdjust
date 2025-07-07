@@ -1105,7 +1105,7 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 void dna_segment::LoadStationMap(const std::string& stnmap_file)
 {
 	try {
-		dynadjust::iostreams::MapFileLoader map;
+		dynadjust::iostreams::MapFile map;
 		map.LoadFile(stnmap_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {

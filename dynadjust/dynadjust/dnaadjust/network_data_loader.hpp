@@ -34,7 +34,7 @@
 #include <include/io/asl_file.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/bst_file.hpp>
-#include <include/io/map_file_loader.hpp>
+#include <include/io/map_file.hpp>
 
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
@@ -122,7 +122,7 @@ private:
   const project_settings &settings_;
   std::unique_ptr<dynadjust::iostreams::BstFile> bst_loader_;
   std::unique_ptr<dynadjust::iostreams::BmsFile> bms_loader_;
-  std::unique_ptr<dynadjust::iostreams::MapFileLoader> map_loader_;
+  std::unique_ptr<dynadjust::iostreams::MapFile> map_loader_;
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;
 
   // State for constraint and measurement processing

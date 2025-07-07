@@ -130,7 +130,7 @@ add_executable(test_network_data_loader
     ../dynadjust/include/io/asl_file.cpp
     ../dynadjust/include/io/bst_file.cpp
     ../dynadjust/include/io/bms_file.cpp
-    ../dynadjust/include/io/map_file_loader.cpp
+    ../dynadjust/include/io/map_file.cpp
     ${IO_COMMON_SOURCES}
 )
 

@@ -5639,7 +5639,7 @@ void dna_import::SerialiseMap(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file.
-		dynadjust::iostreams::MapFileLoader map;
+		dynadjust::iostreams::MapFile map;
 		map.WriteFile(stnmap_file, &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {
@@ -5652,7 +5652,7 @@ void dna_import::SerialiseMapTextFile(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file as raw text.
-		dynadjust::iostreams::MapFileLoader map;
+		dynadjust::iostreams::MapFile map;
 		map.WriteTextFile(stnmap_file + ".txt", &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {

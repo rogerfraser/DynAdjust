@@ -14026,7 +14026,7 @@ void dna_adjust::LoadStationMap(pv_string_uint32_pair stnsMap, const std::string
 {
 	try {
 		// Load station map.  Throws runtime_error on failure.
-		dynadjust::iostreams::MapFileLoader map;
+		dynadjust::iostreams::MapFile map;
 		map.LoadFile(stnmap_file, stnsMap);
 	}
 	catch (const std::runtime_error& e) {

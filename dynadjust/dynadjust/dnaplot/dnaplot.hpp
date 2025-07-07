@@ -79,7 +79,7 @@
 
 #include <include/io/bst_file.hpp>
 #include <include/io/bms_file.hpp>
-#include <include/io/map_file_loader.hpp>
+#include <include/io/map_file.hpp>
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiotpb.hpp>
 

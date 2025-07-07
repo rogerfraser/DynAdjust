@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : map_file_loader.hpp
+// Name         : map_file.hpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,8 +19,8 @@
 // Description  : DynAdjust station map file io operations
 //============================================================================
 
-#ifndef DYNADJUST_MAP_FILE_LOADER_H_
-#define DYNADJUST_MAP_FILE_LOADER_H_
+#ifndef DYNADJUST_MAP_FILE_H_
+#define DYNADJUST_MAP_FILE_H_
 
 #if defined(_MSC_VER)
   #if defined(LIST_INCLUDES_ON_BUILD)
@@ -39,13 +39,13 @@
 namespace dynadjust {
 namespace iostreams {
 
-class MapFileLoader : public DynadjustFile {
+class MapFile : public DynadjustFile {
  public:
-  MapFileLoader() = default;
-  MapFileLoader(const MapFileLoader& map) : DynadjustFile(map) {}
-  virtual ~MapFileLoader() = default;
+  MapFile() = default;
+  MapFile(const MapFile& map) : DynadjustFile(map) {}
+  virtual ~MapFile() = default;
 
-  MapFileLoader& operator=(const MapFileLoader& rhs);
+  MapFile& operator=(const MapFile& rhs);
 
   std::uint64_t LoadFile(const std::string& map_filename,
                          pv_string_uint32_pair station_map);
@@ -65,4 +65,4 @@ class MapFileLoader : public DynadjustFile {
 }  // namespace iostreams
 }  // namespace dynadjust
 
-#endif  // DYNADJUST_MAP_FILE_LOADER_H_
+#endif  // DYNADJUST_MAP_FILE_H_

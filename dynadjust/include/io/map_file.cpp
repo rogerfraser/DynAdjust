@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : map_file_loader.cpp
+// Name         : map_file.cpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,7 +19,7 @@
 // Description  : DynAdjust station map file io operations
 //============================================================================
 
-#include <include/io/map_file_loader.hpp>
+#include <include/io/map_file.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -33,7 +33,7 @@
 namespace dynadjust {
 namespace iostreams {
 
-MapFileLoader& MapFileLoader::operator=(const MapFileLoader& rhs) {
+MapFile& MapFile::operator=(const MapFile& rhs) {
   if (this == &rhs) {
     return *this;
   }
@@ -41,7 +41,7 @@ MapFileLoader& MapFileLoader::operator=(const MapFileLoader& rhs) {
   return *this;
 }
 
-std::uint64_t MapFileLoader::LoadFile(const std::string& map_filename,
+std::uint64_t MapFile::LoadFile(const std::string& map_filename,
                                       pv_string_uint32_pair station_map) {
   std::ifstream map_file;
   std::ostringstream os;
@@ -101,7 +101,7 @@ std::uint64_t MapFileLoader::LoadFile(const std::string& map_filename,
   return static_cast<std::uint64_t>(station_map->size());
 }
 
-std::optional<std::uint64_t> MapFileLoader::LoadWithOptional(
+std::optional<std::uint64_t> MapFile::LoadWithOptional(
     const std::string& map_filename, pv_string_uint32_pair station_map) {
   if (map_filename.empty()) {
     return std::nullopt;
@@ -114,7 +114,7 @@ std::optional<std::uint64_t> MapFileLoader::LoadWithOptional(
   }
 }
 
-void MapFileLoader::WriteFile(const std::string& map_filename,
+void MapFile::WriteFile(const std::string& map_filename,
                               pv_string_uint32_pair station_map) {
   std::ofstream map_file;
   std::ostringstream os;
@@ -166,7 +166,7 @@ void MapFileLoader::WriteFile(const std::string& map_filename,
   map_file.close();
 }
 
-void MapFileLoader::WriteTextFile(const std::string& map_filename,
+void MapFile::WriteTextFile(const std::string& map_filename,
                                   pv_string_uint32_pair station_map) {
   std::ofstream map_file;
   std::ostringstream os;

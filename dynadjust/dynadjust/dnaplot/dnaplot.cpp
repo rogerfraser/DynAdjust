@@ -3570,7 +3570,7 @@ void dna_plot::LoadStationMap()
 {
 	try {
 		// Load station map.  Throws runtime_error on failure.
-		dynadjust::iostreams::MapFileLoader map;
+		dynadjust::iostreams::MapFile map;
 		map.LoadFile(projectSettings_.i.map_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {
