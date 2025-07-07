@@ -1,19 +1,20 @@
 //============================================================================
 // Name         : bms_file_loader.cpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : DynAdjust binary measurement file io operations
 //============================================================================
@@ -35,7 +36,7 @@ BmsFileLoader& BmsFileLoader::operator=(const BmsFileLoader& rhs) {
   if (this == &rhs) {
     return *this;
   }
-  dna_io_base::operator=(rhs);
+  DynadjustFile::operator=(rhs);
   return *this;
 }
 
@@ -101,8 +102,8 @@ void BmsFileLoader::LoadFileMeta(const std::string& bms_filename,
      << bms_filename << "." << std::endl;
 
   try {
-    readFileInfo(bms_file);
-    readFileMetadata(bms_file, bms_meta);
+    ReadFileInfo(bms_file);
+    ReadFileMetadata(bms_file, bms_meta);
   } catch (const std::ios_base::failure& f) {
     ss << f.what();
     throw std::runtime_error(ss.str());
@@ -142,8 +143,8 @@ std::uint64_t BmsFileLoader::LoadFile(const std::string& bms_filename,
      << bms_filename << "." << std::endl;
 
   try {
-    readFileInfo(bms_file);
-    readFileMetadata(bms_file, bms_meta);
+    ReadFileInfo(bms_file);
+    ReadFileMetadata(bms_file, bms_meta);
 
     vbinary_msr->reserve(bms_meta.binCount);
     for (msr = 0; msr < bms_meta.binCount; msr++) {
@@ -198,8 +199,8 @@ void BmsFileLoader::WriteFile(const std::string& bms_filename,
      << "." << std::endl;
 
   try {
-    writeFileInfo(bms_file);
-    writeFileMetadata(bms_file, bms_meta);
+    WriteFileInfo(bms_file);
+    WriteFileMetadata(bms_file, bms_meta);
 
     measurements::it_vmsr_t it_msr(vbinary_msr->begin());
     for (it_msr = vbinary_msr->begin(); it_msr != vbinary_msr->end(); ++it_msr) {
@@ -245,8 +246,8 @@ void BmsFileLoader::WriteFile(const std::string& bms_filename,
   UINT32 msrIndex(0);
 
   try {
-    writeFileInfo(bms_file);
-    writeFileMetadata(bms_file, bms_meta);
+    WriteFileInfo(bms_file);
+    WriteFileMetadata(bms_file, bms_meta);
 
     for (it_msr = vMeasurements->begin(); it_msr != vMeasurements->end();
          ++it_msr) {

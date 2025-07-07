@@ -32,7 +32,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <include/functions/dnaintegermanipfuncs.hpp>
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/measurement_types/dnastation.hpp>
 #include <optional>
 
@@ -46,7 +46,7 @@ struct AslLoadResult {
     std::uint64_t count;
 };
 
-class AslFile : public dna_io_base {
+class AslFile : public DynadjustFile {
    public:
     AslFile() = delete;  // No default constructor
     explicit AslFile(const std::filesystem::path& filename);

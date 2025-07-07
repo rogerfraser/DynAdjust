@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaioscalar.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,7 +28,7 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
@@ -38,11 +37,11 @@ using namespace dynadjust::measurements;
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_scalar : public dna_io_base
+class dna_io_scalar : public DynadjustFile
 {
 public:
 	dna_io_scalar(void) {};
-	dna_io_scalar(const dna_io_scalar& scl) : dna_io_base(scl) {};
+	dna_io_scalar(const dna_io_scalar& scl) : DynadjustFile(scl) {};
 	virtual ~dna_io_scalar(void) {};
 
 	dna_io_scalar& operator=(const dna_io_scalar& rhs);

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaiomap.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,7 +19,6 @@
 // Description  : DynAdjust station map file io operations
 //============================================================================
 
-/// \cond
 #include <fstream>
 /// \endcond
 
@@ -59,7 +57,7 @@ void dna_io_map::load_map_file(const std::string& map_filename, pv_string_uint32
 	
 	try {
 		// read the file information
-		readFileInfo(map_file);
+		ReadFileInfo(map_file);
 		
 		// read the number of records
 		map_file.read(reinterpret_cast<char *>(&mapsize), sizeof(UINT32));
@@ -119,7 +117,7 @@ void dna_io_map::write_map_file(const std::string& map_filename, pv_string_uint3
 	UINT32 mapval(static_cast<UINT32>(stnsMap->size()));
 	try {
 		// write the file information
-		writeFileInfo(map_file);
+		WriteFileInfo(map_file);
 		
 		// write the data
 		map_file.write(reinterpret_cast<char *>(&mapval), sizeof(UINT32));

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaioadj.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,17 +28,17 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/config/dnatypes.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_adj : public dna_io_base
+class dna_io_adj : public DynadjustFile
 {
 public:
 	dna_io_adj(void) {};
-	dna_io_adj(const dna_io_adj& adj) : dna_io_base(adj) {};
+	dna_io_adj(const dna_io_adj& adj) : DynadjustFile(adj) {};
 	virtual ~dna_io_adj(void) {};
 
 	dna_io_adj& operator=(const dna_io_adj& rhs);

@@ -1,19 +1,20 @@
 //============================================================================
 // Name         : map_file_loader.cpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : DynAdjust station map file io operations
 //============================================================================
@@ -36,7 +37,7 @@ MapFileLoader& MapFileLoader::operator=(const MapFileLoader& rhs) {
   if (this == &rhs) {
     return *this;
   }
-  dna_io_base::operator=(rhs);
+  DynadjustFile::operator=(rhs);
   return *this;
 }
 
@@ -67,7 +68,7 @@ std::uint64_t MapFileLoader::LoadFile(const std::string& map_filename,
   char station_name[STN_NAME_WIDTH];
 
   try {
-    readFileInfo(map_file);
+    ReadFileInfo(map_file);
 
     map_file.read(reinterpret_cast<char*>(&map_size), sizeof(std::uint32_t));
     station_map->reserve(map_size);
@@ -138,7 +139,7 @@ void MapFileLoader::WriteFile(const std::string& map_filename,
   std::uint32_t map_value(static_cast<std::uint32_t>(station_map->size()));
 
   try {
-    writeFileInfo(map_file);
+    WriteFileInfo(map_file);
 
     map_file.write(reinterpret_cast<char*>(&map_value),
                    sizeof(std::uint32_t));

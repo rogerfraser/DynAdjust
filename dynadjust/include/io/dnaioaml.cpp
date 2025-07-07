@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaioaml.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -32,7 +31,7 @@ dna_io_aml& dna_io_aml::operator=(const dna_io_aml& rhs)
 	if (this == &rhs)
 		return *this;
 
-	dna_io_base::operator=(rhs);
+	DynadjustFile::operator=(rhs);
 	return *this;
 }
 
@@ -61,7 +60,7 @@ void dna_io_aml::load_aml_file(const std::string& aml_filename, v_aml_pair* vbin
 	
 	try {
 		// read the file information
-		readFileInfo(aml_file);
+		ReadFileInfo(aml_file);
 		
 		// Get number of records and resize AML vector
 		aml_file.read(reinterpret_cast<char *>(&msrValue), sizeof(std::uint64_t));
@@ -121,7 +120,7 @@ void dna_io_aml::write_aml_file(const std::string& aml_filename, pvUINT32 vbinar
 	
 	try {
 		// write the file information
-		writeFileInfo(aml_file);
+		WriteFileInfo(aml_file);
 		
 		// write the data
 		aml_file.write(reinterpret_cast<char *>(&amlCount), sizeof(std::uint64_t));

@@ -1,19 +1,20 @@
 //============================================================================
 // Name         : bst_file_loader.cpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : DynAdjust binary station file io operations
 //============================================================================
@@ -60,7 +61,7 @@ namespace {
 
 BstFileLoader& BstFileLoader::operator=(const BstFileLoader& rhs) {
   if (this != &rhs) {
-    dna_io_base::operator=(rhs);
+    DynadjustFile::operator=(rhs);
   }
   return *this;
 }
@@ -108,8 +109,8 @@ void BstFileLoader::LoadFileMeta(const std::string& bst_filename,
     auto bst_file = OpenBstForRead(bst_filename);
 
     // May throw ios::failure
-    readFileInfo(bst_file);
-    readFileMetadata(bst_file, bst_meta);
+    ReadFileInfo(bst_file);
+    ReadFileMetadata(bst_file, bst_meta);
 
   } catch (const std::exception& e) {
     std::ostringstream os;
@@ -124,8 +125,8 @@ std::uint64_t BstFileLoader::LoadFile(const std::string& bst_filename,
   try {
     auto bst_file = OpenBstForRead(bst_filename);
 
-    readFileInfo(bst_file);
-    readFileMetadata(bst_file, bst_meta);
+    ReadFileInfo(bst_file);
+    ReadFileMetadata(bst_file, bst_meta);
 
     vbinary_stn->resize(bst_meta.binCount);
     static_assert(std::is_trivially_copyable_v<station_t>,
@@ -159,8 +160,8 @@ void BstFileLoader::WriteFile(const std::string& bst_filename,
   try {
     auto bst_file = OpenBstForWrite(bst_filename);
 
-    writeFileInfo(bst_file);
-    writeFileMetadata(bst_file, bst_meta);
+    WriteFileInfo(bst_file);
+    WriteFileMetadata(bst_file, bst_meta);
 
     static_assert(std::is_trivially_copyable_v<station_t>,
                   "station_t must be trivially copyable for bulk I/O");
@@ -182,8 +183,8 @@ bool BstFileLoader::WriteFile(const std::string& bst_filename,
   try {
     auto bst_file = OpenBstForWrite(bst_filename);
 
-    writeFileInfo(bst_file);
-    writeFileMetadata(bst_file, bst_meta);
+    WriteFileInfo(bst_file);
+    WriteFileMetadata(bst_file, bst_meta);
 
     if (flagUnused) {
       std::sort(vUnusedStns->begin(), vUnusedStns->end());

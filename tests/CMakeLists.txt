@@ -29,7 +29,7 @@ endif()
 
 # Common source files for I/O tests
 set(IO_COMMON_SOURCES
-    ../dynadjust/include/io/dnaiobase.cpp
+    ../dynadjust/include/io/dynadjust_file.cpp
     ../dynadjust/include/measurement_types/dnastation.cpp
 )
 

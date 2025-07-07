@@ -37,16 +37,16 @@ namespace dynadjust {
 namespace iostreams {
 
 AslFile::AslFile(const std::filesystem::path& filename)
-    : dna_io_base(), path_(filename) {}
+    : DynadjustFile(), path_(filename) {}
 
 AslFile::AslFile(const AslFile& asl)
-    : dna_io_base(asl), path_(asl.path_) {}
+    : DynadjustFile(asl), path_(asl.path_) {}
 
 AslFile& AslFile::operator=(const AslFile& rhs) {
   if (this == &rhs) {
     return *this;
   }
-  dna_io_base::operator=(rhs);
+  DynadjustFile::operator=(rhs);
   path_ = rhs.path_;
   return *this;
 }
@@ -89,7 +89,7 @@ std::uint64_t AslFile::LoadLegacy(measurements::vASL* binary_asl,
   std::uint64_t stn_count;
 
   try {
-    readFileInfo(asl_file);
+    ReadFileInfo(asl_file);
 
     asl_file.read(reinterpret_cast<char*>(&stn_count), sizeof(std::uint64_t));
 
@@ -139,7 +139,7 @@ void AslFile::Write(const measurements::vASLPtr& binary_asl) {
   std::uint64_t asl_count = static_cast<std::uint64_t>(binary_asl.size());
 
   try {
-    writeFileInfo(asl_file);
+    WriteFileInfo(asl_file);
 
     asl_file.write(reinterpret_cast<char*>(&asl_count), sizeof(std::uint64_t));
     for (const auto& asl_entry : binary_asl) {

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaioseg.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,7 +28,7 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
@@ -41,11 +40,11 @@ using namespace dynadjust::measurements;
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_seg : public dna_io_base
+class dna_io_seg : public DynadjustFile
 {
 public:
 	dna_io_seg(void) {};
-	dna_io_seg(const dna_io_seg& seg) : dna_io_base(seg) {};
+	dna_io_seg(const dna_io_seg& seg) : DynadjustFile(seg) {};
 	virtual ~dna_io_seg(void) {};
 
 	dna_io_seg& operator=(const dna_io_seg& rhs);
