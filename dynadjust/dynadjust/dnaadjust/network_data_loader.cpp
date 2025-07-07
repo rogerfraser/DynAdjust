@@ -27,7 +27,6 @@ namespace networkadjust {
 NetworkDataLoader::NetworkDataLoader(const project_settings &settings)
     : settings_(settings),
       bst_loader_(std::make_unique<dynadjust::iostreams::BstFileLoader>()),
-      asl_loader_(std::make_unique<dynadjust::iostreams::AslFileLoader>()),
       bms_loader_(std::make_unique<dynadjust::iostreams::BmsFileLoader>()),
       map_loader_(std::make_unique<dynadjust::iostreams::MapFileLoader>()),
       measurement_processor_(std::make_unique<processors::MeasurementProcessor>(
@@ -123,13 +122,18 @@ bool NetworkDataLoader::LoadStations(vstn_t *bstBinaryRecords,
 bool NetworkDataLoader::LoadAssociatedStations(vASL *vAssocStnList,
                                                 vUINT32 &v_ISLTemp,
                                                 UINT32 &asl_count) {
-  auto result = asl_loader_->LoadWithOptional(settings_.s.asl_file, vAssocStnList, &v_ISLTemp);
+  dynadjust::iostreams::AslFile asl_loader(settings_.s.asl_file);
+  auto result = asl_loader.TryLoad();
   if (!result) {
     if (error_handler_)
       error_handler_("Failed to load associated station list file", 0);
     return false;
   }
-  asl_count = static_cast<UINT32>(*result);
+  
+  // Copy results to output parameters
+  *vAssocStnList = std::move(result->stations);
+  v_ISLTemp = std::move(result->free_stations);
+  asl_count = static_cast<UINT32>(result->count);
   return true;
 }
 

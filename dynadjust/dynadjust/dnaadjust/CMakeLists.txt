@@ -9,7 +9,7 @@ include_directories (${PROJECT_SOURCE_DIR})
 add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/io/dnaioadj.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaioaml.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/asl_file_loader.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiobase.cpp
              ${CMAKE_SOURCE_DIR}/include/io/bms_file_loader.cpp
              ${CMAKE_SOURCE_DIR}/include/io/bst_file_loader.cpp

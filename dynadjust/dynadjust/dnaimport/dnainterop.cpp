@@ -4998,8 +4998,8 @@ void dna_import::SerialiseAsl(const std::string& filename, pvASLPtr vAssocStnLis
 {
 	try {
 		// write the asl file.
-		AslFileLoader asl;
-		asl.WriteFile(filename, vAssocStnList);
+		AslFile asl(filename);
+		asl.Write(*vAssocStnList);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5013,8 +5013,8 @@ void dna_import::SerialiseAslTextFile(const std::string& filename, pvASLPtr vAss
 {
 	try {
 		// write the ASCII version of the asl file.
-		AslFileLoader asl;
-		asl.WriteTextFile(filename + ".txt", vAssocStnList, vStations);
+		AslFile asl(filename + ".txt");
+		asl.WriteText(*vAssocStnList, *vStations);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);

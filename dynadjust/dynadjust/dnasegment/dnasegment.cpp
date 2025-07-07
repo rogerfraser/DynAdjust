@@ -1064,8 +1064,11 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 	UINT32 stn, stnCount(0);
 	
 	try {
-		AslFileLoader asl;
-		stnCount = asl.LoadFile(aslfileName, &vAssocStnList_, &vfreeStnList_);
+		AslFile asl(aslfileName);
+		auto result = asl.Load();
+		vAssocStnList_ = std::move(result.stations);
+		vfreeStnList_ = std::move(result.free_stations);
+		stnCount = static_cast<UINT32>(result.count);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);

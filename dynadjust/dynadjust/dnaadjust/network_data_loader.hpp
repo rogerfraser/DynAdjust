@@ -30,7 +30,7 @@
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnatypes.hpp>
 
-#include <include/io/asl_file_loader.hpp>
+#include <include/io/asl_file.hpp>
 #include <include/io/bms_file_loader.hpp>
 #include <include/io/bst_file_loader.hpp>
 #include <include/io/map_file_loader.hpp>
@@ -120,7 +120,6 @@ private:
 
   const project_settings &settings_;
   std::unique_ptr<dynadjust::iostreams::BstFileLoader> bst_loader_;
-  std::unique_ptr<dynadjust::iostreams::AslFileLoader> asl_loader_;
   std::unique_ptr<dynadjust::iostreams::BmsFileLoader> bms_loader_;
   std::unique_ptr<dynadjust::iostreams::MapFileLoader> map_loader_;
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;

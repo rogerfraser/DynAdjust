@@ -71,7 +71,7 @@
 
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaioaml.hpp>
-#include <include/io/asl_file_loader.hpp>
+#include <include/io/asl_file.hpp>
 #include <include/io/bms_file_loader.hpp>
 #include <include/io/bst_file_loader.hpp>
 #include <include/io/map_file_loader.hpp>
