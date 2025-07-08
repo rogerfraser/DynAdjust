@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\include\io\dnaiobms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioaml.hpp">
+    <ClInclude Include="..\..\include\io\aml_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaioasl.hpp">
@@ -68,7 +68,7 @@
     <ClCompile Include="..\..\include\ide\trace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioaml.cpp">
+    <ClCompile Include="..\..\include\io\aml_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaioasl.cpp">

@@ -87,7 +87,7 @@ target_compile_definitions(test_asl_file PRIVATE
 # Test 4: AML File Loader test
 add_executable(test_aml_file_loader
     test_aml_file_loader.cpp
-    ../dynadjust/include/io/dnaioaml.cpp
+    ../dynadjust/include/io/aml_file.cpp
     ../dynadjust/include/io/bms_file.cpp
     ../dynadjust/include/measurement_types/dnamsrtally.cpp
     ${IO_COMMON_SOURCES}

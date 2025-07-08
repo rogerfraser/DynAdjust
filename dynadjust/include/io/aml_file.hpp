@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : dnaioaml.hpp
+// Name         : aml_file.hpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,8 +19,8 @@
 // Description  : DynAdjust associated measurement file io operations
 //============================================================================
 
-#ifndef DNAIOAML_H_
-#define DNAIOAML_H_
+#ifndef DYNADJUST_AML_FILE_H_
+#define DYNADJUST_AML_FILE_H_
 
 #if defined(_MSC_VER)
 	#if defined(LIST_INCLUDES_ON_BUILD) 
@@ -34,14 +34,14 @@
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_aml : public DynadjustFile
+class AmlFile : public DynadjustFile
 {
 public:
-	dna_io_aml(void) {};
-	dna_io_aml(const dna_io_aml& aml) : DynadjustFile(aml) {};
-	virtual ~dna_io_aml(void) {};
+	AmlFile(void) {};
+	AmlFile(const AmlFile& aml) : DynadjustFile(aml) {};
+	virtual ~AmlFile(void) {};
 
-	dna_io_aml& operator=(const dna_io_aml& rhs);
+	AmlFile& operator=(const AmlFile& rhs);
 
 	void load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, measurements::pvmsr_t bmsRecords);
 	void write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml);
@@ -60,4 +60,4 @@ protected:
 }	// namespace measurements
 }	// namespace dynadjust
 
-#endif
+#endif  // DYNADJUST_AML_FILE_H_

@@ -3038,7 +3038,7 @@ void dna_adjust::CreateMsrToStnTally()
 	// connected to each station.
 	try {
 		// Load aml file.  Throws runtime_error on failure.
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.load_aml_file(projectSettings_.s.aml_file, &vAssocMsrList_, &bmsBinaryRecords_);
 	}
 	catch (const std::runtime_error& e) {

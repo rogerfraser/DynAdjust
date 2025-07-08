@@ -1,17 +1,17 @@
 #define TESTING_MAIN
-#define __BINARY_NAME__ "test_dna_io_aml"
-#define __BINARY_DESC__ "Unit tests for dna_io_aml class"
+#define __BINARY_NAME__ "test_AmlFile"
+#define __BINARY_DESC__ "Unit tests for AmlFile class"
 
 #include "testing.hpp"
 
 #ifndef __BINARY_NAME__
-#define __BINARY_NAME__ "test_dna_io_aml"
+#define __BINARY_NAME__ "test_AmlFile"
 #endif
 #ifndef __BINARY_DESC__
-#define __BINARY_DESC__ "Unit tests for dna_io_aml class"
+#define __BINARY_DESC__ "Unit tests for AmlFile class"
 #endif
 
-#include "../dynadjust/include/io/dnaioaml.hpp"
+#include "../dynadjust/include/io/aml_file.hpp"
 #include "../dynadjust/include/measurement_types/dnastation.hpp"
 #include <filesystem>
 
@@ -176,27 +176,27 @@ void create_dummy_bms_file(const std::string& filename, const vmsr_t& measuremen
 } // namespace
 
 // Basic constructor and destructor tests
-TEST_CASE("dna_io_aml constructor", "[dna_io_aml][basic]") {
-    dna_io_aml aml_io;
+TEST_CASE("AmlFile constructor", "[AmlFile][basic]") {
+    AmlFile aml_io;
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_aml copy constructor", "[dna_io_aml][basic]") {
-    dna_io_aml aml_io1;
-    dna_io_aml aml_io2(aml_io1);
+TEST_CASE("AmlFile copy constructor", "[AmlFile][basic]") {
+    AmlFile aml_io1;
+    AmlFile aml_io2(aml_io1);
     REQUIRE(true);
 }
 
-TEST_CASE("dna_io_aml assignment operator", "[dna_io_aml][basic]") {
-    dna_io_aml aml_io1;
-    dna_io_aml aml_io2;
+TEST_CASE("AmlFile assignment operator", "[AmlFile][basic]") {
+    AmlFile aml_io1;
+    AmlFile aml_io2;
     aml_io2 = aml_io1;
     REQUIRE(true);
 }
 
 // Error handling tests
-TEST_CASE("Error handling for non-existent files", "[dna_io_aml][error]") {
-    dna_io_aml aml_io;
+TEST_CASE("Error handling for non-existent files", "[AmlFile][error]") {
+    AmlFile aml_io;
     v_aml_pair aml_data;
     vmsr_t measurements;
 
@@ -207,8 +207,8 @@ TEST_CASE("Error handling for non-existent files", "[dna_io_aml][error]") {
     REQUIRE(threw_exception);
 }
 
-TEST_CASE("Error handling for write to invalid path", "[dna_io_aml][error]") {
-    dna_io_aml aml_io;
+TEST_CASE("Error handling for write to invalid path", "[AmlFile][error]") {
+    AmlFile aml_io;
     vUINT32 aml_indices;
     create_test_aml_indices(aml_indices);
 
@@ -220,8 +220,8 @@ TEST_CASE("Error handling for write to invalid path", "[dna_io_aml][error]") {
 }
 
 // Write and read back binary AML data
-TEST_CASE("Write and read back binary AML data", "[dna_io_aml][roundtrip]") {
-    dna_io_aml aml_io;
+TEST_CASE("Write and read back binary AML data", "[AmlFile][roundtrip]") {
+    AmlFile aml_io;
     vUINT32 original_aml_indices;
 
     cleanup_temp_files();
@@ -257,8 +257,8 @@ TEST_CASE("Write and read back binary AML data", "[dna_io_aml][roundtrip]") {
 }
 
 // Test empty AML data
-TEST_CASE("Write and read empty AML data", "[dna_io_aml][empty]") {
-    dna_io_aml aml_io;
+TEST_CASE("Write and read empty AML data", "[AmlFile][empty]") {
+    AmlFile aml_io;
     vUINT32 empty_aml_indices;
 
     cleanup_temp_files();
@@ -278,8 +278,8 @@ TEST_CASE("Write and read empty AML data", "[dna_io_aml][empty]") {
 }
 
 // Test measurement to station tally creation
-TEST_CASE("Create measurement to station tally", "[dna_io_aml][tally]") {
-    dna_io_aml aml_io;
+TEST_CASE("Create measurement to station tally", "[AmlFile][tally]") {
+    AmlFile aml_io;
     vASLPtr station_list;
     v_aml_pair aml_data;
     vmsr_t measurements;
@@ -304,8 +304,8 @@ TEST_CASE("Create measurement to station tally", "[dna_io_aml][tally]") {
 }
 
 // Test large AML data (uint64_t usage)
-TEST_CASE("Handle large AML data", "[dna_io_aml][large]") {
-    dna_io_aml aml_io;
+TEST_CASE("Handle large AML data", "[AmlFile][large]") {
+    AmlFile aml_io;
     vUINT32 large_aml_indices;
 
     cleanup_temp_files();
@@ -356,8 +356,8 @@ TEST_CASE("Handle large AML data", "[dna_io_aml][large]") {
 }
 
 // Test write_msr_to_stn function
-TEST_CASE("Write measurement to station summary", "[dna_io_aml][summary]") {
-    dna_io_aml aml_io;
+TEST_CASE("Write measurement to station summary", "[AmlFile][summary]") {
+    AmlFile aml_io;
 
     // Create test data
     vstn_t stations;
@@ -390,12 +390,12 @@ TEST_CASE("Write measurement to station summary", "[dna_io_aml][summary]") {
 }
 
 // Test AML text file output (simplified test without BMS dependency)
-TEST_CASE("Write AML text file", "[dna_io_aml][text]") {
+TEST_CASE("Write AML text file", "[AmlFile][text]") {
     // This test verifies that the write_aml_file_txt method exists and can be called
     // A full integration test would require a properly formatted BMS file
     // which is complex to create in a unit test environment
 
-    dna_io_aml aml_io;
+    AmlFile aml_io;
     vUINT32 aml_indices;
     vASLPtr station_list;
     vdnaStnPtr stations;

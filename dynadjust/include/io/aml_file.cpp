@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : dnaioaml.cpp
+// Name         : aml_file.cpp
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,14 +19,14 @@
 // Description  : DynAdjust associated measurement file io operations
 //============================================================================
 
-#include <include/io/dnaioaml.hpp>
+#include <include/io/aml_file.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
 
-dna_io_aml& dna_io_aml::operator=(const dna_io_aml& rhs)
+AmlFile& AmlFile::operator=(const AmlFile& rhs)
 {
 	if (this == &rhs)
 		return *this;
@@ -35,7 +35,7 @@ dna_io_aml& dna_io_aml::operator=(const dna_io_aml& rhs)
 	return *this;
 }
 
-void dna_io_aml::load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords)
+void AmlFile::load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords)
 {	
 	std::ifstream aml_file;
 	std::ostringstream os;
@@ -93,7 +93,7 @@ void dna_io_aml::load_aml_file(const std::string& aml_filename, v_aml_pair* vbin
 	aml_file.close();
 }
 
-void dna_io_aml::write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml) 
+void AmlFile::write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml) 
 {	
 	std::ofstream aml_file;
 	std::ostringstream os;
@@ -143,7 +143,7 @@ void dna_io_aml::write_aml_file(const std::string& aml_filename, pvUINT32 vbinar
 	aml_file.close();
 }
 
-void dna_io_aml::create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pair& vAssocMsrList, 
+void AmlFile::create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pair& vAssocMsrList, 
 	vmsrtally& stnmsrTally, vmsr_t& bmsBinaryRecords)
 {	
 	stnmsrTally.clear();
@@ -168,7 +168,7 @@ void dna_io_aml::create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pai
 }
 	
 	
-void dna_io_aml::write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords, 
+void AmlFile::write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords, 
 	pvUINT32 vStationList, vmsrtally& v_stnmsrTally, MsrTally* parsemsrTally)
 {
 	// Print measurement to station summary header
@@ -242,7 +242,7 @@ void dna_io_aml::write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords,
 }
 	
 
-void dna_io_aml::write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
+void AmlFile::write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
 {	
 	vmsr_t binaryMsrRecords;
 	std::ostringstream os;

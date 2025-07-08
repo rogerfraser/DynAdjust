@@ -1090,7 +1090,7 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 
 	// Load associated measurements list.  Throws runtime_error on failure.
 	try {
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.load_aml_file(amlfileName, &vAssocFreeMsrList_, &bmsBinaryRecords_);
 	}
 	catch (const std::runtime_error& e) {

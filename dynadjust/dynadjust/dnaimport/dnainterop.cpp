@@ -4882,7 +4882,7 @@ void dna_import::SerialiseDatabaseId(const std::string& dbid_filename, pvdnaMsrP
 void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,
 	std::string& bst_file, std::string& bms_file, std::string& aml_file, pvASLPtr vAssocStnList)
 {
-	dna_io_aml aml;
+	AmlFile aml;
 	vmsrtally v_stnmsrTally;
 	v_aml_pair vAssocMsrList;
 
@@ -4969,7 +4969,7 @@ void dna_import::SerialiseAml(const std::string& aml_filename, pvUINT32 vAML)
 {
 	try {
 		// write the aml file.
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.write_aml_file(aml_filename, vAML);
 	}
 	catch (const std::runtime_error& e) {
@@ -4982,7 +4982,7 @@ void dna_import::SerialiseAmlTextFile(const std::string& bms_filename, const std
 {
 	try {
 		// write the aml file as raw text.
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.write_aml_file_txt(bms_filename, aml_filename + ".txt", vAML, vAssocStnList, vStations);
 	}
 	catch (const std::runtime_error& e) {
