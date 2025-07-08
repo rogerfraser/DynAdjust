@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : dnaioadj.cpp
+// Name         : adj_file.cpp
 // Author       : Roger Fraser
 // Contributors :
 // Version      : 1.00
@@ -20,7 +20,7 @@
 // Description  : DynAdjust adjustment output file io operations
 //============================================================================
 
-#include <include/io/dnaioadj.hpp>
+#include <include/io/adj_file.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/measurement_types/dnastation.hpp>
 
@@ -29,19 +29,28 @@ using namespace dynadjust::measurements;
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_adj::print_adj_stn_header(std::ostream& os)
+AdjFile& AdjFile::operator=(const AdjFile& rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	DynadjustFile::operator=(rhs);
+	return *this;
+}
+
+void AdjFile::print_adj_stn_header(std::ostream& os)
 {
 	os << std::endl << "Adjusted Coordinates" << std::endl <<
 		"------------------------------------------" << std::endl << std::endl;
 }
 
-void dna_io_adj::print_adj_stn_block_header(std::ostream& os, const UINT32& block)
+void AdjFile::print_adj_stn_block_header(std::ostream& os, const UINT32& block)
 {
 	os << std::endl << "Adjusted Coordinates (Block " << block + 1 << ")" << std::endl <<
 		"------------------------------------------" << std::endl << std::endl;
 }
 
-void dna_io_adj::print_stn_info_col_header(std::ostream& os, 
+void AdjFile::print_stn_info_col_header(std::ostream& os, 
 	const std::string& stn_coord_types, const UINT16& printStationCorrections)
 {	
 	os << std::setw(STATION) << std::left << "Station" << std::setw(CONSTRAINT) << std::left << "Const";

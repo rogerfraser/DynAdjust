@@ -26,7 +26,7 @@
 #include <include/io/aml_file.hpp>
 #include <include/io/asl_file.hpp>
 #include <include/io/seg_file.hpp>
-#include <include/io/dnaioadj.hpp>
+#include <include/io/adj_file.hpp>
 #include <include/io/dnaiosnx.hpp>
 
 #include <include/functions/dnatemplatematrixfuncs.hpp>

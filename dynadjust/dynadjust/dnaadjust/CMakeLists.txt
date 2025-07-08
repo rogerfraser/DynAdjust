@@ -7,7 +7,7 @@ add_definitions(-DBUILD_DNAADJUST_DLL -DBUILD_EXPORTDNATYPES)
 include_directories (${PROJECT_SOURCE_DIR})
 
 add_library (${PROJECT_NAME} SHARED
-             ${CMAKE_SOURCE_DIR}/include/io/dnaioadj.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/adj_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/aml_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dynadjust_file.cpp

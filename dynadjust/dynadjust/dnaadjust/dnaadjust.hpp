@@ -67,7 +67,7 @@
 #include <include/config/dnaversion.hpp>
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaioadj.hpp>
+#include <include/io/adj_file.hpp>
 #include <include/io/aml_file.hpp>
 #include <include/io/asl_file.hpp>
 #include <include/io/bms_file.hpp>

@@ -9609,7 +9609,7 @@ void dna_adjust::PrintAdjStations(std::ostream& os, const UINT32& block,
 		SignalExceptionAdjustment(ss.str(), 0);
 	}
 
-	dna_io_adj adj;
+	AdjFile adj;
 
 	try {
 
@@ -9681,7 +9681,7 @@ void dna_adjust::PrintAdjStationsUniqueList(std::ostream& os,
 {
 	try {
 		// Print header info and columns to adj file.  Throws runtime_error on failure.
-		dna_io_adj adj;
+		AdjFile adj;
 		adj.print_adj_stn_header(os);
 		adj.print_stn_info_col_header(os, 
 			projectSettings_.o._stn_coord_types, projectSettings_.o._stn_corr);
