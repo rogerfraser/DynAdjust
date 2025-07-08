@@ -3607,8 +3607,8 @@ void dna_plot::LoadSegmentationFile()
 	vUINT32 v_ContiguousNetList, v_parameterStationCount;
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file(projectSettings_.s.seg_file, 
+		SegFile seg;
+		seg.LoadSegFile(projectSettings_.s.seg_file, 
 			blockCount_, blockThreshold_, minInnerStns_,
 			v_ISL_, v_JSL_, v_CML_,
 			true, &bmsBinaryRecords_,

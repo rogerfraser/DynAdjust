@@ -14,7 +14,7 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/map_file.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaioseg.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/seg_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiotbu.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiosnxwrite.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnadatum.cpp

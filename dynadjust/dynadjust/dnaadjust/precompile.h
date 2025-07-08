@@ -27,7 +27,7 @@
 #include <include/io/map_file.hpp>
 #include <include/io/dnaioaml.hpp>
 #include <include/io/asl_file.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/seg_file.hpp>
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaiotbu.hpp>

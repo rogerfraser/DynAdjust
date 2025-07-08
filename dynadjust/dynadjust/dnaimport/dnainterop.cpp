@@ -3693,8 +3693,8 @@ void dna_import::LoadSegmentationFile(pvmsr_t binaryMsr)
 
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file(projectSettings_.i.seg_file, 
+		SegFile seg;
+		seg.LoadSegFile(projectSettings_.i.seg_file, 
 			blockCount, blockThreshold, minInnerStns,
 			v_ISL_, v_JSL_, v_CML_,
 			true, binaryMsr,

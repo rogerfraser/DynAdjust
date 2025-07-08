@@ -14280,8 +14280,8 @@ void dna_adjust::LoadSegmentationMetrics()
 
 	try {
 		// Create station appearance list.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.create_stn_appearance_list(v_paramStnAppearance_, 
+		SegFile seg;
+		seg.CreateStnAppearanceList(v_paramStnAppearance_, 
 			v_parameterStationList_, vAssocStnList_);
 	}
 	catch (const std::runtime_error& e) {
@@ -14332,8 +14332,8 @@ void dna_adjust::LoadSegmentationFileParameters(const std::string& seg_filename)
 
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file_header_f(seg_filename, 
+		SegFile seg;
+		seg.LoadSegFileHeaderF(seg_filename, 
 			blockCount_, blockThreshold, minInnerStns);
 	}
 	catch (const std::runtime_error& e) {
@@ -14348,8 +14348,8 @@ void dna_adjust::LoadSegmentationFile()
 
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file(projectSettings_.a.seg_file, 
+		SegFile seg;
+		seg.LoadSegFile(projectSettings_.a.seg_file, 
 			blockCount_, blockThreshold, minInnerStns,
 			v_ISL_, v_JSL_, v_CML_,
 			true, &bmsBinaryRecords_,

@@ -24,7 +24,7 @@
 #include <include/io/dnaiobst.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/map_file.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/seg_file.hpp>
 #include <include/io/dnaiopdf.hpp>
 
 #include <include/functions/dnatemplatefuncs.hpp>

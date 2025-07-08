@@ -1327,8 +1327,8 @@ void dna_segment::RemoveInvalidFreeStations()
 
 void dna_segment::BuildFreeStationAvailabilityList()
 {
-	dna_io_seg seg;
-	seg.build_free_stn_availability(vAssocStnList_, vfreeStnAvailability_);
+	SegFile seg;
+	seg.BuildFreeStnAvailability(vAssocStnList_, vfreeStnAvailability_);
 }		
 
 void dna_segment::RemoveDuplicateStations(pvstring vStations)
@@ -1401,8 +1401,8 @@ void dna_segment::WriteFreeStnListSortedbyASLMsrCount()
 void dna_segment::coutCurrentBlockSummary(std::ostream &os)
 {
 	try {
-		dna_io_seg seg;
-		seg.write_seg_block(os, 
+		SegFile seg;
+		seg.WriteSegBlock(os, 
 			vCurrInnerStnList_, vCurrJunctStnList_, vCurrMeasurementList_, 
 			currentBlock_,
 			&bstBinaryRecords_, &bmsBinaryRecords_, 
@@ -1500,8 +1500,8 @@ void dna_segment::WriteSegmentedNetwork(const std::string& segfileName)
 		SignalExceptionSerialise("WriteSegmentedNetwork(): the block measurementslist is empty, most likely because the network has not been segmented yet.", 0, NULL);
 	
 	try {
-		dna_io_seg seg;
-		seg.write_seg_file(segfileName, projectSettings_.s.bst_file, projectSettings_.s.bms_file,
+		SegFile seg;
+		seg.WriteSegFile(segfileName, projectSettings_.s.bst_file, projectSettings_.s.bms_file,
 			projectSettings_.s.min_inner_stations, projectSettings_.s.max_total_stations,
 			projectSettings_.s.seg_starting_stns, vinitialStns_,
 			projectSettings_.s.command_line_arguments, 
