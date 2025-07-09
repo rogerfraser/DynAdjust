@@ -66,20 +66,9 @@ bool NetworkDataLoader::LoadInto(
                             unknownsCount);
   }
 
-  std::cerr << "DEBUG NetworkDataLoader: About to load measurements. Current "
-               "bmsBinaryRecords size: "
-            << (bmsBinaryRecords ? bmsBinaryRecords->size() : 0) << std::endl;
-
   if (!LoadMeasurements(bmsBinaryRecords, bms_meta, bmsr_count)) {
-    std::cerr << "DEBUG NetworkDataLoader: loadMeasurements failed!"
-              << std::endl;
     return false;
   }
-
-  std::cerr
-      << "DEBUG NetworkDataLoader: loadMeasurements completed. bmsr_count: "
-      << bmsr_count << ", bmsBinaryRecords size: "
-      << (bmsBinaryRecords ? bmsBinaryRecords->size() : 0) << std::endl;
 
   // Process measurements for both simultaneous and phased modes
   // Phased mode needs measurements available for segmentation file loading
@@ -93,15 +82,10 @@ bool NetworkDataLoader::LoadInto(
     }
   } else if (settings_.a.adjust_mode == PhasedMode ||
              settings_.a.adjust_mode == Phased_Block_1Mode) {
-    std::cerr << "DEBUG NetworkDataLoader: Processing phased mode measurements"
-              << std::endl;
     // For phased mode, we still need the measurements loaded for segmentation
     // file processing but we don't process them the same way as simultaneous
     // mode
     measurementParams = measurementCount = bmsr_count;
-    std::cerr << "DEBUG NetworkDataLoader: Set "
-                 "measurementParams/measurementCount to: "
-              << bmsr_count << std::endl;
   }
 
   return true;
