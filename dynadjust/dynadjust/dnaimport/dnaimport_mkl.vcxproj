@@ -117,7 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
-    <ClCompile Include="..\..\include\io\dnaioaml.cpp" />
+    <ClCompile Include="..\..\include\io\aml_file.cpp" />
     <ClCompile Include="..\..\include\io\dnaioasl.cpp" />
     <ClCompile Include="..\..\include\io\dnaiobase.cpp" />
     <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
@@ -155,7 +155,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\io\dnaioaml.hpp" />
+    <ClInclude Include="..\..\include\io\aml_file.hpp" />
     <ClInclude Include="..\..\include\io\dnaioasl.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobase.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobms.hpp" />

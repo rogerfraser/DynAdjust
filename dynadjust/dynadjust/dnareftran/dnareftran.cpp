@@ -1,8 +1,8 @@
 //============================================================================
 // Name         : dnareftran.cpp
 // Author       : Roger Fraser
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -554,8 +554,8 @@ void dna_reftran::LoadBinaryStationFile(const std::string& bstfileName)
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -576,8 +576,8 @@ void dna_reftran::WriteBinaryStationFile(const std::string& bstfileName)
 
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.write_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.WriteFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -588,8 +588,8 @@ void dna_reftran::LoadBinaryMeasurementFile(const std::string& bmsfileName)
 {
 	try {
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -610,8 +610,8 @@ void dna_reftran::WriteBinaryMeasurementFile(const std::string& bmsfileName)
 
 	try {
 		// write binary measurement data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.write_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.WriteFile(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());

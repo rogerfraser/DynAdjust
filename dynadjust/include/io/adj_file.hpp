@@ -1,9 +1,8 @@
 //============================================================================
-// Name         : dnaioadj.hpp
+// Name         : adj_file.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,8 +19,8 @@
 // Description  : DynAdjust adjustment output file io operations
 //============================================================================
 
-#ifndef DNAIOADJ_H_
-#define DNAIOADJ_H_
+#ifndef DYNADJUST_ADJ_FILE_H_
+#define DYNADJUST_ADJ_FILE_H_
 
 #if defined(_MSC_VER)
 	#if defined(LIST_INCLUDES_ON_BUILD) 
@@ -29,20 +28,20 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/config/dnatypes.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_adj : public dna_io_base
+class AdjFile : public DynadjustFile
 {
 public:
-	dna_io_adj(void) {};
-	dna_io_adj(const dna_io_adj& adj) : dna_io_base(adj) {};
-	virtual ~dna_io_adj(void) {};
+	AdjFile(void) {};
+	AdjFile(const AdjFile& adj) : DynadjustFile(adj) {};
+	virtual ~AdjFile(void) {};
 
-	dna_io_adj& operator=(const dna_io_adj& rhs);
+	AdjFile& operator=(const AdjFile& rhs);
 
 	void print_stn_info_col_header(std::ostream& os, const std::string& stn_coord_types, const UINT16& printStationCorrections=false);
 	void print_adj_stn_header(std::ostream& os);
@@ -55,4 +54,4 @@ protected:
 }	// namespace iostreams
 }	// namespace dynadjust
 
-#endif
+#endif  // DYNADJUST_ADJ_FILE_H_

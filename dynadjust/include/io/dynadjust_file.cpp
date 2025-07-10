@@ -1,9 +1,8 @@
 //============================================================================
-// Name         : dnaiobase.cpp
+// Name         : dynadjust_file.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -24,67 +23,67 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 /// \endcond
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-dna_io_base::dna_io_base(void)
-	: m_strVersion(__FILE_VERSION__)
-	, m_strDate("")
-	, m_strApp("DNA" + std::string(__SHORT_VERSION__))
+DynadjustFile::DynadjustFile(void)
+	: version_(__FILE_VERSION__)
+	, date_("")
+	, app_name_("DNA" + std::string(__SHORT_VERSION__))
 {
 }
 
 // copy constructors
-dna_io_base::dna_io_base(const dna_io_base& newFile)
-	: m_strVersion(newFile.m_strVersion)
-	, m_strDate(newFile.m_strDate)
-	, m_strApp(newFile.m_strApp)
+DynadjustFile::DynadjustFile(const DynadjustFile& newFile)
+	: version_(newFile.version_)
+	, date_(newFile.date_)
+	, app_name_(newFile.app_name_)
 {
 }
 	
 
-dna_io_base::~dna_io_base(void)
+DynadjustFile::~DynadjustFile(void)
 {
 }
 	
 
-dna_io_base& dna_io_base::operator= (const dna_io_base& rhs)
+DynadjustFile& DynadjustFile::operator= (const DynadjustFile& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
 		return *this;
 
-	m_strVersion = rhs.m_strVersion;
-	m_strDate = rhs.m_strDate;
-	m_strApp = rhs.m_strApp;
+	version_ = rhs.version_;
+	date_ = rhs.date_;
+	app_name_ = rhs.app_name_;
 
 	return *this;
 }
 
-void dna_io_base::writeFileInfo(std::ofstream& file_stream)
+void DynadjustFile::WriteFileInfo(std::ofstream& file_stream)
 {
-	writeVersion(file_stream);
-	writeDate(file_stream);
-	writeApp(file_stream);
+	WriteVersion(file_stream);
+	WriteDate(file_stream);
+	WriteApp(file_stream);
 }
 	
 
-void dna_io_base::readFileInfo(std::ifstream& file_stream)
+void DynadjustFile::ReadFileInfo(std::ifstream& file_stream)
 {
-	readVersion(file_stream);
-	readDate(file_stream);
-	readApp(file_stream);
+	ReadVersion(file_stream);
+	ReadDate(file_stream);
+	ReadApp(file_stream);
 }
 	
 
-void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta_t& file_meta)
+void DynadjustFile::WriteFileMetadata(std::ofstream& file_stream, binary_file_meta_t& file_meta)
 {
 	// Write the metadata
-	file_stream.write(reinterpret_cast<char *>(&file_meta.binCount), sizeof(UINT32)); 
+	file_stream.write(reinterpret_cast<char *>(&file_meta.binCount), sizeof(std::uint64_t)); 
 	file_stream.write(reinterpret_cast<char *>(&file_meta.reduced), sizeof(bool)); 
 	file_stream.write(reinterpret_cast<char *>(file_meta.modifiedBy), MOD_NAME_WIDTH); 
 	
@@ -96,8 +95,8 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 	file_stream.write(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
 
 	// Write file count and file meta
-	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16)); 
-	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
+	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(std::uint64_t)); 
+	for (std::uint64_t i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
@@ -108,10 +107,10 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 }
 	
 
-void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_t& file_meta)
+void DynadjustFile::ReadFileMetadata(std::ifstream& file_stream, binary_file_meta_t& file_meta)
 {
 	// Read the metadata
-	file_stream.read(reinterpret_cast<char *>(&file_meta.binCount), sizeof(UINT32)); 
+	file_stream.read(reinterpret_cast<char *>(&file_meta.binCount), sizeof(std::uint64_t)); 
 	file_stream.read(reinterpret_cast<char *>(&file_meta.reduced), sizeof(bool)); 
 	file_stream.read(reinterpret_cast<char *>(file_meta.modifiedBy), MOD_NAME_WIDTH);
 
@@ -123,13 +122,13 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	file_stream.read(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
 
 	// Read file count and file meta
-	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16));
+	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(std::uint64_t));
 	if (file_meta.inputFileMeta != NULL)
 		delete []file_meta.inputFileMeta;
 
 	file_meta.inputFileMeta = new input_file_meta_t[file_meta.inputFileCount];
 		
-	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
+	for (std::uint64_t i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
@@ -140,7 +139,7 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 }
 	
 
-void dna_io_base::writeVersion(std::ofstream& file_stream)
+void DynadjustFile::WriteVersion(std::ofstream& file_stream)
 {
 	char versionField[identifier_field_width+1];
 	
@@ -149,13 +148,13 @@ void dna_io_base::writeVersion(std::ofstream& file_stream)
 	file_stream.write(const_cast<char *>(version_header), identifier_field_width); 
 	
 	// write version, with safeguard against overwriting by substr
-	snprintf(versionField, sizeof(versionField), "%*s", identifier_field_width, m_strVersion.substr(0, identifier_field_width).c_str());
+	snprintf(versionField, sizeof(versionField), "%*s", identifier_field_width, version_.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(versionField), identifier_field_width); 
 		
 }
 	
 
-void dna_io_base::readVersion(std::ifstream& file_stream)
+void DynadjustFile::ReadVersion(std::ifstream& file_stream)
 {
 	char versionField[identifier_field_width+1];
 
@@ -165,12 +164,12 @@ void dna_io_base::readVersion(std::ifstream& file_stream)
 	
 	// read version
 	file_stream.read(reinterpret_cast<char *>(versionField), identifier_field_width); 
-	m_strVersion = versionField;
-	m_strVersion = trimstr(m_strVersion);
+	version_ = versionField;
+	version_ = trimstr(version_);
 }
 	
 
-void dna_io_base::writeDate(std::ofstream& file_stream)
+void DynadjustFile::WriteDate(std::ofstream& file_stream)
 {
 	char dateField[identifier_field_width+1];
 
@@ -178,20 +177,20 @@ void dna_io_base::writeDate(std::ofstream& file_stream)
 	boost::gregorian::date today(boost::gregorian::day_clock::local_day());
 	std::stringstream date_string;
 	date_string << std::right << to_iso_extended_string(today);
-	m_strDate = date_string.str();
+	date_ = date_string.str();
 	
 	// write creation date field name
 	dateField[identifier_field_width] = '\0';
 	file_stream.write(const_cast<char *>(create_date_header), identifier_field_width); 
 	
 	// write creation date, with safeguard against overwriting by substr
-	snprintf(dateField, sizeof(dateField), "%*s", identifier_field_width, m_strDate.substr(0, identifier_field_width).c_str());
+	snprintf(dateField, sizeof(dateField), "%*s", identifier_field_width, date_.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(dateField), identifier_field_width); 
 		
 }
 	
 
-void dna_io_base::readDate(std::ifstream& file_stream)
+void DynadjustFile::ReadDate(std::ifstream& file_stream)
 {
 	char dateField[identifier_field_width+1];
 
@@ -201,12 +200,12 @@ void dna_io_base::readDate(std::ifstream& file_stream)
 	
 	// read creation date
 	file_stream.read(reinterpret_cast<char *>(dateField), identifier_field_width); 
-	m_strDate = dateField;
-	m_strDate = trimstr(m_strDate);
+	date_ = dateField;
+	date_ = trimstr(date_);
 }
 	
 
-void dna_io_base::writeApp(std::ofstream& file_stream)
+void DynadjustFile::WriteApp(std::ofstream& file_stream)
 {
 	char appField[identifier_field_width+1];
 	
@@ -215,13 +214,13 @@ void dna_io_base::writeApp(std::ofstream& file_stream)
 	file_stream.write(const_cast<char *>(create_by_header), identifier_field_width); 
 	
 	// write application, with safeguard against overwriting by substr
-	snprintf(appField, sizeof(appField), "%*s", identifier_field_width, m_strApp.substr(0, identifier_field_width).c_str());
+	snprintf(appField, sizeof(appField), "%*s", identifier_field_width, app_name_.substr(0, identifier_field_width).c_str());
 	file_stream.write(reinterpret_cast<char *>(appField), identifier_field_width); 
 		
 }
 	
 
-void dna_io_base::readApp(std::ifstream& file_stream)
+void DynadjustFile::ReadApp(std::ifstream& file_stream)
 {
 	char appField[identifier_field_width+1];
 
@@ -231,8 +230,8 @@ void dna_io_base::readApp(std::ifstream& file_stream)
 	
 	// read application
 	file_stream.read(reinterpret_cast<char *>(appField), identifier_field_width); 
-	m_strApp = appField;
-	m_strApp = trimstr(m_strApp);
+	app_name_ = appField;
+	app_name_ = trimstr(app_name_);
 }
 
 }	// namespace measurements

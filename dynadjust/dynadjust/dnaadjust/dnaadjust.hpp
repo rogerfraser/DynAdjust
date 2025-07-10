@@ -1,22 +1,20 @@
 //============================================================================
 // Name         : dnaadjust.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : DynAdjust Network Adjustment library
 //============================================================================
@@ -35,7 +33,6 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <math.h>
 #include <queue>
 #include <stdexcept>
@@ -69,13 +66,13 @@
 #include <include/config/dnaversion.hpp>
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaioadj.hpp>
-#include <include/io/dnaioaml.hpp>
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiomap.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/adj_file.hpp>
+#include <include/io/aml_file.hpp>
+#include <include/io/asl_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/seg_file.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaiotbu.hpp>
 
@@ -93,6 +90,9 @@
 #include <include/parameters/dnaprojection.hpp>
 #include <include/thread/dnathreading.hpp>
 
+#include <atomic>
+
+#include "network_data_loader.hpp"
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
@@ -321,7 +321,6 @@ class dna_adjust {
     inline UINT32 GetTestResult() const { return passFail_; }
     inline bool GetAllFixed() const { return allStationsFixed_; }
 
-    void GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit);
 
     void LoadSegmentationFileParameters(const std::string& seg_filename);
 
@@ -455,7 +454,6 @@ class dna_adjust {
     void AdjustPhasedReverse();
 
     // Adjustment helps
-    void ApplyAdditionalConstraints();
     void AddDiscontinuitySites(vstring& constraintStns);
     void LoadStationMap(pv_string_uint32_pair stnsMap,
                         const std::string& stnmap_file);
@@ -463,8 +461,6 @@ class dna_adjust {
     void LoadPhasedBlocks();
     void LoadSegmentationFile();
     void LoadSegmentationMetrics();
-    void RemoveInvalidISLStations(vUINT32& v_ISLTemp);
-    void RemoveNonMeasurements(const UINT32& block);
     void RemoveDuplicateStations(vUINT32& vStns);
     void InitialiseTypeBUncertainties();
 

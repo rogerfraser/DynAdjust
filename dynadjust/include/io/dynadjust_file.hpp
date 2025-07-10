@@ -1,9 +1,8 @@
 //============================================================================
-// Name         : dnaiobase.hpp
+// Name         : dynadjust_file.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,8 +19,8 @@
 // Description  : DynAdjust file io operations
 //============================================================================
 
-#ifndef DNAIOBASE_H_
-#define DNAIOBASE_H_
+#ifndef DYNADJUST_FILE_H_
+#define DYNADJUST_FILE_H_
 
 #if defined(_MSC_VER)
 	#if defined(LIST_INCLUDES_ON_BUILD) 
@@ -32,7 +31,6 @@
 /// \cond
 #include <fstream>
 #include <string>
-#include <iomanip>
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
@@ -61,39 +59,39 @@ const char* const version_header     = "VERSION   ";	// 10 characters
 const char* const create_date_header = "CREATED ON";	// 10 characters
 const char* const create_by_header   = "CREATED BY";	// 10 characters
 
-class dna_io_base
+class DynadjustFile
 {
 public:
-	dna_io_base(void);
-	dna_io_base(const dna_io_base&);
-	virtual ~dna_io_base(void);
+	DynadjustFile(void);
+	DynadjustFile(const DynadjustFile&);
+	virtual ~DynadjustFile(void);
 
-	dna_io_base& operator=(const dna_io_base& rhs);
+	DynadjustFile& operator=(const DynadjustFile& rhs);
 
-	inline std::string getVersion() const { return m_strVersion; }
-	inline void setVersion(const std::string& version) { m_strVersion = version; }
+	inline std::string GetVersion() const { return version_; }
+	inline void SetVersion(const std::string& version) { version_ = version; }
 
-	void writeFileInfo(std::ofstream& file_stream);
-	void readFileInfo(std::ifstream& file_stream);
+	void WriteFileInfo(std::ofstream& file_stream);
+	void ReadFileInfo(std::ifstream& file_stream);
 
-	void writeFileMetadata(std::ofstream& file_stream, binary_file_meta_t& file_meta);
-	void readFileMetadata(std::ifstream& file_stream, binary_file_meta_t& file_meta);
+	void WriteFileMetadata(std::ofstream& file_stream, binary_file_meta_t& file_meta);
+	void ReadFileMetadata(std::ifstream& file_stream, binary_file_meta_t& file_meta);
 
 protected:
 
-	void writeVersion(std::ofstream& file_stream);
-	void readVersion(std::ifstream& file_stream);
-	void writeDate(std::ofstream& file_stream);
-	void readDate(std::ifstream& file_stream);
-	void writeApp(std::ofstream& file_stream);
-	void readApp(std::ifstream& file_stream);
+	void WriteVersion(std::ofstream& file_stream);
+	void ReadVersion(std::ifstream& file_stream);
+	void WriteDate(std::ofstream& file_stream);
+	void ReadDate(std::ifstream& file_stream);
+	void WriteApp(std::ofstream& file_stream);
+	void ReadApp(std::ifstream& file_stream);
 
-	std::string	m_strVersion;
-	std::string	m_strDate;
-	std::string	m_strApp;
+	std::string	version_;
+	std::string	date_;
+	std::string	app_name_;
 };
 
 }	// namespace measurements
 }	// namespace dynadjust
 
-#endif
+#endif  // DYNADJUST_FILE_H_

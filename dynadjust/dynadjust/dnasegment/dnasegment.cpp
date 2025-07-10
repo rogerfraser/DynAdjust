@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnasegment.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -1064,8 +1063,11 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 	UINT32 stn, stnCount(0);
 	
 	try {
-		dna_io_asl asl;
-		stnCount = asl.load_asl_file(aslfileName, &vAssocStnList_, &vfreeStnList_);
+		AslFile asl(aslfileName);
+		auto result = asl.Load();
+		vAssocStnList_ = std::move(result.stations);
+		vfreeStnList_ = std::move(result.free_stations);
+		stnCount = static_cast<UINT32>(result.count);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
@@ -1088,7 +1090,7 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 
 	// Load associated measurements list.  Throws runtime_error on failure.
 	try {
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.load_aml_file(amlfileName, &vAssocFreeMsrList_, &bmsBinaryRecords_);
 	}
 	catch (const std::runtime_error& e) {
@@ -1103,8 +1105,8 @@ void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std
 void dna_segment::LoadStationMap(const std::string& stnmap_file)
 {
 	try {
-		dna_io_map map;
-		map.load_map_file(stnmap_file, &stnsMap_);
+		dynadjust::iostreams::MapFile map;
+		map.LoadFile(stnmap_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
@@ -1116,12 +1118,12 @@ void dna_segment::LoadBinaryFiles(const std::string& bstrfileName, const std::st
 	binary_file_meta_t	bst_meta_, bms_meta_;
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bstrfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(bstrfileName, &bstBinaryRecords_, bst_meta_);
 	
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
@@ -1325,8 +1327,8 @@ void dna_segment::RemoveInvalidFreeStations()
 
 void dna_segment::BuildFreeStationAvailabilityList()
 {
-	dna_io_seg seg;
-	seg.build_free_stn_availability(vAssocStnList_, vfreeStnAvailability_);
+	SegFile seg;
+	seg.BuildFreeStnAvailability(vAssocStnList_, vfreeStnAvailability_);
 }		
 
 void dna_segment::RemoveDuplicateStations(pvstring vStations)
@@ -1399,8 +1401,8 @@ void dna_segment::WriteFreeStnListSortedbyASLMsrCount()
 void dna_segment::coutCurrentBlockSummary(std::ostream &os)
 {
 	try {
-		dna_io_seg seg;
-		seg.write_seg_block(os, 
+		SegFile seg;
+		seg.WriteSegBlock(os, 
 			vCurrInnerStnList_, vCurrJunctStnList_, vCurrMeasurementList_, 
 			currentBlock_,
 			&bstBinaryRecords_, &bmsBinaryRecords_, 
@@ -1498,8 +1500,8 @@ void dna_segment::WriteSegmentedNetwork(const std::string& segfileName)
 		SignalExceptionSerialise("WriteSegmentedNetwork(): the block measurementslist is empty, most likely because the network has not been segmented yet.", 0, NULL);
 	
 	try {
-		dna_io_seg seg;
-		seg.write_seg_file(segfileName, projectSettings_.s.bst_file, projectSettings_.s.bms_file,
+		SegFile seg;
+		seg.WriteSegFile(segfileName, projectSettings_.s.bst_file, projectSettings_.s.bms_file,
 			projectSettings_.s.min_inner_stations, projectSettings_.s.max_total_stations,
 			projectSettings_.s.seg_starting_stns, vinitialStns_,
 			projectSettings_.s.command_line_arguments, 

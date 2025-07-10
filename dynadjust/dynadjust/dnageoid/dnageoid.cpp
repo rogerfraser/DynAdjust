@@ -710,8 +710,8 @@ void dna_geoid_interpolation::LoadBinaryStationFile(const std::string& bstnfileN
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bstnfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
@@ -730,8 +730,8 @@ void dna_geoid_interpolation::WriteBinaryStationFile(const std::string& bstnfile
 	
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.write_bst_file(bstnfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.WriteFile(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
