@@ -40,10 +40,12 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/measurement_types/dnastation.hpp>
+#include <include/math/dnamatrix_contiguous.hpp>
 
 #include "measurement_processor.hpp"
 
 using namespace dynadjust::measurements;
+using namespace dynadjust::math;
 
 namespace dynadjust {
 namespace networkadjust {
@@ -60,22 +62,6 @@ public:
   NetworkDataLoader(NetworkDataLoader &&) = default;
   NetworkDataLoader &operator=(NetworkDataLoader &&) = delete;
 
-  void SetErrorHandler(ErrorHandler handler) {
-    error_handler_ = std::move(handler);
-  }
-  void SetConstraintApplier(std::function<void()> applier) {
-    constraint_applier_ = std::move(applier);
-  }
-  void SetInvalidStationRemover(std::function<void(vUINT32 &)> remover) {
-    invalid_station_remover_ = std::move(remover);
-  }
-  void SetNonMeasurementRemover(std::function<void(UINT32)> remover) {
-    non_measurement_remover_ = std::move(remover);
-  }
-  void SetMeasurementCountUpdater(std::function<void(UINT32, UINT32)> updater) {
-    measurement_count_updater_ = std::move(updater);
-  }
-
   bool LoadInto(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
             vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
             binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
@@ -83,7 +69,20 @@ public:
             vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
             UINT32 &bmsr_count, UINT32 &unknownParams,
             UINT32 &unknownsCount, UINT32 &measurementParams,
-            UINT32 &measurementCount);
+            UINT32 &measurementCount, UINT32 &measurementVarianceCount,
+            // Additional parameters for simultaneous mode
+            UINT32* blockCount = nullptr,
+            vvUINT32* v_JSL = nullptr,
+            vUINT32* v_unknownsCount = nullptr,
+            vUINT32* v_measurementCount = nullptr,
+            vUINT32* v_measurementVarianceCount = nullptr,
+            vUINT32* v_measurementParams = nullptr,
+            vUINT32* v_ContiguousNetList = nullptr,
+            std::vector<blockMeta_t>* v_blockMeta = nullptr,
+            vvUINT32* v_parameterStationList = nullptr,
+            vv_stn_appear* v_paramStnAppearance = nullptr,
+            v_mat_2d* v_junctionVariances = nullptr,
+            v_mat_2d* v_junctionVariancesFwd = nullptr);
 
   // Exception handling
   [[noreturn]] void SignalException(std::string_view message, UINT32 block_no = 0);
@@ -113,11 +112,37 @@ private:
 
   void ProcessMeasurements(vmsr_t *bmsBinaryRecords, UINT32 bmsr_count,
                            vvUINT32 *v_CML, UINT32 &measurementParams,
-                           UINT32 &measurementCount);
+                           UINT32 &measurementCount, UINT32 &measurementVarianceCount);
 
   // Helper methods
+  template<typename T>
+  void InitializeIfEmpty(T* vector, size_t size, 
+                        const typename T::value_type& value = {}) {
+    if (vector && vector->empty()) {
+      vector->resize(size, value);
+    }
+  }
+  
   void LoadStationMap(pv_string_uint32_pair station_map, std::string_view map_file);
   void AddDiscontinuitySites(vstring& constraint_stations, vstn_t& stations);
+  void InitializeSimultaneousModeVectors(
+                                        const vvUINT32& v_ISL,
+                                        UINT32 unknownsCount, 
+                                        UINT32 measurementParams, 
+                                        UINT32 measurementCount,
+                                        UINT32 measurementVarianceCount,
+                                        UINT32* blockCount,
+                                        vvUINT32* v_JSL,
+                                        vUINT32* v_unknownsCount,
+                                        vUINT32* v_measurementCount,
+                                        vUINT32* v_measurementVarianceCount,
+                                        vUINT32* v_measurementParams,
+                                        vUINT32* v_ContiguousNetList,
+                                        std::vector<blockMeta_t>* v_blockMeta,
+                                        vvUINT32* v_parameterStationList,
+                                        vv_stn_appear* v_paramStnAppearance,
+                                        v_mat_2d* v_junctionVariances,
+                                        v_mat_2d* v_junctionVariancesFwd);
 
   const project_settings &settings_;
   std::unique_ptr<dynadjust::iostreams::BstFile> bst_loader_;
@@ -127,12 +152,6 @@ private:
 
   // State for constraint and measurement processing
   mutable bool apply_discontinuities_ = false;
-
-  ErrorHandler error_handler_;
-  std::function<void()> constraint_applier_;
-  std::function<void(vUINT32 &)> invalid_station_remover_;
-  std::function<void(UINT32)> non_measurement_remover_;
-  std::function<void(UINT32, UINT32)> measurement_count_updater_;
 };
 
 } // namespace networkadjust

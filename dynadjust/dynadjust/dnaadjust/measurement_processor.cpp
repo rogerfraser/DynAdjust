@@ -30,12 +30,12 @@ namespace processors {
 
 MeasurementProcessor::MeasurementProcessor(AdjustmentMode mode) : mode_(mode) {}
 
-std::optional<UINT32> MeasurementProcessor::processForMode(
+std::optional<UINT32> MeasurementProcessor::ProcessForMode(
     const measurements::vmsr_t &bmsBinaryRecords, UINT32 bmsr_count,
     vvUINT32 &v_CML, MeasurementCounts &counts) {
   switch (mode_) {
   case AdjustmentMode::Simultaneous:
-    return processSimultaneous(bmsBinaryRecords, bmsr_count, v_CML, counts);
+    return ProcessSimultaneous(bmsBinaryRecords, bmsr_count, v_CML, counts);
   case AdjustmentMode::Phased:
     // For now, just return nullopt for phased mode
     return std::nullopt;
@@ -44,7 +44,7 @@ std::optional<UINT32> MeasurementProcessor::processForMode(
   }
 }
 
-std::optional<UINT32> MeasurementProcessor::processSimultaneous(
+std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
     const measurements::vmsr_t &bmsBinaryRecords, UINT32 bmsr_count,
     vvUINT32 &v_CML, MeasurementCounts &counts) {
   // Basic stub implementation - would need to be completed

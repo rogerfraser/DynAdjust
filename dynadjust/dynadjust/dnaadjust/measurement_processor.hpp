@@ -49,12 +49,12 @@ public:
   MeasurementProcessor(MeasurementProcessor &&) = default;
   MeasurementProcessor &operator=(MeasurementProcessor &&) = default;
 
-  std::optional<UINT32> processForMode(const measurements::vmsr_t &bmsBinaryRecords,
+  std::optional<UINT32> ProcessForMode(const measurements::vmsr_t &bmsBinaryRecords,
                       UINT32 bmsr_count, vvUINT32 &v_CML,
                       MeasurementCounts &counts);
 
 private:
-  std::optional<UINT32> processSimultaneous(const measurements::vmsr_t &bmsBinaryRecords,
+  std::optional<UINT32> ProcessSimultaneous(const measurements::vmsr_t &bmsBinaryRecords,
                            UINT32 bmsr_count, vvUINT32 &v_CML,
                            MeasurementCounts &counts);
 

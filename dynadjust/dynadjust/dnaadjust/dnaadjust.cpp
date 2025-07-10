@@ -13867,6 +13867,8 @@ void dna_adjust::LoadNetworkFiles()
     try {
         NetworkDataLoader loader(projectSettings_);
         
+        UINT32 measurementVarianceCount = 0;
+        
         bool success = loader.LoadInto(
             &bstBinaryRecords_,
             bst_meta_,
@@ -13882,7 +13884,21 @@ void dna_adjust::LoadNetworkFiles()
             unknownParams_,
             unknownsCount_,
             measurementParams_,
-            measurementCount_);
+            measurementCount_,
+            measurementVarianceCount,
+            // Pass individual pointers for simultaneous mode
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &blockCount_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_JSL_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_unknownsCount_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementCount_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementVarianceCount_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementParams_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_ContiguousNetList_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_blockMeta_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_parameterStationList_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_paramStnAppearance_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_junctionVariances_ : nullptr,
+            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_junctionVariancesFwd_ : nullptr);
             
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
@@ -13891,58 +13907,6 @@ void dna_adjust::LoadNetworkFiles()
         // Ensure v_blockStationsMap_ matches expected state
         if (v_blockStationsMap_.empty()) {
             v_blockStationsMap_.resize(1);
-        }
-        
-        // For simultaneous mode, ensure vectors are properly initialized
-        if (projectSettings_.a.adjust_mode == SimultaneousMode) {
-            blockCount_ = 1;  // Ensure blockCount_ is set for simultaneous mode
-            
-            if (v_JSL_.empty()) {
-                v_JSL_.resize(1);
-            }
-            if (v_unknownsCount_.empty()) {
-                v_unknownsCount_.resize(1);
-                v_unknownsCount_.at(0) = unknownsCount_;
-            }
-            if (v_measurementCount_.empty()) {
-                v_measurementCount_.resize(1);
-                v_measurementCount_.at(0) = measurementCount_;
-            }
-            if (v_measurementVarianceCount_.empty()) {
-                v_measurementVarianceCount_.resize(1);
-                v_measurementVarianceCount_.at(0) = measurementCount_;
-            }
-            if (v_measurementParams_.empty()) {
-                v_measurementParams_.resize(1);
-                v_measurementParams_.at(0) = measurementParams_;
-            }
-            if (v_ContiguousNetList_.empty()) {
-                v_ContiguousNetList_.resize(1);
-                v_ContiguousNetList_.at(0) = 0;
-            }
-            
-            // Initialize block metadata vectors that are normally initialized in LoadSegmentationMetrics
-            if (v_blockMeta_.empty()) {
-                v_blockMeta_.resize(1);
-                v_blockMeta_.at(0)._blockFirst = true;
-                v_blockMeta_.at(0)._blockLast = true;
-                v_blockMeta_.at(0)._blockIntermediate = false;
-                v_blockMeta_.at(0)._blockIsolated = false;
-            }
-            if (v_parameterStationList_.empty()) {
-                v_parameterStationList_.resize(1);
-                // For simultaneous mode, all stations are parameters
-                v_parameterStationList_.at(0) = v_ISL_.at(0);
-            }
-            if (v_paramStnAppearance_.empty()) {
-                v_paramStnAppearance_.resize(1);
-            }
-            if (v_junctionVariances_.empty()) {
-                v_junctionVariances_.resize(1);
-            }
-            if (v_junctionVariancesFwd_.empty()) {
-                v_junctionVariancesFwd_.resize(1);
-            }
         }
     }
     catch (const std::exception& e) {
@@ -14507,6 +14471,6 @@ void dna_adjust::SortMeasurementsbyNstat(v_uint32_u32u32_pair& msr_block)
 	
 
 
+
 }	// namespace networkadjust
 }	// namespace dynadjust
-
