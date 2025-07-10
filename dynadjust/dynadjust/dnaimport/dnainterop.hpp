@@ -29,15 +29,12 @@
 #endif
 
 /// \cond
-#include <exception>
 #include <system_error>
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <utility>
 #include <vector>
-#include <map>
 #include <cstdarg>
 #include <math.h>
 

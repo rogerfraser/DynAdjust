@@ -33,7 +33,6 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <math.h>
 #include <queue>
 #include <stdexcept>
@@ -94,7 +93,6 @@
 #include <atomic>
 
 #include "network_data_loader.hpp"
-
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
