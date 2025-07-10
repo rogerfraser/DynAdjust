@@ -2154,8 +2154,8 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader, true);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader, false);
+		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, false, true);
+		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, false, false);
 		break;
 	case PhasedMode:
 	case Phased_Block_1Mode:
@@ -7577,24 +7577,34 @@ void dna_adjust::SerialiseAdjustedVarianceMatrices()
 
 void dna_adjust::GenerateStatistics()
 {
-	// Backup the latest estimates and, if this is not a staged 
-	// adjustment, update normals and measured-computed matrices.
-	UpdateAdjustment(false);
+	try {
+		// Backup the latest estimates and, if this is not a staged 
+		// adjustment, update normals and measured-computed matrices.
+		UpdateAdjustment(false);
 
-	// Compute whole-of-network statistics.
-	ComputeStatistics();
+		// Compute whole-of-network statistics.
+		ComputeStatistics();
 
-	// Print statistics summary to adj file
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case Phased_Block_1Mode:
-		PrintStatistics(false);
-		break;
-	//case SimultaneousMode:
-	//case PhasedMode:
-	default:
-		PrintStatistics();
-		break;
+		// Print statistics summary to adj file
+		switch (projectSettings_.a.adjust_mode)
+		{
+		case Phased_Block_1Mode:
+			PrintStatistics(false);
+			break;
+		//case SimultaneousMode:
+		//case PhasedMode:
+		default:
+			PrintStatistics();
+			break;
+		}
+	}
+	catch (const std::out_of_range& e) {
+		std::cerr << "ERROR in GenerateStatistics: out_of_range exception - " << e.what() << std::endl;
+		throw;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "ERROR in GenerateStatistics: " << e.what() << std::endl;
+		throw;
 	}
 
 	isAdjustmentQuestionable_ = (
@@ -7968,7 +7978,7 @@ void dna_adjust::ComputeAdjMsrBlockOnIteration(const UINT32& block)
 				v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
 			break;
 		default:
-			ComputeGlobalNetStat();
+			ComputeGlobalNetStat();;
 			ComputeGlobalTestStat();
 
 			isAdjustmentQuestionable_ = (
@@ -7999,7 +8009,7 @@ void dna_adjust::ComputeStatisticsOnIteration()
 	ComputeChiSquareNetwork();
 	
 	// Compute DOF and sigma zero
-	ComputeGlobalNetStat();
+	ComputeGlobalNetStat();;
 
 	// Perform global test
 	ComputeGlobalTestStat();
@@ -9683,7 +9693,7 @@ void dna_adjust::PrintAdjStationsUniqueList(std::ostream& os,
 	try {
 		// Print header info and columns to adj file.  Throws runtime_error on failure.
 		AdjFile adj;
-		adj.print_adj_stn_header(os);
+		// Don't print the "Adjusted Coordinates" header
 		adj.print_stn_info_col_header(os, 
 			projectSettings_.o._stn_coord_types, projectSettings_.o._stn_corr);
 	}
@@ -13881,6 +13891,58 @@ void dna_adjust::LoadNetworkFiles()
         // Ensure v_blockStationsMap_ matches expected state
         if (v_blockStationsMap_.empty()) {
             v_blockStationsMap_.resize(1);
+        }
+        
+        // For simultaneous mode, ensure vectors are properly initialized
+        if (projectSettings_.a.adjust_mode == SimultaneousMode) {
+            blockCount_ = 1;  // Ensure blockCount_ is set for simultaneous mode
+            
+            if (v_JSL_.empty()) {
+                v_JSL_.resize(1);
+            }
+            if (v_unknownsCount_.empty()) {
+                v_unknownsCount_.resize(1);
+                v_unknownsCount_.at(0) = unknownsCount_;
+            }
+            if (v_measurementCount_.empty()) {
+                v_measurementCount_.resize(1);
+                v_measurementCount_.at(0) = measurementCount_;
+            }
+            if (v_measurementVarianceCount_.empty()) {
+                v_measurementVarianceCount_.resize(1);
+                v_measurementVarianceCount_.at(0) = measurementCount_;
+            }
+            if (v_measurementParams_.empty()) {
+                v_measurementParams_.resize(1);
+                v_measurementParams_.at(0) = measurementParams_;
+            }
+            if (v_ContiguousNetList_.empty()) {
+                v_ContiguousNetList_.resize(1);
+                v_ContiguousNetList_.at(0) = 0;
+            }
+            
+            // Initialize block metadata vectors that are normally initialized in LoadSegmentationMetrics
+            if (v_blockMeta_.empty()) {
+                v_blockMeta_.resize(1);
+                v_blockMeta_.at(0)._blockFirst = true;
+                v_blockMeta_.at(0)._blockLast = true;
+                v_blockMeta_.at(0)._blockIntermediate = false;
+                v_blockMeta_.at(0)._blockIsolated = false;
+            }
+            if (v_parameterStationList_.empty()) {
+                v_parameterStationList_.resize(1);
+                // For simultaneous mode, all stations are parameters
+                v_parameterStationList_.at(0) = v_ISL_.at(0);
+            }
+            if (v_paramStnAppearance_.empty()) {
+                v_paramStnAppearance_.resize(1);
+            }
+            if (v_junctionVariances_.empty()) {
+                v_junctionVariances_.resize(1);
+            }
+            if (v_junctionVariancesFwd_.empty()) {
+                v_junctionVariancesFwd_.resize(1);
+            }
         }
     }
     catch (const std::exception& e) {

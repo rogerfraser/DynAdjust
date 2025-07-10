@@ -51,16 +51,17 @@ std::optional<UINT32> MeasurementProcessor::processSimultaneous(
   // with the actual measurement processing logic
 
   v_CML.clear();
-  v_CML.push_back(vUINT32(bmsr_count));
+  v_CML.push_back(vUINT32());  // Start with empty vector, we'll resize later
 
   counts.measurement_count = 0;
   counts.measurement_variance_count = 0;
 
   UINT32 m = 0, clusterID = 0;
   UINT16 axis = 0;
+  bool isNewCluster = false;
 
   for (auto _it_msr = bmsBinaryRecords.begin();
-       _it_msr != bmsBinaryRecords.end(); ++_it_msr, ++m) {
+       _it_msr != bmsBinaryRecords.end(); ++_it_msr) {
     // Don't include ignored measurements
     if (_it_msr->ignore)
       continue;
@@ -69,38 +70,66 @@ std::optional<UINT32> MeasurementProcessor::processSimultaneous(
     if (_it_msr->measStart > zMeas)
       continue;
 
-    switch (_it_msr->measType) {
-    case 'Y':
-    case 'X':
-      // Handle GPS cluster measurements
+    // Check if this is a new GPS cluster
+    isNewCluster = false;
+    if (_it_msr->measType == 'X' || _it_msr->measType == 'Y') {
       if (clusterID != _it_msr->clusterID) {
-        v_CML.at(0).at(m) = static_cast<UINT32>(
-            std::distance(bmsBinaryRecords.begin(), _it_msr));
+        isNewCluster = true;
         clusterID = _it_msr->clusterID;
       }
-      break;
-    default:
-      v_CML.at(0).at(m) =
-          static_cast<UINT32>(std::distance(bmsBinaryRecords.begin(), _it_msr));
     }
 
     // Handle different measurement types for counting
     if (_it_msr->measType == 'D') {
+      // Direction sets: only add the RO (reference orientation) to v_CML
+      if (_it_msr->vectorCount1 >= 1) {
+        v_CML.at(0).push_back(static_cast<UINT32>(
+            std::distance(bmsBinaryRecords.begin(), _it_msr)));
+        m++;
+      }
+      // Count the RO plus all target directions
       if (_it_msr->vectorCount2 > 0) {
-        counts.measurement_count += _it_msr->vectorCount2 - 1;
-        counts.measurement_variance_count += _it_msr->vectorCount2 - 1;
+        counts.measurement_count += _it_msr->vectorCount2;
+        counts.measurement_variance_count += _it_msr->vectorCount2;
+      } else if (_it_msr->vectorCount1 >= 1) {
+        // Just the RO, no targets
+        counts.measurement_count += 1;
+        counts.measurement_variance_count += 1;
       }
       continue;
     }
 
+    // Add to v_CML for other measurement types
+    switch (_it_msr->measType) {
+    case 'Y':
+    case 'X':
+      // Handle GPS cluster measurements - only add first in cluster
+      if (isNewCluster) {
+        v_CML.at(0).push_back(static_cast<UINT32>(
+            std::distance(bmsBinaryRecords.begin(), _it_msr)));
+        m++;  // Only increment m when we actually add to v_CML
+      }
+      break;
+    default:
+      v_CML.at(0).push_back(static_cast<UINT32>(
+          std::distance(bmsBinaryRecords.begin(), _it_msr)));
+      m++;  // Only increment m when we actually add to v_CML
+    }
+
     switch (_it_msr->measType) {
     case 'G':
+      // GPS baseline measurements expand to 3 components (X, Y, Z)
+      counts.measurement_count += 3;
+      counts.measurement_variance_count += 6;  // Upper triangular covariance matrix
+      continue;
     case 'X':
     case 'Y':
-      counts.measurement_count++;
-      counts.measurement_variance_count += 1 + axis++;
-      if (axis > 2)
-        axis = 0;
+      // GPS cluster measurements - only count if this is the first in the cluster
+      if (isNewCluster) {
+        // Each baseline/point in the cluster contributes 3 measurements
+        counts.measurement_count += _it_msr->vectorCount1 * 3;
+        counts.measurement_variance_count += _it_msr->vectorCount1 * 6;
+      }
       continue;
     }
 
@@ -108,10 +137,7 @@ std::optional<UINT32> MeasurementProcessor::processSimultaneous(
     counts.measurement_variance_count++;
   }
 
-  // Resize to actual measurement count
-  if (m != bmsr_count) {
-    v_CML.at(0).resize(m);
-  }
+  // No need to resize since we're using push_back
 
   counts.measurement_params = counts.measurement_count;
 
