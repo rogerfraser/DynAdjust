@@ -87,27 +87,37 @@ public:
   NetworkDataLoader(NetworkDataLoader &&) = default;
   NetworkDataLoader &operator=(NetworkDataLoader &&) = delete;
 
-  bool LoadInto(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
-            vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
-            binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
-            v_uint32_uint32_map *v_blockStationsMap,
-            vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
-            UINT32 &bmsr_count, UINT32 &unknownParams,
-            UINT32 &unknownsCount, UINT32 &measurementParams,
-            UINT32 &measurementCount, UINT32 &measurementVarianceCount,
-            // Additional parameters for simultaneous mode
-            UINT32* blockCount = nullptr,
-            vvUINT32* v_JSL = nullptr,
-            vUINT32* v_unknownsCount = nullptr,
-            vUINT32* v_measurementCount = nullptr,
-            vUINT32* v_measurementVarianceCount = nullptr,
-            vUINT32* v_measurementParams = nullptr,
-            vUINT32* v_ContiguousNetList = nullptr,
-            std::vector<blockMeta_t>* v_blockMeta = nullptr,
-            vvUINT32* v_parameterStationList = nullptr,
-            vv_stn_appear* v_paramStnAppearance = nullptr,
-            v_mat_2d* v_junctionVariances = nullptr,
-            v_mat_2d* v_junctionVariancesFwd = nullptr);
+  // Load network data for phased adjustment mode
+  bool LoadForPhased(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                     vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                     binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+                     v_uint32_uint32_map *v_blockStationsMap,
+                     vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
+                     UINT32 &bmsr_count, UINT32 &unknownParams,
+                     UINT32 &unknownsCount, UINT32 &measurementParams,
+                     UINT32 &measurementCount, UINT32 &measurementVarianceCount);
+
+  // Load network data for simultaneous adjustment mode
+  bool LoadForSimultaneous(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                          vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                          binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+                          v_uint32_uint32_map *v_blockStationsMap,
+                          vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
+                          UINT32 &bmsr_count, UINT32 &unknownParams,
+                          UINT32 &unknownsCount, UINT32 &measurementParams,
+                          UINT32 &measurementCount, UINT32 &measurementVarianceCount,
+                          UINT32* blockCount,
+                          vvUINT32* v_JSL,
+                          vUINT32* v_unknownsCount,
+                          vUINT32* v_measurementCount,
+                          vUINT32* v_measurementVarianceCount,
+                          vUINT32* v_measurementParams,
+                          vUINT32* v_ContiguousNetList,
+                          std::vector<blockMeta_t>* v_blockMeta,
+                          vvUINT32* v_parameterStationList,
+                          vv_stn_appear* v_paramStnAppearance,
+                          v_mat_2d* v_junctionVariances,
+                          v_mat_2d* v_junctionVariancesFwd);
 
 
   // Constraint application
@@ -120,6 +130,13 @@ public:
   void RemoveInvalidStations(vUINT32& station_list, const vASL& associated_stations);
 
 private:
+  // Common loading logic for both modes
+  bool LoadCommon(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                  vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                  binary_file_meta_t &bms_meta, vUINT32 &v_ISLTemp,
+                  UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
+                  UINT32 &unknownParams, UINT32 &unknownsCount);
+
   bool LoadStations(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
                     UINT32 &bstn_count);
 

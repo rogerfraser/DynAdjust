@@ -13869,36 +13869,56 @@ void dna_adjust::LoadNetworkFiles()
         
         UINT32 measurementVarianceCount = 0;
         
-        bool success = loader.LoadInto(
-            &bstBinaryRecords_,
-            bst_meta_,
-            &vAssocStnList_,
-            &bmsBinaryRecords_,
-            bms_meta_,
-            v_ISL_,
-            &v_blockStationsMap_,
-            &v_CML_,
-            bstn_count_,
-            asl_count_,
-            bmsr_count_,
-            unknownParams_,
-            unknownsCount_,
-            measurementParams_,
-            measurementCount_,
-            measurementVarianceCount,
-            // Pass individual pointers for simultaneous mode
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &blockCount_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_JSL_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_unknownsCount_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementCount_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementVarianceCount_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_measurementParams_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_ContiguousNetList_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_blockMeta_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_parameterStationList_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_paramStnAppearance_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_junctionVariances_ : nullptr,
-            projectSettings_.a.adjust_mode == SimultaneousMode ? &v_junctionVariancesFwd_ : nullptr);
+        bool success = false;
+        if (projectSettings_.a.adjust_mode == SimultaneousMode) {
+            success = loader.LoadForSimultaneous(
+                &bstBinaryRecords_,
+                bst_meta_,
+                &vAssocStnList_,
+                &bmsBinaryRecords_,
+                bms_meta_,
+                v_ISL_,
+                &v_blockStationsMap_,
+                &v_CML_,
+                bstn_count_,
+                asl_count_,
+                bmsr_count_,
+                unknownParams_,
+                unknownsCount_,
+                measurementParams_,
+                measurementCount_,
+                measurementVarianceCount,
+                &blockCount_,
+                &v_JSL_,
+                &v_unknownsCount_,
+                &v_measurementCount_,
+                &v_measurementVarianceCount_,
+                &v_measurementParams_,
+                &v_ContiguousNetList_,
+                &v_blockMeta_,
+                &v_parameterStationList_,
+                &v_paramStnAppearance_,
+                &v_junctionVariances_,
+                &v_junctionVariancesFwd_);
+        } else {
+            success = loader.LoadForPhased(
+                &bstBinaryRecords_,
+                bst_meta_,
+                &vAssocStnList_,
+                &bmsBinaryRecords_,
+                bms_meta_,
+                v_ISL_,
+                &v_blockStationsMap_,
+                &v_CML_,
+                bstn_count_,
+                asl_count_,
+                bmsr_count_,
+                unknownParams_,
+                unknownsCount_,
+                measurementParams_,
+                measurementCount_,
+                measurementVarianceCount);
+        }
             
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
