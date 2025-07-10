@@ -2671,7 +2671,7 @@ void DynAdjustPrinter::PrintStationCorrectionsList(std::ostream& cor_file)
     v_uint32_string_pair correctionsOutput;
     correctionsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
 
-    pv_mat_2d estimates(&adjust_.v_rigorousStations_);
+    const v_mat_2d* estimates = &adjust_.v_rigorousStations_;
     if (adjust_.projectSettings_.a.adjust_mode == SimultaneousMode)
         estimates = &adjust_.v_estimatedStations_;
 
@@ -3092,6 +3092,362 @@ void DynAdjustPrinter::PrintGPSClusterComputedMeasurements(const UINT32& block, 
         if (covariance_count > 0)
             _it_msr++;
     }
+}
+
+void DynAdjustPrinter::PrintStationsUniqueList(std::ostream& os,
+    const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
+    bool recomputeGeographicCoords, bool updateGeographicCoords,
+    bool reapplyTypeBUncertainties)
+{
+    UINT32 block(UINT_MAX), stn, mat_index;
+    _it_u32u32_uint32_pair _it_bsmu;
+
+    // Determine sort order of block Stations Map
+    if (adjust_.projectSettings_.a.stage || adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+    {
+        // sort by blocks to create efficiency when deserialising matrix info
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), 
+            CompareBlockStationMapUnique_byBlock<u32u32_uint32_pair>());
+    }
+    else if (adjust_.projectSettings_.o._sort_stn_file_order)
+    {
+        CompareBlockStationMapUnique_byFileOrder<station_t, u32u32_uint32_pair> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), stnorderCompareFunc);
+    }
+    else
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end());
+    
+    std::stringstream stationRecord;
+    v_uint32_string_pair stationsOutput;
+    stationsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
+
+    std::ostream* outstream(&os);
+    if (adjust_.projectSettings_.a.stage)
+        outstream = &stationRecord;
+
+    const v_mat_2d* estimates = &adjust_.v_rigorousStations_;
+    if (adjust_.projectSettings_.a.adjust_mode == SimultaneousMode)
+        estimates = &adjust_.v_estimatedStations_;
+
+    switch (adjust_.projectSettings_.a.adjust_mode)
+    {
+    case SimultaneousMode:
+        break;
+    case PhasedMode:
+    case Phased_Block_1Mode:		
+        // if computed estimates are available, use them.
+        // if null, use rigorous estimates
+        if (stationEstimates != 0)
+            estimates = stationEstimates;
+        break;
+    default:
+        break;
+    }
+
+    // Print stations according to the user-defined sort order
+    for (_it_bsmu=adjust_.v_blockStationsMapUnique_.begin();
+        _it_bsmu!=adjust_.v_blockStationsMapUnique_.end(); ++_it_bsmu)
+    {
+        // If this is not the first block, exit if block-1 mode
+        if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+            if (_it_bsmu->second > 0)
+                break;
+
+        if (adjust_.projectSettings_.a.stage)
+        {
+            if (block != _it_bsmu->second)
+            {
+                // unload previous block
+                if (_it_bsmu->second > 0)
+                    adjust_.UnloadBlock(_it_bsmu->second-1, 2, 
+                        sf_rigorous_stns, sf_original_stns);
+
+                // load up this block
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 2,
+                        sf_rigorous_stns, sf_original_stns);
+            }
+        }
+
+        block = _it_bsmu->second;
+        stn = _it_bsmu->first.first;
+        mat_index = _it_bsmu->first.second * 3;
+
+        adjust_.PrintAdjStation(*outstream,
+            block, stn, mat_index,
+                &estimates->at(block), &stationVariances->at(block), 
+                recomputeGeographicCoords, updateGeographicCoords,
+                reapplyTypeBUncertainties);
+
+        if (adjust_.projectSettings_.a.stage)
+        {
+            stationsOutput.push_back(uint32_string_pair(stn, stationRecord.str()));
+            stationRecord.str("");
+        }
+    }
+
+    if (adjust_.projectSettings_.a.stage)
+    {
+        adjust_.UnloadBlock(block, 2, 
+            sf_rigorous_stns, sf_original_stns);
+
+        // if required, sort stations according to original station file order
+        if (adjust_.projectSettings_.o._sort_stn_file_order)
+        {
+            CompareOddPairFirst_FileOrder<station_t, UINT32, std::string> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+            std::sort(stationsOutput.begin(), stationsOutput.end(), stnorderCompareFunc);
+        }
+        else
+            std::sort(stationsOutput.begin(), stationsOutput.end(), CompareOddPairFirst<UINT32, std::string>());
+
+        for_each(stationsOutput.begin(), stationsOutput.end(),
+            [&stationsOutput, &os] (std::pair<UINT32, std::string>& stnRecord) { 
+                os << stnRecord.second;
+            }
+        );
+    }
+
+    os << std::endl;
+
+    // if required, sort stations according to original station file order
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+    {
+        CompareBlockStationMapUnique_byFileOrder<station_t, u32u32_uint32_pair> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end(), stnorderCompareFunc);
+    }
+    else
+        std::sort(adjust_.v_blockStationsMapUnique_.begin(), adjust_.v_blockStationsMapUnique_.end());
+
+    // return sort order to alpha-numeric
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+        adjust_.SortStationsbyFileOrder(adjust_.v_blockStationsR);
+
+    adjust_.SortStationsbyID(adjust_.v_blockStationsR);
+}
+
+bool DynAdjustPrinter::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
+{
+    UINT32 cluster_msr, covariance_count, cluster_count((*_it_msr)->vectorCount1);
+
+    switch ((*_it_msr)->measType)
+    {
+    // Three station measurement
+    case 'A':	// Horizontal angle
+        if (adjust_.vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
+            return false;
+        [[fallthrough]];
+    // Two station measurements
+    case 'B':	// Geodetic azimuth
+    case 'C':	// Chord dist
+    case 'E':	// Ellipsoid arc
+    case 'G':	// GPS Baseline
+    case 'K':	// Astronomic azimuth
+    case 'L':	// Level difference
+    case 'M':	// MSL arc
+    case 'S':	// Slope distance
+    case 'V':	// Zenith distance
+    case 'Z':	// Vertical angle
+        if (adjust_.vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+            return false;
+        [[fallthrough]];
+    // One station measurements
+    case 'H':	// Orthometric height
+    case 'I':	// Astronomic latitude
+    case 'J':	// Astronomic longitude
+    case 'P':	// Geodetic latitude
+    case 'Q':	// Geodetic longitude
+    case 'R':	// Ellipsoidal height
+        if (adjust_.vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+            return false;
+        break;
+    // GNSS measurements
+    case 'X':	// GPS Baseline cluster
+    case 'Y':	// GPS Point cluster
+        for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+        {
+            covariance_count = (*_it_msr)->vectorCount2;
+
+            if (adjust_.vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+                return false; 
+
+            if ((*_it_msr)->measType == 'X')
+                if (adjust_.vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+                    return false;
+            
+            (*_it_msr) += 2;					// skip y and z
+            (*_it_msr) += covariance_count * 3;	// skip covariances
+
+            if (covariance_count > 0)
+                (*_it_msr)++;
+        }
+        break;
+    case 'D':	// Direction set
+        for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+        {
+            // Check first station
+            if (cluster_msr == 0)
+                if (adjust_.vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+                    return false;
+            // Check all target directions
+            if (adjust_.vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+                return false;
+            
+            if (cluster_msr+1 == cluster_count)
+                break;
+                
+            (*_it_msr)++;
+        }
+        break;
+    }
+    return true;
+}
+
+void DynAdjustPrinter::PrintAdjStation(std::ostream& os, 
+    const UINT32& block, const UINT32& stn, const UINT32& mat_idx,
+    const matrix_2d* stationEstimates, matrix_2d* stationVariances,
+    bool recomputeGeographicCoords, bool updateGeographicCoords,
+    bool reapplyTypeBUncertainties)
+{
+    double estLatitude, estLongitude, estHeight, E(0.), N(0.), Zo(-1.);
+
+    it_vstn_t stn_it(adjust_.bstBinaryRecords_.begin());
+    stn_it += stn;
+
+    // Print station name and constraint
+    os << std::setw(STATION) << std::left << stn_it->stationName;
+    os << std::setw(CONSTRAINT) << std::left << stn_it->stationConst;
+
+    // Are station corrections required?  
+    // If so, update the original stations matrix
+    if (adjust_.projectSettings_.o._init_stn_corrections || adjust_.projectSettings_.o._stn_corr)
+    {
+        estHeight = stn_it->initialHeight;
+        if (stn_it->suppliedHeightRefFrame == ORTHOMETRIC_type_i)
+            estHeight = stn_it->initialHeight + stn_it->geoidSep;
+
+        // update initial estimates
+        GeoToCart<double>(
+            stn_it->initialLatitude,
+            stn_it->initialLongitude,
+            estHeight,
+            adjust_.v_originalStations_.at(block).getelementref(mat_idx, 0),
+            adjust_.v_originalStations_.at(block).getelementref(mat_idx+1, 0),
+            adjust_.v_originalStations_.at(block).getelementref(mat_idx+2, 0),
+            adjust_.datum_.GetEllipsoidRef());
+    }
+
+    // Are geographic coordinates required?
+    if (recomputeGeographicCoords ||
+        adjust_.projectSettings_.o._stn_coord_types.find("P") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("L") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("H") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("h") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("N") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("z") != std::string::npos)
+    {
+        CartToGeo<double>(
+            stationEstimates->get(mat_idx, 0),		// X
+            stationEstimates->get(mat_idx+1, 0),	// Y
+            stationEstimates->get(mat_idx+2, 0),	// Z
+            &estLatitude,							// Lat
+            &estLongitude,							// Long
+            &estHeight,								// E.Height
+            adjust_.datum_.GetEllipsoidRef());				
+
+        if (updateGeographicCoords)
+        {
+            stn_it->currentLatitude = estLatitude;
+            stn_it->currentLongitude = estLongitude;
+            stn_it->currentHeight = estHeight;
+        }
+    }
+
+    // Are projection coordinates required?
+    if (adjust_.projectSettings_.o._stn_coord_types.find("E") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("N") != std::string::npos ||
+        adjust_.projectSettings_.o._stn_coord_types.find("z") != std::string::npos)
+    {
+        GeoToGrid<double>(estLatitude, estLongitude, &E, &N, &Zo,
+            adjust_.datum_.GetEllipsoidRef(), 
+            &adjust_.projection_, true);		// compute zone
+    }
+
+    // Use coordinate formatting helper
+    PrintStationCoordinatesByType(os, stn_it, stationEstimates, mat_idx, 
+                                  estLatitude, estLongitude, estHeight, E, N, Zo);
+
+    os << std::setw(PAD2) << " ";
+
+    // Standard deviation in local reference frame
+    matrix_2d var_local(3, 3), var_cart(3, 3);
+
+    // To minimise re-computation when printing to .xyz, .adj and .apu, the type b uncertainties are 
+    // added to the estimated variances held in memory. This is not a problem since, if adjust is 
+    // re-run and the user does not supply type b uncertainties, the variances held in memory will be 
+    // re-estimated which will overwrite the type b values that were previously applied.
+
+    // Add type B uncertainties (if required)
+    if (reapplyTypeBUncertainties &&
+        (adjust_.projectSettings_.o._apply_type_b_global || adjust_.projectSettings_.o._apply_type_b_file))
+    {
+        if (adjust_.v_typeBUncertaintyMethod_.at(stn).apply)
+        {
+            // apply local first
+            if (adjust_.v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
+            {
+                // Add the cartesian type b variances 
+                // Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_local(...)
+                stationVariances->blockadd(mat_idx, mat_idx,
+                    adjust_.v_typeBUncertaintiesLocal_.at(adjust_.v_stationTypeBMap_.at(stn).second).type_b,
+                    0, 0, 3, 3);
+            }
+            else if (adjust_.v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
+            {
+                // Compute cartesian variances for this station from the global uncertainty
+                // Note: this needs to be done for each site from the global type b uncertainties entered 
+                // via the command line
+                matrix_2d var_cart_typeb(3, 3);
+                PropagateVariances_LocalCart<double>(adjust_.typeBUncertaintyGlobal_.type_b, var_cart_typeb,
+                    estLatitude, estLongitude, true);
+
+                // Add the cartesian type b variances 
+                stationVariances->blockadd(mat_idx, mat_idx,
+                    var_cart_typeb, 0, 0, 3, 3);
+            }	
+        }
+    }
+
+    var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
+
+    PropagateVariances_LocalCart(var_cart, var_local, 
+        estLatitude, estLongitude, false);
+    
+    // Use uncertainty formatting helper
+    PrintStationUncertainties(os, var_local);
+
+    if (adjust_.projectSettings_.o._stn_corr)
+    {
+        double cor_e, cor_n, cor_up;
+        ComputeLocalElements3D<double>(
+            adjust_.v_originalStations_.at(block).get(mat_idx, 0),		// original X
+            adjust_.v_originalStations_.at(block).get(mat_idx+1, 0),	// original Y
+            adjust_.v_originalStations_.at(block).get(mat_idx+2, 0),	// original Z
+            stationEstimates->get(mat_idx, 0),					// estimated X
+            stationEstimates->get(mat_idx+1, 0),				// estimated Y
+            stationEstimates->get(mat_idx+2, 0),				// estimated Z
+            stn_it->currentLatitude,
+            stn_it->currentLongitude,
+            &cor_e, &cor_n, &cor_up);					// corrections in the local reference frame
+
+        os << std::setw(PAD2) << " " << 
+            std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << cor_e << 
+            std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << cor_n << 
+            std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << cor_up;
+    }
+
+    // description
+    os << std::setw(PAD2) << " " << std::left << stn_it->description;
+    os << std::endl;
 }
 
 } // namespace networkadjust

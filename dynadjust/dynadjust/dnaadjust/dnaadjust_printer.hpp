@@ -153,6 +153,8 @@ class DynAdjustPrinter {
                            bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
     void PrintFileHeaderInformation();
     void PrintGPSClusterComputedMeasurements(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, 
+                                 bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
@@ -208,6 +210,14 @@ class DynAdjustPrinter {
 
     // Stage 6: Export functions
     void PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t);
+    
+    // Stage 7: Validation functions
+    bool IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr);
+    
+    // Enhanced station formatting
+    void PrintAdjStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx,
+                        const matrix_2d* stationEstimates, matrix_2d* stationVariances,
+                        bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
 
     // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
     void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,
