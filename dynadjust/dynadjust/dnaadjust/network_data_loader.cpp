@@ -121,7 +121,7 @@ bool NetworkDataLoader::LoadStations(vstn_t *bstBinaryRecords,
                                       UINT32 &bstn_count) {
   auto result = bst_loader_->LoadWithOptional(settings_.a.bst_file, bstBinaryRecords, bst_meta);
   if (!result) {
-    SignalException("Failed to load binary station file", 0);
+    throw StationLoadException("Failed to load binary station file: " + settings_.a.bst_file);
   }
   bstn_count = static_cast<UINT32>(*result);
   return true;
@@ -133,7 +133,7 @@ bool NetworkDataLoader::LoadAssociatedStations(vASL *vAssocStnList,
   dynadjust::iostreams::AslFile asl_loader(settings_.s.asl_file);
   auto result = asl_loader.TryLoad();
   if (!result) {
-    SignalException("Failed to load associated station list file", 0);
+    throw StationLoadException("Failed to load associated station list file: " + settings_.s.asl_file);
   }
   
   // Copy results to output parameters
@@ -148,7 +148,7 @@ bool NetworkDataLoader::LoadMeasurements(vmsr_t *bmsBinaryRecords,
                                           UINT32 &bmsr_count) {
   auto result = bms_loader_->LoadWithOptional(settings_.a.bms_file, bmsBinaryRecords, bms_meta);
   if (!result) {
-    SignalException("Failed to load binary measurement file", 0);
+    throw MeasurementLoadException("Failed to load binary measurement file: " + settings_.a.bms_file);
   }
   bmsr_count = static_cast<UINT32>(*result);
   return true;
@@ -163,7 +163,7 @@ void NetworkDataLoader::ProcessSimultaneousMode(
 
   // Ensure v_blockStationsMap has at least one map
   if (v_blockStationsMap->empty()) {
-    SignalException("NetworkDataLoader::ProcessSimultaneousMode(): blockStationsMap is empty", 0);
+    throw NetworkLoadException("ProcessSimultaneousMode: blockStationsMap is empty");
   }
 
   try {
@@ -172,9 +172,8 @@ void NetworkDataLoader::ProcessSimultaneousMode(
       (*v_blockStationsMap)[0][v_ISL.at(0).at(i)] = i;
   } catch (const std::bad_alloc& e) {
     std::stringstream ss;
-    ss << "NetworkDataLoader::ProcessSimultaneousMode(): Could not allocate "
-          "memory for blockStationsMap: " << e.what();
-    SignalException(ss.str(), 0);
+    ss << "ProcessSimultaneousMode: Could not allocate memory for blockStationsMap: " << e.what();
+    throw NetworkLoadException(ss.str());
   }
 }
 
@@ -188,34 +187,15 @@ void NetworkDataLoader::ProcessMeasurements(vmsr_t *bmsBinaryRecords,
       *bmsBinaryRecords, bmsr_count, *v_CML, counts);
 
   if (!result) {
-    std::stringstream ss;
-    ss << "No measurements were found.\n"
-       << "  If measurements were successfully loaded on import, ensure that\n"
-       << "  all measurements have not been ignored.";
-    SignalException(ss.str(), 0);
+    throw MeasurementLoadException("No measurements were found. "
+                                   "If measurements were successfully loaded on import, "
+                                   "ensure that all measurements have not been ignored.");
   }
 
   measurementParams = measurementCount = counts.measurement_count;
   measurementVarianceCount = counts.measurement_variance_count;
 }
 
-void NetworkDataLoader::SignalException(std::string_view message, UINT32 block_no) {
-  std::ostringstream error_stream;
-  
-  switch (settings_.a.adjust_mode) {
-    case Phased_Block_1Mode:
-    case PhasedMode:
-      error_stream << message << "\n"
-                   << "  Phased adjustment terminated whilst processing block " 
-                   << (block_no + 1) << "\n";
-      break;
-    default:
-      error_stream << message;
-      break;
-  }
-  
-  throw std::runtime_error(error_stream.str());
-}
 
 void NetworkDataLoader::ApplyConstraints(vstn_t& stations, std::string_view station_map_file) {
   if (settings_.a.station_constraints.empty()) {
@@ -270,18 +250,14 @@ void NetworkDataLoader::ApplyConstraints(vstn_t& stations, std::string_view stat
       }
       
       std::ostringstream ss;
-      ss << "The supplied constraint station " << station_name 
-         << " is not in the stations map. Please ensure that " 
-         << station_name << " is included in the list of stations.";
-      SignalException(ss.str());
+      ss << "The supplied constraint station '" << station_name 
+         << "' is not in the stations map";
+      throw ConstraintException(ss.str());
     }
 
     // Validate constraint
     if (!CDnaStation::IsValidConstraint(constraint)) {
-      std::ostringstream ss;
-      ss << "The supplied station constraint " << constraint 
-         << " is not a valid constraint.";
-      SignalException(ss.str());
+      throw ConstraintException("Invalid station constraint: '" + constraint + "'");
     }
 
     // Apply constraint to station
@@ -341,12 +317,12 @@ void NetworkDataLoader::RemoveInvalidStations(vUINT32& station_list, const vASL&
   std::sort(station_list.begin(), station_list.end());
 }
 
-void NetworkDataLoader::LoadStationMap(pv_string_uint32_pair station_map, 
+void NetworkDataLoader::LoadStationMap(const pv_string_uint32_pair station_map, 
                                        std::string_view map_file) {
   try {
     map_loader_->LoadFile(std::string{map_file}, station_map);
   } catch (const std::runtime_error& e) {
-    SignalException(e.what());
+    throw StationLoadException("Failed to load station map file '" + std::string{map_file} + "': " + e.what());
   }
 }
 

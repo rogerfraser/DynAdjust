@@ -50,6 +50,31 @@ using namespace dynadjust::math;
 namespace dynadjust {
 namespace networkadjust {
 
+// Exception hierarchy for NetworkDataLoader
+class NetworkLoadException : public std::runtime_error {
+public:
+  explicit NetworkLoadException(const std::string& message) 
+    : std::runtime_error(message) {}
+};
+
+class StationLoadException : public NetworkLoadException {
+public:
+  explicit StationLoadException(const std::string& message) 
+    : NetworkLoadException("Station loading error: " + message) {}
+};
+
+class MeasurementLoadException : public NetworkLoadException {
+public:
+  explicit MeasurementLoadException(const std::string& message) 
+    : NetworkLoadException("Measurement loading error: " + message) {}
+};
+
+class ConstraintException : public NetworkLoadException {
+public:
+  explicit ConstraintException(const std::string& message) 
+    : NetworkLoadException("Constraint error: " + message) {}
+};
+
 using ErrorHandler = std::function<void(const std::string &, UINT32)>;
 
 class NetworkDataLoader {
@@ -84,8 +109,6 @@ public:
             v_mat_2d* v_junctionVariances = nullptr,
             v_mat_2d* v_junctionVariancesFwd = nullptr);
 
-  // Exception handling
-  [[noreturn]] void SignalException(std::string_view message, UINT32 block_no = 0);
 
   // Constraint application
   void ApplyConstraints(vstn_t& stations, std::string_view station_map_file = "");
@@ -123,7 +146,7 @@ private:
     }
   }
   
-  void LoadStationMap(pv_string_uint32_pair station_map, std::string_view map_file);
+  void LoadStationMap(const pv_string_uint32_pair station_map, std::string_view map_file);
   void AddDiscontinuitySites(vstring& constraint_stations, vstn_t& stations);
   void InitializeSimultaneousModeVectors(
                                         const vvUINT32& v_ISL,
@@ -151,7 +174,7 @@ private:
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;
 
   // State for constraint and measurement processing
-  mutable bool apply_discontinuities_ = false;
+  bool apply_discontinuities_ = false;
 };
 
 } // namespace networkadjust
