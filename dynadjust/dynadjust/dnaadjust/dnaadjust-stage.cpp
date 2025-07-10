@@ -1,6 +1,8 @@
 //============================================================================
 // Name         : dnaadjust-stage.cpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.

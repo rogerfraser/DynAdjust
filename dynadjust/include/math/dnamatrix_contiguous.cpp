@@ -1,16 +1,15 @@
 //============================================================================
 // Name         : dnamatrix_contiguous.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
 //                You may obtain a copy of the License at
-//
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
+//               
 //                Unless required by applicable law or agreed to in writing, software
 //                distributed under the License is distributed on an "AS IS" BASIS,
 //                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +17,6 @@
 //                limitations under the License.
 //
 // Description  : DynAdjust Matrix library
-//                Matrices are stored as a contiguous 1 dimensional array [row * column]
-//                Storage buffer is ordered column wise to achieve highest efficiency with
-//                Intel MKL
 //============================================================================
 
 #include <include/math/dnamatrix_contiguous.hpp>
