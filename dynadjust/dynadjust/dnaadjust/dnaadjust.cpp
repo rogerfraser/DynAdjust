@@ -7978,7 +7978,7 @@ void dna_adjust::ComputeAdjMsrBlockOnIteration(const UINT32& block)
 				v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
 			break;
 		default:
-			ComputeGlobalNetStat();;
+			ComputeGlobalNetStat();
 			ComputeGlobalTestStat();
 
 			isAdjustmentQuestionable_ = (
@@ -8009,7 +8009,7 @@ void dna_adjust::ComputeStatisticsOnIteration()
 	ComputeChiSquareNetwork();
 	
 	// Compute DOF and sigma zero
-	ComputeGlobalNetStat();;
+	ComputeGlobalNetStat();
 
 	// Perform global test
 	ComputeGlobalTestStat();
