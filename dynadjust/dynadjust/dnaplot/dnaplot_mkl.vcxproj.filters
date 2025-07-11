@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dnaadjust.hpp">
+    <ClInclude Include="dnaplot.hpp"> 
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
@@ -24,31 +24,19 @@
     <ClInclude Include="..\..\include\ide\trace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioadj.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\io\dnaiobms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaiobst.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiomap.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\io\dnaioseg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\io\dnaiomap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioasl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioaml.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiosnx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaiobase.hpp">
@@ -60,33 +48,27 @@
     <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\parameters\dnadatum.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="precompile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\memory\dnafile_mapping.hpp">
+    <ClInclude Include="..\..\include\parameters\dnadatum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp">
+    <ClInclude Include="..\..\include\functions\dnaprocessfuncs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
+    <ClInclude Include="..\..\include\io\dnaiotpb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiotbu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dnaadjust.cpp">
+    <ClCompile Include="dnaplot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp">
@@ -95,7 +77,7 @@
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioadj.cpp">
+    <ClCompile Include="..\..\include\ide\trace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaiobms.cpp">
@@ -110,22 +92,7 @@
     <ClCompile Include="..\..\include\io\dnaioseg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dnaadjust-stage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioasl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioaml.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiosnxwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaiobase.cpp">
@@ -137,28 +104,19 @@
     <ClCompile Include="..\..\include\parameters\dnaprojection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\memory\dnafile_mapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ide\trace.cpp">
+    <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnagpspoint.cpp">
+    <ClCompile Include="..\..\include\functions\dnaprocessfuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiotbu.cpp">
+    <ClCompile Include="..\..\include\io\dnaiotpb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
