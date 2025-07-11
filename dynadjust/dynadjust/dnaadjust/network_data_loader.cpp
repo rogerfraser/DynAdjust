@@ -35,22 +35,21 @@ NetworkDataLoader::NetworkDataLoader(const project_settings &settings)
               ? processors::AdjustmentMode::Simultaneous
               : processors::AdjustmentMode::Phased)) {}
 
-bool NetworkDataLoader::LoadInto(
-    vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta, vASL *vAssocStnList,
-    vmsr_t *bmsBinaryRecords, binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
-    v_uint32_uint32_map *v_blockStationsMap, vvUINT32 *v_CML,
+bool NetworkDataLoader::LoadCommon(
+    vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+    vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+    binary_file_meta_t &bms_meta, vUINT32 &v_ISLTemp,
     UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
-    UINT32 &unknownParams, UINT32 &unknownsCount, UINT32 &measurementParams,
-    UINT32 &measurementCount) {
+    UINT32 &unknownParams, UINT32 &unknownsCount) {
+  
   if (!LoadStations(bstBinaryRecords, bst_meta, bstn_count))
     return false;
 
-  // Apply constraints internally instead of using callback
+  // Apply constraints internally
   if (bstBinaryRecords && !settings_.a.station_constraints.empty()) {
     ApplyConstraints(*bstBinaryRecords);
   }
 
-  vUINT32 v_ISLTemp;
   if (!LoadAssociatedStations(vAssocStnList, v_ISLTemp, asl_count))
     return false;
 
@@ -61,32 +60,92 @@ bool NetworkDataLoader::LoadInto(
 
   unknownParams = unknownsCount = static_cast<UINT32>(v_ISLTemp.size() * 3);
 
-  if (settings_.a.adjust_mode == SimultaneousMode) {
-    ProcessSimultaneousMode(v_ISLTemp, v_ISL, v_blockStationsMap, unknownParams,
-                            unknownsCount);
-  }
-
   if (!LoadMeasurements(bmsBinaryRecords, bms_meta, bmsr_count)) {
     return false;
   }
 
-  // Process measurements for both simultaneous and phased modes
-  // Phased mode needs measurements available for segmentation file loading
-  if (settings_.a.adjust_mode == SimultaneousMode) {
-    ProcessMeasurements(bmsBinaryRecords, bmsr_count, v_CML, measurementParams,
-                        measurementCount);
-                        
-    // Apply non-measurement removal for simultaneous mode
-    if (v_CML && !v_CML->empty()) {
-      RemoveNonMeasurements((*v_CML)[0], *bmsBinaryRecords);
-    }
-  } else if (settings_.a.adjust_mode == PhasedMode ||
-             settings_.a.adjust_mode == Phased_Block_1Mode) {
-    // For phased mode, we still need the measurements loaded for segmentation
-    // file processing but we don't process them the same way as simultaneous
-    // mode
-    measurementParams = measurementCount = bmsr_count;
+  return true;
+}
+
+bool NetworkDataLoader::LoadForPhased(
+    vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+    vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+    binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+    v_uint32_uint32_map *v_blockStationsMap, vvUINT32 *v_CML,
+    UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
+    UINT32 &unknownParams, UINT32 &unknownsCount, UINT32 &measurementParams,
+    UINT32 &measurementCount, UINT32 &measurementVarianceCount) {
+  
+  vUINT32 v_ISLTemp;
+  if (!LoadCommon(bstBinaryRecords, bst_meta, vAssocStnList, bmsBinaryRecords,
+                  bms_meta, v_ISLTemp, bstn_count, asl_count, bmsr_count,
+                  unknownParams, unknownsCount)) {
+    return false;
   }
+
+  // For phased mode, we just need the measurements loaded for segmentation
+  // file processing but we don't process them the same way as simultaneous mode
+  measurementParams = measurementCount = bmsr_count;
+  measurementVarianceCount = bmsr_count;
+
+  // v_ISL is not used in phased mode, but we need to ensure it's initialized
+  // to maintain compatibility
+  if (v_ISL.empty()) {
+    v_ISL.push_back(v_ISLTemp);
+  }
+
+  return true;
+}
+
+bool NetworkDataLoader::LoadForSimultaneous(
+    vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+    vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+    binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+    v_uint32_uint32_map *v_blockStationsMap, vvUINT32 *v_CML,
+    UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
+    UINT32 &unknownParams, UINT32 &unknownsCount, UINT32 &measurementParams,
+    UINT32 &measurementCount, UINT32 &measurementVarianceCount,
+    UINT32* blockCount,
+    vvUINT32* v_JSL,
+    vUINT32* v_unknownsCount,
+    vUINT32* v_measurementCount,
+    vUINT32* v_measurementVarianceCount,
+    vUINT32* v_measurementParams,
+    vUINT32* v_ContiguousNetList,
+    std::vector<blockMeta_t>* v_blockMeta,
+    vvUINT32* v_parameterStationList,
+    vv_stn_appear* v_paramStnAppearance,
+    v_mat_2d* v_junctionVariances,
+    v_mat_2d* v_junctionVariancesFwd) {
+  
+  vUINT32 v_ISLTemp;
+  if (!LoadCommon(bstBinaryRecords, bst_meta, vAssocStnList, bmsBinaryRecords,
+                  bms_meta, v_ISLTemp, bstn_count, asl_count, bmsr_count,
+                  unknownParams, unknownsCount)) {
+    return false;
+  }
+
+  ProcessSimultaneousMode(v_ISLTemp, v_ISL, v_blockStationsMap, unknownParams,
+                          unknownsCount);
+
+  ProcessMeasurements(bmsBinaryRecords, bmsr_count, v_CML, measurementParams,
+                      measurementCount, measurementVarianceCount);
+                      
+  // Apply non-measurement removal for simultaneous mode
+  if (v_CML && !v_CML->empty()) {
+    RemoveNonMeasurements((*v_CML)[0], *bmsBinaryRecords);
+  }
+  
+  // Initialize additional vectors for simultaneous mode
+  InitializeSimultaneousModeVectors(v_ISL, unknownsCount, 
+                                   measurementParams, measurementCount,
+                                   measurementVarianceCount,
+                                   blockCount, v_JSL, v_unknownsCount,
+                                   v_measurementCount, v_measurementVarianceCount,
+                                   v_measurementParams, v_ContiguousNetList,
+                                   v_blockMeta, v_parameterStationList,
+                                   v_paramStnAppearance, v_junctionVariances,
+                                   v_junctionVariancesFwd);
 
   return true;
 }
@@ -96,9 +155,7 @@ bool NetworkDataLoader::LoadStations(vstn_t *bstBinaryRecords,
                                       UINT32 &bstn_count) {
   auto result = bst_loader_->LoadWithOptional(settings_.a.bst_file, bstBinaryRecords, bst_meta);
   if (!result) {
-    if (error_handler_)
-      error_handler_("Failed to load binary station file", 0);
-    return false;
+    throw StationLoadException("Failed to load binary station file: " + settings_.a.bst_file);
   }
   bstn_count = static_cast<UINT32>(*result);
   return true;
@@ -110,9 +167,7 @@ bool NetworkDataLoader::LoadAssociatedStations(vASL *vAssocStnList,
   dynadjust::iostreams::AslFile asl_loader(settings_.s.asl_file);
   auto result = asl_loader.TryLoad();
   if (!result) {
-    if (error_handler_)
-      error_handler_("Failed to load associated station list file", 0);
-    return false;
+    throw StationLoadException("Failed to load associated station list file: " + settings_.s.asl_file);
   }
   
   // Copy results to output parameters
@@ -127,9 +182,7 @@ bool NetworkDataLoader::LoadMeasurements(vmsr_t *bmsBinaryRecords,
                                           UINT32 &bmsr_count) {
   auto result = bms_loader_->LoadWithOptional(settings_.a.bms_file, bmsBinaryRecords, bms_meta);
   if (!result) {
-    if (error_handler_)
-      error_handler_("Failed to load binary measurement file", 0);
-    return false;
+    throw MeasurementLoadException("Failed to load binary measurement file: " + settings_.a.bms_file);
   }
   bmsr_count = static_cast<UINT32>(*result);
   return true;
@@ -142,67 +195,41 @@ void NetworkDataLoader::ProcessSimultaneousMode(
   v_ISL.clear();
   v_ISL.push_back(v_ISLTemp);
 
-  if (v_blockStationsMap->at(0).max_size() <= v_ISL.at(0).size()) {
-    std::stringstream ss;
-    ss << "NetworkDataLoader::load(): Could not allocate "
-          "sufficient memory for blockStationsMap.";
-    if (error_handler_)
-      error_handler_(ss.str(), 0);
-    return;
+  // Ensure v_blockStationsMap has at least one map
+  if (v_blockStationsMap->empty()) {
+    throw NetworkLoadException("ProcessSimultaneousMode: blockStationsMap is empty");
   }
 
-  for (UINT32 i = 0; i < v_ISL.at(0).size(); ++i)
-    (*v_blockStationsMap)[0][v_ISL.at(0).at(i)] = i;
+  try {
+    // Insert station mappings
+    for (UINT32 i = 0; i < v_ISL.at(0).size(); ++i)
+      (*v_blockStationsMap)[0][v_ISL.at(0).at(i)] = i;
+  } catch (const std::bad_alloc& e) {
+    std::stringstream ss;
+    ss << "ProcessSimultaneousMode: Could not allocate memory for blockStationsMap: " << e.what();
+    throw NetworkLoadException(ss.str());
+  }
 }
 
 void NetworkDataLoader::ProcessMeasurements(vmsr_t *bmsBinaryRecords,
                                              UINT32 bmsr_count, vvUINT32 *v_CML,
                                              UINT32 &measurementParams,
-                                             UINT32 &measurementCount) {
+                                             UINT32 &measurementCount,
+                                             UINT32 &measurementVarianceCount) {
   processors::MeasurementCounts counts;
-  auto result = measurement_processor_->processForMode(
+  auto result = measurement_processor_->ProcessForMode(
       *bmsBinaryRecords, bmsr_count, *v_CML, counts);
 
   if (!result) {
-    std::stringstream ss;
-    ss << "No measurements were found.\n"
-       << "  If measurements were successfully loaded on import, ensure that\n"
-       << "  all measurements have not been ignored.";
-    if (error_handler_)
-      error_handler_(ss.str(), 0);
-    return;
+    throw MeasurementLoadException("No measurements were found. "
+                                   "If measurements were successfully loaded on import, "
+                                   "ensure that all measurements have not been ignored.");
   }
 
   measurementParams = measurementCount = counts.measurement_count;
-
-  // Update measurement vectors in the calling class
-  if (measurement_count_updater_) {
-    // Debug output
-    std::cout << "DEBUG: Setting measurement_count=" << counts.measurement_count
-              << ", measurement_variance_count="
-              << counts.measurement_variance_count << std::endl;
-    measurement_count_updater_(counts.measurement_count,
-                               counts.measurement_variance_count);
-  }
+  measurementVarianceCount = counts.measurement_variance_count;
 }
 
-void NetworkDataLoader::SignalException(std::string_view message, UINT32 block_no) {
-  std::ostringstream error_stream;
-  
-  switch (settings_.a.adjust_mode) {
-    case Phased_Block_1Mode:
-    case PhasedMode:
-      error_stream << message << "\n"
-                   << "  Phased adjustment terminated whilst processing block " 
-                   << (block_no + 1) << "\n";
-      break;
-    default:
-      error_stream << message;
-      break;
-  }
-  
-  throw std::runtime_error(error_stream.str());
-}
 
 void NetworkDataLoader::ApplyConstraints(vstn_t& stations, std::string_view station_map_file) {
   if (settings_.a.station_constraints.empty()) {
@@ -257,18 +284,14 @@ void NetworkDataLoader::ApplyConstraints(vstn_t& stations, std::string_view stat
       }
       
       std::ostringstream ss;
-      ss << "The supplied constraint station " << station_name 
-         << " is not in the stations map. Please ensure that " 
-         << station_name << " is included in the list of stations.";
-      SignalException(ss.str());
+      ss << "The supplied constraint station '" << station_name 
+         << "' is not in the stations map";
+      throw ConstraintException(ss.str());
     }
 
     // Validate constraint
     if (!CDnaStation::IsValidConstraint(constraint)) {
-      std::ostringstream ss;
-      ss << "The supplied station constraint " << constraint 
-         << " is not a valid constraint.";
-      SignalException(ss.str());
+      throw ConstraintException("Invalid station constraint: '" + constraint + "'");
     }
 
     // Apply constraint to station
@@ -328,12 +351,12 @@ void NetworkDataLoader::RemoveInvalidStations(vUINT32& station_list, const vASL&
   std::sort(station_list.begin(), station_list.end());
 }
 
-void NetworkDataLoader::LoadStationMap(pv_string_uint32_pair station_map, 
+void NetworkDataLoader::LoadStationMap(const pv_string_uint32_pair station_map, 
                                        std::string_view map_file) {
   try {
     map_loader_->LoadFile(std::string{map_file}, station_map);
   } catch (const std::runtime_error& e) {
-    SignalException(e.what());
+    throw StationLoadException("Failed to load station map file '" + std::string{map_file} + "': " + e.what());
   }
 }
 
@@ -385,6 +408,82 @@ void NetworkDataLoader::AddDiscontinuitySites(vstring& constraint_stations, vstn
   std::sort(stations.begin(), stations.end(), [](const station_t& lhs, const station_t& rhs) {
     return std::string(lhs.stationName) < std::string(rhs.stationName);
   });
+}
+
+void NetworkDataLoader::InitializeSimultaneousModeVectors(
+    const vvUINT32& v_ISL,
+    UINT32 unknownsCount, 
+    UINT32 measurementParams, 
+    UINT32 measurementCount,
+    UINT32 measurementVarianceCount,
+    UINT32* blockCount,
+    vvUINT32* v_JSL,
+    vUINT32* v_unknownsCount,
+    vUINT32* v_measurementCount,
+    vUINT32* v_measurementVarianceCount,
+    vUINT32* v_measurementParams,
+    vUINT32* v_ContiguousNetList,
+    std::vector<blockMeta_t>* v_blockMeta,
+    vvUINT32* v_parameterStationList,
+    vv_stn_appear* v_paramStnAppearance,
+    v_mat_2d* v_junctionVariances,
+    v_mat_2d* v_junctionVariancesFwd) {
+  
+  // Only initialize if we're in simultaneous mode
+  if (settings_.a.adjust_mode != SimultaneousMode) {
+    return;
+  }
+    
+  if (blockCount) {
+    *blockCount = 1;
+  }
+  
+  // Initialize simple vectors
+  InitializeIfEmpty(v_JSL, 1);
+  InitializeIfEmpty(v_paramStnAppearance, 1);
+  InitializeIfEmpty(v_junctionVariances, 1);
+  InitializeIfEmpty(v_junctionVariancesFwd, 1);
+  
+  // Initialize vectors with specific values
+  if (v_unknownsCount && v_unknownsCount->empty()) {
+    v_unknownsCount->resize(1);
+    v_unknownsCount->at(0) = unknownsCount;
+  }
+  
+  if (v_measurementCount && v_measurementCount->empty()) {
+    v_measurementCount->resize(1);
+    v_measurementCount->at(0) = measurementCount;
+  }
+  
+  if (v_measurementVarianceCount && v_measurementVarianceCount->empty()) {
+    v_measurementVarianceCount->resize(1);
+    v_measurementVarianceCount->at(0) = measurementVarianceCount;
+  }
+  
+  if (v_measurementParams && v_measurementParams->empty()) {
+    v_measurementParams->resize(1);
+    v_measurementParams->at(0) = measurementParams;
+  }
+  
+  if (v_ContiguousNetList && v_ContiguousNetList->empty()) {
+    v_ContiguousNetList->resize(1);
+    v_ContiguousNetList->at(0) = 0;
+  }
+  
+  // Initialize block metadata vectors
+  if (v_blockMeta && v_blockMeta->empty()) {
+    v_blockMeta->resize(1);
+    v_blockMeta->at(0)._blockFirst = true;
+    v_blockMeta->at(0)._blockLast = true;
+    v_blockMeta->at(0)._blockIntermediate = false;
+    v_blockMeta->at(0)._blockIsolated = false;
+  }
+  
+  if (v_parameterStationList && v_parameterStationList->empty()) {
+    v_parameterStationList->resize(1);
+    // For simultaneous mode, all stations are parameters
+    v_parameterStationList->at(0) = v_ISL.at(0);
+  }
 }
 
 } // namespace networkadjust

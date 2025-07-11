@@ -2154,8 +2154,8 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader, true);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader, false);
+		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, false, true);
+		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, false, false);
 		break;
 	case PhasedMode:
 	case Phased_Block_1Mode:
@@ -7577,24 +7577,34 @@ void dna_adjust::SerialiseAdjustedVarianceMatrices()
 
 void dna_adjust::GenerateStatistics()
 {
-	// Backup the latest estimates and, if this is not a staged 
-	// adjustment, update normals and measured-computed matrices.
-	UpdateAdjustment(false);
+	try {
+		// Backup the latest estimates and, if this is not a staged 
+		// adjustment, update normals and measured-computed matrices.
+		UpdateAdjustment(false);
 
-	// Compute whole-of-network statistics.
-	ComputeStatistics();
+		// Compute whole-of-network statistics.
+		ComputeStatistics();
 
-	// Print statistics summary to adj file
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case Phased_Block_1Mode:
-		PrintStatistics(false);
-		break;
-	//case SimultaneousMode:
-	//case PhasedMode:
-	default:
-		PrintStatistics();
-		break;
+		// Print statistics summary to adj file
+		switch (projectSettings_.a.adjust_mode)
+		{
+		case Phased_Block_1Mode:
+			PrintStatistics(false);
+			break;
+		//case SimultaneousMode:
+		//case PhasedMode:
+		default:
+			PrintStatistics();
+			break;
+		}
+	}
+	catch (const std::out_of_range& e) {
+		std::cerr << "ERROR in GenerateStatistics: out_of_range exception - " << e.what() << std::endl;
+		throw;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "ERROR in GenerateStatistics: " << e.what() << std::endl;
+		throw;
 	}
 
 	isAdjustmentQuestionable_ = (
@@ -9683,7 +9693,7 @@ void dna_adjust::PrintAdjStationsUniqueList(std::ostream& os,
 	try {
 		// Print header info and columns to adj file.  Throws runtime_error on failure.
 		AdjFile adj;
-		adj.print_adj_stn_header(os);
+		// Don't print the "Adjusted Coordinates" header
 		adj.print_stn_info_col_header(os, 
 			projectSettings_.o._stn_coord_types, projectSettings_.o._stn_corr);
 	}
@@ -13857,22 +13867,58 @@ void dna_adjust::LoadNetworkFiles()
     try {
         NetworkDataLoader loader(projectSettings_);
         
-        bool success = loader.LoadInto(
-            &bstBinaryRecords_,
-            bst_meta_,
-            &vAssocStnList_,
-            &bmsBinaryRecords_,
-            bms_meta_,
-            v_ISL_,
-            &v_blockStationsMap_,
-            &v_CML_,
-            bstn_count_,
-            asl_count_,
-            bmsr_count_,
-            unknownParams_,
-            unknownsCount_,
-            measurementParams_,
-            measurementCount_);
+        UINT32 measurementVarianceCount = 0;
+        
+        bool success = false;
+        if (projectSettings_.a.adjust_mode == SimultaneousMode) {
+            success = loader.LoadForSimultaneous(
+                &bstBinaryRecords_,
+                bst_meta_,
+                &vAssocStnList_,
+                &bmsBinaryRecords_,
+                bms_meta_,
+                v_ISL_,
+                &v_blockStationsMap_,
+                &v_CML_,
+                bstn_count_,
+                asl_count_,
+                bmsr_count_,
+                unknownParams_,
+                unknownsCount_,
+                measurementParams_,
+                measurementCount_,
+                measurementVarianceCount,
+                &blockCount_,
+                &v_JSL_,
+                &v_unknownsCount_,
+                &v_measurementCount_,
+                &v_measurementVarianceCount_,
+                &v_measurementParams_,
+                &v_ContiguousNetList_,
+                &v_blockMeta_,
+                &v_parameterStationList_,
+                &v_paramStnAppearance_,
+                &v_junctionVariances_,
+                &v_junctionVariancesFwd_);
+        } else {
+            success = loader.LoadForPhased(
+                &bstBinaryRecords_,
+                bst_meta_,
+                &vAssocStnList_,
+                &bmsBinaryRecords_,
+                bms_meta_,
+                v_ISL_,
+                &v_blockStationsMap_,
+                &v_CML_,
+                bstn_count_,
+                asl_count_,
+                bmsr_count_,
+                unknownParams_,
+                unknownsCount_,
+                measurementParams_,
+                measurementCount_,
+                measurementVarianceCount);
+        }
             
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
@@ -14445,6 +14491,6 @@ void dna_adjust::SortMeasurementsbyNstat(v_uint32_u32u32_pair& msr_block)
 	
 
 
+
 }	// namespace networkadjust
 }	// namespace dynadjust
-

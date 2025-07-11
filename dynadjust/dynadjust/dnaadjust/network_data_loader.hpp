@@ -40,13 +40,40 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/measurement_types/dnastation.hpp>
+#include <include/math/dnamatrix_contiguous.hpp>
 
 #include "measurement_processor.hpp"
 
 using namespace dynadjust::measurements;
+using namespace dynadjust::math;
 
 namespace dynadjust {
 namespace networkadjust {
+
+// Exception hierarchy for NetworkDataLoader
+class NetworkLoadException : public std::runtime_error {
+public:
+  explicit NetworkLoadException(const std::string& message) 
+    : std::runtime_error(message) {}
+};
+
+class StationLoadException : public NetworkLoadException {
+public:
+  explicit StationLoadException(const std::string& message) 
+    : NetworkLoadException("Station loading error: " + message) {}
+};
+
+class MeasurementLoadException : public NetworkLoadException {
+public:
+  explicit MeasurementLoadException(const std::string& message) 
+    : NetworkLoadException("Measurement loading error: " + message) {}
+};
+
+class ConstraintException : public NetworkLoadException {
+public:
+  explicit ConstraintException(const std::string& message) 
+    : NetworkLoadException("Constraint error: " + message) {}
+};
 
 using ErrorHandler = std::function<void(const std::string &, UINT32)>;
 
@@ -60,33 +87,38 @@ public:
   NetworkDataLoader(NetworkDataLoader &&) = default;
   NetworkDataLoader &operator=(NetworkDataLoader &&) = delete;
 
-  void SetErrorHandler(ErrorHandler handler) {
-    error_handler_ = std::move(handler);
-  }
-  void SetConstraintApplier(std::function<void()> applier) {
-    constraint_applier_ = std::move(applier);
-  }
-  void SetInvalidStationRemover(std::function<void(vUINT32 &)> remover) {
-    invalid_station_remover_ = std::move(remover);
-  }
-  void SetNonMeasurementRemover(std::function<void(UINT32)> remover) {
-    non_measurement_remover_ = std::move(remover);
-  }
-  void SetMeasurementCountUpdater(std::function<void(UINT32, UINT32)> updater) {
-    measurement_count_updater_ = std::move(updater);
-  }
+  // Load network data for phased adjustment mode
+  bool LoadForPhased(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                     vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                     binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+                     v_uint32_uint32_map *v_blockStationsMap,
+                     vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
+                     UINT32 &bmsr_count, UINT32 &unknownParams,
+                     UINT32 &unknownsCount, UINT32 &measurementParams,
+                     UINT32 &measurementCount, UINT32 &measurementVarianceCount);
 
-  bool LoadInto(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
-            vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
-            binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
-            v_uint32_uint32_map *v_blockStationsMap,
-            vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
-            UINT32 &bmsr_count, UINT32 &unknownParams,
-            UINT32 &unknownsCount, UINT32 &measurementParams,
-            UINT32 &measurementCount);
+  // Load network data for simultaneous adjustment mode
+  bool LoadForSimultaneous(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                          vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                          binary_file_meta_t &bms_meta, vvUINT32 &v_ISL,
+                          v_uint32_uint32_map *v_blockStationsMap,
+                          vvUINT32 *v_CML, UINT32 &bstn_count, UINT32 &asl_count,
+                          UINT32 &bmsr_count, UINT32 &unknownParams,
+                          UINT32 &unknownsCount, UINT32 &measurementParams,
+                          UINT32 &measurementCount, UINT32 &measurementVarianceCount,
+                          UINT32* blockCount,
+                          vvUINT32* v_JSL,
+                          vUINT32* v_unknownsCount,
+                          vUINT32* v_measurementCount,
+                          vUINT32* v_measurementVarianceCount,
+                          vUINT32* v_measurementParams,
+                          vUINT32* v_ContiguousNetList,
+                          std::vector<blockMeta_t>* v_blockMeta,
+                          vvUINT32* v_parameterStationList,
+                          vv_stn_appear* v_paramStnAppearance,
+                          v_mat_2d* v_junctionVariances,
+                          v_mat_2d* v_junctionVariancesFwd);
 
-  // Exception handling
-  [[noreturn]] void SignalException(std::string_view message, UINT32 block_no = 0);
 
   // Constraint application
   void ApplyConstraints(vstn_t& stations, std::string_view station_map_file = "");
@@ -98,6 +130,13 @@ public:
   void RemoveInvalidStations(vUINT32& station_list, const vASL& associated_stations);
 
 private:
+  // Common loading logic for both modes
+  bool LoadCommon(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
+                  vASL *vAssocStnList, vmsr_t *bmsBinaryRecords,
+                  binary_file_meta_t &bms_meta, vUINT32 &v_ISLTemp,
+                  UINT32 &bstn_count, UINT32 &asl_count, UINT32 &bmsr_count,
+                  UINT32 &unknownParams, UINT32 &unknownsCount);
+
   bool LoadStations(vstn_t *bstBinaryRecords, binary_file_meta_t &bst_meta,
                     UINT32 &bstn_count);
 
@@ -113,11 +152,37 @@ private:
 
   void ProcessMeasurements(vmsr_t *bmsBinaryRecords, UINT32 bmsr_count,
                            vvUINT32 *v_CML, UINT32 &measurementParams,
-                           UINT32 &measurementCount);
+                           UINT32 &measurementCount, UINT32 &measurementVarianceCount);
 
   // Helper methods
-  void LoadStationMap(pv_string_uint32_pair station_map, std::string_view map_file);
+  template<typename T>
+  void InitializeIfEmpty(T* vector, size_t size, 
+                        const typename T::value_type& value = {}) {
+    if (vector && vector->empty()) {
+      vector->resize(size, value);
+    }
+  }
+  
+  void LoadStationMap(const pv_string_uint32_pair station_map, std::string_view map_file);
   void AddDiscontinuitySites(vstring& constraint_stations, vstn_t& stations);
+  void InitializeSimultaneousModeVectors(
+                                        const vvUINT32& v_ISL,
+                                        UINT32 unknownsCount, 
+                                        UINT32 measurementParams, 
+                                        UINT32 measurementCount,
+                                        UINT32 measurementVarianceCount,
+                                        UINT32* blockCount,
+                                        vvUINT32* v_JSL,
+                                        vUINT32* v_unknownsCount,
+                                        vUINT32* v_measurementCount,
+                                        vUINT32* v_measurementVarianceCount,
+                                        vUINT32* v_measurementParams,
+                                        vUINT32* v_ContiguousNetList,
+                                        std::vector<blockMeta_t>* v_blockMeta,
+                                        vvUINT32* v_parameterStationList,
+                                        vv_stn_appear* v_paramStnAppearance,
+                                        v_mat_2d* v_junctionVariances,
+                                        v_mat_2d* v_junctionVariancesFwd);
 
   const project_settings &settings_;
   std::unique_ptr<dynadjust::iostreams::BstFile> bst_loader_;
@@ -126,13 +191,7 @@ private:
   std::unique_ptr<processors::MeasurementProcessor> measurement_processor_;
 
   // State for constraint and measurement processing
-  mutable bool apply_discontinuities_ = false;
-
-  ErrorHandler error_handler_;
-  std::function<void()> constraint_applier_;
-  std::function<void(vUINT32 &)> invalid_station_remover_;
-  std::function<void(UINT32)> non_measurement_remover_;
-  std::function<void(UINT32, UINT32)> measurement_count_updater_;
+  bool apply_discontinuities_ = false;
 };
 
 } // namespace networkadjust
