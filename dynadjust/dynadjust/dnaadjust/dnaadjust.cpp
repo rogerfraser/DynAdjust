@@ -10905,71 +10905,8 @@ void dna_adjust::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
 
 void dna_adjust::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam)
 {
-	// Is this a Y cluster specified in latitude, longitude, height?
-	if (_it_msr->measType == 'Y')
-	{
-        if (_it_msr->station3 == LLH_type_i ||
-            _it_msr->station3 == LLh_type_i)
-		{
-			// Print phi, lambda, H
-			PrintAdjMeasurements_YLLH(_it_msr);
-			return;
-		}
-	}
-
-	UINT32 cluster_msr, cluster_count(_it_msr->vectorCount1), covariance_count;
-	bool nextElement(false);
-
-	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
-	{
-		if (nextElement)
-			adj_file << std::left << std::setw(PAD2) << _it_msr->measType;
-		else
-			nextElement = true;
-
-		covariance_count = _it_msr->vectorCount2;
-
-		// first station
-		adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
-	
-		// Print second station?
-		switch (_it_msr->measType)
-		{
-		case 'G':
-		case 'X':
-			adj_file << std::left << std::setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-			break;
-		default:
-			adj_file << std::left << std::setw(STATION) << " ";
-		}
-
-		// third station
-		adj_file << std::left << std::setw(STATION) << " ";
-		
-		// Print adjusted GNSS baseline measurements in alternate units?
-		if (projectSettings_.o._adj_gnss_units != XYZ_adj_gnss_ui &&
-			_it_msr->measType != 'Y')
-			PrintAdjGNSSAlternateUnits(_it_msr, b_pam);
-		else
-		{
-			// Print X
-			PrintAdjMeasurementsLinear('X', _it_msr);
-	
-			// Print Y
-			_it_msr++;	
-			PrintAdjMeasurementsLinear('Y', _it_msr);
-
-			// Print Z
-			_it_msr++;	
-			PrintAdjMeasurementsLinear('Z', _it_msr);
-		}
-
-		// skip covariances until next baseline
-		_it_msr += covariance_count * 3;
-		
-		if (covariance_count > 0)
-			_it_msr++;
-	}
+	DynAdjustPrinter printer(*this);
+	printer.PrintAdjMeasurements_GXY(_it_msr, b_pam);
 }
 	
 void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam)
