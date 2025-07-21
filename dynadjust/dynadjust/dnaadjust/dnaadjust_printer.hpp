@@ -221,6 +221,10 @@ class DynAdjustPrinter {
     
     // GPS cluster measurement printing
     void PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
+    
+    // Station correction printing
+    void PrintCorStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_index,
+                        const matrix_2d* stationEstimates);
 
     // Stage 4: Enhanced coordinate formatting utilities for PrintAdjStation refactoring
     void PrintStationCoordinatesByType(std::ostream& os, const it_vstn_t& stn_it,

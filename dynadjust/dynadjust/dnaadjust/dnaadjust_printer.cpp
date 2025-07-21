@@ -3518,5 +3518,89 @@ void DynAdjustPrinter::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32
     }
 }
 
+void DynAdjustPrinter::PrintCorStation(std::ostream& os, 
+    const UINT32& block, const UINT32& stn, const UINT32& mat_index,
+    const matrix_2d* stationEstimates)
+{
+    double vertical_angle, azimuth, slope_distance, horiz_distance, 
+        local_12e, local_12n, local_12up;
+
+    // calculate vertical angle
+    vertical_angle = VerticalAngle(
+        adjust_.v_originalStations_.at(block).get(mat_index, 0),		// X1
+        adjust_.v_originalStations_.at(block).get(mat_index+1, 0),		// Y1
+        adjust_.v_originalStations_.at(block).get(mat_index+2, 0),		// Z1
+        stationEstimates->get(mat_index, 0),		// X2
+        stationEstimates->get(mat_index+1, 0),		// Y2
+        stationEstimates->get(mat_index+2, 0),		// Z2
+        adjust_.bstBinaryRecords_.at(stn).currentLatitude,
+        adjust_.bstBinaryRecords_.at(stn).currentLongitude,
+        adjust_.bstBinaryRecords_.at(stn).currentLatitude,
+        adjust_.bstBinaryRecords_.at(stn).currentLongitude,
+        0., 0.,
+        &local_12e, &local_12n, &local_12up);
+
+    if (fabs(local_12e) < PRECISION_1E5)
+        if (fabs(local_12n) < PRECISION_1E5)
+            if (fabs(local_12up) < PRECISION_1E5)
+                vertical_angle = 0.;
+        
+    // Is the vertical correction within the user-specified tolerance?
+    if (fabs(local_12up) < adjust_.projectSettings_.o._vt_corr_threshold)
+        return;
+
+    // compute horizontal correction
+    horiz_distance = magnitude(local_12e, local_12n);
+        
+    // Is the horizontal correction within the user-specified tolerance?
+    if (horiz_distance < adjust_.projectSettings_.o._hz_corr_threshold)
+        return;
+        
+    // calculate azimuth
+    azimuth = Direction(
+        adjust_.v_originalStations_.at(block).get(mat_index, 0),		// X1
+        adjust_.v_originalStations_.at(block).get(mat_index+1, 0),		// Y1
+        adjust_.v_originalStations_.at(block).get(mat_index+2, 0),		// Z1
+        stationEstimates->get(mat_index, 0),		// X2
+        stationEstimates->get(mat_index+1, 0),		// Y2
+        stationEstimates->get(mat_index+2, 0),		// Z2
+        adjust_.bstBinaryRecords_.at(stn).currentLatitude,
+        adjust_.bstBinaryRecords_.at(stn).currentLongitude,
+        &local_12e, &local_12n);
+
+    if (fabs(local_12e) < PRECISION_1E5)
+        if (fabs(local_12n) < PRECISION_1E5)
+            azimuth = 0.;
+
+    // calculate distances
+    slope_distance = magnitude(
+        adjust_.v_originalStations_.at(block).get(mat_index, 0),		// X1
+        adjust_.v_originalStations_.at(block).get(mat_index+1, 0),		// Y1
+        adjust_.v_originalStations_.at(block).get(mat_index+2, 0),		// Z1
+        stationEstimates->get(mat_index, 0),		// X2
+        stationEstimates->get(mat_index+1, 0),		// Y2
+        stationEstimates->get(mat_index+2, 0));		// Z2
+        
+    // print...
+    // station and constraint
+    os << std::setw(STATION) << std::left << adjust_.bstBinaryRecords_.at(stn).stationName << std::setw(PAD2) << " ";
+    // data
+    os << std::setw(MSR) << std::right << FormatDmsString(RadtoDms(azimuth), 4, true, false) << 
+        std::setw(MSR) << std::right << FormatDmsString(RadtoDms(vertical_angle), 4, true, false) << 
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << slope_distance << 
+        std::setw(MSR) << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << horiz_distance;
+
+    if (adjust_.isAdjustmentQuestionable_)
+        os << 
+            StringFromTW(local_12e, HEIGHT, adjust_.PRECISION_MTR_STN) << 
+            StringFromTW(local_12n, HEIGHT, adjust_.PRECISION_MTR_STN) << 
+            StringFromTW(local_12up, HEIGHT, adjust_.PRECISION_MTR_STN) << std::endl;
+    else
+        os << 
+            std::setw(HEIGHT) << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << local_12e << 
+            std::setw(HEIGHT) << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << local_12n << 
+            std::setw(HEIGHT) << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << local_12up << std::endl;
+}
+
 } // namespace networkadjust
 } // namespace dynadjust
