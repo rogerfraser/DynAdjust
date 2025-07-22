@@ -2154,34 +2154,6 @@ void dna_adjust::PrintAdjustedNetworkStations()
 {
 	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintAdjustedNetworkStations();
-	
-	// Handle staging for complex phased output blocks if needed
-	if (projectSettings_.a.adjust_mode == PhasedMode || projectSettings_.a.adjust_mode == Phased_Block_1Mode) {
-		if (projectSettings_.o._output_stn_blocks && projectSettings_.a.stage) {
-			// Handle special staging logic for blocks written to disk
-			bool printHeader(true);
-			for (UINT32 block=0; block<blockCount_; ++block) {
-				// Deserialize blocks from mapped files
-				DeserialiseBlockFromMappedFile(block, 2, sf_rigorous_stns, sf_rigorous_vars);
-				if (projectSettings_.o._init_stn_corrections || projectSettings_.o._stn_corr)
-					DeserialiseBlockFromMappedFile(block, 1, sf_original_stns);
-
-				// Print using original detailed function for staging compatibility
-				PrintAdjStations(adj_file, block, &v_rigorousStations_.at(block), &v_rigorousVariances_.at(block), true, true, true, printHeader, true);
-				PrintAdjStations(xyz_file, block, &v_rigorousStations_.at(block), &v_rigorousVariances_.at(block), true, false, false, printHeader, false);
-				printHeader = false;
-
-				// Release block from memory
-				UnloadBlock(block, 2, sf_rigorous_stns, sf_rigorous_vars);
-				if (projectSettings_.o._init_stn_corrections || projectSettings_.o._stn_corr)
-					SerialiseBlockToMappedFile(block, 1, sf_original_stns);
-
-				// Exit if block-1 mode
-				if (projectSettings_.a.adjust_mode == Phased_Block_1Mode)
-					break;
-			}
-		}
-	}
 }
 	
 // First item in the file is a UINT32 value - the number of records in the file
