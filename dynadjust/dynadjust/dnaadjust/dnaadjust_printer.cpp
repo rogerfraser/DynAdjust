@@ -635,60 +635,115 @@ void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vms
 }
 
 // Stage 3: Statistical and summary generators
-void DynAdjustPrinter::PrintStatistics() {
-    if (adjust_.projectSettings_.a.report_mode)
-        return;
+void DynAdjustPrinter::PrintStatistics(bool printPelzer) {
+    // print statistics
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of unknown parameters" << std::fixed << std::setprecision(0) << adjust_.unknownParams_;
+    if (adjust_.allStationsFixed_)
+        adjust_.adj_file << "  (All stations held constrained)";
+    adjust_.adj_file << std::endl;
 
-    adjust_.adj_file << std::endl << OUTPUTLINE << std::endl;
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "SOLUTION STATISTICS" << std::endl << std::endl;
-
-    // chi-squared value
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared" << 
-        std::fixed << std::setprecision(4) << adjust_.chiSquared_ << std::endl;
-
-    // Degrees of freedom
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Degrees of freedom" << 
-        adjust_.degreesofFreedom_ << std::endl;
-
-    if (adjust_.degreesofFreedom_ < 1) {
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared test" << 
-            "NO REDUNDANCY" << std::endl;
-    } else {
-        // Sigma zero
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Sigma Zero" << 
-            std::fixed << std::setprecision(4) << adjust_.sigmaZero_ << std::endl;
-
-        // Critical value limits
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared upper limit" << 
-            std::fixed << std::setprecision(4) << adjust_.chiSquaredUpperLimit_ << std::endl;
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared lower limit" << 
-            std::fixed << std::setprecision(4) << adjust_.chiSquaredLowerLimit_ << std::endl;
-
-        // Pass/fail status
-        std::stringstream ss;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of measurements" << std::fixed << std::setprecision(0) << adjust_.measurementParams_;
+    if (adjust_.potentialOutlierCount_ > 0)
+    {
+        adjust_.adj_file << "  (" << adjust_.potentialOutlierCount_ << " potential outlier";
+        if (adjust_.potentialOutlierCount_ > 1)
+            adjust_.adj_file << "s";
+        adjust_.adj_file << ")";
+    }
+    adjust_.adj_file << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Degrees of freedom" << std::fixed << std::setprecision(0) << adjust_.degreesofFreedom_ << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared" << std::fixed << std::setprecision(2) << adjust_.chiSquared_ << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Rigorous Sigma Zero" << std::fixed << std::setprecision(3) << adjust_.sigmaZero_ << std::endl;
+    if (printPelzer)
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Global (Pelzer) Reliability" << std::fixed << std::setw(8) << std::setprecision(3) << adjust_.globalPelzerReliability_ << 
+            "(excludes non redundant measurements)" << std::endl;
+    
+    adjust_.adj_file << std::endl;
+    
+    std::stringstream ss("");
+    ss << "Chi-Square test (" << std::setprecision(1) << std::fixed << adjust_.projectSettings_.a.confidence_interval << "%)";
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << ss.str();
+    ss.str("");
+    ss << std::fixed << std::setprecision(3) << 
+        adjust_.chiSquaredLowerLimit_ << " < " << 
+        adjust_.sigmaZero_ << " < " << 
+        adjust_.chiSquaredUpperLimit_;
+    adjust_.adj_file << std::setw(CHISQRLIMITS) << std::left << ss.str();
+    
+    ss.str("");
+    if (adjust_.degreesofFreedom_ < 1)
+        ss << "NO REDUNDANCY";
+    else
+    {
         ss << "*** ";
-        switch (adjust_.passFail_) {
+        switch (adjust_.passFail_)
+        {
         case test_stat_pass: 
-            ss << "PASSED";
+            ss << "PASSED";        // within upper and lower
             break;
         case test_stat_warning:
-            ss << "WARNING";
+            ss << "WARNING";    // less than lower limit
             break;
         case test_stat_fail:
-            ss << "FAILED";
+            ss << "FAILED";        // greater than upper limit
             break;
         }
         ss << " ***";
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Chi squared test" << ss.str() << std::endl;
     }
-    
-    adjust_.adj_file << std::endl;
+    adjust_.adj_file << std::setw(PASS_FAIL) << std::right << ss.str() << std::endl << std::endl;
 }
 
 void DynAdjustPrinter::PrintMeasurementsToStation() {
-    // Simplified measurements to station summary
-    adjust_.adj_file << std::endl << "MEASUREMENTS TO STATION SUMMARY" << std::endl;
-    adjust_.adj_file << "Station measurement summary will be printed using existing detailed implementation." << std::endl;
+    // Create Measurement tally.  Loads up the AML file.
+    adjust_.CreateMsrToStnTally();
+
+    // Print measurement to station summary header
+    std::string header("Measurements to Station ");
+    MsrToStnSummaryHeader(adjust_.adj_file, header);
+
+    _it_vmsrtally it_vstnmsrs;
+
+    vUINT32 vStationList(adjust_.bstBinaryRecords_.size());
+    it_vUINT32 _it_stn(vStationList.begin());
+
+    // initialise vector with 0,1,2,...,n-2,n-1,n
+    initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(adjust_.bstBinaryRecords_.size()));
+    
+    // Print measurement to station summary, sort stations as required
+    switch (adjust_.projectSettings_.o._sort_msr_to_stn)
+    {
+    case meas_stn_sort_ui:
+    {
+        // sort summary according to measurement to station count
+        CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&adjust_.vAssocStnList_);
+        std::sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+    }
+    break;
+    case orig_stn_sort_ui:
+    default:
+    {
+        // sort summary according to original station file order
+        CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+    }
+    break;
+    }
+
+    // Print measurements to each station and the total count for each station
+    for (_it_stn=vStationList.begin(); _it_stn != vStationList.end(); ++_it_stn)
+        adjust_.v_stnmsrTally_.at(*_it_stn).coutSummaryMsrToStn(adjust_.adj_file, adjust_.bstBinaryRecords_.at(*_it_stn).stationName);
+    
+    // Print "the bottom line"
+    MsrToStnSummaryHeaderLine(adjust_.adj_file);
+
+    // Print the total count per measurement
+    MsrTally msrTally;
+    for (it_vstnmsrs=adjust_.v_stnmsrTally_.begin(); it_vstnmsrs!=adjust_.v_stnmsrTally_.end(); ++it_vstnmsrs)
+        msrTally += *it_vstnmsrs;
+    
+    msrTally.coutSummaryMsrToStn(adjust_.adj_file, "Totals");
+    
+    adjust_.adj_file << std::endl << std::endl;
 }
 
 void DynAdjustPrinter::PrintCorrelationStations(std::ostream& cor_file, const UINT32& block) {

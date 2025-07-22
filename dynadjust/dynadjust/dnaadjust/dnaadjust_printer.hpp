@@ -165,7 +165,7 @@ class DynAdjustPrinter {
     void PrintMeasurementCorrection(char cardinal, const it_vmsr_t& it_msr);
     
     // Stage 3: Statistical and summary generators
-    void PrintStatistics();
+    void PrintStatistics(bool printPelzer = true);
     void PrintMeasurementsToStation();
     void PrintCorrelationStations(std::ostream& cor_file, const UINT32& block);
 
