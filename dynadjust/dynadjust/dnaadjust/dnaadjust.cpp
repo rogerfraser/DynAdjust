@@ -2267,65 +2267,6 @@ void dna_adjust::PrintNetworkStationCorrections()
 {
 	networkadjust::DynAdjustPrinter printer(*this);
 	printer.PrintStationCorrections();
-	
-	// Use existing detailed implementation for complex staging logic
-	std::ofstream cor_file;
-	try {
-		// Create cor file.  Throws runtime_error on failure.
-		file_opener(cor_file, projectSettings_.o._cor_file);
-	}
-	catch (const std::runtime_error& e) {
-		SignalExceptionAdjustment(e.what(), 0);
-	}
-
-	// Use new printer infrastructure for header
-	printer.PrintStationFileHeader(cor_file, "CORRECTIONS", projectSettings_.o._cor_file);
-
-	cor_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
-	if (projectSettings_.a.adjust_mode != SimultaneousMode &&
-		projectSettings_.o._output_stn_blocks)
-			cor_file << "Yes" << std::endl << std::endl;
-	else
-		cor_file << "No" << std::endl;
-	cor_file << OUTPUTLINE << std::endl << std::endl;
-
-	cor_file << "Corrections to stations" << std::endl;
-	cor_file << "------------------------------------------" << std::endl << std::endl;
-
-	switch (projectSettings_.a.adjust_mode)
-	{
-	case SimultaneousMode:
-		PrintCorStations(cor_file, 0);
-		break;
-	case PhasedMode:
-		// Output phased blocks as a single block?
-		if (!projectSettings_.o._output_stn_blocks)
-		{
-			PrintCorStationsUniqueList(cor_file);
-			return;
-		}
-
-		for (UINT32 block=0; block<blockCount_; ++block)
-		{
-			// load up this block
-			if (projectSettings_.a.stage)
-				DeserialiseBlockFromMappedFile(block, 2,
-					sf_rigorous_stns, sf_original_stns);
-
-			PrintCorStations(cor_file, block);
-
-			// unload previous block
-			if (projectSettings_.a.stage)
-				UnloadBlock(block, 2, 
-					sf_rigorous_stns, sf_original_stns);
-		}
-		break;
-	case Phased_Block_1Mode:		// only the first block is rigorous
-		PrintCorStations(cor_file, 0);
-		break;
-	}
-	
-	cor_file.close();
 }
 
 bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_filename)
