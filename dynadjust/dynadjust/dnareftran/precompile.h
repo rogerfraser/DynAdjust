@@ -12,7 +12,7 @@
 #include <include/config/dnaoptions.hpp>
 
 #include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
+#include <include/io/bms_file.hpp>
 #include <include/io/dnaiodna.hpp>
 
 #include <include/exception/dnaexception.hpp>

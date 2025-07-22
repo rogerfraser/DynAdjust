@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnainterop.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -30,15 +29,12 @@
 #endif
 
 /// \cond
-#include <exception>
 #include <system_error>
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <utility>
 #include <vector>
-#include <map>
 #include <cstdarg>
 #include <math.h>
 
@@ -65,12 +61,12 @@
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>
 
 #include <include/io/dnaiodna.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaioaml.hpp>
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaiomap.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/aml_file.hpp>
+#include <include/io/asl_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/seg_file.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaioscalar.hpp>
 

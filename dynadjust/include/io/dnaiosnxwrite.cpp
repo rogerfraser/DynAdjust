@@ -130,9 +130,9 @@ void dna_io_snx::serialise_meta(std::ofstream* snx_file,
 
 	// input files.  first, create a unique list of filenames
 	std::vector<std::string> files;
-	for (UINT16 i(0); i<bms_meta.inputFileCount; ++i)
+	for (std::uint64_t i(0); i<bms_meta.inputFileCount; ++i)
 		files.push_back(bms_meta.inputFileMeta[i].filename);
-	for (UINT16 i(0); i<bst_meta.inputFileCount; ++i)
+	for (std::uint64_t i(0); i<bst_meta.inputFileCount; ++i)
 		files.push_back(bst_meta.inputFileMeta[i].filename);
 	strip_duplicates(files);
 	// second, print

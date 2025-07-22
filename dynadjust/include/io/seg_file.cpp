@@ -1,9 +1,8 @@
 //============================================================================
-// Name         : dnaioseg.cpp
+// Name         : seg_file.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,12 +19,12 @@
 // Description  : DynAdjust segmentation file io operations
 //============================================================================
 
-#include <include/io/dnaioseg.hpp>
+#include <include/io/seg_file.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_seg::load_seg_file_header_f(const std::string& seg_filename, UINT32& blockCount, 
+void SegFile::LoadSegFileHeaderF(const std::string& seg_filename, UINT32& blockCount, 
 						UINT32& blockThreshold, UINT32& minInnerStns) 
 {	
 	std::ifstream seg_file;
@@ -39,7 +38,7 @@ void dna_io_seg::load_seg_file_header_f(const std::string& seg_filename, UINT32&
 			
 		ss_err.str("");
 		ss_err << "load_seg_file_f(): An error was encountered when reading " << seg_filename << "." << std::endl;
-		load_seg_file_header(seg_filename, seg_file, blockCount, 
+		LoadSegFileHeader(seg_filename, seg_file, blockCount, 
 			blockThreshold, minInnerStns);
 
 		seg_file.close();
@@ -54,7 +53,7 @@ void dna_io_seg::load_seg_file_header_f(const std::string& seg_filename, UINT32&
 }
 	
 
-void dna_io_seg::load_seg_file_header(const std::string& seg_filename, std::istream& seg_file, UINT32& blockCount, 
+void SegFile::LoadSegFileHeader(const std::string& seg_filename, std::istream& seg_file, UINT32& blockCount, 
 	UINT32& blockThreshold, UINT32& minInnerStns) 
 {	
 
@@ -112,7 +111,7 @@ void dna_io_seg::load_seg_file_header(const std::string& seg_filename, std::istr
 	}
 }
 
-void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCount, 
+void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount, 
 	UINT32& blockThreshold, UINT32& minInnerStns,
 	vvUINT32& v_ISL, vvUINT32& v_JSL, vvUINT32& v_CML,
 	bool loadMetrics,
@@ -149,7 +148,7 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 
 	try {
 		
-		load_seg_file_header(seg_filename, seg_file, blockCount, 
+		LoadSegFileHeader(seg_filename, seg_file, blockCount, 
 			blockThreshold, minInnerStns);
 		
 		// Resize vectors based upon block count
@@ -407,7 +406,7 @@ void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCou
 
 }
 
-void dna_io_seg::build_free_stn_availability(vASL& assocStnList, v_freestn_pair& freeStnList)
+void SegFile::BuildFreeStnAvailability(vASL& assocStnList, v_freestn_pair& freeStnList)
 {
 	freeStnList.clear();
 
@@ -429,13 +428,13 @@ void dna_io_seg::build_free_stn_availability(vASL& assocStnList, v_freestn_pair&
 	);
 }
 
-void dna_io_seg::create_stn_appearance_list(vv_stn_appear& stnAppearance,
+void SegFile::CreateStnAppearanceList(vv_stn_appear& stnAppearance,
 	const vvUINT32& paramStationList,
 	vASL& assocStnList)
 {
 	// build free station list
 	v_freestn_pair freeStnList;
-	build_free_stn_availability(assocStnList, freeStnList);
+	BuildFreeStnAvailability(assocStnList, freeStnList);
 
 	// Make a copy for the reverse pass
 	v_freestn_pair revStnList(freeStnList);
@@ -486,7 +485,7 @@ void dna_io_seg::create_stn_appearance_list(vv_stn_appear& stnAppearance,
 	}
 }
 
-void dna_io_seg::write_seg_block(std::ostream &os, 
+void SegFile::WriteSegBlock(std::ostream &os, 
 	const vUINT32& vISL, const vUINT32& vJSL, const vUINT32& vCML, 
 	const UINT32& currentBlock, 
 	const vstn_t* bstBinaryRecords, const vmsr_t* bmsBinaryRecords, 
@@ -587,7 +586,7 @@ void dna_io_seg::write_seg_block(std::ostream &os,
 
 }
 
-void dna_io_seg::write_seg_file(const std::string& seg_filename, const std::string& bst_filename, const std::string& bms_filename,
+void SegFile::WriteSegFile(const std::string& seg_filename, const std::string& bst_filename, const std::string& bms_filename,
 	const UINT32& min_inner_stns, const UINT32& max_block_stns,
 	const std::string& seg_starting_stns, const vstring& vinitialStns,
 	const std::string& command_line_arguments,
@@ -709,7 +708,7 @@ void dna_io_seg::write_seg_file(const std::string& seg_filename, const std::stri
 	UINT32 i(1);
 	while (_it_isl!=v_ISL.end())
 	{
-		write_seg_block(seg_file, *_it_isl, *_it_jsl, *_it_cml, i++, bstBinaryRecords, bmsBinaryRecords);
+		WriteSegBlock(seg_file, *_it_isl, *_it_jsl, *_it_cml, i++, bstBinaryRecords, bmsBinaryRecords);
 		_it_isl++;
 		_it_jsl++;
 		_it_cml++;
@@ -720,7 +719,7 @@ void dna_io_seg::write_seg_file(const std::string& seg_filename, const std::stri
 	seg_file.close();
 }
 
-void dna_io_seg::write_stn_appearance(const std::string& sap_filename, const v_stn_block_map& stnAppearance)
+void SegFile::WriteStnAppearance(const std::string& sap_filename, const v_stn_block_map& stnAppearance)
 {
 	std::ofstream sap_file;
 	std::stringstream ss;
@@ -753,7 +752,7 @@ void dna_io_seg::write_stn_appearance(const std::string& sap_filename, const v_s
 	sap_file.close();
 }
 
-void dna_io_seg::load_stn_appearance(const std::string& sap_filename, v_stn_block_map& stnAppearance)
+void SegFile::LoadStnAppearance(const std::string& sap_filename, v_stn_block_map& stnAppearance)
 {
 	std::ifstream sap_file;
 	std::stringstream ss;

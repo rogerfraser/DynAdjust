@@ -1,27 +1,22 @@
-//===========================================================================
+//============================================================================
 // Name         : dnamatrix_contiguous.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the
-//                "License"); you may not use this file except in compliance
-//                with the License. You may obtain a copy of the License at
-//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
-//                Unless required by applicable law or agreed to in writing,
-//                software distributed under the License is distributed on an
-//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-//                either express or implied. See the License for the specific
-//                language governing permissions and limitations under the
-//                License.
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
 //
 // Description  : DynAdjust Matrix library
-//                Matrices are stored as a contiguous 1 dimensional array [row *
-//                column] Storage buffer is ordered column wise to achieve
-//                highest efficiency with Intel MKL
 //============================================================================
 
 #ifndef DNAMATRIX_CONTIGUOUS_H_
@@ -58,7 +53,7 @@
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX
 #define LAPACK_SYMBOL_SUFFIX $NEWLAPACK$ILP64
-#define BLAS_SYMBOL_PREFIX
+#define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX $NEWLAPACK$ILP64
 typedef long lapack_int;
@@ -68,7 +63,7 @@ typedef long lapack_int;
 #define LAPACK_SYMBOL_PREFIX
 #define LAPACK_FORTRAN_SUFFIX
 #define LAPACK_SYMBOL_SUFFIX $NEWLAPACK
-#define BLAS_SYMBOL_PREFIX
+#define BLAS_SYMBOL_PREFIX cblas_
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX $NEWLAPACK
 typedef int lapack_int;

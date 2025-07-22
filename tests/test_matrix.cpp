@@ -1,7 +1,28 @@
+//============================================================================
+// Name         : test_matrix.cpp
+// Author       : Dale Roberts <dale.o.roberts@gmail.com>
+// Contributors : 
+// Copyright    : Copyright 2017-2025 Geoscience Australia
+//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
+//                http ://www.apache.org/licenses/LICENSE-2.0
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
+//
+// Description  : Unit tests
+//============================================================================
+
 #define TESTING_MAIN
 
-#include "testing.hpp"
 #include "math/dnamatrix_contiguous.hpp"
+#include "testing.hpp"
 
 using namespace dynadjust::math;
 
@@ -247,7 +268,7 @@ TEST_CASE("Element modification", "[matrix_2d]") {
 TEST_CASE("Matrix allocation", "[matrix_2d]") {
     matrix_2d mat;
     mat.allocate(3, 4); // Does not change dimensions?
-                        
+
     REQUIRE(mat.rows() == 0);
     REQUIRE(mat.columns() == 0);
 }

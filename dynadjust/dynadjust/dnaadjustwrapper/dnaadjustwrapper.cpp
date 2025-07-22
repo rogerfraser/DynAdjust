@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjustwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -721,10 +720,10 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	const project_settings& p, bool& bst_meta_import, bool& bms_meta_import)
 {
-	dna_io_bst bst;
-	dna_io_bms bms;
-	bst.load_bst_file_meta(p.a.bst_file, bst_meta);
-	bms.load_bms_file_meta(p.a.bms_file, bms_meta);
+	BstFile bst;
+	BmsFile bms;
+	bst.LoadFileMeta(p.a.bst_file, bst_meta);
+	bms.LoadFileMeta(p.a.bms_file, bms_meta);
 
 	bst_meta_import = (boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
 		boost::iequals(bst_meta.modifiedBy, __import_dll_name__));

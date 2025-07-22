@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaplot.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -3452,12 +3451,12 @@ void dna_plot::LoadBinaryFiles()
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		stationCount_ = bst.load_bst_file(projectSettings_.i.bst_file, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		stationCount_ = bst.LoadFile(projectSettings_.i.bst_file, &bstBinaryRecords_, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(projectSettings_.i.bms_file, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(projectSettings_.i.bms_file, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -3571,8 +3570,8 @@ void dna_plot::LoadStationMap()
 {
 	try {
 		// Load station map.  Throws runtime_error on failure.
-		dna_io_map map;
-		map.load_map_file(projectSettings_.i.map_file, &stnsMap_);
+		dynadjust::iostreams::MapFile map;
+		map.LoadFile(projectSettings_.i.map_file, &stnsMap_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -3608,8 +3607,8 @@ void dna_plot::LoadSegmentationFile()
 	vUINT32 v_ContiguousNetList, v_parameterStationCount;
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file(projectSettings_.s.seg_file, 
+		SegFile seg;
+		seg.LoadSegFile(projectSettings_.s.seg_file, 
 			blockCount_, blockThreshold_, minInnerStns_,
 			v_ISL_, v_JSL_, v_CML_,
 			true, &bmsBinaryRecords_,
