@@ -156,6 +156,9 @@ class DynAdjustPrinter {
     void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
     void PrintStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, 
                                  bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+    void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored);
+    void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
+    void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
     
     // Stage 3: Specialized measurement handlers
     template<typename MeasurementTag>
