@@ -63,9 +63,6 @@
     <ClInclude Include="..\..\include\parameters\dnadatum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="precompile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\memory\dnafile_mapping.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,9 +81,15 @@
     <ClInclude Include="..\..\include\io\dnaiotbu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="precompile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnaadjust.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnaadjust-stage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp">
@@ -108,9 +111,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaioseg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dnaadjust-stage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
@@ -140,9 +140,6 @@
     <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="precompile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\include\memory\dnafile_mapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -159,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaiotbu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

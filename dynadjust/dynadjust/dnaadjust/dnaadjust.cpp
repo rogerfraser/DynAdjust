@@ -261,7 +261,7 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 	InitialiseAdjustment();
 	
 	// Load network files
-  	LoadNetworkFiles();
+	LoadNetworkFiles();
 
 	// Load type b uncertainties, method handler, and the station map
 	InitialiseTypeBUncertainties();
@@ -2034,14 +2034,16 @@ void dna_adjust::FormConstraintStationVarianceMatrix(
 	// first element
 	if (_it_stn->stationConst[0] == 'F')
 	{
-		if (_it_stn->suppliedStationType == LLH_type_i)
+        if (_it_stn->suppliedStationType == LLH_type_i ||
+            _it_stn->suppliedStationType == LLh_type_i)
 			var_local.put(1, 1, _var_F);	// Latitude:  'F'ree in the north-south (n/y) direction
 		else
 			var_local.put(0, 0, _var_F);	// Easting/X: 'F'ree in the east-west or X direction
 	}
 	else
 	{
-		if (_it_stn->suppliedStationType == LLH_type_i)
+        if (_it_stn->suppliedStationType == LLH_type_i ||
+            _it_stn->suppliedStationType == LLh_type_i)
 			var_local.put(1, 1, _var_C);	// Latitude:  'C'onstrained in the north-south (n/y) direction
 		else
 			var_local.put(0, 0, _var_C);	// Easting/X: 'C'onstrained in the east-west or X direction
@@ -2050,14 +2052,16 @@ void dna_adjust::FormConstraintStationVarianceMatrix(
 	// second element
 	if (_it_stn->stationConst[1] == 'F')
 	{
-		if (_it_stn->suppliedStationType == LLH_type_i)
+        if (_it_stn->suppliedStationType == LLH_type_i ||
+            _it_stn->suppliedStationType == LLh_type_i)
 			var_local.put(0, 0, _var_F);
 		else
 			var_local.put(1, 1, _var_F);
 	}
 	else
 	{
-		if (_it_stn->suppliedStationType == LLH_type_i)
+        if (_it_stn->suppliedStationType == LLH_type_i ||
+            _it_stn->suppliedStationType == LLh_type_i)
 			var_local.put(0, 0, _var_C);
 		else
 			var_local.put(1, 1, _var_C);
@@ -5350,7 +5354,8 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 		stn1_it = bstBinaryRecords_.begin() + _it_msr->station1;
 
 		// store latitude, longitude and ellipsoid height
-		if (scalePartial || coordType == LLH_type_i)
+        if (scalePartial || coordType == LLH_type_i || 
+			coordType == LLh_type_i)
 		{
 			mpositions.put(covr, 0, stn1_it->currentLatitude);
 			mpositions.put(covr+1, 0, stn1_it->currentLongitude);
@@ -5400,7 +5405,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 	}
 
 	bool lowerisClear(true);
-	if (scaleMatrix || scalePartial || coordType == LLH_type_i)
+	if (scaleMatrix || scalePartial || coordType == LLH_type_i || coordType == LLh_type_i)
 	{
 		var_cart->filllower();
 		lowerisClear = false;
@@ -5419,7 +5424,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 				pScale, lScale, hScale, coordType);
 
 		// Propagate variance matrix into cartesian reference frame?
-		else if (coordType == LLH_type_i)	
+        else if (coordType == LLH_type_i || coordType == LLh_type_i)
 			PropagateVariances_GeoCart_Cluster<double>(*var_cart, var_cart,
 				mpositions, 
 				datum_.GetEllipsoidRef(), 
@@ -5433,7 +5438,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 		// in PLH reference frame.
 		// This alleviates having to repeat any scaling for subsequent computations
 		// involving variances (i.e. sigma zero, Pelzer's reliability, etc)
-		if (scaleMatrix || scalePartial || coordType == LLH_type_i)
+		if (scaleMatrix || scalePartial || coordType == LLH_type_i || coordType == LLh_type_i)
 			SetGPSVarianceMatrix<it_vmsr_t>(_it_msr_first, *var_cart);
 		
 		// Perform inverse
@@ -7057,7 +7062,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		stn1 = GetBlkMatrixElemStn1(block, _it_msr);
 
 		// Convert to cartesian reference frame?
-		if (coordType == LLH_type_i)
+        	if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// This section (and others in this function where coordType == LLH_type_i) 
 			// will only be performed once because this measurement will be converted 
@@ -7098,7 +7103,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
-			(*_it_msr)->station3 = LLH_type_i;
+            		(*_it_msr)->station3 = coordType;
 		}
 
 		// If this method is called via PrepareAdjustment() and the adjustment 
@@ -7129,21 +7134,22 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		}
 
 		if (buildnewMatrices)
-			if (coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i)
+			if (coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i &&
+                coordType != LLh_type_i && (*_it_msr)->station3 != LLh_type_i)
 				(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 		// move to Y element
 		(*_it_msr)++;
 
 		// measurements matrix Y
-		if (coordType == LLH_type_i)
+        	if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// Update bms record
 			(*_it_msr)->term1 = y;
 			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
-			(*_it_msr)->station3 = LLH_type_i;
+            		(*_it_msr)->station3 = coordType;
 		}
 
 		// If this method is called via PrepareAdjustment() and the adjustment 
@@ -7174,21 +7180,22 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		}
 
 		if (buildnewMatrices)
-			if (coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i)
+			if ((coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i) &&
+				(coordType != LLh_type_i && (*_it_msr)->station3 != LLh_type_i))
 				(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 		// move to Z element
 		(*_it_msr)++;
 
 		// measurements matrix Z
-		if (coordType == LLH_type_i)
+        	if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// Update bms record
 			(*_it_msr)->term1 = z;
 			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
-			(*_it_msr)->station3 = LLH_type_i;
+			(*_it_msr)->station3 = coordType;
 		}
 
 		// If this method is called via PrepareAdjustment() and the adjustment 
@@ -7221,7 +7228,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		}
 
 		if (buildnewMatrices)
-			if (coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i)
+			if ((coordType != LLH_type_i && (*_it_msr)->station3 != LLH_type_i) &&
+				(coordType != LLh_type_i && (*_it_msr)->station3 != LLh_type_i))
 				(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 		
 		covariance_count = (*_it_msr)->vectorCount2;
@@ -11555,7 +11563,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOrigi
 			(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 		// Convert to geographic coordinates?
-		if (coordType == LLH_type_i)
+        if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			CartToGeo<double>(x, y, z, &latitude, &longitude, &height, datum_.GetEllipsoidRef());
 			(*_it_msr)->measAdj = latitude;
@@ -11569,7 +11577,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOrigi
 		if (storeOriginalMeasurement)
 			(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 		
-		if (coordType == LLH_type_i)
+		if (coordType == LLH_type_i || coordType == LLh_type_i)
 			(*_it_msr)->measAdj = longitude;
 		else
 			(*_it_msr)->measAdj = y;
@@ -11580,7 +11588,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOrigi
 		if (storeOriginalMeasurement)
 			(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 			
-		if (coordType == LLH_type_i)
+		if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// Reduce to ellipsoid height?
 			if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
@@ -12477,7 +12485,8 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 	// Is this a Y cluster specified in latitude, longitude, height?
 	if (_it_msr->measType == 'Y')
 	{
-		if (_it_msr->station3 == LLH_type_i)
+        if (_it_msr->station3 == LLH_type_i ||
+            _it_msr->station3 == LLh_type_i)
 		{
 			// Print phi, lambda, H
 			PrintCompMeasurements_YLLH(_it_msr, design_row);
@@ -13186,8 +13195,8 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 		}
 
 		// Reduce ellipsoidal height to orthometric height
-        if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
-            height -= stn1_it->geoidSep;
+		if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
+			height -= stn1_it->geoidSep;		
 
 		// Assign computed values		
 		_it_y_msr->measAdj = latitude;
@@ -13377,7 +13386,8 @@ void dna_adjust::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint3
 	// Is this a Y cluster specified in latitude, longitude, height?
 	if (_it_msr->measType == 'Y')
 	{
-		if (_it_msr->station3 == LLH_type_i)
+        if (_it_msr->station3 == LLH_type_i ||
+            _it_msr->station3 == LLh_type_i)
 		{
 			// Print phi, lambda, H
 			PrintAdjMeasurements_YLLH(_it_msr);

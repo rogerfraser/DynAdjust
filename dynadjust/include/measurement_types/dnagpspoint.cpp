@@ -654,8 +654,7 @@ void CDnaGpsPoint::SetY(const std::string& str)
 	
 void CDnaGpsPoint::SetZ(const std::string& str)
 {
-	// if (m_ctType == LLH_type_i)
-	// then height should be ellipsoid height (but input files show height to be orthometric!)
+	// Height will either be ellipsoid or orthometric depending on <Type/>
 	DoubleFromString(m_dZ, trimstr(str));
 }
 	

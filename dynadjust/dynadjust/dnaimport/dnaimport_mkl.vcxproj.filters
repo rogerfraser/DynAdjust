@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -15,6 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dnainterop.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnaparser_pimpl.hxx">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnaparser_pskel.hxx">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -42,19 +51,10 @@
     <ClInclude Include="..\..\include\measurement_types\dnaheightdifference.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dnainterop.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnameasurement_types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pimpl.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pskel.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
@@ -99,9 +99,6 @@
     <ClInclude Include="..\..\include\parameters\dnadatum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="precompile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,6 +116,15 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dnainterop.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnaparser_pimpl.hxx">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnaparser_pskel.hxx">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -146,19 +152,10 @@
     <ClInclude Include="..\..\include\measurement_types\dnaheightdifference.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dnainterop.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnameasurement_types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pimpl.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pskel.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
@@ -254,9 +251,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp">
