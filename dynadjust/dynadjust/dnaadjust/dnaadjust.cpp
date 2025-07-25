@@ -136,6 +136,9 @@ dna_adjust::dna_adjust()
 	case PhasedMode:
 		v_correctionsR_.clear();
 	}
+
+	// Initialize the printer
+	printer_ = std::make_unique<DynAdjustPrinter>(*this);
 }
 	
 
@@ -255,7 +258,7 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 
 	// Open output files for printing adjustment results
 	OpenOutputFileStreams();
-	PrintOutputFileHeaderInfo();
+	printer_->PrintOutputFileHeaderInfo();
 	
 	// Initialise adjustment consts
 	InitialiseAdjustment();
@@ -2149,13 +2152,6 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 	return adjustStatus_;
 }
 	
-
-void dna_adjust::PrintAdjustedNetworkStations()
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedNetworkStations();
-}
-	
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
 void dna_adjust::LoadDatabaseId()
@@ -2224,43 +2220,6 @@ void dna_adjust::LoadDatabaseId()
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 }
-
-
-// Prints positional uncertainty
-void dna_adjust::PrintPositionalUncertainty()
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintPositionalUncertaintyReport();
-}
-	
-
-// Prints corrections to stations
-void dna_adjust::PrintNetworkStationCorrections()
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintStationCorrections();
-}
-
-bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_filename)
-{
-	DynAdjustPrinter printer(*this);
-	return printer.PrintEstimatedStationCoordinatesToSINEX(sinex_filename);
-}
-		
-void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintEstimatedStationCoordinatesAsYClusters(msrFile, t);
-}
-	
-
-// This should be put into a class separate to dnaadjust
-void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintEstimatedStationCoordinates(stnFile, t, flagUnused);
-}
-	
 
 void dna_adjust::FormUniqueMsrList()
 {
@@ -2350,14 +2309,6 @@ void dna_adjust::FormUniqueMsrList()
 
 }
 	
-
-void dna_adjust::PrintAdjustedNetworkMeasurements()
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedNetworkMeasurements();
-}
-	
-
 void dna_adjust::CreateMsrToStnTally()
 {
 	// 1. Load the aml file. The aml file is needed to determine the measurements
@@ -2395,14 +2346,6 @@ void dna_adjust::CreateMsrToStnTally()
 	}
 }
 	
-
-void dna_adjust::PrintMeasurementsToStation()
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementsToStation();
-}
-	
-
 void dna_adjust::CloseOutputFiles()
 {
 	adj_file.close();
@@ -2436,11 +2379,11 @@ void dna_adjust::AdjustSimultaneous()
 		largestCorr_ = 0.0;
 
 		// Print the iteration # to adj file
-		PrintIteration(incrementIteration());
+		printer_->PrintIteration(incrementIteration());
 
 		// Does the user want to print computed measurements on each iteration?
 		if (projectSettings_.o._cmp_msr_iteration)
-			PrintCompMeasurements(0, "a-priori");		
+			printer_->PrintCompMeasurements(0, "a-priori");		
 
 		ss.str("");
 		
@@ -2455,7 +2398,7 @@ void dna_adjust::AdjustSimultaneous()
 		SolveTry(CurrentIteration() < 2 || v_msrTally_.at(0).ContainsNonGPS());
 
 		// calculate and print total time
-		PrintAdjustmentTime(it_time, iteration_time);
+		printer_->PrintAdjustmentTime(it_time, iteration_time);
 		
 		// Add corrections to estimates
 		v_estimatedStations_.at(0).add(v_corrections_.at(0));
@@ -2481,7 +2424,7 @@ void dna_adjust::AdjustSimultaneous()
 			ComputeStatisticsOnIteration();
 			
 			// Print statistics summary to adj file
-			PrintStatistics(false);
+			printer_->PrintStatistics(false);
 		}
 
 		// Does the user want to print adjusted measurements
@@ -2493,7 +2436,7 @@ void dna_adjust::AdjustSimultaneous()
 		// on each iteration?
 		if (projectSettings_.o._adj_stn_iteration)
 			// computes geographic coordinates if required
-			PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), 
+			printer_->PrintBlockStations(adj_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), 
 				false, !v_msrTally_.at(0).ContainsNonGPS(), !v_msrTally_.at(0).ContainsNonGPS(), true, false);
 
 		// Update normals and measured-computed matrices for the next iteration.
@@ -2535,37 +2478,20 @@ void dna_adjust::ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time
 	}
 
 	// Print status
-	PrintAdjustmentStatus();
+	printer_->PrintAdjustmentStatus();
 	// Compute and print time taken to run adjustment
-	PrintAdjustmentTime(tot_time, total_time);
+	printer_->PrintAdjustmentTime(tot_time, total_time);
 }
 	
-
-void dna_adjust::PrintAdjustmentStatus()
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustmentStatus();
-}
-	
-
 void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_ timerType)
 {
-	networkadjust::DynAdjustPrinter printer(*this);
-	
 	// Store total time if needed
 	if (timerType != iteration_time) {
 		boost::posix_time::milliseconds ms(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
 		total_time_ = ms;
 	}
 	
-	printer.PrintAdjustmentTime(time, static_cast<int>(timerType));
-}
-	
-
-void dna_adjust::PrintIteration(const UINT32& iteration)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintIteration(iteration);
+	printer_->PrintAdjustmentTime(time, static_cast<int>(timerType));
 }
 	
 
@@ -2599,7 +2525,7 @@ void dna_adjust::AdjustPhased()
 		measurementParams_ = 0;
 	
 		// Print the iteration # to adj file
-		PrintIteration(incrementIteration());
+		printer_->PrintIteration(incrementIteration());
 		
 		it_time.start();
 
@@ -2612,7 +2538,7 @@ void dna_adjust::AdjustPhased()
 			break;
 
 		// calculate and print total time
-		PrintAdjustmentTime(it_time, iteration_time);
+		printer_->PrintAdjustmentTime(it_time, iteration_time);
 		
 		// Calculate and print largest adjustment correction and station ID
 		OutputLargestCorrection(corr_msg);
@@ -2641,7 +2567,7 @@ void dna_adjust::AdjustPhased()
 			ComputeStatisticsOnIteration();
 			
 			// Print statistics summary to adj file
-			PrintStatistics(false);
+			printer_->PrintStatistics(false);
 		}
 
 		// Does the user want to print adjusted measurements
@@ -2686,7 +2612,7 @@ void dna_adjust::AdjustPhasedBlock1()
 	largestCorr_ = v_corrections_.at(0).maxvalue();
 
 	// calculate and print total time
-	PrintAdjustmentTime(it_time, iteration_time);	
+	printer_->PrintAdjustmentTime(it_time, iteration_time);	
 	
 	// Compute and print largest correction for block 1 only
 	maxCorr_ = v_corrections_.at(0).compute_maximum_value();
@@ -2765,7 +2691,7 @@ void dna_adjust::AdjustPhasedForward()
 
 		// Does the user want to print computed measurements?
 		if (projectSettings_.o._cmp_msr_iteration)
-			PrintCompMeasurements(currentBlock, "a-priori");
+			printer_->PrintCompMeasurements(currentBlock, "a-priori");
 		
 		if (projectSettings_.o._adj_stn_iteration || projectSettings_.o._cmp_msr_iteration)
 		{
@@ -3054,7 +2980,7 @@ void dna_adjust::CarryForwardJunctions(const UINT32 thisBlock, const UINT32 next
 				adj_file << " (forward, in isolation) " << std::endl;
 		}
 
-		PrintAdjStations(adj_file, thisBlock, 
+		printer_->PrintBlockStations(adj_file, thisBlock, 
 			&v_estimatedStations_.at(thisBlock), &v_normals_.at(thisBlock), 
 			false, true, false, true, false);
 		adj_file_mutex.unlock();
@@ -3664,7 +3590,7 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 				adj_file << " (reverse, in isolation) " << std::endl;	
 		}
 		
-		PrintAdjStations(adj_file, currentBlock, 
+		printer_->PrintBlockStations(adj_file, currentBlock, 
 			estimatedStations, aposterioriVariances, 
 			false, true, false, true, false);
 		adj_file_mutex.unlock();
@@ -3774,7 +3700,7 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 		if (projectSettings_.a.multi_thread)
 			adj_file << std::endl << "3> Adjusted block " << currentBlock + 1 << " (rigorous)" << std::endl;
 
-		PrintAdjStations(adj_file, currentBlock, 
+		printer_->PrintBlockStations(adj_file, currentBlock, 
 			&v_rigorousStations_.at(currentBlock), &v_rigorousVariances_.at(currentBlock), 
 			false, true, false, true, false);		// update coordinates
 
@@ -4002,14 +3928,6 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 	}
 }
 
-void dna_adjust::PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr, const std::runtime_error& e, std::stringstream& ss, 
-	const std::string& calling_function, const UINT32 msr_count)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMsrVarianceMatrixException(_it_msr, e, ss, calling_function, msr_count);
-}
-	
-
 // Forms a variance matrix representing correlated angles formed from
 // a round of directions
 void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bool buildnewMatrices)
@@ -4028,7 +3946,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 
 			// Print error message to adj file and throw exception
 			std::stringstream ss;
-			PrintMsrVarianceMatrixException(_it_msr, e, ss, "LoadVarianceMatrix_D");
+			printer_->PrintMsrVarianceMatrixException(_it_msr, e, ss, "LoadVarianceMatrix_D", 0);
 			SignalExceptionAdjustment(ss.str(), 0);
 		}
 	}
@@ -4134,7 +4052,7 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 
 		// Print error message to adj file and throw exception
 		std::stringstream ss;
-		PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_D");
+		printer_->PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_D", 0);
 		SignalExceptionAdjustment(ss.str(), 0);
 	}
 
@@ -4159,7 +4077,7 @@ bool dna_adjust::FormInverseVarianceMatrixReduced(it_vmsr_t _it_msr, matrix_2d* 
 
 			// Print error message to adj file and throw exception
 			std::stringstream ss;
-			PrintMsrVarianceMatrixException(_it_msr, e, ss, method_name);
+			printer_->PrintMsrVarianceMatrixException(_it_msr, e, ss, method_name, 0);
 			SignalExceptionAdjustment(ss.str(), 0);
 		}
 	}
@@ -4255,7 +4173,7 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 
 		// Print error message to adj file and throw exception
 		std::stringstream ss;
-		PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_G");
+		printer_->PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_G", 0);
 		SignalExceptionAdjustment(ss.str(), 0);
 	}
 
@@ -4396,7 +4314,7 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 
 		// Print error message to adj file and throw exception
 		std::stringstream ss;
-		PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_X", baseline_count);
+		printer_->PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_X", baseline_count);
 		SignalExceptionAdjustment(ss.str(), 0);
 	}
 
@@ -4625,7 +4543,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 
 		// Print error message to adj file and throw exception
 		std::stringstream ss;
-		PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_Y", point_count);
+		printer_->PrintMsrVarianceMatrixException(_it_msr_first, e, ss, "LoadVarianceMatrix_Y", point_count);
 		SignalExceptionAdjustment(ss.str(), 0);
 	}
 
@@ -6766,12 +6684,12 @@ void dna_adjust::GenerateStatistics()
 		switch (projectSettings_.a.adjust_mode)
 		{
 		case Phased_Block_1Mode:
-			PrintStatistics(false);
+			printer_->PrintStatistics(false);
 			break;
 		//case SimultaneousMode:
 		//case PhasedMode:
 		default:
-			PrintStatistics();
+			printer_->PrintStatistics();
 			break;
 		}
 	}
@@ -7175,7 +7093,7 @@ void dna_adjust::ComputeandPrintAdjMsrBlockOnIteration(const UINT32& block, v_ui
 	ComputeAdjMsrBlockOnIteration(block);
 	
 	// Print adjusted measurements
-	PrintAdjMeasurements(msr_block, printHeader);
+	printer_->PrintAdjMeasurements(msr_block, printHeader);
 	
 }
 	
@@ -7387,14 +7305,6 @@ void dna_adjust::OutputLargestCorrection(std::string& formatted_msg)
 	formatted_msg = ss.str();
 }
 	
-
-void dna_adjust::PrintStatistics(bool printPelzer)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintStatistics(printPelzer);
-}
-	
-
 void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 {
 	if (projectSettings_.a.report_mode)
@@ -8251,55 +8161,6 @@ void dna_adjust::OpenOutputFileStreams()
 	}
 }
 	
-void dna_adjust::PrintOutputFileHeaderInfo()
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintFileHeaderInformation();
-}
-	
-
-void dna_adjust::PrintCorStation(std::ostream& os, 
-	const UINT32& block, const UINT32& stn, const UINT32& mat_index,
-	const matrix_2d* stationEstimates)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintCorStation(os, block, stn, mat_index, stationEstimates);
-}
-	
-
-void dna_adjust::PrintAdjStation(std::ostream& os, 
-	const UINT32& block, const UINT32& stn, const UINT32& mat_idx,
-	const matrix_2d* stationEstimates, matrix_2d* stationVariances,
-	bool recomputeGeographicCoords, bool updateGeographicCoords,
-	bool reapplyTypeBUncertainties)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintAdjStation(os, block, stn, mat_idx, stationEstimates, stationVariances, 
-	                        recomputeGeographicCoords, updateGeographicCoords, reapplyTypeBUncertainties);
-}
-
-void dna_adjust::PrintAdjStations(std::ostream& os, const UINT32& block,
-	const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool printBlockID,
-	bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader,
-	bool reapplyTypeBUncertainties)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintBlockStations(os, block, stationEstimates, stationVariances, printBlockID, 
-		recomputeGeographicCoords, updateGeographicCoords, printHeader, reapplyTypeBUncertainties);
-}
-
-void dna_adjust::PrintAdjStationsUniqueList(std::ostream& os,
-	const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
-	bool recomputeGeographicCoords, bool updateGeographicCoords,
-	bool reapplyTypeBUncertainties)
-{
-	// Use new printer infrastructure for enhanced unique stations list processing
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjStationsUniqueListWithStaging(os, stationEstimates, stationVariances,
-	                                             recomputeGeographicCoords, updateGeographicCoords,
-	                                             reapplyTypeBUncertainties);
-}
-
 void dna_adjust::SortStationsbyFileOrder(vUINT32& v_blockStations)
 {
 	CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
@@ -8311,64 +8172,6 @@ void dna_adjust::SortStationsbyID(vUINT32& v_blockStations)
 	std::sort(v_blockStations.begin(), v_blockStations.end());
 }
 	
-
-void dna_adjust::PrintPosUncertaintiesHeader(std::ostream& os)
-{
-	os << std::setw(STATION) << std::left << "Station" <<
-		std::setw(PAD2) << " " << 
-		std::right << std::setw(LAT_EAST) << CDnaStation::CoordinateName('P') << 
-		std::right << std::setw(LON_NORTH) << CDnaStation::CoordinateName('L') << 
-		std::right << std::setw(STAT) << "Hz PosU" << 
-		std::right << std::setw(STAT) << "Vt PosU" << 
-		std::right << std::setw(PREC) << "Semi-major" << 
-		std::right << std::setw(PREC) << "Semi-minor" << 
-		std::right << std::setw(PREC) << "Orientation";
-
-	switch (projectSettings_.o._apu_vcv_units)
-	{
-	case ENU_apu_ui:
-		os <<  
-			std::right << std::setw(MSR) << "Variance(e)" << 
-			std::right << std::setw(MSR) << "Variance(n)" << 
-			std::right << std::setw(MSR) << "Variance(up)" << std::endl;
-		break;
-	case XYZ_apu_ui:
-	default:
-		os <<  
-			std::right << std::setw(MSR) << "Variance(X)" << 
-			std::right << std::setw(MSR) << "Variance(Y)" << 
-			std::right << std::setw(MSR) << "Variance(Z)" << std::endl;
-		break;
-	}
-
-	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
-
-	for (i=0; i<j; ++i)
-		os << "-";
-	os << std::endl;
-}
-	
-
-void dna_adjust::PrintPosUncertaintiesUniqueList(std::ostream& os, const v_mat_2d* stationVariances)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintPositionalUncertaintiesList(os, stationVariances);
-}
-
-void dna_adjust::PrintPosUncertainty(std::ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, 
-		const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx, const vUINT32* blockStations)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintPosUncertainty(os, block, stn, mat_idx, stationVariances, map_idx, blockStations);
-}
-
-void dna_adjust::PrintPosUncertainties(std::ostream &os, const UINT32& block, const matrix_2d* stationVariances)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintPosUncertainties(os, block, stationVariances);
-}
-	
-
 void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 {
 	vUINT32 v_blockStations(v_parameterStationList_.at(block));
@@ -8377,9 +8180,8 @@ void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 	if (projectSettings_.o._sort_stn_file_order)
 		SortStationsbyFileOrder(v_blockStations);
 	
-	// Use new printer infrastructure for coordination
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintStationCorrelations(cor_file, block);
+	// Use the already initialized printer
+	printer_->PrintStationCorrelations(cor_file, block);
 	
 	// Continue with existing detailed implementation
 	switch (projectSettings_.a.adjust_mode)
@@ -8418,7 +8220,7 @@ void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 		stn = v_blockStations.at(i);
 		mat_idx = v_blockStationsMap_.at(block)[stn] * 3;
 
-		PrintCorStation(cor_file, block, stn, mat_idx, 
+		printer_->PrintCorStation(cor_file, block, stn, mat_idx, 
 			&estimates->at(block));
 	}
 
@@ -8430,11 +8232,6 @@ void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 
 }
 
-void dna_adjust::PrintCorStationsUniqueList(std::ostream &cor_file)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintStationCorrectionsList(cor_file);
-}
 	
 
 void dna_adjust::UpdateGeographicCoordsPhased(const UINT32& block, matrix_2d* estimatedStations)
@@ -8474,20 +8271,6 @@ void dna_adjust::UpdateGeographicCoords()
 			&(bstBinaryRecords_.at(*_it_stn).currentHeight), 
 			datum_.GetEllipsoidRef());
 	}
-}
-
-void dna_adjust::PrintCompMeasurements(const UINT32& block, const std::string& type)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintComputedMeasurements(block, type);
-}
-	
-
-void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading,
-	printMeasurementsMode printMode, UINT32 block, bool printBlocks)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementsHeader(printHeader, table_heading, printMode, block, printBlocks);
 }
 
 void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
@@ -9721,184 +9504,6 @@ void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOrigina
 	}
 }
 	
-
-void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintIgnoredMeasurements(printHeader);
-}
-
-// This function checks whether this measurement contains an invalid
-// station.  A station is invalid if it is wholly connected to ignored 
-// measurements or is not connected to any other measurement and thereby
-// not adjusted.
-bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
-{
-	DynAdjustPrinter printer(*this);
-	return printer.IgnoredMeasurementContainsInvalidStation(_it_msr);
-}
-
-
-void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedMeasurements(msr_block, printHeader);
-}
-	
-	
-void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintComparativeMeasurements<AngularMeasurement>(cardinal, computed, correction, _it_msr);
-}
-	
-
-void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintComparativeMeasurements<LinearMeasurement>(cardinal, computed, correction, _it_msr);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_A(block, _it_msr, design_row, printMode);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_BKVZ(block, _it_msr, design_row, printMode);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_CELMS(_it_msr, design_row, printMode);
-}
-	
-
-// The estimation of parameters from direction clusters is handled by reducing the 
-// respective directions to angles.  Therefore, the "adjusted measurements" are
-// the adjusted angles.
-void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_D(_it_msr, design_row, printIgnored);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_YLLH(_it_msr, design_row);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_GXY(block, _it_msr, design_row, printMode);
-}
-	
-	
-void dna_adjust::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_HR(block, _it_msr, design_row, printMode);
-}
-	
-
-void dna_adjust::PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintCompMeasurements_IJPQ(block, _it_msr, design_row, printMode);
-}
-
-void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementValue<AngularMeasurement>(cardinal, measurement, correction, _it_msr, printAdjMsr);
-}
-	
-
-void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedMeasurements<AngularMeasurement>(cardinal, _it_msr, initialise_dbindex);
-}
-	
-
-void dna_adjust::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedMeasurements<LinearMeasurement>(cardinal, _it_msr, initialise_dbindex);
-}
-	
-
-void dna_adjust::PrintMeasurementsLinear(
-	const char cardinal, 
-	const double& measurement, 
-	const double& correction, 
-	const it_vmsr_t& _it_msr, 
-	bool printAdjMsr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementValue<LinearMeasurement>(cardinal, measurement, correction, _it_msr, printAdjMsr);
-}
-
-void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintPreAdjustmentCorrection(cardinal, _it_msr);
-}
-
-void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementDatabaseID(_it_msr, initialise_dbindex);
-}
-	
-
-void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
-}
-
-void dna_adjust::PrintAdjMeasurements_A(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementWithStations(_it_msr, 'A');
-}
-	
-
-void dna_adjust::PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
-}
-	
-
-void dna_adjust::PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
-}
-	
-
-// The estimation of parameters from direction clusters is handled by reducing the 
-// respective directions to angles.  Therefore, the "adjusted measurements" are
-// the adjusted angles.
-void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjMeasurements_D(_it_msr);
-}
-
 void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode)
 {
 	it_vmsr_t _it_y_msr(y_msr.begin());
@@ -9961,50 +9566,6 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 }
 
 
-// TODO:  The purpose of this function "should" be to simply print the measurement.
-// However, it also reduces the cartesian measurement back to the original LLH
-// form and at the same time updates the measurement statistics.  This work
-// should be performed somewhere else, not here!!!
-// BUT!  This needs some thought as the philosophy of DynAdjust is to store
-// cartesian elements in the binary measurements file, not the geographic elements, 
-// so where can it go?  UpdateMsrRecord?  Not sure.  Awkward. There's no real harm 
-// in leaving this functionality here.
-void dna_adjust::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintAdjustedMeasurementsYLLH(_it_msr);
-}
-
-void dna_adjust::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam)
-{
-	DynAdjustPrinter printer(*this);
-	printer.PrintAdjMeasurements_GXY(_it_msr, b_pam);
-}
-	
-void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintAdjGNSSAlternateUnits(_it_msr, b_pam);
-}
-
-void dna_adjust::PrintAdjMeasurements_HR(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
-}
-	
-
-void dna_adjust::PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr)
-{
-	networkadjust::DynAdjustPrinter printer(*this);
-	printer.PrintMeasurementWithStations(_it_msr, _it_msr->measType);
-}
-	
-
-// Name:				SignalExceptionAdjustment
-// Purpose:				Closes all files (if file pointers are passed in) and throws NetAdjustException
-// Called by:			Any
-// Calls:				NetAdjustException()
 void dna_adjust::SignalExceptionAdjustment(const std::string& msg, const UINT32 block_no)
 {
 	adjustStatus_ = ADJUST_EXCEPTION_RAISED;

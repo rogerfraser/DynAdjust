@@ -1,13 +1,15 @@
 //============================================================================
 // Name         : dnaadjust_printer.hpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Dale Roberts <dale.o.roberts@gmail.com>
+// Contributors : 
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
 //                You may obtain a copy of the License at
-//
+//               
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//
+//               
 //                Unless required by applicable law or agreed to in writing, software
 //                distributed under the License is distributed on an "AS IS" BASIS,
 //                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,10 +30,8 @@
 
 #include <array>
 #include <iostream>
-#include <optional>
 #include <string_view>
 #include <type_traits>
-#include <variant>
 
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -69,7 +69,7 @@ struct PrintContext {
 // Tag types for measurement classification
 struct AngularMeasurement {};
 struct LinearMeasurement {};
-struct GPSClusterMeasurement {};
+struct PrintAdjMeasurementsHeader {};
 struct DirectionSetMeasurement {};
 
 // Stage 4: Coordinate type tags for station formatting
@@ -106,11 +106,19 @@ class DynAdjustPrinter {
 
     // Template-based measurement printing
     template <typename MeasurementType>
-    void PrintAdjustedMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
+    void PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
 
     // Template-based comparative measurement printing
     template <typename MeasurementType>
     void PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+    
+    // Compatibility methods - delegate to template implementations
+    void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+    void PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+    void PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr = true);
+    void PrintMeasurementsLinear(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr = true);
+    void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
+    void PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
 
     // Stage 5: Enhanced measurement formatting templates
     template <typename MeasurementType>
@@ -128,7 +136,7 @@ class DynAdjustPrinter {
     
     // Stage 3: Header generation infrastructure
     void PrintMeasurementHeader(printMeasurementsMode printMode, std::string_view col1_heading, std::string_view col2_heading);
-    void PrintMeasurementsHeader(bool printHeader, const std::string& table_heading, printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
+    void PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading, printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
     void PrintPositionUncertaintyHeader(std::ostream& os);
     
     // Stage 3: Output coordinators
@@ -137,27 +145,32 @@ class DynAdjustPrinter {
     void PrintNetworkStationCorrections();
     
     // Stage 5: Complex measurement handlers
-    void PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
-    void PrintIgnoredMeasurements(bool printHeader);
-    void PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
-    void PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr);
-    void PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr);
-    void PrintPositionalUncertaintyReport();
-    void PrintEstimatedStationCoordinates(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
-    bool PrintEstimatedStationCoordinatesToSINEX(std::string& sinex_filename);
-    void PrintComputedMeasurements(const UINT32& block, const std::string& type);
-    void PrintPositionalUncertaintiesList(std::ostream& os, const v_mat_2d* stationVariances);
+    void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintIgnoredAdjMeasurements(bool printHeader);
+    void PrintCompMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
+    void PrintPositionalUncertainty();
+    void PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
+    bool PrintEstimatedStationCoordinatestoSNX(std::string& sinex_filename);
+    void PrintCompMeasurements(const UINT32& block, const std::string& type);
+    void PrintPosUncertaintiesUniqueList(std::ostream& os, const v_mat_2d* stationVariances);
     void PrintStationCorrectionsList(std::ostream& cor_file);
     void PrintBlockStations(std::ostream& os, const UINT32& block, const matrix_2d* stationEstimates, 
                            matrix_2d* stationVariances, bool printBlockID, bool recomputeGeographicCoords, 
                            bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
-    void PrintFileHeaderInformation();
+    void PrintOutputFileHeaderInfo();
     void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
     void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
     void PrintStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, 
                                  bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
     void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored);
     void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_A(it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_HR(it_vmsr_t& _it_msr);
+    void PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr);
     void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
     void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
     void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
@@ -168,11 +181,8 @@ class DynAdjustPrinter {
                                         const std::string& calling_function, const UINT32 msr_count);
     
     // Stage 3: Specialized measurement handlers
-    template<typename MeasurementTag>
     void PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block = 0);
-    
     void PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adjustedMsrs = true);
-    void PrintMeasurementCorrection(char cardinal, const it_vmsr_t& it_msr);
     
     // Stage 3: Statistical and summary generators
     void PrintStatistics(bool printPelzer = true);
@@ -194,11 +204,10 @@ class DynAdjustPrinter {
                                std::string_view filename);
     void PrintStationColumnHeaders(std::ostream& os, CoordinateOutputMode mode, 
                                   bool include_uncertainties = false);
-    void PrintPositionalUncertaintyFileHeader(std::ostream& os, 
-                                             std::string_view filename);
+    void PrintPositionalUncertaintyHeader(std::ostream& os, std::string_view filename);
 
     // Stage 4: Station processing coordinators  
-    void PrintStationCorrections();
+    // void PrintNetworkStationCorrections(); - Already declared above
     void PrintStationCorrelations(std::ostream& cor_file, const UINT32& block);
     void PrintStationsInBlock(std::ostream& os, const UINT32& block,
                              const matrix_2d* estimates, const matrix_2d* variances,
@@ -208,7 +217,7 @@ class DynAdjustPrinter {
                                 CoordinateOutputMode mode);
                                 
     // Enhanced unique stations list processing
-    void PrintAdjStationsUniqueListWithStaging(std::ostream& os,
+    void PrintAdjStationsUniqueList(std::ostream& os,
                                               const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
                                               bool recomputeGeographicCoords, bool updateGeographicCoords,
                                               bool reapplyTypeBUncertainties);
@@ -220,7 +229,7 @@ class DynAdjustPrinter {
                                       const matrix_2d* estimates, matrix_2d* variances);
 
     // Stage 6: Export functions
-    void PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t);
+    void PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t);
     
     // Stage 7: Validation functions
     bool IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr);
@@ -237,6 +246,13 @@ class DynAdjustPrinter {
     void PrintCorStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_index,
                         const matrix_2d* stationEstimates);
     void PrintCorStations(std::ostream& cor_file, const UINT32& block);
+    void PrintCorStationsUniqueList(std::ostream& cor_file);
+    void PrintAdjStations(std::ostream& os, const UINT32& block,
+                          const matrix_2d* stationEstimates,
+                          matrix_2d* stationVariances, bool printBlockID,
+                          bool recomputeGeographicCoords,
+                          bool updateGeographicCoords, bool printHeader,
+                          bool reapplyTypeBUncertainties);
     void PrintPosUncertaintiesHeader(std::ostream& os);
     void PrintPosUncertainty(std::ostream& os, const UINT32& block, const UINT32& stn, 
                             const UINT32& mat_idx, const matrix_2d* stationVariances, 
@@ -286,7 +302,7 @@ class DynAdjustPrinter {
 
 // Template implementation - will be specialized for Angular/Linear types
 template <typename MeasurementType>
-void DynAdjustPrinter::PrintAdjustedMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+void DynAdjustPrinter::PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
     // Default implementation delegates to existing print functions
     // This will be replaced by explicit specializations
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
@@ -298,11 +314,6 @@ void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double&
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
 
-template <typename MeasurementTag>
-void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block) {
-    // Default implementation - will be replaced by explicit specializations
-    static_assert(sizeof(MeasurementTag) == 0, "Must use specialization");
-}
 
 // Stage 4: Template implementations for station coordinate formatting
 template <typename CoordinateType>
@@ -321,11 +332,11 @@ void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const it_vstn
 
 // Template specializations - defined in .cpp file
 template <>
-void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(char cardinal, const it_vmsr_t& it_msr,
+void DynAdjustPrinter::PrintAdjMeasurements<AngularMeasurement>(char cardinal, const it_vmsr_t& it_msr,
                                                                      bool initialise_dbindex);
 
 template <>
-void DynAdjustPrinter::PrintAdjustedMeasurements<LinearMeasurement>(char cardinal, const it_vmsr_t& it_msr,
+void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(char cardinal, const it_vmsr_t& it_msr,
                                                                     bool initialise_dbindex);
 
 template <>
@@ -336,9 +347,6 @@ template <>
 void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
 
-// Stage 3: GPS cluster measurement specializations
-template <>
-void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vmsr_t& it_msr, const UINT32& block);
 
 // Stage 4: Station coordinate formatting specializations
 template <>

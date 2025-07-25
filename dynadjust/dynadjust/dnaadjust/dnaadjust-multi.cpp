@@ -125,7 +125,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		// Print the iteration # to adj file.
 		// protected write to adj file (not needed here since write to
 		// adj file at this stage is via single thread
-		PrintIteration(incrementIteration());
+		printer_->PrintIteration(incrementIteration());
 		///////////////////////////////////
 
 		concurrentAdjustments.reset_adjustment_runs();		
@@ -244,9 +244,9 @@ void dna_adjust::AdjustPhasedMultiThread()
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
 
 	// Print status
-	PrintAdjustmentStatus();
+	printer_->PrintAdjustmentStatus();
 	// Compute and print time taken to run adjustment
-	PrintAdjustmentTime(tot_time, total_time);
+	printer_->PrintAdjustmentTime(tot_time, total_time);
 }
 
 

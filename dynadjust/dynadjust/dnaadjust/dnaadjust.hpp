@@ -38,6 +38,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <memory>
 #include <vector>
 
 #include <boost/thread.hpp>
@@ -107,6 +108,7 @@ extern boost::mutex maxCorrMutex;
 
 // forward declaration of dna_adjust
 class dna_adjust;
+class DynAdjustPrinter;
 
 class adjust_prepare_thread {
   public:
@@ -266,19 +268,22 @@ class dna_adjust {
     inline bool ExceptionRaised() {
         return adjustStatus_ == ADJUST_EXCEPTION_RAISED;
     }
+    inline DynAdjustPrinter* GetPrinter() { return printer_.get(); }
 
-    void PrintAdjustedNetworkStations();
-    void PrintPositionalUncertainty();
-    void PrintNetworkStationCorrections();
-    void PrintAdjustedNetworkMeasurements();
-    void PrintMeasurementsToStation();
+    // Printing methods moved to DynAdjustPrinter - use GetPrinter()->methodName() instead
+    // void PrintAdjustedNetworkStations();
+    // void PrintPositionalUncertainty();
+    // void PrintNetworkStationCorrections();
+    // void PrintAdjustedNetworkMeasurements();
+    // void PrintMeasurementsToStation();
 
-    bool PrintEstimatedStationCoordinatestoSNX(std::string& sinex_file);
-    void PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile,
-                                                  INPUT_FILE_TYPE t,
-                                                  bool flagUnused = false);
-    void PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile,
-                                                    INPUT_FILE_TYPE t);
+    // Printing methods moved to DynAdjustPrinter - use GetPrinter()->methodName() instead
+    // bool PrintEstimatedStationCoordinatestoSNX(std::string& sinex_file);
+    // void PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile,
+    //                                               INPUT_FILE_TYPE t,
+    //                                               bool flagUnused = false);
+    // void PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile,
+    //                                                 INPUT_FILE_TYPE t);
 
     void CloseOutputFiles();
     void UpdateBinaryFiles();
@@ -428,9 +433,10 @@ class dna_adjust {
                    bool AddConstraintStationstoNormals, bool BackupNormals);
     void UpdateAdjustment(bool iterate);
     void ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time);
-    void PrintAdjustmentStatus();
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintAdjustmentStatus();
     void PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_);
-    void PrintIteration(const UINT32& iteration);
+    // void PrintIteration(const UINT32& iteration);
 
     void InitialiseAdjustment();
     void SetDefaultReferenceFrame();
@@ -690,7 +696,6 @@ class dna_adjust {
                                      matrix_2d* normals, matrix_2d* design,
                                      matrix_2d* AtVinv, bool buildnewMatrices);
 
-    bool IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr);
     void UpdateIgnoredMeasurements(pit_vmsr_t _it_msr,
                                    bool storeOriginalMeasurement);
     void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr,
@@ -751,11 +756,12 @@ class dna_adjust {
     void LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart,
                               const _COORD_TYPE_ coordType);
 
-    void PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr,
-                                         const std::runtime_error& e,
-                                         std::stringstream& ss,
-                                         const std::string& calling_function,
-                                         const UINT32 msr_count = 0);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr,
+    //                                      const std::runtime_error& e,
+    //                                      std::stringstream& ss,
+    //                                      const std::string& calling_function,
+    //                                      const UINT32 msr_count = 0);
 
     // Estimated stations matrix
     void PrepareStationandVarianceMatrices(const UINT32& block);
@@ -931,123 +937,111 @@ class dna_adjust {
     FormInverseVarianceMatrixReduced(it_vmsr_t _it_msr, matrix_2d* var_cart,
                                      const std::string& method_name);
 
-    void PrintStatistics(bool printPelzer = true);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintStatistics(bool printPelzer = true);
 
     // Output files
     void OpenOutputFileStreams();
-    void PrintOutputFileHeaderInfo();
-    void
-    PrintCompMeasurements(const UINT32& block, const std::string& msg = "");
-    void
-    PrintCompMeasurementsAngular(const char cardinal, const double& computed,
-                                 const double& correction,
-                                 const it_vmsr_t& _it_msr);
-    void
-    PrintCompMeasurementsLinear(const char cardinal, const double& computed,
-                                const double& correction,
-                                const it_vmsr_t& _it_msr);
-    void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr,
-                                 UINT32& design_row,
-                                 printMeasurementsMode printMode);
-    void PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row,
-                                     printMeasurementsMode printMode);
-    void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row,
-                                 bool printIgnored = false);
-    void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr,
-                                  UINT32& design_row,
-                                  printMeasurementsMode printMode);
-    void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr,
-                                    UINT32& design_row,
-                                    printMeasurementsMode printMode);
-    void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr,
-                                    UINT32& design_row,
-                                    printMeasurementsMode printMode);
-    void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr,
-                                   UINT32& design_row,
-                                   printMeasurementsMode printMode);
-    void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintOutputFileHeaderInfo();
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void
+    // PrintCompMeasurements(const UINT32& block, const std::string& msg = "");
+    // void
+    // PrintCompMeasurementsAngular(const char cardinal, const double& computed,
+    //                              const double& correction,
+    //                              const it_vmsr_t& _it_msr);
+    // void
+    // PrintCompMeasurementsLinear(const char cardinal, const double& computed,
+    //                             const double& correction,
+    //                             const it_vmsr_t& _it_msr);
+    // void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr,
+    //                              UINT32& design_row,
+    //                              printMeasurementsMode printMode);
+    // void PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row,
+    //                                  printMeasurementsMode printMode);
+    // void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row,
+    //                              bool printIgnored = false);
+    // void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr,
+    //                               UINT32& design_row,
+    //                               printMeasurementsMode printMode);
+    // void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr,
+    //                                 UINT32& design_row,
+    //                                 printMeasurementsMode printMode);
+    // void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr,
+    //                                 UINT32& design_row,
+    //                                 printMeasurementsMode printMode);
+    // void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr,
+    //                                UINT32& design_row,
+    //                                printMeasurementsMode printMode);
+    // void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
 
-    void
-    PrintMeasurementsAngular(const char cardinal, const double& measurement,
-                             const double& correction, const it_vmsr_t& _it_msr,
-                             bool printAdjMsr = true);
-    void
-    PrintMeasurementsLinear(const char cardinal, const double& measurement,
-                            const double& correction, const it_vmsr_t& _it_msr,
-                            bool printAdjMsr = true);
-    void
-    PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
-    void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr,
-                                    bool initialise_dbindex = true);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void
+    // PrintMeasurementsAngular(const char cardinal, const double& measurement,
+    //                          const double& correction, const it_vmsr_t& _it_msr,
+    //                          bool printAdjMsr = true);
+    // void
+    // PrintMeasurementsLinear(const char cardinal, const double& measurement,
+    //                         const double& correction, const it_vmsr_t& _it_msr,
+    //                         bool printAdjMsr = true);
+    // void
+    // PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
+    // void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr,
+    //                                 bool initialise_dbindex = true);
 
     void FormUniqueMsrList();
-    void PrintAdjMeasurementsHeader(bool printHeader,
-                                    const std::string& table_heading,
-                                    printMeasurementsMode printMode,
-                                    UINT32 block, bool printBlocks = false);
-    void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
-    void
-    PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr,
-                                bool initialise_dbindex = true);
-    void
-    PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr,
-                               bool initialise_dbindex = true);
-    void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr,
-                                    const uint32_uint32_pair& b_pam);
-    void
-    PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr,
-                                  bool initialise_dbindex = true);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintAdjMeasurementsHeader(bool printHeader,
+    //                                 const std::string& table_heading,
+    //                                 printMeasurementsMode printMode,
+    //                                 UINT32 block, bool printBlocks = false);
+    // void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    // void
+    // PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr,
+    //                             bool initialise_dbindex = true);
+    // void
+    // PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr,
+    //                            bool initialise_dbindex = true);
+    // void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr,
+    //                                 const uint32_uint32_pair& b_pam);
+    // void
+    // PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr,
+    //                               bool initialise_dbindex = true);
 
-    void PrintIgnoredAdjMeasurements(bool printHeader);
+    // void PrintIgnoredAdjMeasurements(bool printHeader);
 
-    void PrintAdjMeasurements_A(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_HR(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr);
-    void PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr,
-                                  const uint32_uint32_pair& b_pam);
-    void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void PrintAdjMeasurements_A(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_HR(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr);
+    // void PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr,
+    //                               const uint32_uint32_pair& b_pam);
+    // void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
     void ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions,
                                            printMeasurementsMode print_mode);
 
-    void
-    PrintAdjStation(std::ostream& os, const UINT32& block, const UINT32& stn,
-                    const UINT32& mat_idx, const matrix_2d* stationEstimates,
-                    matrix_2d* stationVariances, bool recomputeGeographicCoords,
-                    bool updateGeographicCoords,
-                    bool reapplyTypeBUncertainties);
-    void PrintAdjStations(std::ostream& os, const UINT32& block,
-                          const matrix_2d* stationEstimates,
-                          matrix_2d* stationVariances, bool printBlockID,
-                          bool recomputeGeographicCoords,
-                          bool updateGeographicCoords, bool printHeader,
-                          bool reapplyTypeBUncertainties);
-    void PrintAdjStationsUniqueList(std::ostream& os,
-                                    const v_mat_2d* stationEstimates,
-                                    v_mat_2d* stationVariances,
-                                    bool recomputeGeographicCoords,
-                                    bool updateGeographicCoords,
-                                    bool reapplyTypeBUncertainties);
 
     void PrintCorStations(std::ostream& cor_file, const UINT32& block);
-    void PrintCorStationsUniqueList(std::ostream& cor_file);
-    void
-    PrintCorStation(std::ostream& os, const UINT32& block, const UINT32& stn,
-                    const UINT32& mat_idx, const matrix_2d* stationEstimates);
+    // void
+    // PrintCorStation(std::ostream& os, const UINT32& block, const UINT32& stn,
+    //                 const UINT32& mat_idx, const matrix_2d* stationEstimates);
 
-    void
-    PrintPosUncertainty(std::ostream& os, /*ostream* csv,*/ const UINT32& block,
-                        const UINT32& stn, const UINT32& mat_idx,
-                        const matrix_2d* stationVariances,
-                        const UINT32& map_idx = 0,
-                        const vUINT32* blockStations = NULL);
-    void PrintPosUncertainties(std::ostream& os, const UINT32& block,
-                               const matrix_2d* stationVariances);
-    void PrintPosUncertaintiesUniqueList(std::ostream& os,
-                                         const v_mat_2d* stationVariances);
-    void PrintPosUncertaintiesHeader(std::ostream& os);
+    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
+    // void
+    // PrintPosUncertainty(std::ostream& os, /*ostream* csv,*/ const UINT32& block,
+    //                     const UINT32& stn, const UINT32& mat_idx,
+    //                     const matrix_2d* stationVariances,
+    //                     const UINT32& map_idx = 0,
+    //                     const vUINT32* blockStations = NULL);
+    // void PrintPosUncertainties(std::ostream& os, const UINT32& block,
+    //                            const matrix_2d* stationVariances);
+    // void PrintPosUncertaintiesUniqueList(std::ostream& os,
+    //                                      const v_mat_2d* stationVariances);
+    // void PrintPosUncertaintiesHeader(std::ostream& os);
 
     void UpdateGeographicCoordsPhased(const UINT32& block,
                                       matrix_2d* estimatedStations);
@@ -1092,6 +1086,8 @@ class dna_adjust {
     std::ofstream debug_file;
     std::ofstream adj_file;
     std::ofstream xyz_file;
+
+    std::unique_ptr<DynAdjustPrinter> printer_;
 
     UINT32 blockLargeCorr_;
     double largestCorr_;

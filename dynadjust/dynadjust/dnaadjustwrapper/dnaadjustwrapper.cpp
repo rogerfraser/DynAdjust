@@ -21,6 +21,7 @@
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <dynadjust/dnaadjust/dnaadjust_printer.hpp>
 
 #include "threading_init.hpp"
 
@@ -242,7 +243,7 @@ void PrintAdjustedMeasurements(dna_adjust* netAdjust, const project_settings* p)
 			std::cout.flush();
 		}
 
-		netAdjust->PrintAdjustedNetworkMeasurements();
+		netAdjust->GetPrinter()->PrintAdjustedNetworkMeasurements();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -258,7 +259,7 @@ void PrintMeasurementstoStations(dna_adjust* netAdjust, const project_settings* 
 			std::cout << "+ Printing summary of measurements connected to each station...";
 			std::cout.flush();
 		}
-		netAdjust->PrintMeasurementsToStation();
+		netAdjust->GetPrinter()->PrintMeasurementsToStation();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -272,7 +273,7 @@ void PrintAdjustedNetworkStations(dna_adjust* netAdjust, const project_settings*
 		std::cout << "+ Printing adjusted station coordinates...";
 		std::cout.flush();
 	}
-	netAdjust->PrintAdjustedNetworkStations();
+	netAdjust->GetPrinter()->PrintAdjustedNetworkStations();
 	if (!p->g.quiet)
 		std::cout << " done." << std::endl;
 }
@@ -288,7 +289,7 @@ void PrintPositionalUncertainty(dna_adjust* netAdjust, const project_settings* p
 			std::cout.flush();
 		}
 		// Print correlations as required
-		netAdjust->PrintPositionalUncertainty();
+		netAdjust->GetPrinter()->PrintPositionalUncertainty();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -304,7 +305,7 @@ void PrintStationCorrections(dna_adjust* netAdjust, const project_settings* p)
 			std::cout << "+ Printing corrections to initial station coordinates...";
 			std::cout.flush();
 		}
-		netAdjust->PrintNetworkStationCorrections();
+		netAdjust->GetPrinter()->PrintNetworkStationCorrections();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -335,7 +336,7 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(p->o._xml_file) << "... ";
 				
 		// Export Stations file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
@@ -353,7 +354,7 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 				
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
 
 		if (!p->g.quiet)
 			std::cout << "Done." << std::endl;
@@ -371,7 +372,7 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(stnfilename) << "... ";
 					
 		// Export Station file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
@@ -388,7 +389,7 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 					
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
 
 		if (!p->g.quiet)
 			std::cout << "Done." << std::endl;
@@ -404,7 +405,7 @@ void ExportSinex(dna_adjust* netAdjust, const project_settings* p)
 		// Export to SINEX
 		if (!p->g.quiet)
 			std::cout << "+ Printing station estimates and uncertainties to SINEX...";
-		bool success(netAdjust->PrintEstimatedStationCoordinatestoSNX(sinex_file));
+		bool success(netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoSNX(sinex_file));
 
 		// SomeFunc()
 		if (!p->g.quiet)

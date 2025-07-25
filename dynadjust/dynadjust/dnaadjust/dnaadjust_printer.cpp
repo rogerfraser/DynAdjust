@@ -1,6 +1,8 @@
 //============================================================================
 // Name         : dnaadjust_printer.cpp
-// Copyright    : Copyright 2025 Geoscience Australia
+// Author       : Dale Roberts <dale.o.roberts@gmail.com>
+// Contributors : 
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -57,10 +59,10 @@ void DynAdjustPrinter::PrintMeasurementWithStations(it_vmsr_t& it_msr, char meas
     // Print the measurement based on type
     if (IsAngularType(measurement_type)) {
         // Delegate to existing angular measurement printer
-        adjust_.PrintAdjMeasurementsAngular(' ', it_msr, true);
+        PrintAdjMeasurements<AngularMeasurement>(' ', it_msr, true);
     } else {
         // Delegate to existing linear measurement printer
-        adjust_.PrintAdjMeasurementsLinear(' ', it_msr, true);
+        PrintAdjMeasurements<LinearMeasurement>(' ', it_msr, true);
     }
 }
 
@@ -119,23 +121,23 @@ constexpr bool DynAdjustPrinter::IsAngularType(char measurement_type) const {
 
 // Template specializations
 template<>
-void DynAdjustPrinter::PrintAdjustedMeasurements<AngularMeasurement>(
+void DynAdjustPrinter::PrintAdjMeasurements<AngularMeasurement>(
     char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
     // Print adjusted angular measurements
-    adjust_.PrintMeasurementsAngular(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+    PrintMeasurementValue<AngularMeasurement>(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr, true);
     
     // Print adjusted statistics
-    adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
+    PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
 template<>
-void DynAdjustPrinter::PrintAdjustedMeasurements<LinearMeasurement>(
+void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(
     char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
     // Print adjusted linear measurements
-    adjust_.PrintMeasurementsLinear(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+    PrintMeasurementValue<LinearMeasurement>(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr, true);
     
     // Print adjusted statistics
-    adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
+    PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
 // Template specializations for comparative measurements
@@ -143,10 +145,10 @@ template<>
 void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
     char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Print computed angular measurements
-    adjust_.PrintMeasurementsAngular(cardinal, computed, correction, it_msr, false);
+    PrintMeasurementValue<AngularMeasurement>(cardinal, computed, correction, it_msr, false);
     
     // Print measurement correction
-    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+    PrintMeasurementCorrection(cardinal, it_msr);
     
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
@@ -165,10 +167,10 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
     }
     
     // Print computed linear measurements
-    adjust_.PrintMeasurementsLinear(cardinal, computed, correction, it_msr, false);
+    PrintMeasurementValue<LinearMeasurement>(cardinal, computed, correction, it_msr, false);
     
     // Print measurement correction
-    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+    PrintMeasurementCorrection(cardinal, it_msr);
     
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
@@ -176,6 +178,43 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
     }
     
     adjust_.adj_file << std::endl;
+}
+
+// Compatibility methods for maintaining the original method names
+void DynAdjustPrinter::PrintCompMeasurementsLinear(const char cardinal, const double& computed, 
+                                                   const double& correction, const it_vmsr_t& it_msr) {
+    PrintComparativeMeasurements<LinearMeasurement>(cardinal, computed, correction, it_msr);
+}
+
+void DynAdjustPrinter::PrintCompMeasurementsAngular(const char cardinal, const double& computed, 
+                                                    const double& correction, const it_vmsr_t& it_msr) {
+    PrintComparativeMeasurements<AngularMeasurement>(cardinal, computed, correction, it_msr);
+}
+
+void DynAdjustPrinter::PrintMeasurementsAngular(const char cardinal, const double& measurement, 
+                                                const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr) {
+    PrintMeasurementValue<AngularMeasurement>(cardinal, measurement, correction, it_msr, printAdjMsr);
+}
+
+void DynAdjustPrinter::PrintMeasurementsLinear(const char cardinal, const double& measurement, 
+                                               const double& correction, const it_vmsr_t& it_msr, bool printAdjMsr) {
+    PrintMeasurementValue<LinearMeasurement>(cardinal, measurement, correction, it_msr, printAdjMsr);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+    // Print adjusted angular measurements
+    PrintMeasurementsAngular(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+
+    // Print adjusted statistics
+    PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex) {
+    // Print adjusted linear measurements
+    PrintMeasurementsLinear(cardinal, it_msr->measAdj, it_msr->measCorr, it_msr);
+    
+    // Print adjusted statistics
+    PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
 // Utility function implementations
@@ -252,7 +291,7 @@ void DynAdjustPrinter::PrintAdjMeasurementStatistics(char cardinal, const it_vms
     adjust_.adj_file << std::setw(REL) << std::setprecision(2) << std::fixed << std::right << it_msr->PelzerRel;
 
     // Print measurement correction
-    adjust_.PrintMeasurementCorrection(cardinal, it_msr);
+    PrintMeasurementCorrection(cardinal, it_msr);
 
     // Print asterisk for values which exceed the critical value
     if (fabs(it_msr->NStat) > adjust_.criticalValue_)
@@ -351,7 +390,7 @@ void DynAdjustPrinter::PrintPositionUncertaintyHeader(std::ostream& os) {
     os << std::endl << std::setfill('-') << std::setw(pad) << "" << std::setfill(' ') << std::endl;
 }
 
-void DynAdjustPrinter::PrintMeasurementsHeader(bool printHeader, const std::string& table_heading,
+void DynAdjustPrinter::PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading,
     printMeasurementsMode printMode, UINT32 block, bool printBlocks) {
     
     if (printHeader)
@@ -477,15 +516,15 @@ void DynAdjustPrinter::PrintAdjustedNetworkMeasurements() {
         {
             _it_uint32_u32u32_pair begin = adjust_.v_msr_block_.begin();
             _it_uint32_u32u32_pair end = begin + adjust_.v_CML_.at(0).size();
-            adjust_.PrintAdjMeasurements(v_uint32_u32u32_pair(begin, end), printHeader);
+            PrintAdjMeasurements(v_uint32_u32u32_pair(begin, end), printHeader);
         }
         break;
     case SimultaneousMode:
-        adjust_.PrintAdjMeasurements(adjust_.v_msr_block_, printHeader);
+        PrintAdjMeasurements(adjust_.v_msr_block_, printHeader);
         break;
     case PhasedMode:
         // Use existing logic for complex phased mode
-        adjust_.PrintAdjMeasurements(adjust_.v_msr_block_, printHeader);
+        PrintAdjMeasurements(adjust_.v_msr_block_, printHeader);
         break;
     }
 
@@ -497,7 +536,7 @@ void DynAdjustPrinter::PrintAdjustedNetworkMeasurements() {
         if (adjust_.projectSettings_.o._print_ignored_msrs)
             // Print comparison between ignored and computed 
             // measurements from adjusted coordinates
-            PrintIgnoredMeasurements(true);		
+            PrintIgnoredAdjMeasurements(true);		
         break;
     }
 }
@@ -508,18 +547,18 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
 
     switch (adjust_.projectSettings_.a.adjust_mode) {
     case SimultaneousMode:
-        adjust_.PrintAdjStations(adjust_.adj_file, 0, &adjust_.v_estimatedStations_.at(0), &adjust_.v_rigorousVariances_.at(0), false, true, true, printHeader, true);
-        adjust_.PrintAdjStations(adjust_.xyz_file, 0, &adjust_.v_estimatedStations_.at(0), &adjust_.v_rigorousVariances_.at(0), false, false, false, printHeader, false);
+        PrintAdjStations(adjust_.adj_file, 0, &adjust_.v_estimatedStations_.at(0), &adjust_.v_rigorousVariances_.at(0), false, true, true, printHeader, true);
+        PrintAdjStations(adjust_.xyz_file, 0, &adjust_.v_estimatedStations_.at(0), &adjust_.v_rigorousVariances_.at(0), false, false, false, printHeader, false);
         break;
     case PhasedMode:
     case Phased_Block_1Mode:
         // Output phased blocks as a single block?
         if (!adjust_.projectSettings_.o._output_stn_blocks) {
-            adjust_.PrintAdjStationsUniqueList(adjust_.adj_file,
+            PrintAdjStationsUniqueList(adjust_.adj_file,
                 &adjust_.v_rigorousStations_,
                 &adjust_.v_rigorousVariances_,
                 true, true, true);
-            adjust_.PrintAdjStationsUniqueList(adjust_.xyz_file,
+            PrintAdjStationsUniqueList(adjust_.xyz_file,
                 &adjust_.v_rigorousStations_,
                 &adjust_.v_rigorousVariances_,
                 true, true, false);
@@ -534,8 +573,8 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
                         adjust_.DeserialiseBlockFromMappedFile(block, 1, sf_original_stns);
 
                     // Print using original detailed function for staging compatibility
-                    adjust_.PrintAdjStations(adjust_.adj_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
-                    adjust_.PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
+                    PrintAdjStations(adjust_.adj_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
+                    PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_rigorousStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
                     printHeader = false;
 
                     // Release block from memory
@@ -550,8 +589,8 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
             } else {
                 // Print stations for each block without staging
                 for (UINT32 block = 0; block < adjust_.blockCount_; ++block) {
-                    adjust_.PrintAdjStations(adjust_.adj_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
-                    adjust_.PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
+                    PrintAdjStations(adjust_.adj_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, true, true, printHeader, true);
+                    PrintAdjStations(adjust_.xyz_file, block, &adjust_.v_estimatedStations_.at(block), &adjust_.v_rigorousVariances_.at(block), true, false, false, printHeader, false);
                     printHeader = false;
                     
                     // Exit if block-1 mode
@@ -564,11 +603,7 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
     }
 }
 
-void DynAdjustPrinter::PrintNetworkStationCorrections() {
-    // Simplified station corrections - delegate to existing implementation
-    adjust_.adj_file << std::endl << "NETWORK STATION CORRECTIONS" << std::endl;
-    adjust_.adj_file << "Station corrections will be printed using existing detailed implementation." << std::endl;
-}
+// PrintNetworkStationCorrections() - removed duplicate definition (see below)
 
 // Stage 3: Specialized measurement handlers
 void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adjustedMsrs) {
@@ -587,12 +622,12 @@ void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adj
         
         if (adjustedMsrs) {
             // Print adjusted direction measurements
-            adjust_.PrintMeasurementsAngular(' ', _it_d_msr->measAdj, _it_d_msr->measCorr, _it_d_msr);
+            PrintMeasurementValue<AngularMeasurement>(' ', _it_d_msr->measAdj, _it_d_msr->measCorr, _it_d_msr, true);
             PrintAdjMeasurementStatistics(' ', _it_d_msr, false);
         } else {
             // Print computed direction measurements
-            adjust_.PrintMeasurementsAngular(' ', _it_d_msr->term1, _it_d_msr->measCorr, _it_d_msr, false);
-            adjust_.PrintMeasurementCorrection(' ', _it_d_msr);
+            PrintMeasurementValue<AngularMeasurement>(' ', _it_d_msr->term1, _it_d_msr->measCorr, _it_d_msr, false);
+            PrintMeasurementCorrection(' ', _it_d_msr);
             if (adjust_.projectSettings_.o._database_ids)
                 PrintMeasurementDatabaseID(_it_d_msr, false);
         }
@@ -602,20 +637,9 @@ void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adj
     }
 }
 
-void DynAdjustPrinter::PrintMeasurementCorrection(char cardinal, const it_vmsr_t& it_msr) {
-    // Measurement correction formatting
-    UINT16 precision(3);
-    
-    if (adjust_.isAdjustmentQuestionable_ || (fabs(it_msr->measCorr) > adjust_.criticalValue_ * 4.0))
-        adjust_.adj_file << StringFromTW(removeNegativeZero(it_msr->measCorr, precision), CORR, precision);
-    else
-        adjust_.adj_file << std::setw(CORR) << std::setprecision(precision) << std::fixed << std::right << 
-            removeNegativeZero(it_msr->measCorr, precision);
-}
 
-// GPS cluster measurement template specialization
-template<>
-void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vmsr_t& it_msr, const UINT32& block) {
+// GPS cluster measurement method
+void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block) {
     // GPS cluster specific printing logic
     vmsr_t gps_msr;
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, it_msr, gps_msr);
@@ -632,11 +656,11 @@ void DynAdjustPrinter::PrintGPSClusterMeasurements<GPSClusterMeasurement>(it_vms
         // Print GPS measurements based on coordinate type
         switch (_it_gps_msr->coordType[0]) {
         case 'C':  // Cartesian
-            adjust_.PrintMeasurementsLinear(' ', _it_gps_msr->measAdj, _it_gps_msr->measCorr, _it_gps_msr);
+            PrintMeasurementValue<LinearMeasurement>(' ', _it_gps_msr->measAdj, _it_gps_msr->measCorr, _it_gps_msr, true);
             break;
         case 'L':  // Geographic
             // Handle latitude/longitude/height differently
-            adjust_.PrintMeasurementsLinear(' ', _it_gps_msr->measAdj, _it_gps_msr->measCorr, _it_gps_msr);
+            PrintMeasurementValue<LinearMeasurement>(' ', _it_gps_msr->measAdj, _it_gps_msr->measCorr, _it_gps_msr, true);
             break;
         }
         
@@ -793,7 +817,7 @@ void DynAdjustPrinter::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& desig
         UINT32 b(MSR + MSR + CORR + PREC + PACORR);
         adjust_.adj_file << std::setw(b) << " ";
 
-        adjust_.PrintMeasurementDatabaseID(_it_msr);
+        PrintMeasurementDatabaseID(_it_msr, true);
     }
     adjust_.adj_file << std::endl;
 
@@ -825,11 +849,58 @@ void DynAdjustPrinter::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& desig
         
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision
-        adjust_.PrintCompMeasurementsAngular(' ', computed, _it_msr->measCorr, _it_msr);
+        PrintComparativeMeasurements<AngularMeasurement>(' ', computed, _it_msr->measCorr, _it_msr);
         
         design_row++;
         _it_msr++;
     }
+}
+
+void DynAdjustPrinter::PrintAdjMeasurements_A(it_vmsr_t& _it_msr) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station3).stationName;
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision
+    PrintAdjMeasurementsAngular(' ', _it_msr);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision
+    PrintAdjMeasurementsAngular(' ', _it_msr);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station2).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    PrintAdjMeasurementsLinear(' ', _it_msr);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurements_HR(it_vmsr_t& _it_msr) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+
+    PrintAdjMeasurementsLinear(' ', _it_msr);
+}
+
+void DynAdjustPrinter::PrintAdjMeasurements_IJPQ(it_vmsr_t& _it_msr) {
+    // normal format
+    adjust_.adj_file << std::left << std::setw(STATION) << adjust_.bstBinaryRecords_.at(_it_msr->station1).stationName;
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    adjust_.adj_file << std::left << std::setw(STATION) << " ";
+    // Print angular measurement, taking care of user requirements for 
+    // type, format and precision
+    PrintAdjMeasurementsAngular(' ', _it_msr);
 }
 
 void DynAdjustPrinter::PrintAdjMeasurements_D(it_vmsr_t& _it_msr) {
@@ -855,7 +926,7 @@ void DynAdjustPrinter::PrintAdjMeasurements_D(it_vmsr_t& _it_msr) {
             b += STAT;
         adjust_.adj_file << std::setw(b) << " ";
 
-        adjust_.PrintMeasurementDatabaseID(_it_msr);
+        PrintMeasurementDatabaseID(_it_msr, true);
     }
     adjust_.adj_file << std::endl;
 
@@ -883,7 +954,7 @@ void DynAdjustPrinter::PrintAdjMeasurements_D(it_vmsr_t& _it_msr) {
 
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision    
-        adjust_.PrintAdjMeasurementsAngular(' ', _it_msr);
+        PrintAdjMeasurementsAngular(' ', _it_msr);
 
         _it_msr++;
     }
@@ -949,15 +1020,15 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
             std::left << std::setw(STATION) << " ";        // third station
 
         // Print latitude
-        adjust_.PrintCompMeasurementsAngular('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComparativeMeasurements<AngularMeasurement>('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
     
         // Print longitude
         _it_y_msr++;
-        adjust_.PrintCompMeasurementsAngular('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComparativeMeasurements<AngularMeasurement>('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
 
         // Print height
         _it_y_msr++;
-        adjust_.PrintCompMeasurementsLinear('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComparativeMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -989,7 +1060,7 @@ void DynAdjustPrinter::PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
 
     design_row++;
 }
@@ -1016,7 +1087,7 @@ void DynAdjustPrinter::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
     
     design_row++;
 }
@@ -1040,7 +1111,7 @@ void DynAdjustPrinter::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& d
     }
     
     // Print linear measurement, taking care of user requirements for precision    
-    adjust_.PrintCompMeasurementsLinear(' ', computed, _it_msr->measCorr, _it_msr);
+    PrintCompMeasurementsLinear(' ', computed, _it_msr->measCorr, _it_msr);
 
     design_row++;
 }
@@ -1101,7 +1172,7 @@ void DynAdjustPrinter::PrintStationColumnHeaders(std::ostream& os, CoordinateOut
     os << std::endl << std::setfill('-') << std::setw(pad) << "" << std::setfill(' ') << std::endl;
 }
 
-void DynAdjustPrinter::PrintPositionalUncertaintyFileHeader(std::ostream& os, std::string_view filename) {
+void DynAdjustPrinter::PrintPositionalUncertaintyHeader(std::ostream& os, std::string_view filename) {
     PrintStationFileHeader(os, "POSITIONAL UNCERTAINTY", filename);
     
     os << std::setw(PRINT_VAR_PAD) << std::left << "PU confidence interval:" << 
@@ -1211,7 +1282,7 @@ void DynAdjustPrinter::PrintStationUncertainties<CartesianCoordinates>(std::ostr
 }
 
 // Station processing coordinators
-void DynAdjustPrinter::PrintStationCorrections() {
+void DynAdjustPrinter::PrintNetworkStationCorrections() {
     std::ofstream cor_file;
     try {
         // Create cor file.  Throws runtime_error on failure.
@@ -1238,13 +1309,13 @@ void DynAdjustPrinter::PrintStationCorrections() {
     switch (adjust_.projectSettings_.a.adjust_mode)
     {
     case SimultaneousMode:
-        adjust_.PrintCorStations(cor_file, 0);
+        PrintCorStations(cor_file, 0);
         break;
     case PhasedMode:
         // Output phased blocks as a single block?
         if (!adjust_.projectSettings_.o._output_stn_blocks)
         {
-            adjust_.PrintCorStationsUniqueList(cor_file);
+            PrintCorStationsUniqueList(cor_file);
             cor_file.close();
             return;
         }
@@ -1256,7 +1327,7 @@ void DynAdjustPrinter::PrintStationCorrections() {
                 adjust_.DeserialiseBlockFromMappedFile(block, 2,
                     sf_rigorous_stns, sf_original_stns);
 
-            adjust_.PrintCorStations(cor_file, block);
+            PrintCorStations(cor_file, block);
 
             // unload previous block
             if (adjust_.projectSettings_.a.stage)
@@ -1265,7 +1336,7 @@ void DynAdjustPrinter::PrintStationCorrections() {
         }
         break;
     case Phased_Block_1Mode:        // only the first block is rigorous
-        adjust_.PrintCorStations(cor_file, 0);
+        PrintCorStations(cor_file, 0);
         break;
     }
     
@@ -1296,7 +1367,7 @@ void DynAdjustPrinter::PrintUniqueStationsList(std::ostream& os,
     os << "Unique stations list printed using existing detailed implementation." << std::endl;
 }
 
-void DynAdjustPrinter::PrintAdjStationsUniqueListWithStaging(std::ostream& os,
+void DynAdjustPrinter::PrintAdjStationsUniqueList(std::ostream& os,
                                                            const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
                                                            bool recomputeGeographicCoords, bool updateGeographicCoords,
                                                            bool reapplyTypeBUncertainties) {
@@ -1336,7 +1407,7 @@ void DynAdjustPrinter::PrintAdjStationsUniqueListWithStaging(std::ostream& os,
         mat_index = _it_bsmu->first.second * 3;
 
         // Use the refactored PrintAdjStation through the main class
-        adjust_.PrintAdjStation(*outstream, 
+        PrintAdjStation(*outstream, 
                                block, stn, mat_index, 
                                &stationEstimates->at(block), &stationVariances->at(block), 
                                recomputeGeographicCoords, updateGeographicCoords,
@@ -1430,7 +1501,7 @@ void DynAdjustPrinter::PrintStationAdjustmentResults(std::ostream& os, const UIN
     
     // Delegate to existing implementation for complex coordinate transformations
     // and uncertainty calculations while using our new coordinate formatters
-    adjust_.PrintAdjStation(os, block, stn, mat_idx, estimates, variances, true, false, true);
+    PrintAdjStation(os, block, stn, mat_idx, estimates, variances, true, false, true);
 }
 
 // Enhanced coordinate transformation utilities for PrintAdjStation refactoring
@@ -1534,7 +1605,7 @@ void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const matrix_
 }
 
 // Stage 5: Complex measurement printing functions
-void DynAdjustPrinter::PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
+void DynAdjustPrinter::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
     // Generate table heading with optional iteration/block information
     std::string table_heading("Adjusted Measurements");
     
@@ -1556,7 +1627,7 @@ void DynAdjustPrinter::PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block,
     }
 
     // Print header using printer module method
-    PrintMeasurementsHeader(printHeader, table_heading,
+    PrintAdjMeasurementsHeader(printHeader, table_heading,
         adjustedMsrs, msr_block.at(0).second.first + 1, true);
     
     // Sort measurements according to project settings
@@ -1630,11 +1701,11 @@ void DynAdjustPrinter::PrintAdjustedMeasurements(v_uint32_u32u32_pair msr_block,
     adjust_.adj_file << std::endl;
 }
 
-void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
+void DynAdjustPrinter::PrintIgnoredAdjMeasurements(bool printHeader) {
     // Print heading
     adjust_.adj_file << std::endl;
     std::string table_heading("Ignored Measurements (a-posteriori)");
-    PrintMeasurementsHeader(printHeader, table_heading, ignoredMsrs, 0, false);
+    PrintAdjMeasurementsHeader(printHeader, table_heading, ignoredMsrs, 0, false);
 
     vUINT32 ignored_msrs;
     it_vUINT32 _it_ign;
@@ -1669,7 +1740,7 @@ void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
             _it_tmp = _it_msr;
             // Check each ignored measurement for the presence of
             // stations that are invalid (and therefore unadjusted).
-            if (!adjust_.IgnoredMeasurementContainsInvalidStation(&_it_msr))
+            if (!IgnoredMeasurementContainsInvalidStation(&_it_msr))
                 continue;
 
             ignored_msrs.push_back(static_cast<UINT32>(_it_tmp - adjust_.bmsBinaryRecords_.begin()));
@@ -1732,38 +1803,38 @@ void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
         // Use existing comp measurement functions for ignored measurements
         switch (_it_msr->measType) {
         case 'A':	// Horizontal angle
-            adjust_.PrintCompMeasurements_A(0, _it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_A(0, _it_msr, design_row, ignoredMsrs);
             break;
         case 'B':	// Geodetic azimuth
         case 'K':	// Astronomic azimuth
         case 'V':	// Zenith distance
         case 'Z':	// Vertical angle
-            adjust_.PrintCompMeasurements_BKVZ(0, _it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_BKVZ(0, _it_msr, design_row, ignoredMsrs);
             break;
         case 'C':	// Chord dist
         case 'E':	// Ellipsoid arc
         case 'L':	// Level difference
         case 'M':	// MSL arc
         case 'S':	// Slope distance
-            adjust_.PrintCompMeasurements_CELMS(_it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_CELMS(_it_msr, design_row, ignoredMsrs);
             break;
         case 'D':	// Direction set
-            adjust_.PrintCompMeasurements_D(_it_msr, design_row, true);
+            PrintCompMeasurements_D(_it_msr, design_row, true);
             break;
         case 'H':	// Orthometric height
         case 'R':	// Ellipsoidal height
-            adjust_.PrintCompMeasurements_HR(0, _it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_HR(0, _it_msr, design_row, ignoredMsrs);
             break;
         case 'I':	// Astronomic latitude
         case 'J':	// Astronomic longitude
         case 'P':	// Geodetic latitude
         case 'Q':	// Geodetic longitude
-            adjust_.PrintCompMeasurements_IJPQ(0, _it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_IJPQ(0, _it_msr, design_row, ignoredMsrs);
             break;
         case 'G':	// GPS Baseline (treat as single-baseline cluster)
         case 'X':	// GPS Baseline cluster
         case 'Y':	// GPS Point cluster
-            adjust_.PrintCompMeasurements_GXY(0, _it_msr, design_row, ignoredMsrs);
+            PrintCompMeasurements_GXY(0, _it_msr, design_row, ignoredMsrs);
             break;
         }
     }
@@ -1771,12 +1842,12 @@ void DynAdjustPrinter::PrintIgnoredMeasurements(bool printHeader) {
     adjust_.adj_file << std::endl << std::endl;
 }
 
-void DynAdjustPrinter::PrintComputedMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
+void DynAdjustPrinter::PrintCompMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader) {
     // Generate table heading
     std::string table_heading("Computed Measurements");
     
     // Print header
-    PrintMeasurementsHeader(printHeader, table_heading, computedMsrs, 0, false);
+    PrintAdjMeasurementsHeader(printHeader, table_heading, computedMsrs, 0, false);
     
     // Print measurements using consolidated dispatcher
     PrintMeasurementRecords(msr_block, false);
@@ -1784,7 +1855,7 @@ void DynAdjustPrinter::PrintComputedMeasurements(v_uint32_u32u32_pair msr_block,
     adjust_.adj_file << std::endl;
 }
 
-void DynAdjustPrinter::PrintComputedMeasurements(const UINT32& block, const std::string& type) {
+void DynAdjustPrinter::PrintCompMeasurements(const UINT32& block, const std::string& type) {
     // Generate table heading with optional block and type information
     std::string table_heading("Computed Measurements");
     
@@ -1805,7 +1876,7 @@ void DynAdjustPrinter::PrintComputedMeasurements(const UINT32& block, const std:
     }
 
     // Print header using printer module method
-    PrintMeasurementsHeader(true, table_heading, computedMsrs, block, false);
+    PrintAdjMeasurementsHeader(true, table_heading, computedMsrs, block, false);
 
     // Process measurements from the specified block
     it_vUINT32 _it_block_msr;
@@ -1829,38 +1900,38 @@ void DynAdjustPrinter::PrintComputedMeasurements(const UINT32& block, const std:
         // Dispatch to appropriate measurement handler
         switch (_it_msr->measType) {
         case 'A':	// Horizontal angle
-            adjust_.PrintCompMeasurements_A(block, _it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_A(block, _it_msr, design_row, computedMsrs);
             break;
         case 'B':	// Geodetic azimuth
         case 'K':	// Astronomic azimuth
         case 'V':	// Zenith distance
         case 'Z':	// Vertical angle
-            adjust_.PrintCompMeasurements_BKVZ(block, _it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_BKVZ(block, _it_msr, design_row, computedMsrs);
             break;
         case 'C':	// Chord dist
         case 'E':	// Ellipsoid arc
         case 'L':	// Level difference
         case 'M':	// MSL arc
         case 'S':	// Slope distance
-            adjust_.PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
             break;
         case 'D':	// Direction set
-            adjust_.PrintCompMeasurements_D(_it_msr, design_row);
+            PrintCompMeasurements_D(_it_msr, design_row, false);
             break;
         case 'H':	// Orthometric height
         case 'R':	// Ellipsoidal height
-            adjust_.PrintCompMeasurements_HR(block, _it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_HR(block, _it_msr, design_row, computedMsrs);
             break;
         case 'I':	// Astronomic latitude
         case 'J':	// Astronomic longitude
         case 'P':	// Geodetic latitude
         case 'Q':	// Geodetic longitude
-            adjust_.PrintCompMeasurements_IJPQ(block, _it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_IJPQ(block, _it_msr, design_row, computedMsrs);
             break;
         case 'G':	// GPS Baseline (treat as single-baseline cluster)
         case 'X':	// GPS Baseline cluster
         case 'Y':	// GPS Point cluster
-            adjust_.PrintCompMeasurements_GXY(block, _it_msr, design_row, computedMsrs);
+            PrintCompMeasurements_GXY(block, _it_msr, design_row, computedMsrs);
             break;
         }
     }
@@ -1906,18 +1977,18 @@ void DynAdjustPrinter::PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_b
         switch (_it_msr->measType) {
         case 'A':	// Horizontal angle
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_A(_it_msr);
+                PrintAdjMeasurements_A(_it_msr);
             else
-                adjust_.PrintCompMeasurements_A(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_A(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
             break;
         case 'B':	// Geodetic azimuth
         case 'K':	// Astronomic azimuth
         case 'V':	// Zenith distance
         case 'Z':	// Vertical angle
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_BKVZ(_it_msr);
+                PrintAdjMeasurements_BKVZ(_it_msr);
             else
-                adjust_.PrintCompMeasurements_BKVZ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_BKVZ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
             break;
         case 'C':	// Chord dist
         case 'E':	// Ellipsoid arc
@@ -1925,39 +1996,39 @@ void DynAdjustPrinter::PrintMeasurementRecords(const v_uint32_u32u32_pair& msr_b
         case 'M':	// MSL arc
         case 'S':	// Slope distance
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_CELMS(_it_msr);
+                PrintAdjMeasurements_CELMS(_it_msr);
             else
-                adjust_.PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
             break;
         case 'D':	// Direction set
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_D(_it_msr);
+                PrintAdjMeasurements_D(_it_msr);
             else
-                adjust_.PrintCompMeasurements_D(_it_msr, design_row, false);
+                PrintCompMeasurements_D(_it_msr, design_row, false);
             break;
         case 'H':	// Orthometric height
         case 'R':	// Ellipsoidal height
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_HR(_it_msr);
+                PrintAdjMeasurements_HR(_it_msr);
             else
-                adjust_.PrintCompMeasurements_HR(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_HR(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
             break;
         case 'I':	// Astronomic latitude
         case 'J':	// Astronomic longitude
         case 'P':	// Geodetic latitude
         case 'Q':	// Geodetic longitude
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_IJPQ(_it_msr);
+                PrintAdjMeasurements_IJPQ(_it_msr);
             else
-                adjust_.PrintCompMeasurements_IJPQ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_IJPQ(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
             break;
         case 'G':	// GPS Baseline (treat as single-baseline cluster)
         case 'X':	// GPS Baseline cluster
         case 'Y':	// GPS Point cluster
             if (adjustedMeasurements)
-                adjust_.PrintAdjMeasurements_GXY(_it_msr, _it_block_msr->second);
+                PrintAdjMeasurements_GXY(_it_msr, _it_block_msr->second);
             else
-                adjust_.PrintCompMeasurements_GXY(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
+                PrintCompMeasurements_GXY(_it_block_msr->second.first, _it_msr, design_row, computedMsrs);
             break;
         }
     }
@@ -2277,7 +2348,7 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
     }
 }
 
-void DynAdjustPrinter::PrintPreAdjustmentCorrection(const char cardinal, const it_vmsr_t& _it_msr)
+void DynAdjustPrinter::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr)
 {
     switch (_it_msr->measType)
     {
@@ -2329,7 +2400,7 @@ void DynAdjustPrinter::PrintPreAdjustmentCorrection(const char cardinal, const i
     }
 }
 
-void DynAdjustPrinter::PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr)
+void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
 {
     // Get an iterator to this measurement which will be needed later when
     // obtaining variance matrices via GetGPSVarianceMatrix()
@@ -2462,16 +2533,16 @@ void DynAdjustPrinter::PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr)
             std::left << std::setw(STATION) << " " <<		// second station
             std::left << std::setw(STATION) << " ";		// third station
 
-        // Print X
-        adjust_.PrintAdjMeasurementsAngular('P', _it_y_msr);
+        // Print latitude
+        PrintAdjMeasurementsAngular('P', _it_y_msr);
     
-        // Print Y
+        // Print longitude
         _it_y_msr++;	
-        adjust_.PrintAdjMeasurementsAngular('L', _it_y_msr);
+        PrintAdjMeasurementsAngular('L', _it_y_msr);
 
-        // Print Z
+        // Print height
         _it_y_msr++;	
-        adjust_.PrintAdjMeasurementsLinear('H', _it_y_msr);
+        PrintAdjMeasurementsLinear('H', _it_y_msr);
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -2481,7 +2552,7 @@ void DynAdjustPrinter::PrintAdjustedMeasurementsYLLH(it_vmsr_t& _it_msr)
     }
 }
 
-void DynAdjustPrinter::PrintPositionalUncertaintyReport()
+void DynAdjustPrinter::PrintPositionalUncertainty()
 {
     std::ofstream apu_file;
     try {
@@ -2493,7 +2564,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
     }
 
     // Use printer infrastructure for header
-    PrintPositionalUncertaintyFileHeader(apu_file, adjust_.projectSettings_.o._apu_file);
+    PrintPositionalUncertaintyHeader(apu_file, adjust_.projectSettings_.o._apu_file);
     
     apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations printed in blocks:";
     if (adjust_.projectSettings_.a.adjust_mode != SimultaneousMode)
@@ -2551,7 +2622,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
     switch (adjust_.projectSettings_.a.adjust_mode)
     {
     case SimultaneousMode:
-        adjust_.PrintPosUncertainties(apu_file, 0, 
+        PrintPosUncertainties(apu_file, 0, 
             &adjust_.v_rigorousVariances_.at(0));
         break;
     case PhasedMode:
@@ -2561,7 +2632,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
                                                                     // If covariances are required, stations
                                                                     // must be printed in blocks.
         {
-            adjust_.PrintPosUncertaintiesUniqueList(apu_file, 
+            PrintPosUncertaintiesUniqueList(apu_file, 
                 &adjust_.v_rigorousVariances_);
             return;
         }
@@ -2573,7 +2644,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
                 adjust_.DeserialiseBlockFromMappedFile(block, 1, 
                     sf_rigorous_vars);
 
-            adjust_.PrintPosUncertainties(apu_file, block, 
+            PrintPosUncertainties(apu_file, block, 
                 &adjust_.v_rigorousVariances_.at(block));
 
             // unload this block
@@ -2583,7 +2654,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
         }
         break;
     case Phased_Block_1Mode:		// only the first block is rigorous
-        adjust_.PrintPosUncertainties(apu_file, 0, 
+        PrintPosUncertainties(apu_file, 0, 
             &adjust_.v_rigorousVariances_.at(0));
         break;
     }
@@ -2591,7 +2662,7 @@ void DynAdjustPrinter::PrintPositionalUncertaintyReport()
     apu_file.close();
 }
 
-void DynAdjustPrinter::PrintEstimatedStationCoordinates(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
+void DynAdjustPrinter::PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
 {
     // Stations
     std::ofstream stn_file;
@@ -2722,7 +2793,7 @@ void DynAdjustPrinter::PrintEstimatedStationCoordinates(const std::string& stnFi
     }
 }
 
-bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sinex_filename)
+bool DynAdjustPrinter::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_filename)
 {
     std::ofstream sinex_file;
     std::string sinexFilename;
@@ -2829,7 +2900,7 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatesToSINEX(std::string& sine
 }
 
 // Stage 6: Export functions
-void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::string& msrFile, INPUT_FILE_TYPE t) {
+void DynAdjustPrinter::PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
     std::ofstream msr_file;
     try {
@@ -2984,10 +3055,10 @@ void DynAdjustPrinter::PrintEstimatedStationCoordinatesAsYClusters(const std::st
     }
 }
 
-void DynAdjustPrinter::PrintPositionalUncertaintiesList(std::ostream& os, const v_mat_2d* stationVariances)
+void DynAdjustPrinter::PrintPosUncertaintiesUniqueList(std::ostream& os, const v_mat_2d* stationVariances)
 {
     // Print header
-    adjust_.PrintPosUncertaintiesHeader(os);
+    PrintPosUncertaintiesHeader(os);
 
     UINT32 block(UINT_MAX), stn, mat_index;
     _it_u32u32_uint32_pair _it_bsmu;
@@ -3043,9 +3114,10 @@ void DynAdjustPrinter::PrintPositionalUncertaintiesList(std::ostream& os, const 
         stn = _it_bsmu->first.first;
         mat_index = _it_bsmu->first.second * 3;
 
-        adjust_.PrintPosUncertainty(*outstream,
+        PrintPosUncertainty(*outstream,
             block, stn, mat_index, 
-                &stationVariances->at(block));
+                &stationVariances->at(block),
+                _it_bsmu->first.second, nullptr);
 
         if (adjust_.projectSettings_.a.stage)
         {
@@ -3142,7 +3214,7 @@ void DynAdjustPrinter::PrintStationCorrectionsList(std::ostream& cor_file)
         stn = _it_bsmu->first.first;
         mat_index = _it_bsmu->first.second * 3;
 
-        adjust_.PrintCorStation(*outstream, block, stn, mat_index,
+        PrintCorStation(*outstream, block, stn, mat_index,
             &estimates->at(block));
             
         if (adjust_.projectSettings_.a.stage)
@@ -3240,7 +3312,7 @@ void DynAdjustPrinter::PrintBlockStations(std::ostream& os, const UINT32& block,
         stn = v_blockStations.at(i);
         mat_idx = adjust_.v_blockStationsMap_.at(block)[stn] * 3;
 
-        adjust_.PrintAdjStation(os, block, stn, mat_idx,
+        PrintAdjStation(os, block, stn, mat_idx,
             stationEstimates, stationVariances, 
             recomputeGeographicCoords, updateGeographicCoords,
             reapplyTypeBUncertainties);
@@ -3253,7 +3325,7 @@ void DynAdjustPrinter::PrintBlockStations(std::ostream& os, const UINT32& block,
         adjust_.SortStationsbyID(v_blockStations);
 }
 
-void DynAdjustPrinter::PrintFileHeaderInformation()
+void DynAdjustPrinter::PrintOutputFileHeaderInfo()
 {
     // Print formatted header
     print_file_header(adjust_.adj_file, "DYNADJUST ADJUSTMENT OUTPUT FILE");
@@ -3427,7 +3499,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
             _it_msr->station3 == LLh_type_i)
         {
             // Print phi, lambda, H
-            adjust_.PrintCompMeasurements_YLLH(_it_msr, design_row);
+            PrintCompMeasurements_YLLH(_it_msr, design_row);
             return;
         }
     }
@@ -3477,7 +3549,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        adjust_.PrintCompMeasurementsLinear('X', computed, correction, _it_msr);
+        PrintComparativeMeasurements<LinearMeasurement>('X', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3496,7 +3568,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        adjust_.PrintCompMeasurementsLinear('Y', computed, correction, _it_msr);
+        PrintComparativeMeasurements<LinearMeasurement>('Y', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3515,7 +3587,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        adjust_.PrintCompMeasurementsLinear('Z', computed, correction, _it_msr);
+        PrintComparativeMeasurements<LinearMeasurement>('Z', computed, correction, _it_msr);
 
         design_row++;
 
@@ -3606,7 +3678,7 @@ void DynAdjustPrinter::PrintStationsUniqueList(std::ostream& os,
         stn = _it_bsmu->first.first;
         mat_index = _it_bsmu->first.second * 3;
 
-        adjust_.PrintAdjStation(*outstream,
+        PrintAdjStation(*outstream,
             block, stn, mat_index,
                 &estimates->at(block), &stationVariances->at(block), 
                 recomputeGeographicCoords, updateGeographicCoords,
@@ -3892,7 +3964,7 @@ void DynAdjustPrinter::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32
             _it_msr->station3 == LLh_type_i)
         {
             // Print phi, lambda, H
-            PrintAdjustedMeasurementsYLLH(_it_msr);
+            PrintAdjMeasurements_YLLH(_it_msr);
             return;
         }
     }
@@ -3929,19 +4001,19 @@ void DynAdjustPrinter::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32
         // Print adjusted GNSS baseline measurements in alternate units?
         if (adjust_.projectSettings_.o._adj_gnss_units != XYZ_adj_gnss_ui &&
             _it_msr->measType != 'Y')
-            adjust_.PrintAdjGNSSAlternateUnits(_it_msr, b_pam);
+            PrintAdjGNSSAlternateUnits(_it_msr, b_pam);
         else
         {
             // Print X
-            adjust_.PrintAdjMeasurementsLinear('X', _it_msr);
+            PrintAdjMeasurementsLinear('X', _it_msr);
     
             // Print Y
             _it_msr++;	
-            adjust_.PrintAdjMeasurementsLinear('Y', _it_msr);
+            PrintAdjMeasurementsLinear('Y', _it_msr);
 
             // Print Z
             _it_msr++;	
-            adjust_.PrintAdjMeasurementsLinear('Z', _it_msr);
+            PrintAdjMeasurementsLinear('Z', _it_msr);
         }
 
         // skip covariances until next baseline
@@ -4421,7 +4493,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('e', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('e', _it_gnss_msr, false);
     
         // N
         _it_msr++;
@@ -4441,7 +4513,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('n', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('n', _it_gnss_msr, false);
 
         // U
         _it_msr++;
@@ -4461,7 +4533,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
         break;
     case AED_adj_gnss_ui:
 
@@ -4510,7 +4582,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
+        PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
     
         // Print vertical angle
         _it_msr++;
@@ -4530,7 +4602,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsAngular('v', _it_gnss_msr, false);
+        PrintAdjMeasurementsAngular('v', _it_gnss_msr, false);
 
         // Print slope distance
         _it_msr++;
@@ -4550,7 +4622,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
         break;
     case ADU_adj_gnss_ui:
 
@@ -4598,7 +4670,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
+        PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
     
         // Print slope distance
         _it_msr++;
@@ -4618,9 +4690,9 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
 
-        // Print vertical component
+        // Print up
         _it_msr++;
         _it_gnss_msr++;
         _it_gnss_msr->preAdjMeas = gnss_local.get(2, 0);
@@ -4638,7 +4710,7 @@ void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint
         if (adjust_.projectSettings_.o._database_ids)
             adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + std::distance(adjust_.bmsBinaryRecords_.begin(), _it_msr);
 
-        adjust_.PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
+        PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
         break;
     }
 }
@@ -4666,7 +4738,7 @@ void DynAdjustPrinter::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& 
     }
 
     // Print linear measurement, taking care of user requirements for precision	
-    adjust_.PrintCompMeasurementsLinear(' ', computed, correction, _it_msr);
+    PrintComparativeMeasurements<LinearMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }
@@ -4695,7 +4767,7 @@ void DynAdjustPrinter::PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t
 
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision	
-    adjust_.PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }
@@ -4770,6 +4842,163 @@ void DynAdjustPrinter::PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr,
 
     adjust_.adj_file << "  " << ss.str() << std::endl;
     adjust_.adj_file.flush();
+}
+
+void DynAdjustPrinter::PrintCorStationsUniqueList(std::ostream& cor_file)
+{
+    vUINT32 v_blockStations;
+    vstring stn_corr_records(adjust_.bstBinaryRecords_.size());
+    cor_file << std::setw(STATION) << std::left << "Station" <<
+        std::setw(PAD2) << " " << 
+        std::right << std::setw(MSR) << "Azimuth" << 
+        std::right << std::setw(MSR) << "V. Angle" << 
+        std::right << std::setw(MSR) << "S. Distance" << 
+        std::right << std::setw(MSR) << "H. Distance" << 
+        std::right << std::setw(HEIGHT) << "east" << 
+        std::right << std::setw(HEIGHT) << "north" << 
+        std::right << std::setw(HEIGHT) << "up" << std::endl;
+    UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+    for (i=0; i<j; ++i)
+        cor_file << "-";
+    cor_file << std::endl;
+    UINT32 block(UINT_MAX), stn, mat_index;
+    _it_u32u32_uint32_pair _it_bsmu;
+    
+    std::stringstream stationRecord;
+    v_uint32_string_pair correctionsOutput;
+    correctionsOutput.reserve(adjust_.v_blockStationsMapUnique_.size());
+    const v_mat_2d* estimates = &adjust_.v_rigorousStations_;
+    if (adjust_.projectSettings_.a.adjust_mode == SimultaneousMode)
+        estimates = &adjust_.v_estimatedStations_;
+    std::ostream* outstream(&cor_file);
+    if (adjust_.projectSettings_.a.stage)
+        outstream = &stationRecord;
+    // No need to sort order of block Stations Map - this was done in
+    // PrintAdjStationsUniqueList
+    for (_it_bsmu=adjust_.v_blockStationsMapUnique_.begin();
+        _it_bsmu!=adjust_.v_blockStationsMapUnique_.end(); ++_it_bsmu)
+    {
+        // If this is not the first block, exit if block-1 mode
+        if (adjust_.projectSettings_.a.adjust_mode == Phased_Block_1Mode)
+            if (_it_bsmu->second > 0)
+                break;
+        if (adjust_.projectSettings_.a.stage)
+        {
+            if (block != _it_bsmu->second)
+            {
+                // unload previous block
+                if (_it_bsmu->second > 0)
+                    adjust_.UnloadBlock(_it_bsmu->second-1, 2, 
+                        sf_rigorous_stns, sf_original_stns);
+                // load up this block
+                if (adjust_.projectSettings_.a.stage)
+                    adjust_.DeserialiseBlockFromMappedFile(_it_bsmu->second, 2,
+                        sf_rigorous_stns, sf_original_stns);
+            }
+        }
+        block = _it_bsmu->second;
+        stn = _it_bsmu->first.first;
+        mat_index = _it_bsmu->first.second * 3;
+        PrintCorStation(*outstream, block, stn, mat_index,
+            &estimates->at(block));
+            
+        if (adjust_.projectSettings_.a.stage)
+        {
+            correctionsOutput.push_back(uint32_string_pair(stn, stationRecord.str()));
+            stationRecord.str("");
+        }
+    }
+    if (adjust_.projectSettings_.a.stage)
+        adjust_.UnloadBlock(block, 2, 
+            sf_rigorous_stns, sf_original_stns);
+    // if required, sort stations according to original station file order
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+    {
+        CompareOddPairFirst_FileOrder<station_t, UINT32, std::string> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(correctionsOutput.begin(), correctionsOutput.end(), stnorderCompareFunc);
+    }
+    else
+        std::sort(correctionsOutput.begin(), correctionsOutput.end(), CompareOddPairFirst<UINT32, std::string>());
+    for_each(correctionsOutput.begin(), correctionsOutput.end(),
+        [&correctionsOutput, &cor_file] (std::pair<UINT32, std::string>& corrRecord) { 
+            cor_file << corrRecord.second;
+        }
+    );
+}
+
+void DynAdjustPrinter::PrintAdjStations(std::ostream& os, const UINT32& block,
+                      const matrix_2d* stationEstimates,
+                      matrix_2d* stationVariances, bool printBlockID,
+                      bool recomputeGeographicCoords,
+                      bool updateGeographicCoords, bool printHeader,
+                      bool reapplyTypeBUncertainties)
+{
+    vUINT32 v_blockStations(adjust_.v_parameterStationList_.at(block));
+    if (v_blockStations.size() * 3 != stationEstimates->rows())
+    {
+        std::stringstream ss;
+        ss << "PrintAdjStations(): Number of estimated stations in block " << block << 
+            " does not match the block station count." << std::endl;
+        adjust_.SignalExceptionAdjustment(ss.str(), 0);
+    }
+    
+    AdjFile adj;
+    try {
+        if (printHeader)
+            adj.print_adj_stn_header(os);
+        
+        // if required, sort stations according to original station file order
+        if (adjust_.projectSettings_.o._sort_stn_file_order)
+            adjust_.SortStationsbyFileOrder(v_blockStations);
+            
+        switch (adjust_.projectSettings_.a.adjust_mode)
+        {
+        case SimultaneousMode:
+            adj.print_stn_info_col_header(os, 
+                adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            break;
+        case PhasedMode:
+        case Phased_Block_1Mode:		// only the first block is rigorous
+            // Print stations in each block?
+            if (adjust_.projectSettings_.o._output_stn_blocks)
+            {
+                if (printBlockID)
+                    os << "Block " << block + 1 << std::endl;
+                else if (adjust_.projectSettings_.o._adj_stn_iteration)
+                    adj.print_adj_stn_block_header(os, block);
+            
+                adj.print_stn_info_col_header(os, 
+                    adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            }
+            else 
+            {
+                if (block == 0)
+                    adj.print_stn_info_col_header(os, 
+                        adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+            }
+            break;
+        }
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
+    
+    UINT32 mat_idx, stn;
+    // Print stations according to the user-defined sort order
+    for (UINT32 i(0); i<adjust_.v_blockStationsMap_.at(block).size(); ++i)
+    {
+        stn = v_blockStations.at(i);
+        mat_idx = adjust_.v_blockStationsMap_.at(block)[stn] * 3;
+        PrintAdjStation(os, block, stn, mat_idx,
+            stationEstimates, stationVariances, 
+            recomputeGeographicCoords, updateGeographicCoords,
+            reapplyTypeBUncertainties);
+    }
+    os << std::endl;
+    
+    // return sort order to alpha-numeric
+    if (adjust_.projectSettings_.o._sort_stn_file_order)
+        adjust_.SortStationsbyID(v_blockStations);
 }
 
 } // namespace networkadjust
