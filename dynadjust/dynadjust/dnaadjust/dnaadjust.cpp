@@ -9801,7 +9801,7 @@ void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_r
 void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
 {
 	DynAdjustPrinter printer(*this);
-	printer.PrintGPSClusterComputedMeasurements(block, _it_msr, design_row, printMode);
+	printer.PrintCompMeasurements_GXY(block, _it_msr, design_row, printMode);
 }
 	
 	

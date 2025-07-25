@@ -25,6 +25,7 @@
 #include <sstream>
 #include <boost/timer/timer.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/io/adj_file.hpp>
 
 namespace dynadjust {
 namespace networkadjust {
@@ -3186,7 +3187,7 @@ void DynAdjustPrinter::PrintBlockStations(std::ostream& os, const UINT32& block,
         adjust_.SignalExceptionAdjustment(ss.str(), 0);
     }
 
-    dna_io_adj adj;
+    AdjFile adj;
 
     try {
 
@@ -3417,12 +3418,13 @@ void DynAdjustPrinter::PrintFileHeaderInformation()
     adjust_.xyz_file << OUTPUTLINE << std::endl;
 }
 
-void DynAdjustPrinter::PrintGPSClusterComputedMeasurements(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
 {
     // Is this a Y cluster specified in latitude, longitude, height?
     if (_it_msr->measType == 'Y')
     {
-        if (_it_msr->station3 == LLH_type_i)
+        if (_it_msr->station3 == LLH_type_i ||
+            _it_msr->station3 == LLh_type_i)
         {
             // Print phi, lambda, H
             adjust_.PrintCompMeasurements_YLLH(_it_msr, design_row);
@@ -3886,7 +3888,8 @@ void DynAdjustPrinter::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32
     // Is this a Y cluster specified in latitude, longitude, height?
     if (_it_msr->measType == 'Y')
     {
-        if (_it_msr->station3 == LLH_type_i)
+        if (_it_msr->station3 == LLH_type_i ||
+            _it_msr->station3 == LLh_type_i)
         {
             // Print phi, lambda, H
             PrintAdjustedMeasurementsYLLH(_it_msr);

@@ -152,7 +152,7 @@ class DynAdjustPrinter {
                            matrix_2d* stationVariances, bool printBlockID, bool recomputeGeographicCoords, 
                            bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
     void PrintFileHeaderInformation();
-    void PrintGPSClusterComputedMeasurements(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+    void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
     void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
     void PrintStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, 
                                  bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
