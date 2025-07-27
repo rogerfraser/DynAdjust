@@ -28,7 +28,7 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
              ${CMAKE_SOURCE_DIR}/include/memory/dnafile_mapping.cpp
              network_data_loader.cpp
-                          measurement_processor.cpp
+             measurement_processor.cpp
              dnaadjust-stage.cpp
              dnaadjust.cpp
              dnaadjust_printer.cpp
