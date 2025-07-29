@@ -90,9 +90,8 @@
 #include <include/parameters/dnaprojection.hpp>
 #include <include/thread/dnathreading.hpp>
 
-#include <atomic>
+#include <dynadjust/dnaadjust/network_data_loader.hpp>
 
-#include "network_data_loader.hpp"
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
