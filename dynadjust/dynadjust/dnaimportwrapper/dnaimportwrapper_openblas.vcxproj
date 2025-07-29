@@ -104,9 +104,9 @@
   <ItemGroup>
     <ClCompile Include="..\..\include\config\dnaprojectfile.cpp" />
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp" />
+    <ClCompile Include="..\..\include\io\bms_file.cpp" />
+    <ClCompile Include="..\..\include\io\bst_file.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp" />
     <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
     <ClCompile Include="dnaimportwrapper.cpp" />

@@ -114,8 +114,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp" />
+    <ClInclude Include="..\..\include\io\dynadjust_file.hpp" />
+    <ClInclude Include="..\..\include\io\bst_file.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="bicubic_interpolation.hpp" />
@@ -125,8 +125,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp" />
+    <ClCompile Include="..\..\include\io\bst_file.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp" />
     <ClCompile Include="dnageoid.cpp" />
     <ClCompile Include="dnageoid_ext.cpp" />

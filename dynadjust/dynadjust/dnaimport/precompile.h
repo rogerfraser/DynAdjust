@@ -15,7 +15,7 @@
 #include <include/exception/dnaexception.hpp>
 
 #include <include/io/dnaiodnatypes.hpp>
-#include <include/io/dnaiobst.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/aml_file.hpp>
 #include <include/io/asl_file.hpp>

@@ -15,25 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dnageoid.hpp"> 
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bicubic_interpolation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
+    <ClCompile Include="dnareftranwrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\ide\trace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\config\dnaprojectfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="precompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dnareftranwrapper.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\bst_file.hpp">
+    <ClInclude Include="..\..\include\ide\trace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dynadjust_file.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnageoid_ext.hpp">
+    <ClInclude Include="..\..\include\config\dnaprojectfile.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="precompile.h">
@@ -42,35 +50,6 @@
     <ClInclude Include="..\..\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="dnageoid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\bst_file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dynadjust_file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dnageoid_ext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="precompile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="dnageoid_ext.def">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="READ-ME-FIRST-BEFORE-BUILDING.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\dynadjust.rc">
