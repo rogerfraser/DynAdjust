@@ -39,6 +39,7 @@
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
@@ -47,7 +48,7 @@
 namespace dynadjust {
 namespace datum_parameters {
 
-class CDnaDatum
+class DNATYPE_API CDnaDatum
 {
 public:
 

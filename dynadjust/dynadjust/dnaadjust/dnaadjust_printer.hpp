@@ -33,6 +33,8 @@
 #include <string_view>
 #include <type_traits>
 
+#include <include/config/dnaexports.hpp>
+
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaoptions-interface.hpp>
@@ -99,7 +101,7 @@ template <> struct IsAngularMeasurement<AngularMeasurement> : std::true_type {};
 template <typename T> constexpr bool kIsAngularMeasurementV = IsAngularMeasurement<T>::value;
 
 // Printer class for DynAdjust output formatting
-class DynAdjustPrinter {
+class DNAADJUST_API DynAdjustPrinter {
   public:
     // Constructor taking dna_adjust reference for direct access to members
     explicit DynAdjustPrinter(dna_adjust& adjust_instance);

@@ -33,6 +33,8 @@
 #include <string>
 /// \endcond
 
+#include <include/config/dnaexports.hpp>
+
 #include <include/config/dnatypes.hpp>
 
 #define __FILE_VERSION__ "1.0"
@@ -59,7 +61,7 @@ const char* const version_header     = "VERSION   ";	// 10 characters
 const char* const create_date_header = "CREATED ON";	// 10 characters
 const char* const create_by_header   = "CREATED BY";	// 10 characters
 
-class DynadjustFile
+class DNATYPE_API DynadjustFile
 {
 public:
 	DynadjustFile(void);

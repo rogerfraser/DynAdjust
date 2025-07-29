@@ -180,7 +180,7 @@ typedef std::vector<v_mat_2d> vv_mat_2d;
 
 template <typename T> std::size_t byteSize(const UINT32 elements = 1) { return elements * sizeof(T); }
 
-class matrix_2d : public new_handler_support<matrix_2d> {
+class DNATYPE_API matrix_2d : public new_handler_support<matrix_2d> {
   public:
     // Constructors/deconstructors
     matrix_2d();

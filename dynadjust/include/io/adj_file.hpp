@@ -34,7 +34,7 @@
 namespace dynadjust {
 namespace iostreams {
 
-class AdjFile : public DynadjustFile
+class DNATYPE_API AdjFile : public DynadjustFile
 {
 public:
 	AdjFile(void) {};
