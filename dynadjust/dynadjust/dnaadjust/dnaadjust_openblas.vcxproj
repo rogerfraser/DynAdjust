@@ -111,14 +111,14 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />
     <ClInclude Include="..\..\include\ide\trace.hpp" />
-    <ClInclude Include="..\..\include\io\dnaioadj.hpp" />
+    <ClInclude Include="..\..\include\io\adj_file.hpp" />
     <ClInclude Include="..\..\include\io\aml_file.hpp" />
-    <ClInclude Include="..\..\include\io\dnaioasl.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiobms.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiomap.hpp" />
-    <ClInclude Include="..\..\include\io\dnaioseg.hpp" />
+    <ClInclude Include="..\..\include\io\asl_file.hpp" />
+    <ClInclude Include="..\..\include\io\dynadjust_file.hpp" />
+    <ClInclude Include="..\..\include\io\bms_file.hpp" />
+    <ClInclude Include="..\..\include\io\bst_file.hpp" />
+    <ClInclude Include="..\..\include\io\map_file.hpp" />
+    <ClInclude Include="..\..\include\io\seg_file.hpp" />
     <ClInclude Include="..\..\include\io\dnaiosnx.hpp" />
     <ClInclude Include="..\..\include\io\dnaiotbu.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
@@ -131,19 +131,21 @@
     <ClInclude Include="..\..\include\parameters\dnaprojection.hpp" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="dnaadjust.hpp" />
+    <ClInclude Include="network_data_loader.hpp" />
+    <ClInclude Include="measurement_processor.hpp" />
     <ClInclude Include="precompile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
     <ClCompile Include="..\..\include\ide\trace.cpp" />
-    <ClCompile Include="..\..\include\io\dnaioadj.cpp" />
+    <ClCompile Include="..\..\include\io\adj_file.cpp" />
     <ClCompile Include="..\..\include\io\aml_file.cpp" />
-    <ClCompile Include="..\..\include\io\dnaioasl.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiomap.cpp" />
-    <ClCompile Include="..\..\include\io\dnaioseg.cpp" />
+    <ClCompile Include="..\..\include\io\asl_file.cpp" />
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp" />
+    <ClCompile Include="..\..\include\io\bms_file.cpp" />
+    <ClCompile Include="..\..\include\io\bst_file.cpp" />
+    <ClCompile Include="..\..\include\io\map_file.cpp" />
+    <ClCompile Include="..\..\include\io\seg_file.cpp" />
     <ClCompile Include="..\..\include\io\dnaiosnxwrite.cpp" />
     <ClCompile Include="..\..\include\io\dnaiotbu.cpp" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
@@ -158,6 +160,8 @@
     <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
     <ClCompile Include="dnaadjust-stage.cpp" />
     <ClCompile Include="dnaadjust.cpp" />
+    <ClCompile Include="network_data_loader.cpp" />
+    <ClCompile Include="measurement_processor.cpp" />
     <ClCompile Include="precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

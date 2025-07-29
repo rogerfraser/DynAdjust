@@ -21,25 +21,25 @@
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp">
+    <ClInclude Include="..\..\include\io\bst_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp">
+    <ClInclude Include="..\..\include\io\dynadjust_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobms.hpp">
+    <ClInclude Include="..\..\include\io\bms_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\aml_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioasl.hpp">
+    <ClInclude Include="..\..\include\io\asl_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiomap.hpp">
+    <ClInclude Include="..\..\include\io\map_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaioseg.hpp">
+    <ClInclude Include="..\..\include\io\seg_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
@@ -71,25 +71,25 @@
     <ClCompile Include="..\..\include\io\aml_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioasl.cpp">
+    <ClCompile Include="..\..\include\io\asl_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobms.cpp">
+    <ClCompile Include="..\..\include\io\bms_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp">
+    <ClCompile Include="..\..\include\io\bst_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiomap.cpp">
+    <ClCompile Include="..\..\include\io\map_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioseg.cpp">
+    <ClCompile Include="..\..\include\io\seg_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp">
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="precompile.cpp">

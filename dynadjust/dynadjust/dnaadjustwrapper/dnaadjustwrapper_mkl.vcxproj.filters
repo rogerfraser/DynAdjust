@@ -21,16 +21,16 @@
     <ClCompile Include="dnaadjustwrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobms.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dnaadjustprogress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp">
+    <ClCompile Include="..\..\include\io\bms_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\io\bst_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp">
@@ -45,21 +45,24 @@
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="precompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dnaadjustwrapper.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobms.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dnaadjustprogress.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp">
+    <ClInclude Include="..\..\include\io\bst_file.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\bms_file.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\dynadjust_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="threading_init.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="precompile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

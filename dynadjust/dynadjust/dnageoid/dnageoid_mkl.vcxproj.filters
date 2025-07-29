@@ -24,13 +24,13 @@
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp">
+    <ClInclude Include="..\..\include\io\bst_file.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\dynadjust_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dnageoid_ext.hpp">
@@ -50,13 +50,13 @@
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp">
+    <ClCompile Include="..\..\include\io\bst_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\io\dynadjust_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dnageoid_ext.cpp">

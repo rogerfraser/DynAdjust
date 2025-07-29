@@ -22,7 +22,7 @@
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaiobst.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/io/bms_file.hpp>
 #include <include/io/map_file.hpp>
 #include <include/io/aml_file.hpp>
@@ -49,4 +49,6 @@
 #include <include/measurement_types/dnagpsbaseline.hpp>
 #include <include/measurement_types/dnagpspoint.hpp>
 
+#include <dynadjust/dnaadjust/network_data_loader.hpp>
+#include <dynadjust/dnaadjust/measurement_processor.hpp>
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
