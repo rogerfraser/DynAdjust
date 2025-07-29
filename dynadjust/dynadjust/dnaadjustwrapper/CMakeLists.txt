@@ -16,6 +16,7 @@ add_executable (${PROJECT_NAME}
                 ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
                 ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
                 ${CMAKE_SOURCE_DIR}/include/parameters/dnaprojection.cpp
+                ${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust/dnaadjust_printer.cpp
                 dnaadjustprogress.cpp
                 dnaadjustwrapper.cpp
                 ${CMAKE_SOURCE_DIR}/dynadjust.rc)
