@@ -80,13 +80,6 @@ struct CartesianCoordinates {};
 struct ProjectionCoordinates {};
 
 // Stage 4: Output mode enums
-enum class CoordinateOutputMode {
-    Geographic,
-    Cartesian, 
-    Projection,
-    Mixed
-};
-
 enum class UncertaintyMode {
     Ellipses,
     Covariances,
@@ -204,8 +197,8 @@ class DNAADJUST_API DynAdjustPrinter {
     // Stage 4: Station file headers
     void PrintStationFileHeader(std::ostream& os, std::string_view file_type, 
                                std::string_view filename);
-    void PrintStationColumnHeaders(std::ostream& os, CoordinateOutputMode mode, 
-                                  bool include_uncertainties = false);
+    void PrintStationColumnHeaders(std::ostream& os, const std::string& stn_coord_types,
+                                  const UINT16& printStationCorrections);
     void PrintPositionalUncertaintyHeader(std::ostream& os, std::string_view filename);
 
     // Stage 4: Station processing coordinators  
@@ -213,10 +206,10 @@ class DNAADJUST_API DynAdjustPrinter {
     void PrintStationCorrelations(std::ostream& cor_file, const UINT32& block);
     void PrintStationsInBlock(std::ostream& os, const UINT32& block,
                              const matrix_2d* estimates, const matrix_2d* variances,
-                             CoordinateOutputMode mode);
+                             const std::string& stn_coord_types, const UINT16& printStationCorrections);
     void PrintUniqueStationsList(std::ostream& os, 
                                 const matrix_2d* estimates, const matrix_2d* variances,
-                                CoordinateOutputMode mode);
+                                const std::string& stn_coord_types, const UINT16& printStationCorrections);
                                 
     // Enhanced unique stations list processing
     void PrintAdjStationsUniqueList(std::ostream& os,
