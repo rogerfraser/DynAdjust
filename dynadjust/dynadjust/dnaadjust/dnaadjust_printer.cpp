@@ -1556,13 +1556,13 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
             PrintLongitudeCoordinate(os, est_lon);
             break;
         case 'E': // Easting
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << easting;
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LAT_EAST) << easting;
             break;
         case 'N': // Northing
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << northing;
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LON_NORTH) << northing;
             break;
         case 'z': // Zone
-            os << std::setprecision(0) << std::fixed << std::right << std::setw(6) << zone;
+            os << std::setprecision(0) << std::fixed << std::right << std::setw(ZONE) << zone;
             break;
         case 'H': // Orthometric height
             PrintOrthometricHeight(os, est_height, stn_it);
@@ -1571,15 +1571,15 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
             PrintEllipsoidalHeight(os, est_height);
             break;
         case 'X': // Cartesian X
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx, 0);
             break;
         case 'Y': // Cartesian Y
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx+1, 0);
             break;
         case 'Z': // Cartesian Z
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx+2, 0);
             break;
         }
@@ -1588,50 +1588,50 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
 
 void DynAdjustPrinter::PrintLatitudeCoordinate(std::ostream& os, double latitude) {
     if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
             RadtoDms(latitude);
     } else {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
             Degrees(latitude);
     }
 }
 
 void DynAdjustPrinter::PrintLongitudeCoordinate(std::ostream& os, double longitude) {
     if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) << 
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) << 
             RadtoDmsL(longitude);
     } else {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) <<
             DegreesL(longitude);
     }
 }
 
 void DynAdjustPrinter::PrintOrthometricHeight(std::ostream& os, double height, const it_vstn_t& stn_it) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << std::right << StringFromTW((height - stn_it->geoidSep), UINT16(10), adjust_.PRECISION_MTR_STN);
+        os << std::right << StringFromTW((height - stn_it->geoidSep), HEIGHT, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << 
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << 
             height - stn_it->geoidSep;
     }
 }
 
 void DynAdjustPrinter::PrintEllipsoidalHeight(std::ostream& os, double height) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << std::right << StringFromTW(height, UINT16(10), adjust_.PRECISION_MTR_STN);
+        os << std::right << StringFromTW(height, HEIGHT, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << height;
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << height;
     }
 }
 
 void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const matrix_2d& var_local) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << StringFromTW(sqrt(var_local.get(0, 0)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
-              StringFromTW(sqrt(var_local.get(1, 1)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
-              StringFromTW(sqrt(var_local.get(2, 2)), UINT16(8), adjust_.PRECISION_MTR_STN);
+        os << StringFromTW(sqrt(var_local.get(0, 0)), STDDEV, adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(1, 1)), STDDEV, adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setw(8) << std::right << StringFromT(sqrt(var_local.get(0, 0)), adjust_.PRECISION_MTR_STN) <<
-              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(1, 1)), adjust_.PRECISION_MTR_STN) <<
-              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(2, 2)), adjust_.PRECISION_MTR_STN);
+        os << std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(0, 0)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(1, 1)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(2, 2)), adjust_.PRECISION_MTR_STN);
     }
 }
 
