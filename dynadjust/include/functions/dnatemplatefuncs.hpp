@@ -415,10 +415,6 @@ public:
 	}
 };
 
-<<<<<<< HEAD
-
-
-=======
 // M = measurement_t, U = UINT32
 template<typename M, typename U>
 class CompareClusterID
@@ -579,8 +575,6 @@ public:
 private:
 	std::vector<M>*	_m;
 };
-
->>>>>>> refactor-boost
 
 // U = u32u32_uint32_pair
 template<typename U=u32u32_uint32_pair>
@@ -780,8 +774,6 @@ private:
 };
 
 
-<<<<<<< HEAD
-=======
 // M = measurement_t
 template<typename M, typename U, typename C>
 class CompareValidFreeMeasType_vT
@@ -974,7 +966,6 @@ public:
 private:
 	std::vector<M>*	_m;
 };
->>>>>>> refactor-boost
 
 
 template<typename T>

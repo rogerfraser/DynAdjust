@@ -994,167 +994,18 @@ private:
 };
 
 
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareClusterID
-{
-public:
-	CompareClusterID()
-		: _m(0), _id(0) {}
-	CompareClusterID(const std::vector<M>* m, const U& id=0)
-		: _m(m), _id(id) {}
-	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
-		return (*(lhs.get()) < _m->at(rhs).clusterID);
-	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
-		return (_m->at(lhs).clusterID < *(rhs.get()));
-	}
-	// Sort by clusterID then by file order.
-	// The additional, secondary sort by fileOrder is necessary
-	// if the same order is expected from gcc sort and vc9 sort.
-	// Strangely, vc9's sort implementation ptoduces different results to
-	// gcc if sorted only by clusterID.  The difference only occurs when two
-	// measurements have the same clusterID. 
-	// This has an impact is on the selection of the next station from the
-	// free list. It is not that one segmentation result is incorrect,
-	// rather, it is just difficult to compare results directly if
-	// segmentation blocks are different. 20.07.2009.
-	bool operator()(const U& lhs, const U& rhs) {
-		if (_m->at(lhs).clusterID == _m->at(rhs).clusterID)
-			return _m->at(lhs).fileOrder < _m->at(rhs).fileOrder;
-		return _m->at(lhs).clusterID < _m->at(rhs).clusterID;
-	}
-	bool operator()(const U& id) {
-		return _m->at(id).clusterID == _id;
-	}
-	inline void SetAMLPointer(const std::vector<M>* m) { _m = m; }
-	inline void SetClusterID(const U& id) { _id = id; }
-	inline bool IsAMLPointerNull() { return _m == NULL; }
-private:
-	const std::vector<M>*	_m;
-	U					_id;
-};
-
 
 // A = CAStationList, U = UINT32
 // Example use:
 // CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_, vAssocStnList_.at(_it_stnmap->second).GetAssocMsrCount());
-// boost::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
-
-template<typename A, typename U>
-class CompareMeasCount
-{
-public:
-	CompareMeasCount(const std::vector<A>* a) : _a(a) {}
-
-	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
-		return (*(lhs.get()) < _a->at(rhs).GetAssocMsrCount());
-	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
-		return (_a->at(lhs).GetAssocMsrCount() < *(rhs.get()));
-	}
-	bool operator()(const U& lhs, const U& rhs)
-	{
-		if (_a->at(lhs).GetAssocMsrCount() == _a->at(rhs).GetAssocMsrCount())
-			return _a->at(lhs).GetAMLStnIndex() < _a->at(rhs).GetAMLStnIndex();
-		return _a->at(lhs).GetAssocMsrCount() < _a->at(rhs).GetAssocMsrCount();
-	}
-	inline void SetASLPointer(const std::vector<A>* a) { _a = a; }
-	inline bool IsASLPointerNull() { return _a == NULL; }
-private:
-	const std::vector<A>*	_a;
-};
+// std::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
 
 
-template<typename A, typename U>
-class CompareMeasCount2
-{
-public:
-	CompareMeasCount2(const std::vector<A>* a) : _a(a) {}
-
-	bool operator()(const U& lhs, const U& rhs)
-	{
-		if (_a->at(lhs).get()->GetAssocMsrCount() == _a->at(rhs).get()->GetAssocMsrCount())
-			return _a->at(lhs).get()->GetAMLStnIndex() < _a->at(rhs).get()->GetAMLStnIndex();
-		return _a->at(lhs).get()->GetAssocMsrCount() < _a->at(rhs).get()->GetAssocMsrCount();
-	}
-private:
-	const std::vector<A>*	_a;
-};
-
-
-template<typename A, typename U>
-class CompareValidity
-{
-public:
-	CompareValidity(const std::vector<A>* a, const UINT16& v) : _a(a), _v(v) {}
-
-	// used for lower_bound, upper_bound, etc...
-	bool operator()(const U& asl_index) {
-		return (_a->at(asl_index).Validity() == _v);
-	}	
-	bool operator()(const U& lhs, const U& rhs)
-	{
-		return _a->at(lhs).Validity() < _a->at(rhs).Validity();
-	}
-private:
-	const std::vector<A>*	_a;
-	const UINT16		_v;
-};
 
 
 // M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasStart
-{
-public:
-	CompareMeasStart(std::vector<M>* m, MEASUREMENT_START id=xMeas) 
-		:  _m(m), _id(id) {}
-	bool operator()(const U& freemsr_index) {
-		return _m->at(freemsr_index).measStart == _id;
-	}
-	bool operator()(const U& lhs, const U& rhs) {
-		return _m->at(lhs).measStart < _m->at(rhs).measStart;
-	}
-private:
-	std::vector<M>*			_m;
-	MEASUREMENT_START	_id;
-};
-
 // M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareNonMeasStart
-{
-public:
-	CompareNonMeasStart(std::vector<M>* m, MEASUREMENT_START id=xMeas) 
-		:  _m(m), _id(id) {}
-	bool operator()(const U& freemsr_index) {
-		return _m->at(freemsr_index).measStart != _id;
-	}
-	bool operator()(const U& lhs, const U& rhs) {
-		return _m->at(lhs).measStart < _m->at(rhs).measStart;
-	}
-private:
-	std::vector<M>*			_m;
-	MEASUREMENT_START	_id;
-};
-
 // M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMsrFileOrder
-{
-public:
-	CompareMsrFileOrder(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const U& lhs, const U& rhs) {
-		return _m->at(lhs).fileOrder < _m->at(rhs).fileOrder;
-	}
-private:
-	std::vector<M>*	_m;
-};
-
 
 // S = station_t, U = u32u32_double_pair
 template <typename S, typename U = u32u32_double_pair>
@@ -2003,198 +1854,19 @@ private:
 	char _type;
 };
 
-// M = measurement_t
-template<typename M, typename U, typename C>
-class CompareValidFreeMeasType_vT
-{
-public:
-	CompareValidFreeMeasType_vT(std::vector<M>* msrs, std::vector<C>& vtypes) 
-		: _msrs(msrs), _vtypes(vtypes) 
-	{
-		std::sort(vtypes.begin(), vtypes.end());
-	}
-	bool operator()(const U& msr_index) {
-		return _msrs->at(msr_index).ignore == false &&
-			binary_search(_vtypes.begin(), _vtypes.end(), _msrs->at(msr_index).measType);
-	}
-
-private:
-	std::vector<M>*	_msrs;
-	std::vector<C> _vtypes;
-};
-	
 
 // M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareIgnoreedMeas
-{
-public:
-	CompareIgnoreedMeas(std::vector<M>* m) :  _m(m) {}
-	bool operator()(const U& freemsr_index) {
-		return _m->at(freemsr_index).ignore;
-	}
-	bool operator()(const U& lhs, const U& rhs) {
-		return _m->at(lhs).ignore < _m->at(rhs).ignore;
-	}
-private:
-	std::vector<M>*	_m;
-};
-
 
 // M = CDnaMeasurement, U = UINT32
-template<typename M>
-class CompareIgnoreedClusterMeas
-{
-public:
-	CompareIgnoreedClusterMeas() {}
-	bool operator()(const M& msr) {
-		return msr.GetIgnore();
-	}
-	bool operator()(const M& lhs, const M& rhs) {
-		return lhs.GetIgnore() < rhs.GetIgnore();
-	}
-};
-
 // M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
-template<typename M>
-class CompareIgnoredMsr
-{
-public:
-	CompareIgnoredMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
-		return msr->GetIgnore();
-	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
-		if (lhs->GetIgnore() == rhs->GetIgnore())
-			return lhs->GetFirst() < rhs->GetFirst();
-		return lhs->GetIgnore() < rhs->GetIgnore();
-	}
-};
-
 // M = CDnaMeasurement, U = UINT32
-template<typename M>
-class CompareInsufficientClusterMeas
-{
-public:
-	CompareInsufficientClusterMeas() {}
-	bool operator()(const M& msr) {
-		return msr.GetInsufficient();
-	}
-	bool operator()(const M& lhs, const M& rhs) {
-		return lhs.GetInsufficient() < rhs.GetInsufficient();
-	}
-};
-
 
 // M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
-template<typename M>
-class CompareInsufficientMsr
-{
-public:
-	CompareInsufficientMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
-		return msr->GetInsufficient();
-	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
-		if (lhs->GetInsufficient() == rhs->GetInsufficient())
-			return lhs->GetFirst() < rhs->GetFirst();
-		return lhs->GetInsufficient() < rhs->GetInsufficient();
-	}
-};
-
 // M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
-template<typename M>
-class CompareEmptyClusterMeas
-{
-public:
-	CompareEmptyClusterMeas() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
-		switch (msr->GetTypeC())
-		{
-		case 'X':
-			return msr->GetBaselines_ptr()->empty();
-		case 'Y':
-			return msr->GetPoints_ptr()->empty();
-		default:
-			return false;
-		}
-		//return msr->GetTotal() == 0;
-	}
-	//bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
-	//	return lhs->GetTotal() < rhs->GetTotal();
-	//}
-};
-
 // M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
-template<typename M>
-class CompareClusterMsrFunc
-{
-public:
-	CompareClusterMsrFunc() {}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
-		if (lhs->GetTypeC() != rhs->GetTypeC())
-			return lhs->GetTypeC() < rhs->GetTypeC();
-		else
-			return lhs->GetFirst() < rhs->GetFirst();
-	}
-};
-
 
 // M = CDnaMeasurement
-template<typename M>
-class CompareMeasType
-{
-public:
-	CompareMeasType(const std::string& s) :  _s(s) {}
-	inline void SetComparand(const char& s) { _s = s; }
-
-	bool operator()(boost::shared_ptr<M> m) {
-		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)  {
-			if (m->GetTypeC() == *_it_s)
-				return true;
-		}
-		return false;
-	}
-
-private:
-	std::string				_s;
-	_it_str				_it_s;
-};
-
 // M = CDnaMeasurement
-template<typename M>
-class CompareNonMeasType
-{
-public:
-	CompareNonMeasType(const std::string& s) :  _s(s), _bFd(false) {}
-	inline void SetComparand(const std::string& s) { _s = s; }
-
-	bool operator()(boost::shared_ptr<M> m) {
-		_bFd = true;
-		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)
-			_bFd = _bFd && m->GetTypeC() != *_it_s;
-		return _bFd;
-	}
-
-
-private:
-	std::string				_s;
-	_it_str				_it_s;
-	bool				_bFd;
-};
-
-
-template<typename M, typename U>
-class CompareCovarianceStart
-{
-public:
-	CompareCovarianceStart(std::vector<M>* m) :  _m(m) {}
-	bool operator()(const U& freemsr_index) {
-		return _m->at(freemsr_index).measStart > zMeas;
-	}
-private:
-	std::vector<M>*	_m;
-};
 
 // M = measurement_t, U = UINT32
 // Compare functor - searches for all stations that appear in the list

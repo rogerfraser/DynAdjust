@@ -33,16 +33,16 @@
 #include <vector>
 
 #include <include/config/dnatypes.hpp>
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class BmsFileLoader : public dna_io_base {
+class BmsFileLoader : public DynadjustFile {
  public:
   BmsFileLoader() = default;
-  BmsFileLoader(const BmsFileLoader& bms) : dna_io_base(bms) {}
+  BmsFileLoader(const BmsFileLoader& bms) : DynadjustFile(bms) {}
   virtual ~BmsFileLoader() = default;
 
   BmsFileLoader& operator=(const BmsFileLoader& rhs);

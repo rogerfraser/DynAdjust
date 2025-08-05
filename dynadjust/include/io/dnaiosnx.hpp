@@ -241,11 +241,7 @@ typedef enum _DATE_FORMAT_TYPE_
 	doy_yyyy = 3
 } DATE_FORMAT_TYPE;
 
-<<<<<<< HEAD
-class DNATYPE_API dna_io_snx : public DynadjustFile
-=======
-class DnaIoSnx : public dna_io_base
->>>>>>> refactor-boost
+class DnaIoSnx : public DynadjustFile
 {
 public:
 	DnaIoSnx(void) 

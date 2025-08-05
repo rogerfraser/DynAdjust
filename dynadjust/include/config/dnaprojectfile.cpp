@@ -23,6 +23,7 @@
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaprojectfile.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <fstream>
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrutils.hpp>

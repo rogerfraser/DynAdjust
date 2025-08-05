@@ -2157,7 +2157,6 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	printer.PrintAdjustedNetworkStations();
 }
 	
->>>>>>> refactor-boost
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
 void dna_adjust::LoadDatabaseId()
@@ -2489,12 +2488,12 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 	printer_->PrintAdjustmentTime(tot_time, total_time);
 }
 	
-void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_ timerType)
+void dna_adjust::PrintAdjustmentTime(cpu_timer& time, _TIMER_TYPE_ timerType)
 {
 	// Store total time if needed
 	if (timerType != iteration_time) {
-		boost::posix_time::milliseconds ms(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
-		total_time_ = ms;
+		auto elapsed = time.elapsed();
+		total_time_ = std::chrono::milliseconds(elapsed.wall.count() / MILLI_TO_NANO);
 	}
 	
 	printer_->PrintAdjustmentTime(time, static_cast<int>(timerType));

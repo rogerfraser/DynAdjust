@@ -79,11 +79,8 @@
 #include <dynadjust/dnageoid/bicubic_interpolation.hpp>
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
 
-<<<<<<< HEAD
-=======
 #include <filesystem>
 
->>>>>>> refactor-boost
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;

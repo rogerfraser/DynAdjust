@@ -81,6 +81,7 @@
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
+#include <include/functions/dnatimer.hpp>
 
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/memory/dnafile_mapping.hpp>
@@ -105,7 +106,7 @@ namespace networkadjust {
 
 extern std::mutex maxCorrMutex;
 
-// High-precision timer class to replace boost::timer::cpu_timer
+// Moved cpu_timer to dnatimer.hpp
 class cpu_timer {
 public:
     struct cpu_times {
@@ -295,7 +296,7 @@ class dna_adjust {
     inline DynAdjustPrinter* GetPrinter() { return printer_.get(); }
 
     // Printing methods moved to DynAdjustPrinter - use GetPrinter()->methodName() instead
-    // void PrintAdjustedNetworkStations();
+    void PrintAdjustedNetworkStations();
     // void PrintPositionalUncertainty();
     // void PrintNetworkStationCorrections();
     // void PrintAdjustedNetworkMeasurements();
@@ -456,8 +457,8 @@ class dna_adjust {
     RebuildNormals(const UINT32 block, adjustOperation direction,
                    bool AddConstraintStationstoNormals, bool BackupNormals);
     void UpdateAdjustment(bool iterate);
-    void ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time);
-    void PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_);
+    void ValidateandFinaliseAdjustment(cpu_timer& tot_time);
+    void PrintAdjustmentTime(cpu_timer& time, _TIMER_TYPE_);
     void InitialiseAdjustment();
     void SetDefaultReferenceFrame();
     void LoadNetworkFiles();

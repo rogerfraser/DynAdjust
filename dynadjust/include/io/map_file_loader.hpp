@@ -33,15 +33,15 @@
 #include <vector>
 
 #include <include/config/dnatypes.hpp>
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class MapFileLoader : public dna_io_base {
+class MapFileLoader : public DynadjustFile {
  public:
   MapFileLoader() = default;
-  MapFileLoader(const MapFileLoader& map) : dna_io_base(map) {}
+  MapFileLoader(const MapFileLoader& map) : DynadjustFile(map) {}
   virtual ~MapFileLoader() = default;
 
   MapFileLoader& operator=(const MapFileLoader& rhs);

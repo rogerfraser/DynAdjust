@@ -33,17 +33,17 @@
 #include <vector>
 
 #include <include/functions/dnaintegermanipfuncs.hpp>
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 #include <include/measurement_types/dnastation.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class AslFileLoader : public dna_io_base {
+class AslFileLoader : public DynadjustFile {
  public:
   AslFileLoader() = default;
   AslFileLoader(const AslFileLoader& asl)
-      : dna_io_base(asl) {}
+      : DynadjustFile(asl) {}
   virtual ~AslFileLoader() = default;
 
   AslFileLoader& operator=(const AslFileLoader& rhs);

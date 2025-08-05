@@ -35,6 +35,8 @@
 #include <memory>
 #include <filesystem>
 
+#include <include/config/dnatypes.hpp>
+
 namespace dynadjust { 
 namespace memory {
 
