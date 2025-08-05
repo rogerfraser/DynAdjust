@@ -32,15 +32,16 @@
 /// \cond
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <iomanip>
+#include <ctime>
 
 using std::ostringstream;
 using std::locale;
 
-#include <boost/timer/timer.hpp>
+#include <filesystem>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/exception_ptr.hpp>
+
 /// \endcond
 
 #include <include/config/dnaversion-stream.hpp>
@@ -95,20 +96,20 @@ void file_opener(
 	}
 	catch (const std::ios_base::failure& f) {
 		std::stringstream ss;
-		if (fileMustExist && !boost::filesystem::exists(str.c_str()))
+		if (fileMustExist && !std::filesystem::exists(str.c_str()))
 			ss << "file_opener(): Can't find " << str << ".";
 		else
 			ss << "file_opener(): An error was encountered when opening " << 
 				str << ". \n  Check that the file is not already opened.";
 		ss << std::endl << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	if (!stream.good()) {
 		std::stringstream ss;
 		ss << "file_opener(): An error was encountered when opening " << 
 			str << ". \n  Check that the file is not already opened.";
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 

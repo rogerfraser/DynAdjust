@@ -41,19 +41,17 @@
 #include <memory>
 #include <vector>
 
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/mutex.hpp>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+#include <functional>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/chrono/time_point.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/exception_ptr.hpp>
-#include <boost/filesystem.hpp>
+#include <exception>
+#include <filesystem>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/timer/timer.hpp>
+#include <chrono>
 
 #include <atomic>
 
@@ -93,6 +91,8 @@
 
 #include <dynadjust/dnaadjust/network_data_loader.hpp>
 
+#include "network_data_loader.hpp"
+
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
@@ -103,7 +103,32 @@ using namespace dynadjust::iostreams;
 namespace dynadjust {
 namespace networkadjust {
 
-extern boost::mutex maxCorrMutex;
+extern std::mutex maxCorrMutex;
+
+// High-precision timer class to replace boost::timer::cpu_timer
+class cpu_timer {
+public:
+    struct cpu_times {
+        std::chrono::nanoseconds wall;
+        std::chrono::nanoseconds user;
+        std::chrono::nanoseconds system;
+    };
+
+    cpu_timer() { start(); }
+    
+    void start() {
+        start_time_ = std::chrono::high_resolution_clock::now();
+    }
+    
+    cpu_times elapsed() const {
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto wall_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time_);
+        return {wall_duration, wall_duration, wall_duration}; // For simplicity, user and system = wall
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_time_;
+};
 
 // forward declaration of dna_adjust
 class dna_adjust;
@@ -111,13 +136,13 @@ class DynAdjustPrinter;
 
 class adjust_prepare_thread {
   public:
-    adjust_prepare_thread(dna_adjust* dnaAdj, boost::exception_ptr& error)
+    adjust_prepare_thread(dna_adjust* dnaAdj, std::exception_ptr& error)
         : main_adj_(dnaAdj), error_(error) {}
     void operator()();
 
   private:
     dna_adjust* main_adj_;
-    boost::exception_ptr& error_;
+    std::exception_ptr& error_;
 
     // Prevent assignment operator
     adjust_prepare_thread& operator=(const adjust_prepare_thread& rhs);
@@ -126,8 +151,8 @@ class adjust_prepare_thread {
 class adjust_process_prepare_thread {
   public:
     adjust_process_prepare_thread(dna_adjust* dnaAdj, const UINT32& id,
-                                  boost::exception_ptr& error,
-                                  std::vector<boost::exception_ptr>& prep_errors)
+                                  std::exception_ptr& error,
+                                  std::vector<std::exception_ptr>& prep_errors)
         : main_adj_(dnaAdj), thread_id_(id), error_(error),
           prep_errors_(prep_errors) {}
     void operator()();
@@ -135,8 +160,8 @@ class adjust_process_prepare_thread {
   private:
     dna_adjust* main_adj_;
     UINT32 thread_id_;
-    boost::exception_ptr& error_;
-    std::vector<boost::exception_ptr>& prep_errors_;
+    std::exception_ptr& error_;
+    std::vector<std::exception_ptr>& prep_errors_;
 
     // Prevent assignment operator
     adjust_process_prepare_thread&
@@ -145,13 +170,13 @@ class adjust_process_prepare_thread {
 
 class adjust_forward_thread {
   public:
-    adjust_forward_thread(dna_adjust* dnaAdj, boost::exception_ptr& error)
+    adjust_forward_thread(dna_adjust* dnaAdj, std::exception_ptr& error)
         : main_adj_(dnaAdj), error_(error) {}
     void operator()();
 
   private:
     dna_adjust* main_adj_;
-    boost::exception_ptr& error_;
+    std::exception_ptr& error_;
 
     // Prevent assignment operator
     adjust_forward_thread& operator=(const adjust_forward_thread& rhs);
@@ -159,13 +184,13 @@ class adjust_forward_thread {
 
 class adjust_reverse_thread {
   public:
-    adjust_reverse_thread(dna_adjust* dnaAdj, boost::exception_ptr& error)
+    adjust_reverse_thread(dna_adjust* dnaAdj, std::exception_ptr& error)
         : main_adj_(dnaAdj), error_(error) {}
     void operator()();
 
   private:
     dna_adjust* main_adj_;
-    boost::exception_ptr& error_;
+    std::exception_ptr& error_;
 
     // Prevent assignment operator
     adjust_reverse_thread& operator=(const adjust_reverse_thread& rhs);
@@ -173,13 +198,13 @@ class adjust_reverse_thread {
 
 class adjust_combine_thread {
   public:
-    adjust_combine_thread(dna_adjust* dnaAdj, boost::exception_ptr& error)
+    adjust_combine_thread(dna_adjust* dnaAdj, std::exception_ptr& error)
         : main_adj_(dnaAdj), error_(error) {}
     void operator()();
 
   private:
     dna_adjust* main_adj_;
-    boost::exception_ptr& error_;
+    std::exception_ptr& error_;
 
     // Prevent assignment operator
     adjust_combine_thread& operator=(const adjust_combine_thread& rhs);
@@ -188,8 +213,8 @@ class adjust_combine_thread {
 class adjust_process_combine_thread {
   public:
     adjust_process_combine_thread(dna_adjust* dnaAdj, const UINT32& id,
-                                  boost::exception_ptr& error,
-                                  std::vector<boost::exception_ptr>& cmb_errors)
+                                  std::exception_ptr& error,
+                                  std::vector<std::exception_ptr>& cmb_errors)
         : main_adj_(dnaAdj), thread_id_(id), error_(error),
           cmb_errors_(cmb_errors) {}
     void operator()();
@@ -197,8 +222,8 @@ class adjust_process_combine_thread {
   private:
     dna_adjust* main_adj_;
     UINT32 thread_id_;
-    boost::exception_ptr& error_;
-    std::vector<boost::exception_ptr>& cmb_errors_;
+    std::exception_ptr& error_;
+    std::vector<std::exception_ptr>& cmb_errors_;
 
     // Prevent assignment operator
     adjust_process_combine_thread&
@@ -297,12 +322,12 @@ class dna_adjust {
 
     inline void SetmaxCorr(const double c) {
 
-        boost::lock_guard<boost::mutex> lock(maxCorrMutex);
+        std::lock_guard<std::mutex> lock(maxCorrMutex);
         maxCorr_ = c;
     };
 
     inline UINT32 blockCount() const { return blockCount_; }
-    inline boost::posix_time::milliseconds adjustTime() const {
+    inline std::chrono::milliseconds adjustTime() const {
         return total_time_;
     }
     inline bool processingForward() { return forward_; }
@@ -383,7 +408,7 @@ class dna_adjust {
     UINT32 blockCount_;
     UINT32 currentBlock_;
 
-    boost::posix_time::milliseconds total_time_;
+    std::chrono::milliseconds total_time_;
     _ADJUST_STATUS_ adjustStatus_;
     vstring statusMessages_;
     UINT32 currentIteration_;
@@ -432,11 +457,7 @@ class dna_adjust {
                    bool AddConstraintStationstoNormals, bool BackupNormals);
     void UpdateAdjustment(bool iterate);
     void ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time);
-    // Printing methods moved to DynAdjustPrinter - use printer_->methodName() instead
-    // void PrintAdjustmentStatus();
     void PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_);
-    // void PrintIteration(const UINT32& iteration);
-
     void InitialiseAdjustment();
     void SetDefaultReferenceFrame();
     void LoadNetworkFiles();

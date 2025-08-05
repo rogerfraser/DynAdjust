@@ -21,6 +21,8 @@
 
 #include <dynadjust/dnareftran/dnareftran.hpp>
 
+#include <include/functions/dnastrutils.hpp>
+
 namespace dynadjust { 
 namespace referenceframe {
 
@@ -142,7 +144,7 @@ void dna_reftran::IdentifyStationPlate()
 		stnPlate.second = p++;
 		vplateMap_.push_back(stnPlate);		
 
-		//if (boost::iequals(_it_plates->first, "AU"))
+		//if (iequals(_it_plates->first, "AU"))
 		//	std::cout << std::endl << _it_plates->first << std::endl << 
 		//		boost::geometry::wkt(platePolygon) << std::endl;
 
@@ -187,14 +189,14 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string message;
 	if (!tpb.validate_plate_files(global_plates_, plate_motion_eulers_, message))
 	{
 		ss << "         " << message << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	try {
@@ -202,7 +204,7 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	
@@ -1877,7 +1879,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -1913,7 +1915,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	

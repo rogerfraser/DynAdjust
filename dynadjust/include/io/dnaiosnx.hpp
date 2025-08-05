@@ -38,6 +38,7 @@
 #include <include/measurement_types/dnastation.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/parameters/dnadatum.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::math;
 using namespace dynadjust::datum_parameters;
@@ -46,10 +47,10 @@ using namespace dynadjust::measurements;
 namespace dynadjust {
 namespace iostreams {
 
-typedef enum _SINEX_WARN_TYPE_
+enum class SinexWarnType
 {
-	excessive_name_chars = 0
-} SINEX_WARN_TYPE;
+	kExcessiveNameChars = 0
+};
 
 
 /////////////////////////////////////////////////////////////
@@ -111,7 +112,7 @@ class CompareSiteTuplesByName {
 public:
 	bool operator()(const T& left, const T& right) {
 		// if the station names are equal
-		if (boost::equals(left.site_name, right.site_name))
+		if (equals(left.site_name, right.site_name))
 			// sort on file order
 			return left.file_index < right.file_index;
 		// sort on station name
@@ -160,7 +161,7 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 	UINT32 doy, year;
 	
 	// find the next occurrence of this site
-	while (boost::equals(site_name, begin->site_name))
+	while (equals(site_name, begin->site_name))
 	{
 		// Check if discontinuities exist at this site, if not, skip
 		if (!begin->discontinuity_exists)
@@ -240,94 +241,98 @@ typedef enum _DATE_FORMAT_TYPE_
 	doy_yyyy = 3
 } DATE_FORMAT_TYPE;
 
+<<<<<<< HEAD
 class DNATYPE_API dna_io_snx : public DynadjustFile
+=======
+class DnaIoSnx : public dna_io_base
+>>>>>>> refactor-boost
 {
 public:
-	dna_io_snx(void) 
+	DnaIoSnx(void) 
 	: blockCount_(0), block_(0), measurementParams_(0), unknownParams_(0)
 	, sigmaZero_(0.), blockStationsMap_(0), uniqueStationCount_(0)
 	, containsVelocities_(false), containsDiscontinuities_(false), applyDiscontinuities_(false)
 	, siteIDsRead_(false), solutionEpochsRead_(false) {
 	}
-	//dna_io_snx(const dna_io_snx&) {};
-	virtual ~dna_io_snx(void) {};
+	//DnaIoSnx(const DnaIoSnx&) {};
+	virtual ~DnaIoSnx(void) {};
 
-	dna_io_snx& operator=(const dna_io_snx& rhs);
+	DnaIoSnx& operator=(const DnaIoSnx& rhs);
 
-	std::stringstream parse_date_from_string(const std::string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const std::string& separator);
-	std::stringstream parse_date_from_yy_doy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const std::string& separator);
+	std::stringstream ParseDateFromString(const std::string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const std::string& separator);
+	std::stringstream ParseDateFromYyDoy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const std::string& separator);
 
-	void parse_sinex(std::ifstream** snx_file, const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseSinex(std::ifstream** snx_file, const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, UINT32& fileOrder,
 					CDnaDatum& datum, bool applyDiscontinuities, 
 					v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 					UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus);
 	
-	void parse_discontinuity_file(std::ifstream* snx_file, const std::string& fileName,
+	void ParseDiscontinuityFile(std::ifstream* snx_file, const std::string& fileName,
 		v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 		UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus);
 
-	void serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords,
+	void SerialiseSinex(std::ofstream* snx_file, pvstn_t bst_records,
 					binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 					matrix_2d* estimates, matrix_2d* variances, const project_settings& p,
-					UINT32& measurementParams, UINT32& unknownParams, double& sigmaZero,
-					uint32_uint32_map* blockStationsMap, vUINT32* blockStations_,
-					const UINT32& blockCount, const UINT32& block,
+					UINT32& measurement_params, UINT32& unknown_params, double& sigma_zero,
+					uint32_uint32_map* block_stations_map, vUINT32* block_stations,
+					const UINT32& block_count, const UINT32& block,
 					const CDnaDatum* datum);
 
-	inline bool warnings_exist() { return !warningMessages_.empty(); }
+	inline bool WarningsExist() { return !warningMessages_.empty(); }
 	
-	void print_warnings(std::ofstream* warning_file, const std::string& fileName);
+	void PrintWarnings(std::ofstream* warning_file, const std::string& fileName);
 
 protected:
 
 	// Read functions
-	void parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseSinexData(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
 			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 			StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
 			v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
-	bool parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo);
+	bool ParseSinexHeader(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo);
 	
-	void parse_sinex_block(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseSinexBlock(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
 			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 			StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum,
 			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
-	void parse_sinex_discontinuities(std::ifstream* snx_file, 
+	void ParseSinexDiscontinuities(std::ifstream* snx_file, 
 			v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 			UINT32& lineNo, UINT32& columnNo);
 
-	void parse_sinex_sites(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo);
-	void parse_sinex_epochs(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo);
-	void reduce_sinex_sites();
+	void ParseSinexSites(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo);
+	void ParseSinexEpochs(std::ifstream** snx_file, UINT32& lineNo, UINT32& columnNo);
+	void ReduceSinexSites();
 
-	void parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
+	void ParseSinexStn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
 			StnTally& parsestn_tally, CDnaDatum& datum, 
 			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
-	void parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
+	void ParseSinexMsr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
 			MsrTally& parsemsr_tally, CDnaDatum& datum, UINT32& lineNo);
 
-	void format_station_names(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
+	void FormatStationNames(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
 		vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 
 	// Write functions
-	void serialise_meta(std::ofstream* snx_file, 
+	void SerialiseMeta(std::ofstream* snx_file, 
 			binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 			const project_settings& p, const CDnaDatum* datum);
-	void serialise_statistics(std::ofstream* snx_file);
-	void serialise_site_id(std::ofstream* snx_file, pvstn_t bstRecords);
-	void serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords,
+	void SerialiseStatistics(std::ofstream* snx_file);
+	void SerialiseSiteId(std::ofstream* snx_file, pvstn_t bstRecords);
+	void SerialiseSolutionEstimates(std::ofstream* snx_file, pvstn_t bstRecords,
 			matrix_2d* estimates, matrix_2d* variances, const CDnaDatum* datum);
-	void serialise_solution_variances(std::ofstream* snx_file, matrix_2d* variances);
-	void print_line(std::ofstream* snx_file);
+	void SerialiseSolutionVariances(std::ofstream* snx_file, matrix_2d* variances);
+	void PrintLine(std::ofstream* snx_file);
 
 	//string format_exponent(std::string value);
-	void print_matrix_index(std::ofstream* snx_file, const UINT32& row, const UINT32& col);
-	void add_warning(const std::string& message, SINEX_WARN_TYPE warning);
+	void PrintMatrixIndex(std::ofstream* snx_file, const UINT32& row, const UINT32& col);
+	void AddWarning(const std::string& message, SinexWarnType warning);
 
 	UINT32					blockCount_;
 	UINT32					block_;

@@ -33,7 +33,6 @@
 #include <exception>
 #include <stdexcept>
 
-#include <boost/exception_ptr.hpp>
 /// \endcond
 
 #include <include/config/dnatypes.hpp>

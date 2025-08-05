@@ -20,7 +20,10 @@
 //============================================================================
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
+#include <filesystem>
+#include <thread>
 
+#include <include/functions/dnastrutils.hpp>
 namespace dynadjust { 
 namespace networkplot {
 
@@ -162,7 +165,7 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	// Set up the environment
 	pprj_ = pprj;
 
-	if (!boost::filesystem::exists(pprj_->g.output_folder))
+	if (!std::filesystem::exists(pprj_->g.output_folder))
 	{
 		std::stringstream ss("CreategnuplotGraphEnvironment(): Output path does not exist... \n\n    ");
 		ss << pprj_->g.output_folder << ".";
@@ -214,10 +217,10 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 void dna_plot::InvokeGnuplot()
 {
 	// Invoke gnuplot using absolute path				
-	std::string system_file_cmd = "gnuplot " + boost::filesystem::absolute(pprj_->p._gnuplot_cmd_file).string();
+	std::string system_file_cmd = "gnuplot " + std::filesystem::absolute(pprj_->p._gnuplot_cmd_file).string();
 
 	// set up a thread group to execute the gnuplot in parallel
-	boost::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
+	std::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
 	
 	// go!
 	gnuplot_thread.join();
@@ -629,7 +632,7 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 void dna_plot::InitialiseGMTParameters()
 {
 	// Set initial parameters
-	if (!boost::filesystem::exists(pprj_->g.output_folder))
+	if (!std::filesystem::exists(pprj_->g.output_folder))
 	{
 		std::stringstream ss("InitialiseGMTParameters(): Output path does not exist... \n\n    ");
 		ss << pprj_->g.output_folder << ".";
@@ -1073,7 +1076,7 @@ void dna_plot::InitialiseGMTFilenames()
 		gmt_filename = pprj_->g.output_folder + FOLDER_SLASH + gmt_filename;
 
 		// Create absolute path				
-		gmt_filename = boost::filesystem::absolute(gmt_filename).string();
+		gmt_filename = std::filesystem::absolute(gmt_filename).string();
 
 		// Add to the list
 		v_gmt_cmd_filenames_.push_back(gmt_filename);
@@ -2132,16 +2135,18 @@ void dna_plot::CreateGMTPlotEnvironment(project_settings* pprj)
 
 void dna_plot::InvokeGMT()
 {
-	// set up a thread group to execute the GMT scripts in parallel
-	boost::thread_group gmt_plot_threads;
+	// set up threads to execute the GMT scripts in parallel
+	std::vector<std::thread> gmt_plot_threads;
 	
 	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
 	{
-		gmt_plot_threads.create_thread(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
+		gmt_plot_threads.emplace_back(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
 	}
 
 	// go!
-	gmt_plot_threads.join_all();
+	for (auto& t : gmt_plot_threads) {
+		t.join();
+	}
 }
 
 // Aggregate individual PDFs created for each block (for
@@ -2849,7 +2854,7 @@ void dna_plot::PrintPlateBoundaries(const UINT32& block)
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 block_index(block);
@@ -3678,7 +3683,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Stations printed in blocks
 		strLine = trimstr(std::string(line));		
-		if (!boost::iequals(strLine.substr(0, 16), "Stations printed"))
+		if (!iequals(strLine.substr(0, 16), "Stations printed"))
 		{
 			std::stringstream ss;
 			ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -3693,7 +3698,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Variance matrix units
 		strLine = trimstr(std::string(line));
-		if (boost::iequals(strLine.substr(PRINT_VAR_PAD, 3), "XYZ"))
+		if (iequals(strLine.substr(PRINT_VAR_PAD, 3), "XYZ"))
 			vcv_units = XYZ_apu_ui;
 		else
 			vcv_units = ENU_apu_ui;
@@ -3701,7 +3706,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Full covariance matrix
 		strLine = trimstr(std::string(line));
-		if (!boost::iequals(strLine.substr(0, 15), "Full covariance"))
+		if (!iequals(strLine.substr(0, 15), "Full covariance"))
 		{
 			std::stringstream ss;
 			ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -3731,7 +3736,7 @@ void dna_plot::LoadPosUncertaintyFile()
 
 				strLine = trimstr(std::string(line));
 				
-				if (!boost::iequals(strLine.substr(0, 5), "Block"))
+				if (!iequals(strLine.substr(0, 5), "Block"))
 				{
 					std::stringstream ss;
 					ss << "LoadPosUncertaintyFile(): " << projectSettings_.o._apu_file << " is corrupt." << std::endl;
@@ -4045,7 +4050,7 @@ void dna_plot::LoadCorrectionsFile()
 		
 		// Get the yes/no string and convert to bool
 		strLine = trimstr(std::string(line));
-		if (!boost::iequals(strLine.substr(0, 16), "Stations printed"))
+		if (!iequals(strLine.substr(0, 16), "Stations printed"))
 		{
 			std::stringstream ss;
 			// TODO - make use of Boost current function
@@ -4080,7 +4085,7 @@ void dna_plot::LoadCorrectionsFile()
 
 				strLine = trimstr(std::string(line));
 				
-				if (!boost::iequals(strLine.substr(0, 5), "Block"))
+				if (!iequals(strLine.substr(0, 5), "Block"))
 				{
 					std::stringstream ss;
 					ss << "LoadCorrectionsFile(): " << projectSettings_.o._cor_file << " is corrupt." << std::endl;

@@ -44,12 +44,17 @@
 #include <fstream>
 
 #include <boost/shared_ptr.hpp>
+
+#include <memory>
+
 /// \endcond
 
 #include <include/config/dnaexports.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement_types.hpp>
+
 
 using namespace dynadjust::measurements;
 
@@ -421,7 +426,7 @@ public:
 	EqualStationNameSaveDuplicates(std::vector<S>* stns) : _stns(stns) {}
 
 	bool operator()(const T& left, const T& right) {
-		if (boost::equals(left->GetName(), right->GetName()))
+		if (equals(left->GetName(), right->GetName()))
 			_stns->push_back(right->GetName());
 
 		return (left->GetName() == right->GetName());
@@ -446,7 +451,7 @@ public:
 	EqualStationName_CaseInsensitive(std::vector<S>* stns) : _stns(stns) {}
 
 	bool operator()(const T& left, const T& right) {
-		if (boost::iequals(left->GetName(), right->GetName()))
+		if (iequals(left->GetName(), right->GetName()))
 		{
 			_stns->push_back(right->GetName());
 			return true;
@@ -820,9 +825,9 @@ public:
 template <typename M = CDnaMeasurement>
 class CompareMsr {
 public:
-	bool operator()(const boost::shared_ptr<M> left, const boost::shared_ptr<M> right) {
+	bool operator()(const std::shared_ptr<M> left, const std::shared_ptr<M> right) {
 		if (left->GetIgnore() == right->GetIgnore()) {
-			if (boost::iequals(left->GetType(), right->GetType()))
+			if (iequals(left->GetType(), right->GetType()))
 			{
 				switch (left->GetTypeC())
 				{

@@ -38,8 +38,7 @@
 #include <math.h>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
+#include <memory>
 /// \endcond
 
 #include <include/parameters/dnaellipsoid.hpp>

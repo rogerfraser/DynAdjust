@@ -119,7 +119,6 @@ public:
                           v_mat_2d* v_junctionVariances,
                           v_mat_2d* v_junctionVariancesFwd);
 
-
   // Constraint application
   void ApplyConstraints(vstn_t& stations, std::string_view station_map_file = "");
 

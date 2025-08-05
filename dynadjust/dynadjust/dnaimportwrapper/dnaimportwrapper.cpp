@@ -19,34 +19,45 @@
 // Description  : DynAdjust Interoperability library Executable
 //============================================================================
 
+#include <filesystem>
 #include <dynadjust/dnaimportwrapper/dnaimportwrapper.hpp>
 #include <include/parameters/dnaepsg.hpp>
+#include <include/functions/dnastrutils.hpp>
+#include <mutex>
+#include <thread>
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
+
+// Helper function to convert std::filesystem::file_time_type to time_t
+time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
 
 void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header)
 {
 	// Print formatted header
 	print_file_header(*f_out, header);
 
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(out_file).string() << std::endl << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(out_file).string() << std::endl << std::endl;
 	
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
 	*f_out << p->i.command_line_arguments << std::endl << std::endl;
 
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Network name:" <<  p->g.network_name << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Input folder: " << boost::filesystem::system_complete(p->g.input_folder).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << boost::filesystem::system_complete(p->g.output_folder).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p->i.bst_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(p->i.bms_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Associated station file:" << boost::filesystem::system_complete(p->i.asl_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file:" << boost::filesystem::system_complete(p->i.aml_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Duplicate stations output file:" <<  boost::filesystem::system_complete(p->i.dst_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Similar measurement output file:" <<  boost::filesystem::system_complete(p->i.dms_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Input folder: " << std::filesystem::absolute(p->g.input_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << std::filesystem::absolute(p->g.output_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(p->i.bst_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(p->i.bms_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Associated station file:" << std::filesystem::absolute(p->i.asl_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file:" << std::filesystem::absolute(p->i.aml_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Duplicate stations output file:" <<  std::filesystem::absolute(p->i.dst_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Similar measurement output file:" <<  std::filesystem::absolute(p->i.dms_file).string() << std::endl;
 
 	if (!p->i.input_files.empty())
 	{
@@ -115,7 +126,7 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 	}
 
 	if (!p->i.seg_file.empty())
-		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Segmentation file:" << boost::filesystem::system_complete(p->i.seg_file).string() << std::endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Segmentation file:" << std::filesystem::absolute(p->i.seg_file).string() << std::endl;
 
 	if (p->i.import_block)
 		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Import stns & msrs from block: " << p->i.import_block_number << std::endl;
@@ -136,7 +147,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, importSetting);
@@ -191,7 +202,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 			networkASL = formPath<std::string>(p.g.output_folder, p.g.network_name, "asl");
 
 			// 2. Does this network exist?
-			if (!boost::filesystem::exists(networkASL))
+			if (!std::filesystem::exists(networkASL))
 				break;
 
 			// 3. Flush and look for the next network
@@ -239,7 +250,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	if (vm.count(EPOCH))
 	{
 		// Get today's date?
-		if (boost::iequals(p.i.epoch, "today"))
+		if (iequals(p.i.epoch, "today"))
 			p.i.epoch = stringFromToday<boost::gregorian::date>();
 		// Has the user supplied the year only?
 		else if (p.i.epoch.rfind(".") == std::string::npos)
@@ -291,7 +302,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	if (vm.count(SEG_FILE))
 	{
 		// Does it exist?
-		if (!boost::filesystem::exists(p.i.seg_file))
+		if (!std::filesystem::exists(p.i.seg_file))
 			// Look for it in the input folder
 			p.i.seg_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.i.seg_file));
 	}
@@ -334,7 +345,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		p.i.apply_scaling = 1;
 
 	if (vm.count(SCALAR_FILE))
-		if (!boost::filesystem::exists(p.i.scalar_file))			// does it exist?
+		if (!std::filesystem::exists(p.i.scalar_file))			// does it exist?
 			// No.  Assume it is a filename contained in the input folder.  import will throw
 			// an exception if it cannot be found.
 			p.i.scalar_file = formPath<std::string>(p.g.input_folder, p.i.scalar_file);	
@@ -628,7 +639,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	{
 		for (UINT32 i(0); i<vinput_file_meta->size(); ++i)
 		{
-			if (!boost::iequals(epsgCode, vinput_file_meta->at(i).epsgCode))
+			if (!iequals(epsgCode, vinput_file_meta->at(i).epsgCode))
 			{
 				std::string inputFrame(datumFromEpsgString<std::string>(vinput_file_meta->at(i).epsgCode));
 				ssEpsgWarning << std::endl << "- Warning: The default reference frame (" << p.i.reference_frame  << ")" << 
@@ -710,7 +721,7 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 	else
 		p.i.seg_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "seg");
 
-	if (!boost::filesystem::exists(p.i.seg_file))
+	if (!std::filesystem::exists(p.i.seg_file))
 	{
 		std::cout << std::endl << "- Error: The required segmentation file does not exist:" << std::endl <<
 			"         " << p.i.seg_file << std::endl << std::endl <<
@@ -718,14 +729,14 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 		return EXIT_FAILURE;
 	}
 
-	if (!boost::filesystem::exists(p.i.bst_file))
+	if (!std::filesystem::exists(p.i.bst_file))
 	{
 		std::cout << std::endl << "- Error: The required binary station file does not exist:" << std::endl <<
 			"         " << p.i.bst_file << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	if (!boost::filesystem::exists(p.i.bms_file))
+	if (!std::filesystem::exists(p.i.bms_file))
 	{
 		std::cout << std::endl << "- Error: The required binary measurement file does not exist:" << std::endl <<
 			"         " << p.i.bms_file << std::endl << std::endl;
@@ -735,8 +746,8 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 	// If the user has not provided a seg file, check the meta of the default file
 	if (!userSuppliedSegFile)
 	{
-		if (boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bst_file) ||
-			boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))
+		if (std::filesystem::last_write_time(p.i.seg_file) < std::filesystem::last_write_time(p.i.bst_file) ||
+			std::filesystem::last_write_time(p.i.seg_file) < std::filesystem::last_write_time(p.i.bms_file))
 		{
 			// Has import been run after the segmentation file was created?
 			binary_file_meta_t bst_meta, bms_meta;
@@ -745,21 +756,22 @@ int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
 			bst.LoadFileMeta(p.i.bst_file, bst_meta);
 			bms.LoadFileMeta(p.i.bms_file, bms_meta);
 
-			bool bst_meta_import(boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-				boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-			bool bms_meta_import(boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-				boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+			bool bst_meta_import(iequals(bst_meta.modifiedBy, __import_app_name__) ||
+				iequals(bst_meta.modifiedBy, __import_dll_name__));
+			bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
+				iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-			if ((bst_meta_import && (boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bst_file))) ||
-				(bms_meta_import && (boost::filesystem::last_write_time(p.i.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))))
+			if ((bst_meta_import && (std::filesystem::last_write_time(p.i.seg_file) < std::filesystem::last_write_time(p.i.bst_file))) ||
+				(bms_meta_import && (std::filesystem::last_write_time(p.i.seg_file) < std::filesystem::last_write_time(p.i.bms_file))))
 			{
 
 				std::cout << std::endl << std::endl <<
 					"- Error: The raw stations and measurements have been imported after" << std::endl <<
 					"  the segmentation file was created:" << std::endl;
 
-				time_t t_bst(boost::filesystem::last_write_time(p.i.bst_file)), t_bms(boost::filesystem::last_write_time(p.i.bms_file));
-				time_t t_seg(boost::filesystem::last_write_time(p.i.seg_file));
+				time_t t_bst = file_time_to_time_t(std::filesystem::last_write_time(p.i.bst_file));
+				time_t t_bms = file_time_to_time_t(std::filesystem::last_write_time(p.i.bms_file));
+				time_t t_seg = file_time_to_time_t(std::filesystem::last_write_time(p.i.seg_file));
 
 				std::cout << "   " << leafStr<std::string>(p.i.bst_file) << "  last modified on  " << ctime(&t_bst);
 				std::cout << "   " << leafStr<std::string>(p.i.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;
@@ -904,10 +916,10 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	{
 		stnCount = msrCount = 0;
 		input_file = p.i.input_files.at(i);
-		if (!boost::filesystem::exists(input_file))
+		if (!std::filesystem::exists(input_file))
 		{
 			input_file = formPath<std::string>(p.g.input_folder, input_file);
-			if (!boost::filesystem::exists(input_file))
+			if (!std::filesystem::exists(input_file))
 			{	
 				std::cout << "- Error:  " << input_file << " does not exist" << std::endl;
 				return EXIT_FAILURE;
@@ -922,14 +934,16 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 		running = true;
 		firstFile = bool(i == 0);
 
-		boost::thread_group ui_interop_threads;
+		std::vector<std::thread> ui_interop_threads;
 		if (!p.g.quiet)
-			ui_interop_threads.create_thread(dna_import_progress_thread(&parserDynaML, &p));
-		ui_interop_threads.create_thread(dna_import_thread(&parserDynaML, &p, input_file,
+			ui_interop_threads.emplace_back(dna_import_progress_thread(&parserDynaML, &p));
+		ui_interop_threads.emplace_back(dna_import_thread(&parserDynaML, &p, input_file,
 			vStations, &stnCount, vMeasurements, &msrCount,
 			&clusterID, &input_file_meta, firstFile, &status_msg,
 			&elapsed_time));
-		ui_interop_threads.join_all();
+		for (auto& t : ui_interop_threads) {
+			t.join();
+		}
 
 		switch (parserDynaML.GetStatus())
 		{
@@ -1131,7 +1145,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				// when reference frame has been supplied and the value in the file doesn't match
 				else if (p.i.user_supplied_frame)
 				{
-					if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+					if (!iequals(projectEpsgCode, input_file_meta.epsgCode))
 					{
 						std::stringstream ssEpsgWarning;
 						ssEpsgWarning << "  - Warning: File reference frame (" << inputFileDatum << ") differs from project frame (" << p.i.reference_frame << ").";
@@ -1183,7 +1197,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				// when epoch has been supplied and the value in the file doesn't match
 				else if (p.i.user_supplied_epoch)
 				{
-					if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+					if (!iequals(p.i.epoch, input_file_meta.epoch))
 					{
 						std::stringstream ssEpochWarning;
 						ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ").";
@@ -1215,7 +1229,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					*imp_file << ssEpsgWarning.str() << std::endl;					
 				}
 				// Is the datum in the file different to the project datum?
-				else if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+				else if (!iequals(projectEpsgCode, input_file_meta.epsgCode))
 				{
 					std::stringstream ssEpsgWarning;
 					if (referenceframeChanged)
@@ -1246,7 +1260,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					*imp_file << ssEpochWarning.str() << std::endl;
 				}
 				// Is the epoch in the file different to the project epoch?
-				else if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+				else if (!iequals(p.i.epoch, input_file_meta.epoch))
 				{
 					std::stringstream ssEpochWarning;
 					
@@ -1743,7 +1757,7 @@ int main(int argc, char* argv[])
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
-	boost::timer::cpu_timer time;
+	cpu_timer time;
 	
 	
 	// Import discontinuity file and apply discontinuities
@@ -1754,9 +1768,9 @@ int main(int argc, char* argv[])
 		p.i.apply_discontinuities = true;
 		
 		// Does it exist?
-		if (!boost::filesystem::exists(p.i.stn_discontinuityfile))
+		if (!std::filesystem::exists(p.i.stn_discontinuityfile))
 		{
-			boost::filesystem::path discontPath(p.i.stn_discontinuityfile);
+			std::filesystem::path discontPath(p.i.stn_discontinuityfile);
 			std::stringstream ss;
 			ss << "- Warning: The station discontinuity file " << discontPath.filename().string() << " does not exist... ignoring discontinuity input." << std::endl;
 			imp_file << std::endl << ss.str();
@@ -1829,8 +1843,8 @@ int main(int argc, char* argv[])
 		// A hack to circumvent the problem caused by importing DynaML files in 
 		// different directories to where import is run from, causing errors 
 		// because DynaML.xsd cannot be found.
-		boost::filesystem::path currentPath(boost::filesystem::current_path());
-		boost::filesystem::current_path(boost::filesystem::path(p.g.input_folder));
+		std::filesystem::path currentPath(std::filesystem::current_path());
+		std::filesystem::current_path(std::filesystem::path(p.g.input_folder));
 
 		// Import all data as-is.
 		// All filtering is performed later below
@@ -2184,7 +2198,7 @@ int main(int argc, char* argv[])
 	if (p.i.rename_stations && (stnCount > 0 || msrCount > 0))
 	{
 		// Does it exist?
-		if (!boost::filesystem::exists(p.i.stn_renamingfile))
+		if (!std::filesystem::exists(p.i.stn_renamingfile))
 			// Look for it in the input folder
 			p.i.stn_renamingfile = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.i.stn_renamingfile));
 
@@ -2237,10 +2251,10 @@ int main(int argc, char* argv[])
 
 	// flush duplicate stations/measurements files
 	try {
-		if (boost::filesystem::exists(p.i.dst_file))
-			boost::filesystem::remove(p.i.dst_file);
-		if (boost::filesystem::exists(p.i.dms_file))
-			boost::filesystem::remove(p.i.dms_file);
+		if (std::filesystem::exists(p.i.dst_file))
+			std::filesystem::remove(p.i.dst_file);
+		if (std::filesystem::exists(p.i.dms_file))
+			std::filesystem::remove(p.i.dms_file);
 	}
 	catch (const std::ios_base::failure& f) { 
 		// do nothing on failure.
@@ -2259,32 +2273,32 @@ int main(int argc, char* argv[])
 		// create new output file names based on block number
 		// reform file name for each so as to preserve full path for each file
 		std::stringstream ss("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.bst_file).parent_path().generic_string(), boost::filesystem::path(p.i.bst_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.bst_file).parent_path().generic_string(), std::filesystem::path(p.i.bst_file).stem().generic_string());
 		ss << modifier.str() << ".bst";
 		p.i.bst_file = ss.str();
 
 		ss.str("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.bms_file).parent_path().generic_string(), boost::filesystem::path(p.i.bms_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.bms_file).parent_path().generic_string(), std::filesystem::path(p.i.bms_file).stem().generic_string());
 		ss << modifier.str() << ".bms";
 		p.i.bms_file = ss.str();
 
 		ss.str("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.asl_file).parent_path().generic_string(), boost::filesystem::path(p.i.asl_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.asl_file).parent_path().generic_string(), std::filesystem::path(p.i.asl_file).stem().generic_string());
 		ss << modifier.str() << ".asl";
 		p.i.asl_file = ss.str();
 
 		ss.str("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.aml_file).parent_path().generic_string(), boost::filesystem::path(p.i.aml_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.aml_file).parent_path().generic_string(), std::filesystem::path(p.i.aml_file).stem().generic_string());
 		ss << modifier.str() << ".aml";
 		p.i.aml_file = ss.str();
 
 		ss.str("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.map_file).parent_path().generic_string(), boost::filesystem::path(p.i.map_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.map_file).parent_path().generic_string(), std::filesystem::path(p.i.map_file).stem().generic_string());
 		ss << modifier.str() << ".map";
 		p.i.map_file = ss.str();
 
 		ss.str("");
-		ss << formPath<std::string>(boost::filesystem::path(p.i.map_file).parent_path().generic_string(), boost::filesystem::path(p.i.map_file).stem().generic_string());
+		ss << formPath<std::string>(std::filesystem::path(p.i.map_file).parent_path().generic_string(), std::filesystem::path(p.i.map_file).stem().generic_string());
 		ss << ".dbid";
 		p.i.dbid_file = ss.str();
 	}
@@ -2491,9 +2505,9 @@ int main(int argc, char* argv[])
 	// Import DNA geoid file
 	if (p.i.import_geo_file && p.i.import_block == 0 && p.i.import_network == 0 && vstationsTotal.size())
 	{
-		if (!boost::filesystem::exists(p.i.geo_file))
+		if (!std::filesystem::exists(p.i.geo_file))
 		{
-			boost::filesystem::path geoPath(p.i.geo_file);
+			std::filesystem::path geoPath(p.i.geo_file);
 			std::stringstream ss;
 			ss << "- Error: The geoid file " << geoPath.filename().string() << " does not exist." << std::endl;
 			std::cout << std::endl << ss.str();
@@ -2920,7 +2934,7 @@ int main(int argc, char* argv[])
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (boost::filesystem::exists(p.g.project_file))
+	if (std::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsImport(p);
@@ -2957,7 +2971,7 @@ int main(int argc, char* argv[])
 		imp_file << ssEnsembleWarning.str();
 	}
 	
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
+	boost::posix_time::milliseconds elapsed_time(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 	std::string time_message = formatedElapsedTime<std::string>(&elapsed_time, "+ Total file handling process took ");
 
 	if (!p.g.quiet)

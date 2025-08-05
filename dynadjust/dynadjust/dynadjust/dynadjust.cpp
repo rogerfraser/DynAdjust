@@ -26,20 +26,19 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+
+#include <filesystem>
 /// \endcond
 
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -52,6 +51,7 @@ boost::mutex cout_mutex;
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 #include <include/config/dnaprojectfile.hpp>
 
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(PROJECT_FILE) && vm.count(NETWORK_NAME))
 	{
-		if (boost::equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
+		if (equals(std::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
 		{
 			std::cout << std::endl << "- Error: project file name doesn't match network name.  Provide" << std::endl;  
 			std::cout << std::endl << "         either a project file path or the network name. " << std::endl << std::endl;  
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 	if (vm.count(NETWORK_NAME))
 		p.g.project_file = formPath<std::string>(".", p.g.network_name, "dnaproj");
 	
-	if (!boost::filesystem::exists(p.g.project_file))
+	if (!std::filesystem::exists(p.g.project_file))
 	{
 		std::cout << std::endl << 
 			"- Error: Project file  " << p.g.project_file <<
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run reftran (optional)
@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run geoid (optional)
@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 		
 	// Run segment (optional)
@@ -364,7 +364,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run adjust (optional)
@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 
 	return CloseLogandReturn(dynadjust_log, EXIT_SUCCESS);

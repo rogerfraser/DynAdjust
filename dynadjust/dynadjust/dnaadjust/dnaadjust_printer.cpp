@@ -149,7 +149,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
     
     // Print measurement correction
     PrintMeasurementCorrection(cardinal, it_msr);
-    
+   
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
         PrintMeasurementDatabaseID(it_msr, true);
@@ -171,7 +171,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
     
     // Print measurement correction
     PrintMeasurementCorrection(cardinal, it_msr);
-    
+   
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
         PrintMeasurementDatabaseID(it_msr, true);
@@ -603,9 +603,6 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
     }
 }
 
-// PrintNetworkStationCorrections() - removed duplicate definition (see below)
-
-// Stage 3: Specialized measurement handlers
 void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adjustedMsrs) {
     // Direction set specific printing logic - simplified for Stage 3
     vmsr_t d_msr;
@@ -636,7 +633,6 @@ void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adj
         ++_it_d_msr;
     }
 }
-
 
 // GPS cluster measurement method
 void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block) {
@@ -670,7 +666,6 @@ void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT
     }
 }
 
-// Stage 3: Statistical and summary generators
 void DynAdjustPrinter::PrintStatistics(bool printPelzer) {
     // print statistics
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of unknown parameters" << std::fixed << std::setprecision(0) << adjust_.unknownParams_;
@@ -954,8 +949,7 @@ void DynAdjustPrinter::PrintAdjMeasurements_D(it_vmsr_t& _it_msr) {
 
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision    
-        PrintAdjMeasurementsAngular(' ', _it_msr);
-
+        adjust_.PrintAdjMeasurementsAngular(' ', _it_msr);
         _it_msr++;
     }
 }
@@ -1112,7 +1106,6 @@ void DynAdjustPrinter::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& d
     
     // Print linear measurement, taking care of user requirements for precision    
     PrintCompMeasurementsLinear(' ', computed, _it_msr->measCorr, _it_msr);
-
     design_row++;
 }
 
@@ -2899,7 +2892,6 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_
     return success;
 }
 
-// Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
     std::ofstream msr_file;
@@ -3364,7 +3356,6 @@ void DynAdjustPrinter::PrintOutputFileHeaderInfo()
     // Geoid model
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
     adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
-
     
     switch (adjust_.projectSettings_.a.adjust_mode)
     {
@@ -4347,6 +4338,7 @@ void DynAdjustPrinter::PrintPosUncertainty(std::ostream& os, const UINT32& block
             std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 2) << std::endl;	// 33
     }
 }
+
 void DynAdjustPrinter::PrintPosUncertainties(std::ostream& os, const UINT32& block, const matrix_2d* stationVariances)
 {
     vUINT32 v_blockStations(adjust_.v_parameterStationList_.at(block));

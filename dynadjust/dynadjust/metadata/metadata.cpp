@@ -8,22 +8,18 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <mutex>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/iostreams/detail/absolute_path.hpp>
+
+#include <filesystem>
 /// \endcond
 
-boost::mutex cout_mutex;
-boost::mutex import_file_mutex;
+std::mutex cout_mutex;
+std::mutex import_file_mutex;
 
 #include <include/exception/dnaexception.hpp>
 
@@ -37,6 +33,7 @@ boost::mutex import_file_mutex;
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 #include <include/parameters/dnadatum.hpp>
 
@@ -304,13 +301,13 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, std::string& de
 						if ((pos = referenceFrame.find("-->", 0)) != std::string::npos)
 							referenceFrame = trimstr(referenceFrame.substr(0, pos));
 
-						if (boost::iequals(referenceFrame, "unsure"))
+						if (iequals(referenceFrame, "unsure"))
 						{
 							referenceFrame = defaultFrame;
 							unsureFrameCount++;
 						}
 
-						if (boost::iequals(referenceFrame, "WGS84"))
+						if (iequals(referenceFrame, "WGS84"))
 						{
 							referenceFrame = "ITRF1989";
 						}
@@ -326,7 +323,7 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, std::string& de
 						if ((pos = epoch.find("-->", 0)) != std::string::npos)
 							epoch = trimstr(epoch.substr(0, pos));
 
-						if (boost::iequals(epoch, "unsure"))
+						if (iequals(epoch, "unsure"))
 						{
 							epoch = "01.01.2005";
 							unsureEpochCount++;
@@ -478,10 +475,10 @@ int main(int argc, char* argv[])
 
 		time.start();
 
-		if (!boost::filesystem::exists(input_file))
+		if (!std::filesystem::exists(input_file))
 		{
 			input_file = formPath<std::string>(p.g.input_folder, input_file);
-			if (!boost::filesystem::exists(input_file))
+			if (!std::filesystem::exists(input_file))
 			{	
 				std::cout << "- Error:  " << input_file << " does not exist" << std::endl;
 				return EXIT_FAILURE;
@@ -490,7 +487,7 @@ int main(int argc, char* argv[])
 
 		// Form output file path
 		std::stringstream ss_outputfile("");
-		ss_outputfile << boost::filesystem::path(input_file).stem().generic_string();
+		ss_outputfile << std::filesystem::path(input_file).stem().generic_string();
 		ss_outputfile << ".edit.xml";
 		output_file = ss_outputfile.str();
 

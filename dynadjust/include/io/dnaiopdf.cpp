@@ -20,12 +20,10 @@
 // Description  : DynAdjust pdf file io operations
 //============================================================================
 
-/// \cond
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-/// \endcond
+#include <filesystem>
 
 #include <include/io/dnaiopdf.hpp>
+#include <include/functions/dnastrutils.hpp>
 namespace dynadjust { 
 namespace iostreams {
 
@@ -41,7 +39,7 @@ std::string dna_io_pdf::form_pdf_action_command_string(const std::string& pdf_fi
 	FindExecutable(pdf_filename.c_str(), 0, viewer_filepath);
 	std::string viewer(path(viewer_filepath).stem());
 
-	if (boost::iequals(viewer, "AcroRd32") || boost::iequals(viewer, "Acrobat"))
+	if (iequals(viewer, "AcroRd32") || iequals(viewer, "Acrobat"))
 	{
 		std::stringstream ss;
 		ss << "\"" << viewer_filepath << "\" " << pdf_filename;

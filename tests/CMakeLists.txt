@@ -13,7 +13,7 @@ include_directories(../dynadjust)
 include_directories(../dynadjust/include)
 
 # Find required packages
-find_package(Boost REQUIRED COMPONENTS filesystem system timer chrono)
+find_package(Boost REQUIRED COMPONENTS filesystem system timer date_time)
 
 # Platform-specific libraries
 if(APPLE)

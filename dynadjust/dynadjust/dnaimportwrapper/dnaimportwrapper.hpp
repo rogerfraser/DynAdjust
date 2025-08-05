@@ -44,19 +44,15 @@
 #include <string>
 #include <time.h>
 #include <set>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/detail/absolute_path.hpp>
-/// \endcond
-
+#include <filesystem>
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-interface.hpp>
@@ -74,7 +70,32 @@ using namespace dynadjust::exception;
 using namespace dynadjust::datum_parameters;
 
 extern bool running;
-extern boost::mutex cout_mutex;
+extern std::mutex cout_mutex;
+
+// High-precision timer class to replace boost::timer::cpu_timer
+class cpu_timer {
+public:
+    struct cpu_times {
+        std::chrono::nanoseconds wall;
+        std::chrono::nanoseconds user;
+        std::chrono::nanoseconds system;
+    };
+
+    cpu_timer() { start(); }
+    
+    void start() {
+        start_time_ = std::chrono::high_resolution_clock::now();
+    }
+    
+    cpu_times elapsed() const {
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto wall_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time_);
+        return {wall_duration, wall_duration, wall_duration}; // For simplicity, user and system = wall
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_time_;
+};
 
 class dna_import_thread
 {
@@ -89,18 +110,18 @@ public:
 		, _status_msg(status_msg), _ms(ms) {};
 	void operator()()
 	{
-		boost::timer::cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
+		cpu_timer time;	// constructor of cpu_timer calls start()
 		try {
 			_dnaParse->ParseInputFile(_filename, 
 				_vStations, _stnCount, 
 				_vMeasurements, _msrCount, 
 				_clusterID, _input_file_meta, _firstFile,
 				_status_msg, _p);
-			*_ms = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+			*_ms = boost::posix_time::milliseconds(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 		} 
 		catch (const XMLInteropException& e) {
 			running = false;
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			std::stringstream err_msg;
 			cout_mutex.lock();
 			err_msg << std::endl << "- Error: " << e.what() << std::endl;
@@ -156,7 +177,7 @@ public:
 				std::cout.flush();
 				cout_mutex.unlock();
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			percentComplete = _dnaParse->GetProgress();
 		}
 	}

@@ -8,7 +8,7 @@
 //                you may not use this file except in compliance with the License.
 //                You may obtain a copy of the License at
 //               
-//                http ://www.apache.org/licenses/LICENSE-2.0
+//                http://www.apache.org/licenses/LICENSE-2.0
 //               
 //                Unless required by applicable law or agreed to in writing, software
 //                distributed under the License is distributed on an "AS IS" BASIS,
@@ -316,7 +316,6 @@ void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double&
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
 
-
 // Stage 4: Template implementations for station coordinate formatting
 template <typename CoordinateType>
 void DynAdjustPrinter::PrintStationCoordinates(std::ostream& os, const it_vstn_t& stn_it,
@@ -348,7 +347,6 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char car
 template <>
 void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
-
 
 // Stage 4: Station coordinate formatting specializations
 template <>

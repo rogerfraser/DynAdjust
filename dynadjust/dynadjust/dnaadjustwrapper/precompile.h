@@ -17,7 +17,6 @@
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaconsts-interface.hpp>
 #include <include/config/dnaprojectfile.hpp>
-
 #include <include/exception/dnaexception.hpp>
 
 #include <include/io/bst_file.hpp>

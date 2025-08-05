@@ -1,5 +1,4 @@
-//============================================================================
-// Name         : dnaadjust.cpp
+#include <filesystem>
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -27,14 +26,14 @@
 namespace dynadjust {
 namespace networkadjust {
 
-boost::mutex combine_blockMutex;
-boost::mutex current_blockMutex, current_iterationMutex, maxCorrMutex;
-boost::mutex adj_file_mutex, xyz_file_mutex, dbg_file_mutex;
+std::mutex combine_blockMutex;
+std::mutex current_blockMutex, current_iterationMutex, maxCorrMutex;
+std::mutex adj_file_mutex, xyz_file_mutex, dbg_file_mutex;
 
 // multi thread adjustment variables
 concurrent_queue<UINT32> combineAdjustmentQueue;
 concurrent_queue<UINT32> prepareAdjustmentQueue;
-boost::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
+std::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
 
 dna_adjust::dna_adjust()
 	: isPreparing_(false)
@@ -166,19 +165,19 @@ dna_adjust::~dna_adjust()
 
 UINT32 dna_adjust::CurrentIteration() const 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	return currentIteration_; 
 }
 
 UINT32& dna_adjust::incrementIteration() 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	return ++currentIteration_; 
 }
 
 void dna_adjust::initialiseIteration(const UINT32& iteration) 
 { 
-	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+	std::lock_guard<std::mutex> lock(current_iterationMutex);
 	currentIteration_ = iteration; 
 }
 
@@ -2116,7 +2115,7 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 			if (!projectSettings_.a.report_mode)
 			{
 				adj_file << std::endl << "  Optimised for concurrent processing via multi-threading." << std::endl;
-				adj_file << "  The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads." << std::endl;
+				adj_file << "  The active CPU supports the execution of " << std::thread::hardware_concurrency() << " concurrent threads." << std::endl;
 				adj_file << std::endl;
 			}
 			AdjustPhasedMultiThread();
@@ -2152,6 +2151,13 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 	return adjustStatus_;
 }
 	
+void dna_adjust::PrintAdjustedNetworkStations()
+{
+	networkadjust::DynAdjustPrinter printer(*this);
+	printer.PrintAdjustedNetworkStations();
+}
+	
+>>>>>>> refactor-boost
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
 void dna_adjust::LoadDatabaseId()
@@ -2363,8 +2369,8 @@ void dna_adjust::AdjustSimultaneous()
 	
 	std::ostringstream ss;
 	std::string corr_msg;
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
-	boost::timer::cpu_timer it_time, tot_time;
+	std::chrono::milliseconds elapsed_time(std::chrono::milliseconds(0));
+	cpu_timer it_time, tot_time;
 
 	bool iterate;
 
@@ -2446,7 +2452,7 @@ void dna_adjust::AdjustSimultaneous()
 	ValidateandFinaliseAdjustment(tot_time);
 }
 
-void dna_adjust::ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time)
+void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 {
 	isAdjusting_ = false;
 
@@ -2493,7 +2499,6 @@ void dna_adjust::PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_
 	
 	printer_->PrintAdjustmentTime(time, static_cast<int>(timerType));
 }
-	
 
 void dna_adjust::AdjustPhased()
 {
@@ -2504,7 +2509,7 @@ void dna_adjust::AdjustPhased()
 	UINT32 i;
 	bool iterate(true);
 
-	boost::timer::cpu_timer it_time, tot_time;
+	cpu_timer it_time, tot_time;
 		
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
@@ -2602,7 +2607,7 @@ void dna_adjust::AdjustPhasedBlock1()
 	if (projectSettings_.g.verbose)
 		debug_file << std::endl << std::endl;
 		
-	boost::timer::cpu_timer it_time, tot_time;
+	cpu_timer it_time, tot_time;
 		
 	// Only the reverse adjustment is needed to achieve rigorous
 	// estimates for block 1
@@ -2768,7 +2773,7 @@ void dna_adjust::PurgeMatricesFromDisk()
 			// remove mapping
 			boost::interprocess::file_mapping::remove(str.c_str());
 			// If the file still exists, remove it!
-			if (boost::filesystem::exists(str))
+			if (std::filesystem::exists(str))
 			boost::interprocess::file_mapping::remove(str.c_str());
 		}
 	);	
@@ -8232,8 +8237,6 @@ void dna_adjust::PrintCorStations(std::ostream &cor_file, const UINT32& block)
 
 }
 
-	
-
 void dna_adjust::UpdateGeographicCoordsPhased(const UINT32& block, matrix_2d* estimatedStations)
 {
 	UINT32 i(0), j(0);
@@ -9585,7 +9588,7 @@ void dna_adjust::SignalExceptionAdjustment(const std::string& msg, const UINT32 
 		error_msg = ss.str();
 	}
 	
-	throw boost::enable_current_exception(std::runtime_error(error_msg));
+	throw std::runtime_error(error_msg);
 }
 
 void dna_adjust::SetDefaultReferenceFrame()
@@ -9683,7 +9686,7 @@ void dna_adjust::LoadNetworkFiles()
                 measurementCount_,
                 measurementVarianceCount);
         }
-            
+           
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
         }
