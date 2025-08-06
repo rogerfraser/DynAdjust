@@ -166,7 +166,7 @@ protected:
 };
 
 
-class DNATYPE_API CDnaGpsPointCluster : public CDnaMeasurement
+class CDnaGpsPointCluster : public CDnaMeasurement
 {
 public:
 	CDnaGpsPointCluster(void);

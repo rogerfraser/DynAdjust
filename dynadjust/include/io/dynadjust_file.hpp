@@ -61,7 +61,7 @@ const char* const version_header     = "VERSION   ";	// 10 characters
 const char* const create_date_header = "CREATED ON";	// 10 characters
 const char* const create_by_header   = "CREATED BY";	// 10 characters
 
-class DNATYPE_API DynadjustFile
+class DynadjustFile
 {
 public:
 	DynadjustFile(void);

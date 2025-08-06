@@ -240,7 +240,7 @@ typedef enum _DATE_FORMAT_TYPE_
 	doy_yyyy = 3
 } DATE_FORMAT_TYPE;
 
-class DNATYPE_API dna_io_snx : public DynadjustFile
+class dna_io_snx : public DynadjustFile
 {
 public:
 	dna_io_snx(void) 
