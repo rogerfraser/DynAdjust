@@ -486,7 +486,7 @@ protected:
 
 // In the event a new measurement type is added, ensure SUPPORTED_MSR_COUNT is
 // updated accordingly
-class MsrTally
+class DNATYPE_API MsrTally
 {
 public:
 	MsrTally();

@@ -8,13 +8,7 @@ add_definitions (-DBUILD_IMPORT_EXE)
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_executable (${PROJECT_NAME} 
-                ${CMAKE_SOURCE_DIR}/include/io/dynadjust_file.cpp
-                ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
-                ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
                 ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
-                ${CMAKE_SOURCE_DIR}/include/parameters/dnaprojection.cpp
-                ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
-                ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastntally.cpp
                 ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
                 dnaimportwrapper.cpp
                 ${CMAKE_SOURCE_DIR}/dynadjust.rc)

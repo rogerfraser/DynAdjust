@@ -103,7 +103,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />
     <ClInclude Include="..\..\include\ide\trace.hpp" />
     <ClInclude Include="..\..\include\io\aml_file.hpp" />
     <ClInclude Include="..\..\include\io\asl_file.hpp" />
@@ -113,12 +112,13 @@
     <ClInclude Include="..\..\include\io\map_file.hpp" />
     <ClInclude Include="..\..\include\io\seg_file.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp" />
+    <ClInclude Include="..\..\include\measurement_types\dnamsrtally.hpp" />
+    <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="dnasegment.hpp" />
     <ClInclude Include="precompile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
     <ClCompile Include="..\..\include\ide\trace.cpp" />
     <ClCompile Include="..\..\include\io\aml_file.cpp" />
     <ClCompile Include="..\..\include\io\asl_file.cpp" />
@@ -129,6 +129,7 @@
     <ClCompile Include="..\..\include\io\seg_file.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp" />
     <ClCompile Include="dnasegment.cpp" />
     <ClCompile Include="precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

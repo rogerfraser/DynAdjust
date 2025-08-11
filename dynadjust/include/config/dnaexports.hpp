@@ -30,7 +30,7 @@
 #endif
 
 // define BUILD_DNAIMPORT_DLL when building libdnaimport.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAIMPORT_DLL
     /* DLL export */
     #define DNAIMPORT_API __declspec(dllexport)
@@ -39,12 +39,12 @@
     #define DNAIMPORT_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAIMPORT_API
 #endif
 	
 // define BUILD_DNASEGMENT_DLL when building libdnasegment.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNASEGMENT_DLL
     /* DLL export */
     #define DNASEGMENT_API __declspec(dllexport)
@@ -53,12 +53,12 @@
     #define DNASEGMENT_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNASEGMENT_API
 #endif
 	
 // define BUILD_DNAADJUST_DLL when building libdnaadjust.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAADJUST_DLL
     /* DLL export */
     #define DNAADJUST_API __declspec(dllexport)
@@ -67,12 +67,12 @@
     #define DNAADJUST_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAADJUST_API
 #endif
 	
 // define BUILD_DNAMATH_DLL when building libdnamath.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAMATH_DLL
     /* DLL export */
     #define DNAMATHCOMP_API __declspec(dllexport)
@@ -81,12 +81,12 @@
     #define DNAMATHCOMP_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAMATHCOMP_API
 #endif
 	
 // define BUILD_EXPORTDNATYPES when building dlls that use Dna Measurement types
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_EXPORTDNATYPES
     /* DLL export */
     #define DNATYPE_API __declspec(dllexport)
@@ -95,12 +95,12 @@
     #define DNATYPE_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNATYPE_API
 #endif
 
 // define BUILD_DNAPLOT_DLL when building libdnaplot.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAPLOT_DLL
     /* DLL export */
     #define DNAPLOT_API __declspec(dllexport)
@@ -109,12 +109,12 @@
     #define DNAPLOT_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAPLOT_API
 #endif
 
 // define BUILD_DNAGEOID_DLL when building libdnageoid.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAGEOID_DLL
     /* DLL export */
     #define DNAGEOID_API __declspec(dllexport)
@@ -123,12 +123,12 @@
     #define DNAGEOID_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAGEOID_API
 #endif
 	
 // define BUILD_DNAREFTRAN_DLL when building libdnareftran.dll
-#if (!defined(BUILD_STATIC))
+#if defined(_MSC_VER) && (!defined(BUILD_STATIC))
     #ifdef BUILD_DNAREFTRAN_DLL
     /* DLL export */
     #define DNAREFTRAN_API __declspec(dllexport)
@@ -137,7 +137,7 @@
     #define DNAREFTRAN_API __declspec(dllimport)
     #endif
 #else
-    /* static library */
+    /* static library or non-Windows */
     #define DNAREFTRAN_API
 #endif
 	

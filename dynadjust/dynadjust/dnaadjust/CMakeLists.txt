@@ -31,6 +31,7 @@ add_library (${PROJECT_NAME} SHARED
              measurement_processor.cpp
              dnaadjust-stage.cpp
              dnaadjust.cpp
+             dnaadjust_printer.cpp
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})

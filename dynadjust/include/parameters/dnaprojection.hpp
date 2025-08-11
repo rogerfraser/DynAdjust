@@ -36,12 +36,13 @@
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
 	
 namespace dynadjust {
 namespace datum_parameters {
 
-class CDnaProjection
+class DNATYPE_API CDnaProjection
 {
 public:
 

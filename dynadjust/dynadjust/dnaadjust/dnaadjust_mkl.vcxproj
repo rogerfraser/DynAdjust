@@ -162,8 +162,9 @@
     <ClCompile Include="..\..\include\parameters\dnadatum.cpp" />
     <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp" />
     <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
-    <ClCompile Include="dnaadjust-stage.cpp" />
     <ClCompile Include="dnaadjust.cpp" />
+    <ClCompile Include="dnaadjust-stage.cpp" />
+    <ClCompile Include="dnaadjust_printer.cpp" />
     <ClCompile Include="network_data_loader.cpp" />
     <ClCompile Include="measurement_processor.cpp" />
     <ClCompile Include="precompile.cpp">

@@ -27,6 +27,7 @@
 /// \endcond
 
 #include <include/config/dnatypes.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/exception/dnaexception.hpp>
 #include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <include/memory/dnamemory_handler.hpp>

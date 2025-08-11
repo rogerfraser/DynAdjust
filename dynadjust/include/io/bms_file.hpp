@@ -40,7 +40,7 @@
 namespace dynadjust {
 namespace iostreams {
 
-class BmsFile : public DynadjustFile {
+class DNATYPE_API BmsFile : public DynadjustFile {
  public:
   BmsFile() = default;
   BmsFile(const BmsFile& bms) : DynadjustFile(bms) {}
