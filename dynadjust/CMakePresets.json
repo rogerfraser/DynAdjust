@@ -18,7 +18,7 @@
 
   "buildPresets": [
     { "name": "build-debug",   "configurePreset": "vs-x64",        "configuration": "Debug" },
-    { "name": "build-release", "configurePreset": "vs-x64",        "configuration": "Release" },
+    { "name": "build-release", "configurePreset": "vs-x64",        "configuration": "Release" }
   ],
 
   "testPresets": [
