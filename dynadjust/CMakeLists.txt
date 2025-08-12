@@ -26,6 +26,11 @@ message("Configuring DynAdjust ${PROJECT_VERSION} ${CMAKE_BUILD_TYPE} Build")
 message("=====================================================================")
 message("")
 
+if (WIN32)
+    message(STATUS "Toolchain file: [${CMAKE_TOOLCHAIN_FILE}]")
+    message(STATUS "ENV VCPKG_ROOT: [$ENV{VCPKG_ROOT}]")
+endif()
+
 if(BUILD_TESTING)
     message(STATUS "Testing enabled (BUILD_TESTING=ON)")
     include(CTest)
