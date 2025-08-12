@@ -1,0 +1,37 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25 },
+
+  "configurePresets": [
+    {
+      "name": "vs-x64",
+      "displayName": "VS2022 x64 (vcpkg)",
+      "generator": "Visual Studio 17 2022",
+      "architecture": { "value": "x64" },
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      }
+    },
+    {
+      "name": "vs-x64-static",
+      "displayName": "VS2022 x64 Static (vcpkg)",
+      "inherits": "vs-x64",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+      }
+    }
+  ],
+
+  "buildPresets": [
+    { "name": "build-debug",   "configurePreset": "vs-x64",        "configuration": "Debug" },
+    { "name": "build-release", "configurePreset": "vs-x64",        "configuration": "Release" },
+    { "name": "build-s-debug","configurePreset": "vs-x64-static", "configuration": "Debug" },
+    { "name": "build-s-release","configurePreset": "vs-x64-static","configuration": "Release" }
+  ],
+
+  "testPresets": [
+    { "name": "ctest", "configurePreset": "vs-x64", "configuration": "Debug" }
+  ]
+}
