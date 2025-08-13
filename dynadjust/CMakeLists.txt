@@ -118,12 +118,12 @@ if(WIN32)
     # For Windows, use the Xerces library bundled with CodeSynthesis XSD
     # This ensures compatibility with the generated code that expects xercesc_3_1 namespace
     set(XercesC_INCLUDE_DIRS "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
-    set(XercesC_LIBRARIES "C:/Program Files (x86)/CodeSynthesis XSD 4.0/lib/vc-14.0/xerces-c_3.lib")
+    set(XercesC_LIBRARIES "C:/Program Files (x86)/CodeSynthesis XSD 4.0/lib/vc-12.0/xerces-c_3.lib")
     
     # For Debug builds, use the debug library if available
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         if(EXISTS "C:/Program Files (x86)/CodeSynthesis XSD 4.0/lib/vc-14.0/xerces-c_3D.lib")
-            set(XercesC_LIBRARIES "C:/Program Files (x86)/CodeSynthesis XSD 4.0/lib/vc-14.0/xerces-c_3D.lib")
+            set(XercesC_LIBRARIES "C:/Program Files (x86)/CodeSynthesis XSD 4.0/lib/vc-12.0/xerces-c_3D.lib")
         endif()
     endif()
     
