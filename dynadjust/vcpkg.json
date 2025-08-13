@@ -1,5 +1,6 @@
 {
   "name": "dynadjust",
+  "builtin-baseline": "fe1cde61e971d53c9687cf9a46308f8f55da19fa",
   "dependencies": [
     "boost-geometry",
     "boost-process",
