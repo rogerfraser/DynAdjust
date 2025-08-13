@@ -118,16 +118,10 @@ find_package(XercesC REQUIRED)
 message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 
 # ----------------------------------------------------------------------------
-# XSD (CodeSynthesis XSD) - Always use libxsd 4.2 for compatibility
+# XSD
 # ----------------------------------------------------------------------------
 
-# Option to force download of libxsd (default: ON for Windows to ensure compatibility)
-option(FORCE_DOWNLOAD_LIBXSD "Force download of libxsd 4.2 instead of using system XSD" ON)
-
 if(WIN32)
-    # For Windows with vcpkg Xerces 3.2+, we need libxsd 4.2 (header-only)
-    # The old XSD 4.0 uses Xerces 3.1 which is incompatible with vcpkg's Xerces 3.2+
-    
     set(LIBXSD_VERSION "4.2.0")
     set(LIBXSD_DIR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}")
     set(LIBXSD_TAR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}.tar.gz")
@@ -135,7 +129,6 @@ if(WIN32)
     if(NOT EXISTS ${LIBXSD_DIR})
         message(STATUS "Downloading libxsd ${LIBXSD_VERSION} for Xerces 3.2+ compatibility...")
         
-        # Try PowerShell download (HTTP first to avoid SSL issues in corporate environments)
         execute_process(
             COMMAND powershell -Command "
                 try {
@@ -149,7 +142,6 @@ if(WIN32)
             ERROR_QUIET
         )
         
-        # Extract if download succeeded, otherwise provide manual instructions
         if(EXISTS ${LIBXSD_TAR})
             message(STATUS "Extracting libxsd...")
             execute_process(
@@ -178,6 +170,7 @@ if(WIN32)
     set(XSD_ROOT "${LIBXSD_DIR}")
     
     message(STATUS "Using libxsd ${LIBXSD_VERSION} from: ${XSD_INCLUDE_DIR}")
+
 else()
     # For non-Windows, check if XSD is available or download libxsd
     find_path(XSD_INCLUDE_DIR xsd/cxx/parser/elements.hxx
@@ -187,40 +180,8 @@ else()
     if(XSD_INCLUDE_DIR)
         set(XSD_INCLUDE_DIRS ${XSD_INCLUDE_DIR})
         message(STATUS "Found XSD include: ${XSD_INCLUDE_DIRS}")
-    else()
-        # Download libxsd for non-Windows as well
-        message(STATUS "XSD not found, downloading libxsd...")
-        
-        set(LIBXSD_VERSION "4.2.0")
-        set(LIBXSD_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/external/libxsd")
-        set(LIBXSD_TAR_FILE "${LIBXSD_DOWNLOAD_DIR}/libxsd-${LIBXSD_VERSION}.tar.gz")
-        set(LIBXSD_EXTRACT_DIR "${LIBXSD_DOWNLOAD_DIR}/libxsd-${LIBXSD_VERSION}")
-        
-        file(MAKE_DIRECTORY ${LIBXSD_DOWNLOAD_DIR})
-        
-        if(NOT EXISTS ${LIBXSD_TAR_FILE})
-            file(DOWNLOAD 
-                "https://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz"
-                ${LIBXSD_TAR_FILE}
-                SHOW_PROGRESS
-            )
-        endif()
-        
-        if(NOT EXISTS ${LIBXSD_EXTRACT_DIR})
-            execute_process(
-                COMMAND ${CMAKE_COMMAND} -E tar xzf ${LIBXSD_TAR_FILE}
-                WORKING_DIRECTORY ${LIBXSD_DOWNLOAD_DIR}
-            )
-        endif()
-        
-        set(XSD_INCLUDE_DIRS "${LIBXSD_EXTRACT_DIR}")
-        message(STATUS "Using downloaded libxsd from: ${XSD_INCLUDE_DIRS}")
     endif()
 endif()
-
-# ----------------------------------------------------------------------------
-# XSD
-# ----------------------------------------------------------------------------
 
 add_compile_definitions(XSD_CXX11) # Tell XSD to use C++11 and later
 
