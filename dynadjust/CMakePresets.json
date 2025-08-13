@@ -8,9 +8,9 @@
       "displayName": "VS2022 x64 (vcpkg)",
       "generator": "Visual Studio 17 2022",
       "architecture": { "value": "x64" },
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "binaryDir": "${sourceParentDir}/build/",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     }
