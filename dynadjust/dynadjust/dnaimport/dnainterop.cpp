@@ -19,6 +19,11 @@
 // Description  : DynAdjust Interoperability library
 //============================================================================
 
+// Include Xerces compatibility header first for Windows builds
+#ifdef _WIN32
+#include <include/config/xerces_compat.hpp>
+#endif
+
 #include <dynadjust/dnaimport/dnainterop.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>

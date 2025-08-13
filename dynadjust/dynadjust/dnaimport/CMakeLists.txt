@@ -4,6 +4,13 @@ project (dnaimport)
 #add_definitions(-DBUILD_DNAIMPORT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
 add_definitions(-DBUILD_DNAIMPORT_DLL -DBUILD_EXPORTDNATYPES)
 
+# Windows-specific: Handle Xerces version namespace
+if(WIN32)
+    # Define for Xerces 3.2 which is what vcpkg provides
+    add_definitions(-DXERCES_VERSION_MAJOR=3)
+    add_definitions(-DXERCES_VERSION_MINOR=2)
+endif()
+
 ## BLAS/LAPACK or MKL
 #if(APPLE)
 #    # Force disable MKL ILP64 and -fopenmp on mac
