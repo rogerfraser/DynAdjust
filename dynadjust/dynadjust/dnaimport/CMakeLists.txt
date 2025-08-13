@@ -28,6 +28,7 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/io/seg_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiosnxread.cpp
              ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+             ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
              ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnadatum.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
@@ -51,6 +52,16 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
+
+# Windows-specific Xerces linking fix
+if(WIN32)
+    # Ensure Xerces-C++ is properly linked on Windows
+    if(TARGET XercesC::XercesC)
+        target_link_libraries(${PROJECT_NAME} XercesC::XercesC)
+    elseif(XercesC_LIBRARIES)
+        target_link_libraries(${PROJECT_NAME} ${XercesC_LIBRARIES})
+    endif()
+endif()
 
 install (TARGETS ${PROJECT_NAME} DESTINATION lib)
 
