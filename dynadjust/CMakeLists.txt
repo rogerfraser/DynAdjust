@@ -244,8 +244,30 @@ elseif(WIN32)
     endif()
 
     if(NOT USE_MKL)
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
-        include_directories(${BLAS_INCLUDE_DIRS})
+        # Find OpenBLAS package which should set include directories
+        find_package(OpenBLAS CONFIG QUIET)
+        if(OpenBLAS_FOUND)
+            message(STATUS "Found OpenBLAS via CONFIG")
+            # OpenBLAS::OpenBLAS target should have include directories set
+            if(TARGET OpenBLAS::OpenBLAS)
+                list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS)
+            endif()
+        else()
+            # Fallback to manual search
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h
+                PATHS 
+                    ${CMAKE_PREFIX_PATH}/include
+                    ${CMAKE_PREFIX_PATH}/include/openblas
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/openblas
+                    C:/vcpkg/installed/x64-windows/include
+                    C:/vcpkg/installed/x64-windows/include/openblas
+                REQUIRED
+            )
+            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
+            include_directories(${BLAS_INCLUDE_DIRS})
+        endif()
     endif()
 
 elseif(UNIX)
@@ -266,8 +288,28 @@ elseif(UNIX)
     	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     else()
         message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
-    	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        # Try to find OpenBLAS package first
+        find_package(OpenBLAS CONFIG QUIET)
+        if(OpenBLAS_FOUND AND TARGET OpenBLAS::OpenBLAS)
+            message(STATUS "Found OpenBLAS via CONFIG")
+            list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS ${LAPACK_LIBRARIES})
+        else()
+            # Fallback to manual search
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h 
+                PATHS 
+                    ${CMAKE_PREFIX_PATH}/include
+                    ${CMAKE_PREFIX_PATH}/include/openblas
+                    /usr/include
+                    /usr/local/include
+                    /usr/include/openblas
+                    /usr/local/include/openblas
+                REQUIRED
+            )
+            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
+            include_directories(${BLAS_INCLUDE_DIRS})
+            list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        endif()
     endif()
 
 endif()
