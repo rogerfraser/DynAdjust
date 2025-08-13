@@ -125,54 +125,59 @@ message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 option(FORCE_DOWNLOAD_LIBXSD "Force download of libxsd 4.2 instead of using system XSD" ON)
 
 if(WIN32)
-    # Always download and use libxsd 4.2 for Windows to ensure compatibility with Xerces 3.2+
-    # The old XSD 4.0 bundled with installers uses Xerces 3.1 which is incompatible
+    # For Windows with vcpkg Xerces 3.2+, we need libxsd 4.2 (header-only)
+    # The old XSD 4.0 uses Xerces 3.1 which is incompatible with vcpkg's Xerces 3.2+
     
     set(LIBXSD_VERSION "4.2.0")
-    set(LIBXSD_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/external/libxsd")
-    set(LIBXSD_TAR_FILE "${LIBXSD_DOWNLOAD_DIR}/libxsd-${LIBXSD_VERSION}.tar.gz")
-    set(LIBXSD_EXTRACT_DIR "${LIBXSD_DOWNLOAD_DIR}/libxsd-${LIBXSD_VERSION}")
+    set(LIBXSD_DIR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}")
+    set(LIBXSD_TAR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}.tar.gz")
     
-    # Create download directory
-    file(MAKE_DIRECTORY ${LIBXSD_DOWNLOAD_DIR})
-    
-    # Download libxsd if not already downloaded
-    if(NOT EXISTS ${LIBXSD_TAR_FILE})
-        message(STATUS "Downloading libxsd ${LIBXSD_VERSION}...")
-        file(DOWNLOAD 
-            "https://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz"
-            ${LIBXSD_TAR_FILE}
-            SHOW_PROGRESS
-            STATUS DOWNLOAD_STATUS
-        )
+    if(NOT EXISTS ${LIBXSD_DIR})
+        message(STATUS "Downloading libxsd ${LIBXSD_VERSION} for Xerces 3.2+ compatibility...")
         
-        list(GET DOWNLOAD_STATUS 0 DOWNLOAD_ERROR)
-        if(DOWNLOAD_ERROR)
-            message(FATAL_ERROR "Failed to download libxsd: ${DOWNLOAD_STATUS}")
-        endif()
-    endif()
-    
-    # Extract libxsd if not already extracted
-    if(NOT EXISTS ${LIBXSD_EXTRACT_DIR})
-        message(STATUS "Extracting libxsd...")
+        # Try PowerShell download (HTTP first to avoid SSL issues in corporate environments)
         execute_process(
-            COMMAND ${CMAKE_COMMAND} -E tar xzf ${LIBXSD_TAR_FILE}
-            WORKING_DIRECTORY ${LIBXSD_DOWNLOAD_DIR}
-            RESULT_VARIABLE EXTRACT_RESULT
+            COMMAND powershell -Command "
+                try {
+                    Invoke-WebRequest -Uri 'http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz' -OutFile '${LIBXSD_TAR}' -UseBasicParsing
+                    exit 0
+                } catch {
+                    exit 1
+                }"
+            RESULT_VARIABLE DOWNLOAD_RESULT
+            OUTPUT_QUIET
+            ERROR_QUIET
         )
         
-        if(EXTRACT_RESULT)
-            message(FATAL_ERROR "Failed to extract libxsd")
+        # Extract if download succeeded, otherwise provide manual instructions
+        if(EXISTS ${LIBXSD_TAR})
+            message(STATUS "Extracting libxsd...")
+            execute_process(
+                COMMAND ${CMAKE_COMMAND} -E tar xzf ${LIBXSD_TAR}
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                RESULT_VARIABLE EXTRACT_RESULT
+            )
+            if(EXTRACT_RESULT)
+                message(FATAL_ERROR "Failed to extract libxsd. Please delete ${LIBXSD_TAR} and re-run CMake.")
+            endif()
+        else()
+            message(FATAL_ERROR 
+                "\nFailed to download libxsd automatically.\n"
+                "Please manually:\n"
+                "1. Download: http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz\n"
+                "2. Extract to: ${CMAKE_BINARY_DIR}\n"
+                "3. Re-run CMake\n"
+                "\nOr run this PowerShell command:\n"
+                "Invoke-WebRequest -Uri 'http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz' -OutFile '${LIBXSD_TAR}'")
         endif()
     endif()
     
     # Set XSD include directory to the downloaded libxsd
-    set(XSD_INCLUDE_DIRS "${LIBXSD_EXTRACT_DIR}")
-    set(XSD_INCLUDE_DIR "${LIBXSD_EXTRACT_DIR}")  # For FindXSD compatibility
-    set(XSD_ROOT "${LIBXSD_EXTRACT_DIR}")
+    set(XSD_INCLUDE_DIRS "${LIBXSD_DIR}")
+    set(XSD_INCLUDE_DIR "${LIBXSD_DIR}")
+    set(XSD_ROOT "${LIBXSD_DIR}")
     
-    message(STATUS "Using libxsd ${LIBXSD_VERSION} from: ${XSD_INCLUDE_DIRS}")
-    message(STATUS "NOTE: Ignoring any system-installed XSD to ensure Xerces 3.2+ compatibility")
+    message(STATUS "Using libxsd ${LIBXSD_VERSION} from: ${XSD_INCLUDE_DIR}")
 else()
     # For non-Windows, check if XSD is available or download libxsd
     find_path(XSD_INCLUDE_DIR xsd/cxx/parser/elements.hxx
