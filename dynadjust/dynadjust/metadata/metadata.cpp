@@ -34,6 +34,7 @@ std::mutex import_file_mutex;
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnastrutils.hpp>
+#include <include/functions/dnatimer.hpp>
 
 #include <include/parameters/dnadatum.hpp>
 
@@ -451,7 +452,7 @@ int main(int argc, char* argv[])
 		std::cout << "+ Parsing: " << std::endl;
 	}
 	
-	boost::timer::cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
+	cpu_timer time;	// constructor of cpu_timer calls start()
 
 	std::ifstream*	ifsDynaML_;
 	size_t		sifsFileSize_, measurementUpdateCount(0), unsureFrameCount(0), unsureEpochCount(0);
@@ -572,8 +573,8 @@ int main(int argc, char* argv[])
 		} 
 
 		// Finish up
-		time.stop();
-		elapsed_time = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		auto elapsed = time.elapsed();
+		elapsed_time = boost::posix_time::milliseconds(elapsed.wall.count() / MILLI_TO_NANO);
 
 		if (!p.g.quiet)
 		{
