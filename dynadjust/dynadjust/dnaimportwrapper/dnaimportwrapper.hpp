@@ -44,19 +44,15 @@
 #include <string>
 #include <time.h>
 #include <set>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/detail/absolute_path.hpp>
-/// \endcond
-
+#include <filesystem>
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-interface.hpp>
@@ -66,6 +62,7 @@
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatimer.hpp>
 
 #include <dynadjust/dnaimport/dnainterop.hpp>
 
@@ -74,7 +71,9 @@ using namespace dynadjust::exception;
 using namespace dynadjust::datum_parameters;
 
 extern bool running;
-extern boost::mutex cout_mutex;
+extern std::mutex cout_mutex;
+
+using dynadjust::cpu_timer;
 
 class dna_import_thread
 {
@@ -89,18 +88,18 @@ public:
 		, _status_msg(status_msg), _ms(ms) {};
 	void operator()()
 	{
-		boost::timer::cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
+		cpu_timer time;	// constructor of cpu_timer calls start()
 		try {
 			_dnaParse->ParseInputFile(_filename, 
 				_vStations, _stnCount, 
 				_vMeasurements, _msrCount, 
 				_clusterID, _input_file_meta, _firstFile,
 				_status_msg, _p);
-			*_ms = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+			*_ms = boost::posix_time::milliseconds(std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
 		} 
 		catch (const XMLInteropException& e) {
 			running = false;
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			std::stringstream err_msg;
 			cout_mutex.lock();
 			err_msg << std::endl << "- Error: " << e.what() << std::endl;
@@ -156,7 +155,7 @@ public:
 				std::cout.flush();
 				cout_mutex.unlock();
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			percentComplete = _dnaParse->GetProgress();
 		}
 	}

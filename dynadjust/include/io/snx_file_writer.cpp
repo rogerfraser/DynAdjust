@@ -1,5 +1,5 @@
 //============================================================================
-// Name         : dnaiosnxwrite.cpp
+// Name         : snx_file_writer.cpp
 // Author       : Roger Fraser
 // Contributors :
 // Version      : 1.00
@@ -24,39 +24,45 @@
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnachronutils.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_snx::serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords,
+// Constants for SINEX format
+constexpr const char* kSinexVersion = "%=SNX 2.00";
+constexpr const char* kAgencyCode = "DNA";
+constexpr size_t kMaxStationNameLength = 4;
+
+void DnaIoSnx::SerialiseSinex(std::ofstream* snx_file, pvstn_t bst_records,
 					binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 					matrix_2d* estimates, matrix_2d* variances, const project_settings& p,
-					UINT32& measurementParams, UINT32& unknownParams, double& sigmaZero,
-					uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
-					const UINT32& blockCount, const UINT32& block,
+					UINT32& measurement_params, UINT32& unknown_params, double& sigma_zero,
+					uint32_uint32_map* block_stations_map, vUINT32* block_stations,
+					const UINT32& block_count, const UINT32& block,
 					const CDnaDatum* datum)
 {
 	warningMessages_.clear();
 
-	blockCount_ = blockCount;
+	blockCount_ = block_count;
 	block_ = block;
 
-	unknownParams_ = unknownParams;
-	measurementParams_ = measurementParams;
-	sigmaZero_ = sigmaZero;
-	blockStationsMap_ = blockStationsMap;
-	blockStations_ = blockStations;
+	unknownParams_ = unknown_params;
+	measurementParams_ = measurement_params;
+	sigmaZero_ = sigma_zero;
+	blockStationsMap_ = block_stations_map;
+	blockStations_ = block_stations;
 
-	serialise_meta(snx_file, bst_meta, bms_meta, p, datum);
-	serialise_site_id(snx_file, bstRecords);
-	serialise_statistics(snx_file);
-	serialise_solution_estimates(snx_file, bstRecords, estimates, variances, datum);
-	serialise_solution_variances(snx_file, variances);
+	SerialiseMeta(snx_file, bst_meta, bms_meta, p, datum);
+	SerialiseSiteId(snx_file, bst_records);
+	SerialiseStatistics(snx_file);
+	SerialiseSolutionEstimates(snx_file, bst_records, estimates, variances, datum);
+	SerialiseSolutionVariances(snx_file, variances);
 
 	*snx_file << "%ENDSNX" << std::endl;
 }
 
-void dna_io_snx::print_line(std::ofstream* snx_file)
+void DnaIoSnx::PrintLine(std::ofstream* snx_file)
 {
 	*snx_file << 
 		"*-------------------------------------------------------------------------------" << 
@@ -64,25 +70,26 @@ void dna_io_snx::print_line(std::ofstream* snx_file)
 }
 	
 
-void dna_io_snx::serialise_meta(std::ofstream* snx_file, 
+void DnaIoSnx::SerialiseMeta(std::ofstream* snx_file, 
 	binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta, 
 	const project_settings& p, const CDnaDatum* datum)
 {
 	
 	*snx_file << 
-		"%=SNX 2.00 " <<				// SINEX version
-		"DNA "; 						// Agency creating this file
+		kSinexVersion << " " <<				// SINEX version
+		kAgencyCode << " "; 				// Agency creating this file
 
 	// Creation time of this SINEX file
-	dateSINEXFormat(snx_file, boost::gregorian::day_clock::local_day(), true);
+	dynadjust::DateSINEXFormat(snx_file, dynadjust::Today(), true);
 
 	// the agency providing the data in the SINEX file
-	*snx_file << " DNA ";
+	*snx_file << " " << kAgencyCode << " ";
 	
 	// adjustment epoch
-	dateSINEXFormat(snx_file, datum->GetEpoch());		// start
+	auto epoch = dynadjust::FromBoostDate(datum->GetEpoch().year(), datum->GetEpoch().month(), datum->GetEpoch().day());
+	dynadjust::DateSINEXFormat(snx_file, epoch);		// start
 	*snx_file << " ";
-	dateSINEXFormat(snx_file, datum->GetEpoch());		// end = start
+	dynadjust::DateSINEXFormat(snx_file, epoch);		// end = start
 	*snx_file << " ";
 	
 	std::stringstream numberofparams;
@@ -106,7 +113,7 @@ void dna_io_snx::serialise_meta(std::ofstream* snx_file,
 	 	std::endl;
 	
 	// FILE/REFERENCE
-	print_line(snx_file);
+	PrintLine(snx_file);
 	std::stringstream ss;
 
 	// description: Organization(s) gathering/altering the file contents.
@@ -145,7 +152,7 @@ void dna_io_snx::serialise_meta(std::ofstream* snx_file,
 	*snx_file << "-FILE/REFERENCE" << std::endl;
 
 	// FILE/COMMENTS
-	print_line(snx_file);
+	PrintLine(snx_file);
 	*snx_file << "+FILE/COMMENT" << std::endl;
 
 	// print explanation of block results
@@ -164,13 +171,13 @@ void dna_io_snx::serialise_meta(std::ofstream* snx_file,
 }
 	
 
-void dna_io_snx::add_warning(const std::string& message, SINEX_WARN_TYPE warning)
+void DnaIoSnx::AddWarning(const std::string& message, SinexWarnType warning)
 {
 	std::stringstream ss;
 
 	switch (warning)
 	{
-	case excessive_name_chars:
+	case SinexWarnType::kExcessiveNameChars:
 		ss << "Station name " << message << " exceeds four characters.";
 		break;
 	default:
@@ -181,11 +188,11 @@ void dna_io_snx::add_warning(const std::string& message, SINEX_WARN_TYPE warning
 }
 	
 
-void dna_io_snx::print_warnings(std::ofstream* warning_file, const std::string& fileName)
+void DnaIoSnx::PrintWarnings(std::ofstream* warning_file, const std::string& fileName)
 {
 	// Print formatted header
 	print_file_header(*warning_file, "DYNADJUST SINEX OUTPUT WARNINGS FILE");
-	*warning_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(fileName).string() << std::endl;
+	*warning_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(fileName).string() << std::endl;
 
 	*warning_file << OUTPUTLINE << std::endl << std::endl;
 
@@ -197,29 +204,29 @@ void dna_io_snx::print_warnings(std::ofstream* warning_file, const std::string& 
 }
 	
 
-void dna_io_snx::serialise_site_id(std::ofstream* snx_file, pvstn_t bstRecords)
+void DnaIoSnx::SerialiseSiteId(std::ofstream* snx_file, pvstn_t bst_records)
 {
 
-	print_line(snx_file);
+	PrintLine(snx_file);
 
 	*snx_file << "+SITE/ID" << std::endl;
 	*snx_file << "*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_" << std::endl;
 
 	const station_t* stn;
-	std::string stationName;
+	std::string station_name;
 
 	for (UINT32 i(0); i<blockStationsMap_->size(); ++i)
 	{
-		stn = &(bstRecords->at(blockStations_->at(i)));
-		stationName = stn->stationName;
+		stn = &(bst_records->at(blockStations_->at(i)));
+		station_name = stn->stationName;
 
-		if (stationName.length() > 4)
-			add_warning(stationName, excessive_name_chars);
+		if (station_name.length() > kMaxStationNameLength)
+			AddWarning(station_name, SinexWarnType::kExcessiveNameChars);
 
 		*snx_file << " " <<
-			std::left  << std::setw(4) << stationName.substr(0, 4) << " " <<
+			std::left  << std::setw(4) << station_name.substr(0, 4) << " " <<
 			std::right << std::setw(2) << "A" << " " <<
-			std::left << std::setw(9) << stationName.substr(0, 9) << " " <<
+			std::left << std::setw(9) << station_name.substr(0, 9) << " " <<
 			std::right << std::setw(1) << "P" << " " <<
 			std::left << std::setw(22) << std::string(stn->description).substr(0, 22) << " " <<
 			std::right << std::setw(11) << FormatDmsString(RadtoDms(stn->currentLongitude), 5, true, false) << " " <<
@@ -231,9 +238,9 @@ void dna_io_snx::serialise_site_id(std::ofstream* snx_file, pvstn_t bstRecords)
 }
 	
 
-void dna_io_snx::serialise_statistics(std::ofstream* snx_file)
+void DnaIoSnx::SerialiseStatistics(std::ofstream* snx_file)
 {
-	print_line(snx_file);
+	PrintLine(snx_file);
 
 	*snx_file << "+SOLUTION/STATISTICS" << std::endl;
 	*snx_file << "*_STATISTICAL PARAMETER________ __VALUE(S)____________" << std::endl;
@@ -255,10 +262,10 @@ void dna_io_snx::serialise_statistics(std::ofstream* snx_file)
 }
 	
 
-void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords,
+void DnaIoSnx::SerialiseSolutionEstimates(std::ofstream* snx_file, pvstn_t bst_records,
 				matrix_2d* estimates, matrix_2d* variances, const CDnaDatum* datum)
 {
-	print_line(snx_file);
+	PrintLine(snx_file);
 
 	*snx_file << "+SOLUTION/ESTIMATE" << std::endl;
 	*snx_file << "*INDEX TYPE__ CODE PT SOLN _REF_EPOCH__ UNIT S __ESTIMATED VALUE____ _STD_DEV___" << std::endl;
@@ -266,6 +273,9 @@ void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t b
 	UINT32 i, j, index(1);
 	std::string floating_value;
 	std::stringstream ss;
+	
+	// Convert epoch once for the entire function
+	auto epoch = dynadjust::FromBoostDate(datum->GetEpoch().year(), datum->GetEpoch().month(), datum->GetEpoch().day());
 
 	// Print stations
 	for (i=0; i<blockStationsMap_->size(); ++i)
@@ -279,13 +289,13 @@ void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t b
 			// parameter type
 			"STAX   " <<
 			// 4 character site code
-			std::left << std::setw(4) << std::string(bstRecords->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
+			std::left << std::setw(4) << std::string(bst_records->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
 			// Point code
 			std::right << std::setw(2) << "A" << " " <<
 			// Solution id
 			"0001 ";
 		// epoch
-		dateSINEXFormat(snx_file, datum->GetEpoch());
+		dynadjust::DateSINEXFormat(snx_file, epoch);
 
 		*snx_file << " " <<
 			// Parameter units
@@ -309,13 +319,13 @@ void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t b
 			// parameter type
 			"STAY   " <<
 			// 4 character site code
-			std::left << std::setw(4) << std::string(bstRecords->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
+			std::left << std::setw(4) << std::string(bst_records->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
 			// Point code
 			std::right << std::setw(2) << "A" << " " <<
 			// Solution id
 			"0001 ";
 		// epoch
-		dateSINEXFormat(snx_file, datum->GetEpoch());
+		dynadjust::DateSINEXFormat(snx_file, epoch);
 
 		*snx_file << " " <<
 			// Parameter units
@@ -339,13 +349,13 @@ void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t b
 			// parameter type
 			"STAZ   " <<
 			// 4 character site code
-			std::left << std::setw(4) << std::string(bstRecords->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
+			std::left << std::setw(4) << std::string(bst_records->at(blockStations_->at(i)).stationName).substr(0, 4) << " " <<
 			// Point code
 			std::right << std::setw(2) << "A" << " " <<
 			// Solution id
 			"0001 ";
 		// epoch
-		dateSINEXFormat(snx_file, datum->GetEpoch());
+		dynadjust::DateSINEXFormat(snx_file, epoch);
 
 		*snx_file << " " <<
 			// Parameter units
@@ -367,16 +377,16 @@ void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t b
 }
 	
 
-void dna_io_snx::print_matrix_index(std::ofstream* snx_file, const UINT32& row, const UINT32& col)
+void DnaIoSnx::PrintMatrixIndex(std::ofstream* snx_file, const UINT32& row, const UINT32& col)
 {
 	*snx_file << " " <<
 		std::right << std::setw(5) << row + 1 << " " <<
 		std::right << std::setw(5) << col + 1 << " ";
 }
 
-void dna_io_snx::serialise_solution_variances(std::ofstream* snx_file, matrix_2d* variances)
+void DnaIoSnx::SerialiseSolutionVariances(std::ofstream* snx_file, matrix_2d* variances)
 {
-	print_line(snx_file);
+	PrintLine(snx_file);
 
 	*snx_file << "+SOLUTION/MATRIX_ESTIMATE L COVA" << std::endl;
 	*snx_file << "*PARA1 PARA2 ____PARA2+0__________ ____PARA2+1__________ ____PARA2+2__________" << std::endl;
@@ -397,7 +407,7 @@ void dna_io_snx::serialise_solution_variances(std::ofstream* snx_file, matrix_2d
 		{
 			if (newRecord)
 			{
-				print_matrix_index(snx_file, row, col);
+				PrintMatrixIndex(snx_file, row, col);
 				newRecord = false;
 			}
 

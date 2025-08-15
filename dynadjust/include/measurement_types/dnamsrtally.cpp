@@ -435,7 +435,7 @@ UINT32 MsrTally::MeasurementCount(const char& msrType)
 	return 0;
 }
 
-// std::vector< boost::shared_ptr<CDnaMeasurement> >
+// std::vector< std::shared_ptr<CDnaMeasurement> >
 void MsrTally::CreateTally(const vdnaMsrPtr& vMeasurements)
 {
 	initialise();

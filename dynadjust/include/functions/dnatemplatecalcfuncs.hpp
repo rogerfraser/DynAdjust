@@ -34,8 +34,7 @@
 #include <numeric>
 #include <math.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
+#include <memory>
 /// \endcond
 
 #include <include/config/dnatypes.hpp>

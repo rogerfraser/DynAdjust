@@ -23,6 +23,7 @@
 #include <include/io/dnaiodna.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/measurement_types/dnameasurement_types.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::epsg;
@@ -76,7 +77,7 @@ void dna_io_dna::create_file_pointer(std::ofstream* ptr, const std::string& file
 		file_opener(*ptr, filename);
 	}
 	catch (const std::runtime_error& e) {
-		throw boost::enable_current_exception(std::runtime_error(e.what()));
+		throw std::runtime_error(e.what());
 	}
 }
 	
@@ -87,7 +88,7 @@ void dna_io_dna::open_file_pointer(std::ifstream* ptr, const std::string& filena
 		file_opener(*ptr, filename, std::ios::in, ascii, true);
 	}
 	catch (const std::runtime_error& e) {
-		throw boost::enable_current_exception(std::runtime_error(e.what()));
+		throw std::runtime_error(e.what());
 	}
 }
 
@@ -189,7 +190,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 				return;
 			std::stringstream ss;
 			ss << "read_ren_data(): Could not read from the renaming file." << std::endl;
-			boost::enable_current_exception(std::runtime_error(ss.str()));
+			std::runtime_error(ss.str());
 		}
 
 		// blank or whitespace?
@@ -215,7 +216,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 			std::stringstream ss;
 			ss << "read_ren_data(): Could not extract station name from the record:  " << 
 			 	std::endl << "    " << sBuf << std::endl;
-			boost::enable_current_exception(std::runtime_error(ss.str()));
+			std::runtime_error(ss.str());
 		}		
 
 		// Alternative names
@@ -263,11 +264,11 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 
 	// Attempt to get the file's version
 	try {
-		if (boost::iequals("!#=DNA", sBuf.substr(0, 6)))
+		if (iequals("!#=DNA", sBuf.substr(0, 6)))
 			version = trimstr(sBuf.substr(6, 6));
 	}
 	catch (const std::runtime_error& e) {
-		throw boost::enable_current_exception(std::runtime_error(e.what()));
+		throw std::runtime_error(e.what());
 	}
 
 	// Attempt to get the file's type
@@ -279,11 +280,11 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 		std::stringstream ssError;
 		ssError << "- Error: Unable to determine DNA file version." << std::endl <<
 			sBuf << std::endl << " " << e.what() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
+		throw std::runtime_error(ssError.str());
 	}
 
 	// Version 1
-	if (boost::iequals(version, "1.00"))
+	if (iequals(version, "1.00"))
 	{
 		idt = unknown;							// could be stn or msr
 		count = 100;							// set default 100 stations
@@ -299,27 +300,27 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 		std::stringstream ssError;
 		ssError << "- Error: File type has not been provided in the header" << std::endl <<
 			sBuf << std::endl << e.what() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
+		throw std::runtime_error(ssError.str());
 	}
 
 	// Station file
-	if (boost::iequals(type, "stn"))
+	if (iequals(type, "stn"))
 		idt = stn_data;
 	// Measurement file
-	else if (boost::iequals(type, "msr"))
+	else if (iequals(type, "msr"))
 		idt = msr_data;
 	// Geoid information file
-	else if (boost::iequals(type, "geo"))
+	else if (iequals(type, "geo"))
 		idt = geo_data;
 	// Station renaming
-	else if (boost::iequals(type, "ren"))
+	else if (iequals(type, "ren"))
 		idt = ren_data;
 	else
 	{
 		idt = unknown;
 		std::stringstream ssError;
 		ssError << "The supplied filetype '" << type << "' is not recognised" << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
+		throw std::runtime_error(ssError.str());
 	}
 
 	if (sBuf.length() < 29)
@@ -402,7 +403,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 		std::stringstream ssError;
 		ssError << "The supplied frame (" << file_referenceframe << ") is not recognised" << std::endl <<
 			e.what() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
+		throw std::runtime_error(ssError.str());
 	}	
 
 	// Attempt to get the data count
@@ -472,7 +473,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const std::string& stnfilen
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(std::runtime_error(f.what()));
+		throw std::runtime_error(f.what());
 	}
 }
 	
@@ -521,7 +522,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const std::string& stnfil
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(std::runtime_error(f.what()));
+		throw std::runtime_error(f.what());
 	}	
 }
 
@@ -596,7 +597,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(std::runtime_error(f.what()));
+		throw std::runtime_error(f.what());
 	}
 }
 	
@@ -634,7 +635,7 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const std::string& ms
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(std::runtime_error(f.what()));
+		throw std::runtime_error(f.what());
 	}
 	
 

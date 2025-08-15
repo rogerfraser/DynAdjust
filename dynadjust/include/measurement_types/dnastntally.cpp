@@ -21,6 +21,7 @@
 //============================================================================
 
 #include <include/measurement_types/dnastntally.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust {
 namespace measurements {
@@ -75,63 +76,63 @@ UINT32 StnTally::TotalCount() {
 
 void StnTally::addstation(const std::string& constraint) {
 		
-	if (boost::iequals(constraint, "CCC"))
+	if (iequals(constraint, "CCC"))
 		CCC += 1;
-	else if (boost::iequals(constraint, "FFF"))
+	else if (iequals(constraint, "FFF"))
 		FFF += 1;
-	else if (boost::iequals(constraint, "CCF"))
+	else if (iequals(constraint, "CCF"))
 		CCF += 1;
-	else if (boost::iequals(constraint, "CFF"))
+	else if (iequals(constraint, "CFF"))
 		CFF += 1;
-	else if (boost::iequals(constraint, "FFC"))
+	else if (iequals(constraint, "FFC"))
 		FFC += 1;
-	else if (boost::iequals(constraint, "FCC"))
+	else if (iequals(constraint, "FCC"))
 		FCC += 1;
-	else if (boost::iequals(constraint, "CFC"))
+	else if (iequals(constraint, "CFC"))
 		CFC += 1;
-	else if (boost::iequals(constraint, "FCF"))
+	else if (iequals(constraint, "FCF"))
 		FCF += 1;
 }
 	
 
 void StnTally::removestation(const std::string& constraint) {
 
-	if (boost::iequals(constraint, "CCC"))
+	if (iequals(constraint, "CCC"))
 	{
 		if (CCC > 0)
 			CCC -= 1;
 	}
-	else if (boost::iequals(constraint, "FFF"))
+	else if (iequals(constraint, "FFF"))
 	{
 		if (FFF > 0)
 			FFF -= 1;
 	}
-	else if (boost::iequals(constraint, "CCF"))
+	else if (iequals(constraint, "CCF"))
 	{
 		if (CCF > 0)
 			CCF -= 1;
 	}
-	else if (boost::iequals(constraint, "CFF"))
+	else if (iequals(constraint, "CFF"))
 	{
 		if (CFF > 0)
 			CFF -= 1;
 	}
-	else if (boost::iequals(constraint, "FFC"))
+	else if (iequals(constraint, "FFC"))
 	{
 		if (FFC > 0)
 			FFC -= 1;
 	}
-	else if (boost::iequals(constraint, "FCC"))
+	else if (iequals(constraint, "FCC"))
 	{
 		if (FCC > 0)
 			FCC -= 1;
 	}
-	else if (boost::iequals(constraint, "CFC"))
+	else if (iequals(constraint, "CFC"))
 	{
 		if (CFC > 0)
 			CFC -= 1;
 	}
-	else if (boost::iequals(constraint, "FCF"))
+	else if (iequals(constraint, "FCF"))
 	{
 		if (FCF > 0)
 			FCF -= 1;

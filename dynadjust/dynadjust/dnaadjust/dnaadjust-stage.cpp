@@ -51,7 +51,7 @@ void dna_adjust::PrepareMappedRegions(const UINT32& block)
 		ss << "  adjustment exist, or re-run the adjustment using the" << std::endl;
 		ss << "  --" << RECREATE_STAGE_FILES << " option." << std::endl;
 		adj_file << std::endl << "- Error: " << ss.str() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	

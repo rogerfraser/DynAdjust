@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
-#include <boost/timer/timer.hpp>
+#include <filesystem>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/io/adj_file.hpp>
 
@@ -78,18 +78,17 @@ void DynAdjustPrinter::PrintIteration(const UINT32& iteration) {
         adjust_.debug_file << iteration_message.str();		
 }
 
-void DynAdjustPrinter::PrintAdjustmentTime(boost::timer::cpu_timer& time, int timer_type) {
-    using namespace boost::posix_time;
-    
+void DynAdjustPrinter::PrintAdjustmentTime(cpu_timer& time, int timer_type) {
     // calculate and print total time
-    milliseconds ms(milliseconds(time.elapsed().wall/1000000));
-    time_duration t(ms);
+    auto elapsed = time.elapsed();
+    double seconds = elapsed.wall.count() / 1.0e9;
     
     std::stringstream ss;
-    if (t > seconds(1))
-        ss << seconds(static_cast<long>(t.total_seconds()));
-    else
-        ss << t;
+    if (seconds >= 1.0) {
+        ss << std::fixed << std::setprecision(3) << seconds << "s";
+    } else {
+        ss << std::fixed << std::setprecision(3) << (seconds * 1000.0) << "ms";
+    }
 
     if (timer_type == 0) // iteration_time equivalent
         adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Elapsed time" << ss.str() << std::endl;
@@ -149,7 +148,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
     
     // Print measurement correction
     PrintMeasurementCorrection(cardinal, it_msr);
-    
+   
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
         PrintMeasurementDatabaseID(it_msr, true);
@@ -171,7 +170,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
     
     // Print measurement correction
     PrintMeasurementCorrection(cardinal, it_msr);
-    
+   
     // Print measurement database ids if enabled
     if (adjust_.projectSettings_.o._database_ids) {
         PrintMeasurementDatabaseID(it_msr, true);
@@ -603,9 +602,6 @@ void DynAdjustPrinter::PrintAdjustedNetworkStations() {
     }
 }
 
-// PrintNetworkStationCorrections() - removed duplicate definition (see below)
-
-// Stage 3: Specialized measurement handlers
 void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adjustedMsrs) {
     // Direction set specific printing logic - simplified for Stage 3
     vmsr_t d_msr;
@@ -636,7 +632,6 @@ void DynAdjustPrinter::PrintDirectionSetMeasurements(it_vmsr_t& it_msr, bool adj
         ++_it_d_msr;
     }
 }
-
 
 // GPS cluster measurement method
 void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT32& block) {
@@ -670,7 +665,6 @@ void DynAdjustPrinter::PrintGPSClusterMeasurements(it_vmsr_t& it_msr, const UINT
     }
 }
 
-// Stage 3: Statistical and summary generators
 void DynAdjustPrinter::PrintStatistics(bool printPelzer) {
     // print statistics
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Number of unknown parameters" << std::fixed << std::setprecision(0) << adjust_.unknownParams_;
@@ -955,7 +949,6 @@ void DynAdjustPrinter::PrintAdjMeasurements_D(it_vmsr_t& _it_msr) {
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision    
         PrintAdjMeasurementsAngular(' ', _it_msr);
-
         _it_msr++;
     }
 }
@@ -1112,7 +1105,6 @@ void DynAdjustPrinter::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& d
     
     // Print linear measurement, taking care of user requirements for precision    
     PrintCompMeasurementsLinear(' ', computed, _it_msr->measCorr, _it_msr);
-
     design_row++;
 }
 
@@ -1124,7 +1116,7 @@ void DynAdjustPrinter::PrintStationFileHeader(std::ostream& os, std::string_view
     print_file_header(os, std::string("DYNADJUST ") + std::string(file_type) + " OUTPUT FILE");
     
     os << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << 
-        boost::filesystem::system_complete(filename).string() << std::endl << std::endl;
+        std::filesystem::absolute(filename).string() << std::endl << std::endl;
 }
 
 void DynAdjustPrinter::PrintStationColumnHeaders(std::ostream& os, const std::string& stn_coord_types,
@@ -2640,7 +2632,7 @@ void DynAdjustPrinter::PrintPositionalUncertainty()
 
         if (adjust_.projectSettings_.o._apply_type_b_file)
             apu_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
     }
 
     apu_file << OUTPUTLINE << std::endl << std::endl;
@@ -2885,12 +2877,12 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_
             adjust_.SignalExceptionAdjustment(e.what(), 0);
         }
 
-        dna_io_snx snx;
+        DnaIoSnx snx;
 
         try {
             // Print results for adjustment in SINEX format.
             // Throws runtime_error on failure.
-            snx.serialise_sinex(&sinex_file, &adjust_.bstBinaryRecords_,
+            snx.SerialiseSinex(&sinex_file, &adjust_.bstBinaryRecords_,
                 adjust_.bst_meta_, adjust_.bms_meta_, estimates, variances, adjust_.projectSettings_,
                 adjust_.measurementParams_, adjust_.unknownsCount_, adjust_.sigmaZero_,
                 &adjust_.v_blockStationsMap_.at(block), &adjust_.v_parameterStationList_.at(block),
@@ -2909,7 +2901,7 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_
 
         sinex_file.close();
 
-        if (!snx.warnings_exist())
+        if (!snx.WarningsExist())
             continue;
 
         success = false;
@@ -2923,14 +2915,13 @@ bool DynAdjustPrinter::PrintEstimatedStationCoordinatestoSNX(std::string& sinex_
             adjust_.SignalExceptionAdjustment(e.what(), 0);
         }
 
-        snx.print_warnings(&sinex_file, sinexFilename);
+        snx.PrintWarnings(&sinex_file, sinexFilename);
         sinex_file.close();		
     }
 
     return success;
 }
 
-// Stage 6: Export functions
 void DynAdjustPrinter::PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t) {
     // Measurements
     std::ofstream msr_file;
@@ -3361,16 +3352,16 @@ void DynAdjustPrinter::PrintOutputFileHeaderInfo()
     // Print formatted header
     print_file_header(adjust_.xyz_file, "DYNADJUST COORDINATE OUTPUT FILE");
 
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._adj_file).string() << std::endl << std::endl;
-    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(adjust_.projectSettings_.o._xyz_file).string() << std::endl << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(adjust_.projectSettings_.o._adj_file).string() << std::endl << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(adjust_.projectSettings_.o._xyz_file).string() << std::endl << std::endl;
 
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
     adjust_.adj_file << adjust_.projectSettings_.a.command_line_arguments << std::endl << std::endl;
 
     if (adjust_.projectSettings_.i.input_files.empty())
     {
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bst_file).string() << std::endl;
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(adjust_.projectSettings_.a.bms_file).string() << std::endl;
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(adjust_.projectSettings_.a.bst_file).string() << std::endl;
+        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(adjust_.projectSettings_.a.bms_file).string() << std::endl;
     }
     else
     {
@@ -3391,9 +3382,8 @@ void DynAdjustPrinter::PrintOutputFileHeaderInfo()
     
 
     // Geoid model
-    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
-    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
-
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << std::filesystem::absolute(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
+    adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << std::filesystem::absolute(adjust_.projectSettings_.n.ntv2_geoid_file).string() << std::endl;
     
     switch (adjust_.projectSettings_.a.adjust_mode)
     {
@@ -3455,9 +3445,9 @@ void DynAdjustPrinter::PrintOutputFileHeaderInfo()
         if (adjust_.projectSettings_.o._apply_type_b_file)
         {
             adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
             adjust_.xyz_file << std::setw(PRINT_VAR_PAD) << std::left << "Type B uncertainty file:" <<
-                boost::filesystem::system_complete(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
+                std::filesystem::absolute(adjust_.projectSettings_.a.type_b_file).string() << std::endl;
         }
     }
 
@@ -4376,6 +4366,7 @@ void DynAdjustPrinter::PrintPosUncertainty(std::ostream& os, const UINT32& block
             std::setprecision(PRECISION_UNCERTAINTY) << std::setw(MSR) << variances->get(2, 2) << std::endl;	// 33
     }
 }
+
 void DynAdjustPrinter::PrintPosUncertainties(std::ostream& os, const UINT32& block, const matrix_2d* stationVariances)
 {
     vUINT32 v_blockStations(adjust_.v_parameterStationList_.at(block));

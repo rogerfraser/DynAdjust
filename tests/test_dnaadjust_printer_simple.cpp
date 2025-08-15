@@ -4,7 +4,6 @@
 
 #include "testing.hpp"
 
-#include <boost/timer/timer.hpp>
 #include <sstream>
 #include <string>
 

@@ -35,6 +35,7 @@
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
 using namespace dynadjust::math;

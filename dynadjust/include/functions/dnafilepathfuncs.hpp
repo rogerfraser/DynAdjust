@@ -37,8 +37,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/detail/absolute_path.hpp>
+#include <filesystem>
 /// \endcond
 
 #include <include/config/dnaconsts.hpp>
@@ -58,7 +57,7 @@ T formPath(const T& folder, const T file)
 template <typename T>
 T leafStr(const T& filePath)
 {
-	return boost::filesystem::path(filePath).filename().string();
+	return std::filesystem::path(filePath).filename().string();
 }
 
 #endif //DNAFILEPATHFUNCS_H_

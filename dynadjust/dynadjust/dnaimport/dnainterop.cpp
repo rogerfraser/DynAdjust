@@ -1,3 +1,4 @@
+#include <filesystem>
 //============================================================================
 // Name         : dnainterop.cpp
 // Author       : Roger Fraser
@@ -19,9 +20,11 @@
 // Description  : DynAdjust Interoperability library
 //============================================================================
 
+#include <mutex>
 #include <dynadjust/dnaimport/dnainterop.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 //#include <include/io/DynaML-schema.hxx>
 
@@ -46,7 +49,7 @@ UINT32		g_fileOrder;
 namespace dynadjust {
 namespace dynamlinterop {
 
-boost::mutex import_file_mutex;
+std::mutex import_file_mutex;
 
 dna_import::dna_import()
 	: percentComplete_(-99.)
@@ -339,8 +342,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	else if (
 		// use boost::algorithm::ifind_first, which is a case insensitive implementation of the find first algorithm. 
 		strncmp(first_chars, "!#=DNA", 6) == 0 ||	// dna file?
-		boost::ifind_first(fileName, ".stn") ||			// dna station file
-		boost::ifind_first(fileName, ".msr"))				// dna measurement file
+		icontains(fileName, ".stn") ||			// dna station file
+		icontains(fileName, ".msr"))				// dna measurement file
 	{
 		// Set the file type
 		input_file_meta->filetype = dna;
@@ -638,11 +641,11 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
-        std::lock_guard<boost::mutex> lock(import_file_mutex);
+        std::lock_guard<std::mutex> lock(import_file_mutex);
 
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
-		dna_io_snx snx;
-		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
+		DnaIoSnx snx;
+		snx.ParseSinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
 			g_parsestn_tally, g_parsemsr_tally, g_fileOrder, 
 			datum_, projectSettings_.i.apply_discontinuities==1, &stn_discontinuities_, m_discontsSortedbyName,
 			m_lineNo, m_columnNo, parseStatus_);
@@ -668,9 +671,9 @@ void dna_import::ParseDiscontinuities(const std::string& fileName)
 
 	try {
 		// Load discontinuity file.  Throws runtime_error on failure.
-		dna_io_snx snx;
+		DnaIoSnx snx;
 		projectSettings_.i.apply_discontinuities = true;
-		snx.parse_discontinuity_file(&discont_file, fileName, 
+		snx.ParseDiscontinuityFile(&discont_file, fileName, 
 			&stn_discontinuities_, m_discontsSortedbyName, 
 			m_lineNo, m_columnNo, parseStatus_);
 	}
@@ -1555,7 +1558,7 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
 
-		ignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		ignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		switch (cType)
 		{
@@ -1848,13 +1851,13 @@ void dna_import::ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 	
 	// Number of baselines
 	UINT32 bslCount(1);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		msr_ptr->SetTotal(ParseMsrCountValue(sBuf, bslCount, "ParseDNAMSRGPSBaselines"));
 	msr_ptr->SetRecordedTotal(bslCount);
 	bslTmp.SetRecordedTotal(bslCount);
 
 	msr_ptr->GetBaselines_ptr()->reserve(bslCount);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		g_parsemsr_tally.X += bslCount * 3;
 	else
 		g_parsemsr_tally.G += bslCount * 3;
@@ -2862,7 +2865,7 @@ UINT32 dna_import::ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 		import_file_mutex.unlock();
 
 		// get ignore flag for sub direction and remove accordingly
-		subignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		subignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		if (subignoreMsr)
 		{
@@ -3726,7 +3729,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -3762,7 +3765,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -4941,11 +4944,11 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 		// Print formatted header
 		print_file_header(m2s_stream, "DYNADJUST MEASUREMENT TO STATION OUTPUT FILE");
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(m2s_file).string() << std::endl << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(m2s_file).string() << std::endl << std::endl;
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << boost::filesystem::system_complete(aml_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(bst_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(bms_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << std::filesystem::absolute(aml_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(bst_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(bms_file).string() << std::endl;
 
 		// Print station count
 		m2s_stream << std::endl;
@@ -5399,7 +5402,7 @@ void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& pro
 
 void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
 {
-	if (!boost::filesystem::exists(p->i.stn_renamingfile))
+	if (!std::filesystem::exists(p->i.stn_renamingfile))
 	{
 		std::string s("The station renaming file cannot be found:\n");
 		s.append("    ").append(p->i.stn_renamingfile);
@@ -5533,7 +5536,7 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 
 	if (!p->i.scalar_file.empty())
 	{
-		if (!boost::filesystem::exists(p->i.scalar_file))
+		if (!std::filesystem::exists(p->i.scalar_file))
 		{
 			std::string s("The GNSS scalar file cannot be found:\n");
 			s.append("    ").append(p->i.scalar_file);
@@ -5666,7 +5669,7 @@ void dna_import::SerialiseDiscontTextFile(const std::string& discont_file)
 	std::ofstream discont_outfile;
 	
 	try {
-		boost::filesystem::path discontFile(discont_file);
+		std::filesystem::path discontFile(discont_file);
 		std::string outfileName = discontFile.filename().string();
 		outfileName.append(".discont");
 		// Open discontinuity output file.  Throws runtime_error on failure.

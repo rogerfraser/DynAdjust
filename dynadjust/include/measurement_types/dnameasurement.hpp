@@ -42,6 +42,7 @@
 #include <fstream>
 
 #include <boost/shared_ptr.hpp>
+#include <memory>
 /// \endcond
 
 #include <include/functions/dnastrmanipfuncs.hpp>
@@ -123,13 +124,13 @@ class CDnaMeasurement;
 class CDnaCovariance;
 
 // measurement types
-typedef boost::shared_ptr<CDnaMeasurement> dnaMsrPtr;
+typedef std::shared_ptr<CDnaMeasurement> dnaMsrPtr;
 typedef std::vector<dnaMsrPtr> vdnaMsrPtr, *pvdnaMsrPtr;						// vector of dnaMsrPtr
 typedef vdnaMsrPtr::iterator _it_vdnamsrptr;
 typedef vdnaMsrPtr::const_iterator _it_vdnamsrptr_const;
 
-typedef boost::shared_ptr<CDnaCovariance> dnaCovariancePtr;
-typedef boost::shared_ptr< std::vector<CDnaCovariance> > vecCovariancePtr;
+typedef std::shared_ptr<CDnaCovariance> dnaCovariancePtr;
+typedef std::shared_ptr< std::vector<CDnaCovariance> > vecCovariancePtr;
 
 // data struct for storing measurement information to binary measurement file
 typedef struct msr_t {

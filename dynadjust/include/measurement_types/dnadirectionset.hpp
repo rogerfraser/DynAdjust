@@ -37,6 +37,8 @@
 #include <include/measurement_types/dnadirection.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
+#include <memory>
+
 namespace dynadjust {
 namespace measurements {
 

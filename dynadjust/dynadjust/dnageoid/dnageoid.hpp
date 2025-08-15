@@ -38,10 +38,9 @@
 #include <new>
 #include <math.h>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem/operations.hpp>
 /// \endcond
 
+#include <include/io/bst_file_loader.hpp>
 #include <include/io/bst_file.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
@@ -79,6 +78,8 @@
 
 #include <dynadjust/dnageoid/bicubic_interpolation.hpp>
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
+
+#include <filesystem>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;

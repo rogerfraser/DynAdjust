@@ -36,10 +36,6 @@
 #include <sstream>
 #include <string>
 #include <time.h>
-
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
 /// \endcond
 
 #include <include/config/dnaconsts-interface.hpp>

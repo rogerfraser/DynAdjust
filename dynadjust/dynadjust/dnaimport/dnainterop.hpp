@@ -38,12 +38,8 @@
 #include <cstdarg>
 #include <math.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/bind/bind.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/thread/mutex.hpp>
+#include <memory>
+#include <filesystem>
 /// \endcond
 
 #include <include/exception/dnaexception.hpp>

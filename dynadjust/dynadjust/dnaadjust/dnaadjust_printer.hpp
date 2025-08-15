@@ -8,7 +8,7 @@
 //                you may not use this file except in compliance with the License.
 //                You may obtain a copy of the License at
 //               
-//                http ://www.apache.org/licenses/LICENSE-2.0
+//                http://www.apache.org/licenses/LICENSE-2.0
 //               
 //                Unless required by applicable law or agreed to in writing, software
 //                distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,6 +44,7 @@
 #include <include/measurement_types/dnagpspoint.hpp>
 #include <include/io/dnaiodna.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/functions/dnatimer.hpp>
 
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
@@ -124,7 +125,7 @@ class DNAADJUST_API DynAdjustPrinter {
 
     // Utility functions
     void PrintIteration(const UINT32& iteration);
-    void PrintAdjustmentTime(boost::timer::cpu_timer& time, int timer_type);
+    void PrintAdjustmentTime(cpu_timer& time, int timer_type);
     void PrintAdjustmentStatus();
     void PrintMeasurementDatabaseID(const it_vmsr_t& it_msr, bool initialise_dbindex = false);
     void PrintAdjMeasurementStatistics(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex);
@@ -309,7 +310,6 @@ void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double&
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
 
-
 // Stage 4: Template implementations for station coordinate formatting
 template <typename CoordinateType>
 void DynAdjustPrinter::PrintStationCoordinates(std::ostream& os, const it_vstn_t& stn_it,
@@ -341,7 +341,6 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char car
 template <>
 void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
-
 
 // Stage 4: Station coordinate formatting specializations
 template <>

@@ -23,6 +23,7 @@
 #include <include/exception/dnaexception.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/measurement_types/dnagpspoint.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::exception;
 using namespace dynadjust::epsg;
@@ -155,7 +156,7 @@ bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 		fabs(m_dX - rhs.m_dX) < PRECISION_1E4 &&
 		fabs(m_dY - rhs.m_dY) < PRECISION_1E4 &&
 		fabs(m_dZ - rhs.m_dZ) < PRECISION_1E4 &&
-		boost::iequals(m_referenceFrame, rhs.m_referenceFrame)
+		iequals(m_referenceFrame, rhs.m_referenceFrame)
 		);
 }
 	

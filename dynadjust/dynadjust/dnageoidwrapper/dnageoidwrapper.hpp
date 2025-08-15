@@ -42,17 +42,12 @@
 #include <string.h>
 #include <set>
 
-#include <boost/chrono/time_point.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 /// \endcond
-
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
@@ -68,10 +63,14 @@
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnatimer.hpp>
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
 using namespace dynadjust::geoidinterpolation;
+
+// Use cpu_timer from dnatimer.hpp
+using dynadjust::cpu_timer;
 
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid);
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet);
