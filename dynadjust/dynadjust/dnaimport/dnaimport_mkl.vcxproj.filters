@@ -24,6 +24,9 @@
     <ClInclude Include="dnaparser_pskel.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="precompile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,10 +87,13 @@
     <ClInclude Include="..\..\include\io\dynadjust_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiosnx.hpp">
+    <ClInclude Include="..\..\include\io\dnaiosnxread.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnastntally.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\measurement_types\dnamsrtally.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\parameters\dnaprojection.hpp">
@@ -112,56 +118,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="dnainterop.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pimpl.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dnaparser_pskel.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnacoordinate.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnadirection.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnadirectionset.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnadistance.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnagpsbaseline.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnaheight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnaheightdifference.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnameasurement_types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\ide\trace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -208,6 +164,9 @@
     <ClCompile Include="dnaparser_pskel.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="precompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

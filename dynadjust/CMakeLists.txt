@@ -26,6 +26,11 @@ message("Configuring DynAdjust ${PROJECT_VERSION} ${CMAKE_BUILD_TYPE} Build")
 message("=====================================================================")
 message("")
 
+if (WIN32)
+    message(STATUS "Toolchain file: [${CMAKE_TOOLCHAIN_FILE}]")
+    message(STATUS "ENV VCPKG_ROOT: [$ENV{VCPKG_ROOT}]")
+endif()
+
 if(BUILD_TESTING)
     message(STATUS "Testing enabled (BUILD_TESTING=ON)")
     include(CTest)
@@ -116,9 +121,77 @@ message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 # XSD
 # ----------------------------------------------------------------------------
 
+if(WIN32)
+    set(LIBXSD_VERSION "4.2.0")
+    set(LIBXSD_DIR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}")
+    set(LIBXSD_TAR "${CMAKE_BINARY_DIR}/libxsd-${LIBXSD_VERSION}.tar.gz")
+    
+    if(NOT EXISTS ${LIBXSD_DIR})
+        message(STATUS "Downloading libxsd ${LIBXSD_VERSION} for Xerces 3.2+ compatibility...")
+        
+        execute_process(
+            COMMAND powershell -Command "
+                try {
+                    Invoke-WebRequest -Uri 'http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz' -OutFile '${LIBXSD_TAR}' -UseBasicParsing
+                    exit 0
+                } catch {
+                    exit 1
+                }"
+            RESULT_VARIABLE DOWNLOAD_RESULT
+            OUTPUT_QUIET
+            ERROR_QUIET
+        )
+        
+        if(EXISTS ${LIBXSD_TAR})
+            message(STATUS "Extracting libxsd...")
+            execute_process(
+                COMMAND ${CMAKE_COMMAND} -E tar xzf ${LIBXSD_TAR}
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                RESULT_VARIABLE EXTRACT_RESULT
+            )
+            if(EXTRACT_RESULT)
+                message(FATAL_ERROR "Failed to extract libxsd. Please delete ${LIBXSD_TAR} and re-run CMake.")
+            endif()
+        else()
+            message(FATAL_ERROR 
+                "\nFailed to download libxsd automatically.\n"
+                "Please manually:\n"
+                "1. Download: http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz\n"
+                "2. Extract to: ${CMAKE_BINARY_DIR}\n"
+                "3. Re-run CMake\n"
+                "\nOr run this PowerShell command:\n"
+                "Invoke-WebRequest -Uri 'http://www.codesynthesis.com/download/xsd/4.2/libxsd-${LIBXSD_VERSION}.tar.gz' -OutFile '${LIBXSD_TAR}'")
+        endif()
+    endif()
+    
+    # Set XSD include directory to the downloaded libxsd
+    set(XSD_INCLUDE_DIRS "${LIBXSD_DIR}")
+    set(XSD_INCLUDE_DIR "${LIBXSD_DIR}")
+    set(XSD_ROOT "${LIBXSD_DIR}")
+    
+    message(STATUS "Using libxsd ${LIBXSD_VERSION} from: ${XSD_INCLUDE_DIR}")
+
+else()
+    # For non-Windows, check if XSD is available or download libxsd
+    find_path(XSD_INCLUDE_DIR xsd/cxx/parser/elements.hxx
+        PATHS /usr/include /usr/local/include
+    )
+    
+    if(XSD_INCLUDE_DIR)
+        set(XSD_INCLUDE_DIRS ${XSD_INCLUDE_DIR})
+        message(STATUS "Found XSD include: ${XSD_INCLUDE_DIRS}")
+    endif()
+endif()
+
 add_compile_definitions(XSD_CXX11) # Tell XSD to use C++11 and later
-find_package(XSD REQUIRED)
-message(STATUS "Found XSD (${XSD_INCLUDE_DIR})")
+
+# Only call find_package(XSD) if we haven't already set up libxsd
+if(NOT XSD_INCLUDE_DIR)
+    find_package(XSD REQUIRED)
+    message(STATUS "Found XSD (${XSD_INCLUDE_DIR})")
+else()
+    message(STATUS "Using pre-configured XSD: ${XSD_INCLUDE_DIR}")
+endif()
 
 include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 
@@ -239,8 +312,30 @@ elseif(WIN32)
     endif()
 
     if(NOT USE_MKL)
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS C:/vcpkg/installed/x64-windows/include C:/vcpkg/installed/x64-windows/include/openblas /REQUIRED)
-        include_directories(${BLAS_INCLUDE_DIRS})
+        # Find OpenBLAS package which should set include directories
+        find_package(OpenBLAS CONFIG QUIET)
+        if(OpenBLAS_FOUND)
+            message(STATUS "Found OpenBLAS via CONFIG")
+            # OpenBLAS::OpenBLAS target should have include directories set
+            if(TARGET OpenBLAS::OpenBLAS)
+                list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS)
+            endif()
+        else()
+            # Fallback to manual search
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h
+                PATHS 
+                    ${CMAKE_PREFIX_PATH}/include
+                    ${CMAKE_PREFIX_PATH}/include/openblas
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/openblas
+                    C:/vcpkg/installed/x64-windows/include
+                    C:/vcpkg/installed/x64-windows/include/openblas
+                REQUIRED
+            )
+            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
+            include_directories(${BLAS_INCLUDE_DIRS})
+        endif()
     endif()
 
 elseif(UNIX)
@@ -261,8 +356,28 @@ elseif(UNIX)
     	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
     else()
         message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
-        find_path(BLAS_INCLUDE_DIRS cblas.h PATHS /usr/include/ /usr/local/include/ /usr/local/include/openblas/ REQUIRED)
-    	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        # Try to find OpenBLAS package first
+        find_package(OpenBLAS CONFIG QUIET)
+        if(OpenBLAS_FOUND AND TARGET OpenBLAS::OpenBLAS)
+            message(STATUS "Found OpenBLAS via CONFIG")
+            list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS ${LAPACK_LIBRARIES})
+        else()
+            # Fallback to manual search
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h 
+                PATHS 
+                    ${CMAKE_PREFIX_PATH}/include
+                    ${CMAKE_PREFIX_PATH}/include/openblas
+                    /usr/include
+                    /usr/local/include
+                    /usr/include/openblas
+                    /usr/local/include/openblas
+                REQUIRED
+            )
+            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
+            include_directories(${BLAS_INCLUDE_DIRS})
+            list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+        endif()
     endif()
 
 endif()

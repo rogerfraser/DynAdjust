@@ -18,7 +18,13 @@
     <ClInclude Include="dnasegment.hpp">  
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\measurement_types\dnamsrtally.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\bst_file.hpp">
@@ -42,9 +48,6 @@
     <ClInclude Include="..\..\include\io\seg_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\ide\trace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\ide\trace.cpp">
@@ -84,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\seg_file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dynadjust_file.cpp">

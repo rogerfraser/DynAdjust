@@ -77,11 +77,7 @@ typedef std::shared_ptr<CAStationList> ASLPtr;
 typedef std::vector<ASLPtr> vASLPtr, *pvASLPtr;
 
 
-#ifdef _MSC_VER
-class DNATYPE_API CAStationList
-#else
 class CAStationList
-#endif
 {
 public:
 	CAStationList();
@@ -143,11 +139,7 @@ protected:
 };
 	
 
-#ifdef _MSC_VER
-class DNATYPE_API CDnaStation
-#else
-class CDnaStation
-#endif	
+class CDnaStation	
 {
 public:
 	CDnaStation(const std::string& referenceframe, const std::string& epoch);

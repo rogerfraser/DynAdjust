@@ -116,7 +116,6 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
     <ClCompile Include="..\..\include\io\aml_file.cpp" />
     <ClCompile Include="..\..\include\io\asl_file.cpp" />
     <ClCompile Include="..\..\include\io\dynadjust_file.cpp" />
@@ -127,8 +126,11 @@
     <ClCompile Include="..\..\include\io\dnaioscalar.cpp" />
     <ClCompile Include="..\..\include\io\seg_file.cpp" />
     <ClCompile Include="..\..\include\io\dnaiosnxread.cpp" />
-    <ClCompile Include="..\..\include\io\DynaML-schema.cxx" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
+    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnadatum.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnaangle.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnacoordinate.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnadirection.cpp" />
@@ -138,16 +140,13 @@
     <ClCompile Include="..\..\include\measurement_types\dnagpspoint.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnaheight.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnaheightdifference.cpp" />
-    <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp" />
-    <ClCompile Include="..\..\include\parameters\dnadatum.cpp" />
-    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp" />
-    <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
-    <ClCompile Include="dnainterop.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnastation.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp" />
     <ClCompile Include="dnaparser_pimpl.cxx" />
     <ClCompile Include="dnaparser_pskel.cxx" />
-    <ClCompile Include="..\..\include\measurement_types\dnastation.cpp" />
+    <ClCompile Include="dnainterop.cpp" />
     <ClCompile Include="..\..\include\ide\trace.cpp" />
     <ClCompile Include="precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -164,8 +163,10 @@
     <ClInclude Include="..\..\include\io\map_file.hpp" />
     <ClInclude Include="..\..\include\io\dnaioscalar.hpp" />
     <ClInclude Include="..\..\include\io\seg_file.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiosnx.hpp" />
-    <ClInclude Include="..\..\include\io\DynaML-schema.hxx" />
+    <ClInclude Include="..\..\include\io\dnaiosnxread.hpp" />
+    <ClInclude Include="..\..\include\parameters\dnadatum.hpp" />
+    <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp" />
+    <ClInclude Include="..\..\include\parameters\dnaprojection.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnacoordinate.hpp" />
@@ -176,18 +177,15 @@
     <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaheight.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaheightdifference.hpp" />
-    <ClInclude Include="..\..\include\measurement_types\dnastntally.hpp" />
-    <ClInclude Include="..\..\include\parameters\dnadatum.hpp" />
-    <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp" />
-    <ClInclude Include="..\..\include\parameters\dnaprojection.hpp" />
-    <ClInclude Include="..\..\resource.h" />
-    <ClInclude Include="dnainterop.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp" />
-    <ClInclude Include="..\..\include\measurement_types\dnameasurement_types.hpp" />
-    <ClInclude Include="dnaparser_pimpl.hxx" />
-    <ClInclude Include="dnaparser_pskel.hxx" />
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp" />
+    <ClInclude Include="..\..\include\measurement_types\dnastntally.hpp" />
+    <ClInclude Include="..\..\include\measurement_types\dnamsrtally.hpp" />
+    <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\include\ide\trace.hpp" />
+    <ClInclude Include="dnainterop.hpp" />
+    <ClInclude Include="dnaparser_pskel.hxx" />
+    <ClInclude Include="dnaparser_pimpl.hxx" />
     <ClInclude Include="precompile.h" />
   </ItemGroup>
   <ItemGroup>

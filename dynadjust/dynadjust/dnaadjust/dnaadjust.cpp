@@ -9667,6 +9667,9 @@ void dna_adjust::LoadNetworkFiles()
                 &v_junctionVariances_,
                 &v_junctionVariancesFwd_);
         } else {
+            // For phased mode, we need to initialize blockCount_ to 1 initially
+            // The actual block count will be loaded from the segmentation file later
+            blockCount_ = 1;
             success = loader.LoadForPhased(
                 &bstBinaryRecords_,
                 bst_meta_,

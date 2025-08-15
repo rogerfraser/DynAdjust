@@ -1119,49 +1119,79 @@ void DynAdjustPrinter::PrintStationFileHeader(std::ostream& os, std::string_view
         std::filesystem::absolute(filename).string() << std::endl << std::endl;
 }
 
-void DynAdjustPrinter::PrintStationColumnHeaders(std::ostream& os, CoordinateOutputMode mode, bool include_uncertainties) {
-    UINT32 pad = PRINT_VAR_PAD;
+void DynAdjustPrinter::PrintStationColumnHeaders(std::ostream& os, const std::string& stn_coord_types,
+                                                const UINT16& printStationCorrections) {
+    // Print station and constraint columns
+    os << std::setw(STATION) << std::left << "Station" << std::setw(CONSTRAINT) << std::left << "Const";
     
-    os << std::setw(STATION) << std::left << "Station";
-    os << std::setw(CONSTRAINT) << std::left << "Constraint";
+    // Track total width for the dash line
+    UINT32 j(STATION + CONSTRAINT);
     
-    switch (mode) {
-    case CoordinateOutputMode::Geographic:
-        os << std::setw(14) << std::right << "Latitude" <<
-              std::setw(14) << std::right << "Longitude" <<
-              std::setw(10) << std::right << "Height";
-        pad += 14 + 14 + 10;
-        break;
-    case CoordinateOutputMode::Cartesian:
-        os << std::setw(14) << std::right << "X" <<
-              std::setw(14) << std::right << "Y" <<
-              std::setw(14) << std::right << "Z";
-        pad += 14 + 14 + 14;
-        break;
-    case CoordinateOutputMode::Projection:
-        os << std::setw(14) << std::right << "Easting" <<
-              std::setw(14) << std::right << "Northing" <<
-              std::setw(10) << std::right << "Zone" <<
-              std::setw(10) << std::right << "Height";
-        pad += 14 + 14 + 10 + 10;
-        break;
-    case CoordinateOutputMode::Mixed:
-        // Handle mixed mode based on project settings
-        os << std::setw(14) << std::right << "Coordinate 1" <<
-              std::setw(14) << std::right << "Coordinate 2" <<
-              std::setw(14) << std::right << "Coordinate 3";
-        pad += 14 + 14 + 14;
-        break;
+    // Print coordinate columns based on the coordinate types string
+    for (auto it_s = stn_coord_types.begin(); it_s != stn_coord_types.end(); ++it_s) {
+        char c = *it_s;
+        UINT32 width = 0;
+        bool validType = true;
+        
+        switch (c) {
+        case 'P':
+        case 'E':
+            width = LAT_EAST;
+            j += LAT_EAST;
+            break;
+        case 'L':
+        case 'N':
+            width = LON_NORTH;
+            j += LON_NORTH;
+            break;
+        case 'H':
+        case 'h':
+            width = HEIGHT;
+            j += HEIGHT;
+            break;
+        case 'z':
+            width = ZONE;
+            j += ZONE;
+            break;
+        case 'X':
+        case 'Y':
+        case 'Z':
+            width = XYZ;
+            j += XYZ;
+            break;
+        default:
+            validType = false;
+        }
+        
+        if (validType)
+            os << std::right << std::setw(width) << CDnaStation::CoordinateName(c);
     }
     
-    if (include_uncertainties) {
-        os << std::setw(10) << std::right << "Std Dev 1" <<
-              std::setw(10) << std::right << "Std Dev 2" <<
-              std::setw(10) << std::right << "Std Dev 3";
-        pad += 10 + 10 + 10;
+    // Print standard deviation columns
+    os << std::setw(PAD2) << " " << 
+        std::right << std::setw(STDDEV) << "SD(e)" << 
+        std::right << std::setw(STDDEV) << "SD(n)" << 
+        std::right << std::setw(STDDEV) << "SD(up)";
+    
+    j += PAD2 + STDDEV + STDDEV + STDDEV + PAD2 + COMMENT;
+    
+    // Print correction columns if requested
+    if (printStationCorrections) {
+        os << std::setw(PAD2) << " " << 
+            std::right << std::setw(HEIGHT) << "Corr(e)" << 
+            std::right << std::setw(HEIGHT) << "Corr(n)" << 
+            std::right << std::setw(HEIGHT) << "Corr(up)";
+        
+        j += PAD2 + HEIGHT + HEIGHT + HEIGHT;
     }
     
-    os << std::endl << std::setfill('-') << std::setw(pad) << "" << std::setfill(' ') << std::endl;
+    // Print description column
+    os << std::setw(PAD2) << " " << std::left << "Description" << std::endl;
+    
+    // Print the dash line
+    for (UINT32 i = 0; i < j; ++i)
+        os << "-";
+    os << std::endl;
 }
 
 void DynAdjustPrinter::PrintPositionalUncertaintyHeader(std::ostream& os, std::string_view filename) {
@@ -1343,9 +1373,9 @@ void DynAdjustPrinter::PrintStationCorrelations(std::ostream& cor_file, const UI
 
 void DynAdjustPrinter::PrintStationsInBlock(std::ostream& os, const UINT32& block,
                                            const matrix_2d* estimates, const matrix_2d* variances,
-                                           CoordinateOutputMode mode) {
+                                           const std::string& stn_coord_types, const UINT16& printStationCorrections) {
     // Print header
-    PrintStationColumnHeaders(os, mode, variances != nullptr);
+    PrintStationColumnHeaders(os, stn_coord_types, printStationCorrections);
     
     // Print stations for this block - simplified implementation
     os << "Stations for block " << (block + 1) << " printed using existing detailed implementation." << std::endl;
@@ -1353,9 +1383,9 @@ void DynAdjustPrinter::PrintStationsInBlock(std::ostream& os, const UINT32& bloc
 
 void DynAdjustPrinter::PrintUniqueStationsList(std::ostream& os, 
                                               const matrix_2d* estimates, const matrix_2d* variances,
-                                              CoordinateOutputMode mode) {
+                                              const std::string& stn_coord_types, const UINT16& printStationCorrections) {
     // Print unique stations across all blocks
-    PrintStationColumnHeaders(os, mode, variances != nullptr);
+    PrintStationColumnHeaders(os, stn_coord_types, printStationCorrections);
     os << "Unique stations list printed using existing detailed implementation." << std::endl;
 }
 
@@ -1364,7 +1394,8 @@ void DynAdjustPrinter::PrintAdjStationsUniqueList(std::ostream& os,
                                                            bool recomputeGeographicCoords, bool updateGeographicCoords,
                                                            bool reapplyTypeBUncertainties) {
     // Use new printer infrastructure for header generation
-    PrintStationColumnHeaders(os, CoordinateOutputMode::Geographic, stationVariances != nullptr);
+    PrintStationColumnHeaders(os, adjust_.projectSettings_.o._stn_coord_types, 
+                            stationVariances != nullptr ? adjust_.projectSettings_.o._stn_corr : 0);
     
     UINT32 block(UINT_MAX), stn, mat_index;
     _it_u32u32_uint32_pair _it_bsmu;
@@ -1517,13 +1548,13 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
             PrintLongitudeCoordinate(os, est_lon);
             break;
         case 'E': // Easting
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << easting;
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LAT_EAST) << easting;
             break;
         case 'N': // Northing
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << northing;
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(LON_NORTH) << northing;
             break;
         case 'z': // Zone
-            os << std::setprecision(0) << std::fixed << std::right << std::setw(6) << zone;
+            os << std::setprecision(0) << std::fixed << std::right << std::setw(ZONE) << zone;
             break;
         case 'H': // Orthometric height
             PrintOrthometricHeight(os, est_height, stn_it);
@@ -1532,15 +1563,15 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
             PrintEllipsoidalHeight(os, est_height);
             break;
         case 'X': // Cartesian X
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx, 0);
             break;
         case 'Y': // Cartesian Y
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx+1, 0);
             break;
         case 'Z': // Cartesian Z
-            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(14) << 
+            os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(XYZ) << 
                 estimates->get(mat_idx+2, 0);
             break;
         }
@@ -1549,50 +1580,50 @@ void DynAdjustPrinter::PrintStationCoordinatesByType(std::ostream& os,
 
 void DynAdjustPrinter::PrintLatitudeCoordinate(std::ostream& os, double latitude) {
     if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
             RadtoDms(latitude);
     } else {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LAT_EAST) <<
             Degrees(latitude);
     }
 }
 
 void DynAdjustPrinter::PrintLongitudeCoordinate(std::ostream& os, double longitude) {
     if (adjust_.projectSettings_.o._angular_type_stn == DMS) {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) << 
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) << 
             RadtoDmsL(longitude);
     } else {
-        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(14) <<
+        os << std::setprecision(4 + adjust_.PRECISION_SEC_STN) << std::fixed << std::right << std::setw(LON_NORTH) <<
             DegreesL(longitude);
     }
 }
 
 void DynAdjustPrinter::PrintOrthometricHeight(std::ostream& os, double height, const it_vstn_t& stn_it) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << std::right << StringFromTW((height - stn_it->geoidSep), UINT16(10), adjust_.PRECISION_MTR_STN);
+        os << std::right << StringFromTW((height - stn_it->geoidSep), HEIGHT, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << 
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << 
             height - stn_it->geoidSep;
     }
 }
 
 void DynAdjustPrinter::PrintEllipsoidalHeight(std::ostream& os, double height) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << std::right << StringFromTW(height, UINT16(10), adjust_.PRECISION_MTR_STN);
+        os << std::right << StringFromTW(height, HEIGHT, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(10) << height;
+        os << std::setprecision(adjust_.PRECISION_MTR_STN) << std::fixed << std::right << std::setw(HEIGHT) << height;
     }
 }
 
 void DynAdjustPrinter::PrintStationUncertainties(std::ostream& os, const matrix_2d& var_local) {
     if (adjust_.isAdjustmentQuestionable_) {
-        os << StringFromTW(sqrt(var_local.get(0, 0)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
-              StringFromTW(sqrt(var_local.get(1, 1)), UINT16(8), adjust_.PRECISION_MTR_STN) <<
-              StringFromTW(sqrt(var_local.get(2, 2)), UINT16(8), adjust_.PRECISION_MTR_STN);
+        os << StringFromTW(sqrt(var_local.get(0, 0)), STDDEV, adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(1, 1)), STDDEV, adjust_.PRECISION_MTR_STN) <<
+              StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, adjust_.PRECISION_MTR_STN);
     } else {
-        os << std::setw(8) << std::right << StringFromT(sqrt(var_local.get(0, 0)), adjust_.PRECISION_MTR_STN) <<
-              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(1, 1)), adjust_.PRECISION_MTR_STN) <<
-              std::setw(8) << std::right << StringFromT(sqrt(var_local.get(2, 2)), adjust_.PRECISION_MTR_STN);
+        os << std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(0, 0)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(1, 1)), adjust_.PRECISION_MTR_STN) <<
+              std::setw(STDDEV) << std::right << StringFromT(sqrt(var_local.get(2, 2)), adjust_.PRECISION_MTR_STN);
     }
 }
 
@@ -3254,40 +3285,38 @@ void DynAdjustPrinter::PrintBlockStations(std::ostream& os, const UINT32& block,
 
     try {
 
-        if (printHeader) {
-            PrintStationColumnHeaders(os, CoordinateOutputMode::Geographic, stationVariances != nullptr);
-        }
-
         // if required, sort stations according to original station file order
         if (adjust_.projectSettings_.o._sort_stn_file_order)
             adjust_.SortStationsbyFileOrder(v_blockStations);
 
-        switch (adjust_.projectSettings_.a.adjust_mode)
-        {
-        case SimultaneousMode:
-            adj.print_stn_info_col_header(os, 
-                adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
-            break;
-        case PhasedMode:
-        case Phased_Block_1Mode:		// only the first block is rigorous
-            // Print stations in each block?
-            if (adjust_.projectSettings_.o._output_stn_blocks)
+        if (printHeader) {
+            switch (adjust_.projectSettings_.a.adjust_mode)
             {
-                if (printBlockID)
-                    os << "Block " << block + 1 << std::endl;
-                else if (adjust_.projectSettings_.o._adj_stn_iteration)
-                    adj.print_adj_stn_block_header(os, block);
-            
-                adj.print_stn_info_col_header(os, 
+            case SimultaneousMode:
+                PrintStationColumnHeaders(os, 
                     adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
-            }
-            else 
-            {
-                if (block == 0)
-                    adj.print_stn_info_col_header(os, 
+                break;
+            case PhasedMode:
+            case Phased_Block_1Mode:		// only the first block is rigorous
+                // Print stations in each block?
+                if (adjust_.projectSettings_.o._output_stn_blocks)
+                {
+                    if (printBlockID)
+                        os << "Block " << block + 1 << std::endl;
+                    else if (adjust_.projectSettings_.o._adj_stn_iteration)
+                        adj.print_adj_stn_block_header(os, block);
+                
+                    PrintStationColumnHeaders(os, 
                         adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+                }
+                else 
+                {
+                    if (block == 0)
+                        PrintStationColumnHeaders(os, 
+                            adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
+                }
+                break;
             }
-            break;
         }
 
     }
@@ -4945,7 +4974,7 @@ void DynAdjustPrinter::PrintAdjStations(std::ostream& os, const UINT32& block,
         switch (adjust_.projectSettings_.a.adjust_mode)
         {
         case SimultaneousMode:
-            adj.print_stn_info_col_header(os, 
+            PrintStationColumnHeaders(os, 
                 adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
             break;
         case PhasedMode:
@@ -4958,13 +4987,13 @@ void DynAdjustPrinter::PrintAdjStations(std::ostream& os, const UINT32& block,
                 else if (adjust_.projectSettings_.o._adj_stn_iteration)
                     adj.print_adj_stn_block_header(os, block);
             
-                adj.print_stn_info_col_header(os, 
+                PrintStationColumnHeaders(os, 
                     adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
             }
             else 
             {
                 if (block == 0)
-                    adj.print_stn_info_col_header(os, 
+                    PrintStationColumnHeaders(os, 
                         adjust_.projectSettings_.o._stn_coord_types, adjust_.projectSettings_.o._stn_corr);
             }
             break;

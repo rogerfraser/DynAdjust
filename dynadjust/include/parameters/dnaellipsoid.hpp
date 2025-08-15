@@ -42,7 +42,7 @@
 namespace dynadjust {
 namespace datum_parameters {
 
-class DNATYPE_API CDnaEllipsoid
+class CDnaEllipsoid
 {
 public:
 

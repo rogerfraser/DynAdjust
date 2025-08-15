@@ -37,6 +37,7 @@ set(IO_COMMON_SOURCES
 add_executable(test_matrix
     test_matrix.cpp
     ../dynadjust/include/math/dnamatrix_contiguous.cpp
+    ../dynadjust/include/ide/trace.cpp
 )
 
 target_link_libraries(test_matrix

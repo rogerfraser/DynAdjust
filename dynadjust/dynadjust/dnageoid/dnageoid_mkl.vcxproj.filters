@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dnageoid.hpp"> 
+    <ClInclude Include="dnageoid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bicubic_interpolation.hpp">
@@ -42,6 +42,12 @@
     <ClInclude Include="..\..\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\parameters\dnadatum.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnageoid.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="precompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

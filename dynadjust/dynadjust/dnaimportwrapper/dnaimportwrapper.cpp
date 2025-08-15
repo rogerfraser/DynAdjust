@@ -1162,10 +1162,13 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					std::stringstream epochSource;
 					if (isStaticFrame)
 					{
-						epochSource << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ")." << std::endl;
-						if (!p.g.quiet)
-							std::cout << epochSource.str();
-						*imp_file << epochSource.str();
+                        if (!boost::iequals(p.i.epoch, inputFileEpoch)) 
+						{
+                            epochSource << "  - Warning: File epoch (" << inputFileEpoch
+                                        << ") differs from project epoch (" << p.i.epoch << ")." << std::endl;
+                            if (!p.g.quiet) std::cout << epochSource.str();
+                            *imp_file << epochSource.str();
+                        }
 					}
 					else
 					{
