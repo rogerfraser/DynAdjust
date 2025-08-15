@@ -20,6 +20,7 @@
 //============================================================================
 
 #include <include/math/dnamatrix_contiguous.hpp>
+#include <include/ide/trace.hpp>
 
 namespace dynadjust {
 namespace math {
