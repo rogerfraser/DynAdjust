@@ -72,9 +72,9 @@ jobs:
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
-                echo "::error title=Test results: $FIRST_LINE::$SUMMARY_CONTENT"
+                echo "::error title=Test results (openblas): $FIRST_LINE::$SUMMARY_CONTENT"
               else
-                echo "::notice title=Test results: $FIRST_LINE::$SUMMARY_CONTENT"
+                echo "::notice title=Test results (openblas): $FIRST_LINE::$SUMMARY_CONTENT"
               fi
             else
               echo "::error title=Test Error::Could not find test summary in ctest output"
@@ -160,9 +160,9 @@ jobs:
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
-                echo "::error title=Test results: $FIRST_LINE::$SUMMARY_CONTENT"
+                echo "::error title=Test results (mkl): $FIRST_LINE::$SUMMARY_CONTENT"
               else
-                echo "::notice title=Test results: $FIRST_LINE::$SUMMARY_CONTENT"
+                echo "::notice title=Test results (mkl): $FIRST_LINE::$SUMMARY_CONTENT"
               fi
             else
               echo "::error title=Test Error::Could not find test summary in ctest output"
