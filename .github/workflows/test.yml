@@ -23,7 +23,7 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
         libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev gmt
+        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev gmt ghostscript
 
     steps:
 
@@ -59,7 +59,7 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
         libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev gmt
+        libboost-thread-dev libboost-program-options-dev gmt ghostscript
 
     steps:
 
