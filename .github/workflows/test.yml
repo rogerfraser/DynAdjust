@@ -1,0 +1,106 @@
+# Compile and build binaries
+#
+# For updated Intel OneAPI URLs, see:
+# https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
+
+name: Run tests
+
+on:
+  workflow_dispatch:
+  push:
+
+env:
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ac050ae7-da93-4108-823d-4334de3f4ee8/intel-oneapi-base-toolkit-2025.1.2.9_offline.sh
+
+
+jobs:
+#------------------------------------------------
+
+  build_linux_dyn_openblas:
+    name: Run tests on Linux (openblas)
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
+        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+
+    steps:
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get install -y ${{ env.PKGS }}
+
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+          
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      - name: Build with CMake
+        run: |
+          cmake dynadjust -DBUILD_TESTING=ON
+          make -j2
+          ls
+          
+      - name: Run tests
+        run: |
+          ctest --verbose
+          
+#------------------------------------------------
+
+  build_linux_dyn_mkl:
+    name: Run tests on Linux (mkl)
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
+        libboost-thread-dev libboost-program-options-dev
+
+    steps:
+
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get install -y ${{ env.PKGS }}
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v4
+        with:
+          path: /opt/intel
+          key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        run: |
+          curl -L $LINUX_BASEKIT_URL -o install.sh
+          sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
+
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      - name: Build with CMake
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          cmake dynadjust -DBUILD_TESTING=ON
+          make -j2
+          
+      - name: Run tests
+        run: |
+          ctest --verbose
+
