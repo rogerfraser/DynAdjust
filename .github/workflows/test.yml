@@ -59,23 +59,23 @@ jobs:
         shell: bash
         run: |
           if [ -f ctest_output.log ]; then
-            # Extract summary information
-            TOTAL_TESTS=$(grep -o "[0-9]\+ tests passed" ctest_output.log | grep -o "[0-9]\+" | head -1 || echo "0")
-            FAILED_TESTS=$(grep -o "[0-9]\+ tests failed" ctest_output.log | grep -o "[0-9]\+" | head -1 || echo "0")
-            PASSED_TESTS=$((TOTAL_TESTS + FAILED_TESTS - FAILED_TESTS))
+            # Find the line with "tests passed" and get everything from there to the end
+            SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
             
-            if [ "$FAILED_TESTS" -gt 0 ]; then
-              echo "::error title=Test Summary::$FAILED_TESTS out of $((TOTAL_TESTS + FAILED_TESTS)) tests failed"
+            if [ -n "$SUMMARY_LINE" ]; then
+              # Get the multiline summary from the tests passed line onwards
+              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | tr '\n' '\a')
+              # Replace newlines with %0A for GitHub Actions annotation
+              SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
               
-              # Extract failed test details
-              grep -A 1000 "The following tests FAILED:" ctest_output.log | grep "^ *[0-9]\+ -" | while read line; do
-                TEST_NUM=$(echo "$line" | grep -o "^ *[0-9]\+" | tr -d ' ')
-                TEST_NAME=$(echo "$line" | sed 's/^ *[0-9]\+ - \([^(]*\).*/\1/' | tr -d ' ')
-                FAILURE_TYPE=$(echo "$line" | grep -o "([^)]*)" | tr -d '()' || echo "Failed")
-                echo "::error title=Test Failed::Test $TEST_NUM ($TEST_NAME) - $FAILURE_TYPE"
-              done
+              # Check if there are failed tests
+              if grep -q "tests failed" ctest_output.log; then
+                echo "::error title=CTest Results::$SUMMARY_CONTENT"
+              else
+                echo "::notice title=CTest Results::$SUMMARY_CONTENT"
+              fi
             else
-              echo "::notice title=Test Summary::All tests passed successfully!"
+              echo "::error title=Test Error::Could not find test summary in ctest output"
             fi
           else
             echo "::error title=Test Error::Could not find ctest output file"
@@ -144,23 +144,23 @@ jobs:
         shell: bash
         run: |
           if [ -f ctest_output.log ]; then
-            # Extract summary information
-            TOTAL_TESTS=$(grep -o "[0-9]\+ tests passed" ctest_output.log | grep -o "[0-9]\+" | head -1 || echo "0")
-            FAILED_TESTS=$(grep -o "[0-9]\+ tests failed" ctest_output.log | grep -o "[0-9]\+" | head -1 || echo "0")
-            PASSED_TESTS=$((TOTAL_TESTS + FAILED_TESTS - FAILED_TESTS))
+            # Find the line with "tests passed" and get everything from there to the end
+            SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
             
-            if [ "$FAILED_TESTS" -gt 0 ]; then
-              echo "::error title=Test Summary::$FAILED_TESTS out of $((TOTAL_TESTS + FAILED_TESTS)) tests failed"
+            if [ -n "$SUMMARY_LINE" ]; then
+              # Get the multiline summary from the tests passed line onwards
+              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | tr '\n' '\a')
+              # Replace newlines with %0A for GitHub Actions annotation
+              SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
               
-              # Extract failed test details
-              grep -A 1000 "The following tests FAILED:" ctest_output.log | grep "^ *[0-9]\+ -" | while read line; do
-                TEST_NUM=$(echo "$line" | grep -o "^ *[0-9]\+" | tr -d ' ')
-                TEST_NAME=$(echo "$line" | sed 's/^ *[0-9]\+ - \([^(]*\).*/\1/' | tr -d ' ')
-                FAILURE_TYPE=$(echo "$line" | grep -o "([^)]*)" | tr -d '()' || echo "Failed")
-                echo "::error title=Test Failed::Test $TEST_NUM ($TEST_NAME) - $FAILURE_TYPE"
-              done
+              # Check if there are failed tests
+              if grep -q "tests failed" ctest_output.log; then
+                echo "::error title=CTest Results::$SUMMARY_CONTENT"
+              else
+                echo "::notice title=CTest Results::$SUMMARY_CONTENT"
+              fi
             else
-              echo "::notice title=Test Summary::All tests passed successfully!"
+              echo "::error title=Test Error::Could not find test summary in ctest output"
             fi
           else
             echo "::error title=Test Error::Could not find ctest output file"
