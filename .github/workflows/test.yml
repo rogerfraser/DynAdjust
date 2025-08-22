@@ -49,7 +49,7 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          ctest --verbose --output-on-failure 2>&1 | tee ctest_output.log
+          ctest --output-on-failure 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -66,9 +66,12 @@ jobs:
               # Get the first line (the summary line)
               FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
               # Get the multiline summary from the tests passed line onwards
-              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | tr '\n' '\a')
+              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
+              # Add full log after summary
+              FULL_LOG=$(cat ctest_output.log | sed ':a;N;$!ba;s/\n/%0A/g')
+              SUMMARY_CONTENT="$SUMMARY_CONTENT%0A%0A$FULL_LOG"
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
@@ -137,7 +140,7 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           set +e
-          ctest --verbose --output-on-failure 2>&1 | tee ctest_output.log
+          ctest --output-on-failure 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -154,9 +157,12 @@ jobs:
               # Get the first line (the summary line)
               FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
               # Get the multiline summary from the tests passed line onwards
-              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | tr '\n' '\a')
+              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
+              # Add full log after summary
+              FULL_LOG=$(cat ctest_output.log | sed ':a;N;$!ba;s/\n/%0A/g')
+              SUMMARY_CONTENT="$SUMMARY_CONTENT%0A%0A$FULL_LOG"
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
