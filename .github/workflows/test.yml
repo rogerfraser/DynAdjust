@@ -69,9 +69,6 @@ jobs:
               SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
-              # Add full log after summary
-              FULL_LOG=$(cat ctest_output.log | sed ':a;N;$!ba;s/\n/%0A/g')
-              SUMMARY_CONTENT="$SUMMARY_CONTENT%0A%0A$FULL_LOG"
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
@@ -160,9 +157,6 @@ jobs:
               SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
-              # Add full log after summary
-              FULL_LOG=$(cat ctest_output.log | sed ':a;N;$!ba;s/\n/%0A/g')
-              SUMMARY_CONTENT="$SUMMARY_CONTENT%0A%0A$FULL_LOG"
               
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
