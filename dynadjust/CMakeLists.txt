@@ -293,7 +293,7 @@ elseif(WIN32)
 
     message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
 
-    find_package(BLAS REQUIRED)
+    find_package(BLAS MODULE REQUIRED)
     add_link_options(${BLAS_LINKER_FLAGS})
     message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
@@ -303,7 +303,7 @@ elseif(WIN32)
         set(BLA_VENDOR "Generic" CACHE STRING "Force Generic" FORCE)
     endif()
 
-    find_package(LAPACK)
+    find_package(LAPACK MODULE)
     if (LAPACK_FOUND)
         add_link_options(${LAPACK_LINKER_FLAGS})
         message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
