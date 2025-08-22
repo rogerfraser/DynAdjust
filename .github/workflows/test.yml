@@ -10,6 +10,7 @@ on:
   push:
 
 env:
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2cbb02eb-dd4c-4058-a4ac-2e38729a8409/intel-oneapi-base-toolkit-2025.1.2.7_offline.exe
   LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ac050ae7-da93-4108-823d-4334de3f4ee8/intel-oneapi-base-toolkit-2025.1.2.9_offline.sh
 
 
