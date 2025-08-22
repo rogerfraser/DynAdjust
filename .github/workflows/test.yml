@@ -173,7 +173,7 @@ jobs:
 
 
   ctest_windows_dyn_mkl:
-    name: Windows build (mkl)
+    name: Run tests on Windows (mkl)
     runs-on: windows-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
