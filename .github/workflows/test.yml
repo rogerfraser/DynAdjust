@@ -49,7 +49,7 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          ctest --output-on-failure 2>&1 | tee ctest_output.log
+          ctest --output-on-failure --timeout 30 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -137,7 +137,7 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           set +e
-          ctest --output-on-failure 2>&1 | tee ctest_output.log
+          ctest --output-on-failure --timeout 30 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
