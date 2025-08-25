@@ -417,7 +417,7 @@ jobs:
         
 
   build_windows_dyn_mkl_with_openblas_installed:
-    name: Windows build (mkl)
+    name: Windows build openblas installed (mkl) 
     runs-on: windows-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
