@@ -320,97 +320,87 @@ elseif(WIN32)
 
     message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
 
-    # Debug: Print important environment and CMake variables
-    message(STATUS "Debug: CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
-    message(STATUS "Debug: CMAKE_LIBRARY_PATH = ${CMAKE_LIBRARY_PATH}")
-    message(STATUS "Debug: CMAKE_INCLUDE_PATH = ${CMAKE_INCLUDE_PATH}")
-    message(STATUS "Debug: ENV{PATH} = $ENV{PATH}")
-    message(STATUS "Debug: ENV{LIB} = $ENV{LIB}")
-    message(STATUS "Debug: ENV{INCLUDE} = $ENV{INCLUDE}")
-    message(STATUS "Debug: ENV{MKLROOT} = $ENV{MKLROOT}")
-    message(STATUS "Debug: VCPKG_INSTALLED_DIR = ${VCPKG_INSTALLED_DIR}")
-    message(STATUS "Debug: CMAKE_FIND_ROOT_PATH = ${CMAKE_FIND_ROOT_PATH}")
-    message(STATUS "Debug: CMAKE_SYSTEM_PREFIX_PATH = ${CMAKE_SYSTEM_PREFIX_PATH}")
-    message(STATUS "Debug: CMAKE_C_IMPLICIT_LINK_DIRECTORIES = ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
-    message(STATUS "Debug: CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES = ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}")
-
     # Clear any cached BLAS results to force re-search
     unset(BLAS_FOUND CACHE)
     unset(BLAS_LIBRARIES CACHE)
     
-    # If USE_MKL is ON, configure search paths for Intel MKL
-    if(USE_MKL)
+    # If USE_MKL is ON and we're using FindBLAS (not MKLConfig), configure search paths
+    if(USE_MKL AND NOT DEFINED MKL_DIR)
         if(DEFINED ENV{MKLROOT})
-            # Add MKL library paths to the front of search paths
-            if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-                set(MKL_ARCH_DIR "intel64")
-            else()
-                set(MKL_ARCH_DIR "ia32")
-            endif()
-            
-            # Save original paths
+            # Save original paths to restore later
             set(ORIG_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
             set(ORIG_CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH})
             
-            # Temporarily remove vcpkg paths from search to avoid finding OpenBLAS
-            string(REGEX REPLACE "[^;]*vcpkg[^;]*;?" "" CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}")
-            string(REGEX REPLACE "[^;]*vcpkg[^;]*;?" "" CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}")
+            # Clear vcpkg paths to avoid finding OpenBLAS
+            set(CMAKE_PREFIX_PATH "$ENV{MKLROOT}")
+            set(CMAKE_LIBRARY_PATH "")
             
-            # Prepend MKL paths to ensure they're searched first
-            list(INSERT CMAKE_PREFIX_PATH 0 "$ENV{MKLROOT}")
-            list(INSERT CMAKE_LIBRARY_PATH 0 "$ENV{MKLROOT}/lib/${MKL_ARCH_DIR}")
-            list(INSERT CMAKE_INCLUDE_PATH 0 "$ENV{MKLROOT}/include")
-            
-            # For Windows, also try to set the library search order
-            set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
-            
-            # Set hints for find_library used by FindBLAS
-            set(BLAS_ROOT "$ENV{MKLROOT}")
-            set(BLAS_DIR "$ENV{MKLROOT}/lib/${MKL_ARCH_DIR}")
-            
-            message(STATUS "Debug: Temporarily removed vcpkg paths from search")
-            message(STATUS "Debug: Added MKL paths to search paths")
-            message(STATUS "Debug: Updated CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
-            message(STATUS "Debug: Updated CMAKE_LIBRARY_PATH = ${CMAKE_LIBRARY_PATH}")
-            message(STATUS "Debug: Set BLAS_ROOT = ${BLAS_ROOT}")
-            message(STATUS "Debug: Set BLAS_DIR = ${BLAS_DIR}")
-        else()
-            message(WARNING "USE_MKL is ON but MKLROOT is not set. MKL may not be found correctly.")
+            message(STATUS "Configured search paths for Intel MKL at $ENV{MKLROOT}")
         endif()
     endif()
     
-    find_package(BLAS MODULE REQUIRED)
-
-    # Debug: Print what was found
-    message(STATUS "Debug: BLAS_FOUND = ${BLAS_FOUND}")
-    message(STATUS "Debug: BLAS_LIBRARIES = ${BLAS_LIBRARIES}")
-    message(STATUS "Debug: BLAS_LINKER_FLAGS = ${BLAS_LINKER_FLAGS}")
-    
-    # Check each library in BLAS_LIBRARIES to see what was actually found
-    foreach(lib ${BLAS_LIBRARIES})
-        if(EXISTS ${lib})
-            get_filename_component(lib_name ${lib} NAME)
-            get_filename_component(lib_dir ${lib} DIRECTORY)
-            message(STATUS "Debug: Found library ${lib_name} in ${lib_dir}")
+    # When USE_MKL is ON, try to use Intel MKL's native CMake config
+    if(USE_MKL)
+        # Set MKL configuration options before finding
+        if(ILP64)
+            set(MKL_INTERFACE "ilp64")
+        else()
+            set(MKL_INTERFACE "lp64")
         endif()
-    endforeach()
+        
+        # Try to find MKL using its native CMake config
+        find_package(MKL CONFIG QUIET)
+        
+        if(MKL_FOUND)
+            message(STATUS "Found Intel MKL using MKLConfig.cmake")
+            message(STATUS "MKL Version: ${MKL_VERSION}")
+            message(STATUS "MKL Interface: ${MKL_INTERFACE}")
+            message(STATUS "MKL Threading: ${MKL_THREADING}")
+            message(STATUS "MKL Imported Targets: ${MKL_IMPORTED_TARGETS}")
+            
+            # Set BLAS variables to use MKL
+            set(BLAS_FOUND TRUE)
+            set(BLAS_LIBRARIES MKL::MKL)
+            set(BLAS_LINKER_FLAGS "")
+            
+            # Add MKL to DNA_LIBRARIES using the modern target
+            list(APPEND DNA_LIBRARIES MKL::MKL)
+            
+        else()
+            # If MKL not found, fall back to FindBLAS with BLA_VENDOR set
+            message(STATUS "MKLConfig.cmake not found, using FindBLAS to locate Intel MKL")
+            find_package(BLAS MODULE REQUIRED)
+        endif()
+    else()
+        # USE_MKL is OFF, use standard BLAS search
+        find_package(BLAS MODULE REQUIRED)
+    endif()
 
     # Restore original paths if we modified them for MKL
     if(USE_MKL AND DEFINED ORIG_CMAKE_PREFIX_PATH)
         set(CMAKE_PREFIX_PATH ${ORIG_CMAKE_PREFIX_PATH})
         set(CMAKE_LIBRARY_PATH ${ORIG_CMAKE_LIBRARY_PATH})
-        message(STATUS "Debug: Restored original CMAKE paths")
     endif()
 
-    # Validate that we got the BLAS we requested
-    if(USE_MKL)
-        if(NOT "${BLAS_LIBRARIES}" MATCHES "mkl")
-            message(FATAL_ERROR "USE_MKL is ON but Intel MKL was not found. Instead found: ${BLAS_LIBRARIES}\n"
-                                "Please ensure Intel MKL is installed and MKLROOT is set correctly.\n"
-                                "To use OpenBLAS instead, set -DUSE_MKL=OFF")
+    # Validate and report what BLAS was found
+    if(BLAS_FOUND)
+        if(USE_MKL)
+            if(MKL_FOUND)
+                message(STATUS "Successfully using Intel MKL for BLAS/LAPACK")
+            elseif("${BLAS_LIBRARIES}" MATCHES "mkl")
+                message(STATUS "Successfully found Intel MKL via FindBLAS")
+            else()
+                message(FATAL_ERROR "USE_MKL is ON but Intel MKL was not found. Instead found: ${BLAS_LIBRARIES}\n"
+                                    "Please ensure Intel MKL is installed and either:\n"
+                                    "  1. MKLROOT environment variable is set, or\n"
+                                    "  2. MKL_DIR CMake variable points to MKLConfig.cmake location\n"
+                                    "To use OpenBLAS instead, set -DUSE_MKL=OFF")
+            endif()
         else()
-            message(STATUS "Successfully found Intel MKL")
+            message(STATUS "Found BLAS: ${BLAS_LIBRARIES}")
         endif()
+    else()
+        message(FATAL_ERROR "BLAS not found. Please install Intel MKL or OpenBLAS.")
     endif()
 
     add_link_options(${BLAS_LINKER_FLAGS})
