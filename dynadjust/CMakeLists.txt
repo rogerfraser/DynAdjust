@@ -294,6 +294,7 @@ elseif(WIN32)
     message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
 
     find_package(BLAS MODULE REQUIRED)
+
     add_link_options(${BLAS_LINKER_FLAGS})
     message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
     message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
@@ -304,6 +305,7 @@ elseif(WIN32)
     endif()
 
     find_package(LAPACK MODULE)
+
     if (LAPACK_FOUND)
         add_link_options(${LAPACK_LINKER_FLAGS})
         message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
@@ -344,6 +346,19 @@ elseif(UNIX)
     if (BUILD_STATIC)
         set(BLA_STATIC ON)
     endif()
+
+    # Handle BLAS vendor selection based on USE_MKL option
+    if(USE_MKL)
+        # Explicitly use Intel MKL when USE_MKL is ON
+        add_compile_options("-DUSE_MKL")
+        if(ILP64)
+            set(BLA_VENDOR "Intel10_64ilp")
+        else()
+            set(BLA_VENDOR "Intel10_64lp")
+        endif()
+        message(STATUS "USE_MKL is ON, setting BLA_VENDOR to ${BLA_VENDOR}")
+    endif()
+    # Otherwise, let find_package(BLAS) search with its default order
 
     find_package(BLAS REQUIRED)
 
