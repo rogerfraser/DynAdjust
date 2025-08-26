@@ -534,4 +534,4 @@ jobs:
         cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
         cd ./release/DynAdjust-Windows/
         export PATH=.:$PATH
-        ./dnaadjust
+        ./adjust
