@@ -331,10 +331,11 @@ else()
             list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
         endif()
         
-        # Check if MKL was found by FindBLAS (MKL doesn't provide cblas.h, it uses mkl_cblas.h)
+        # Check if MKL was found by FindBLAS
         string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER)
         if(BLAS_LIBRARIES_LOWER MATCHES "mkl")
             message(STATUS "Intel MKL detected via FindBLAS - skipping cblas.h search")
+            add_compile_options("-DUSE_MKL")
         else()
             # Try to find cblas.h header for non-MKL BLAS implementations (OpenBLAS, etc.)
             set(BLAS_INCLUDE_SEARCH_PATHS
