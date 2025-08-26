@@ -271,15 +271,42 @@ else()
         endif()
         
         # Find MKL using its CMake config
-        find_package(MKL CONFIG REQUIRED)
+        find_package(MKL CONFIG)
         
-        message(STATUS "Found Intel MKL using MKLConfig.cmake")
-        message(STATUS "  MKL Version: ${MKL_VERSION}")
-        message(STATUS "  MKL Interface: ${MKL_INTERFACE}")
-        message(STATUS "  MKL Threading: ${MKL_THREADING}")
-        
-        # Use the modern MKL target
-        list(APPEND DNA_LIBRARIES MKL::MKL)
+        if(MKL_FOUND)
+            message(STATUS "Found Intel MKL using MKLConfig.cmake")
+            message(STATUS "  MKL Version: ${MKL_VERSION}")
+            message(STATUS "  MKL Interface: ${MKL_INTERFACE}")
+            message(STATUS "  MKL Threading: ${MKL_THREADING}")
+            
+            # Use the modern MKL target
+            list(APPEND DNA_LIBRARIES MKL::MKL)
+        else()
+            # MKL CONFIG not found, try with FindBLAS
+            message(STATUS "MKLConfig.cmake not found, trying FindBLAS with BLA_VENDOR set to Intel MKL")
+            
+            if(ILP64)
+                set(BLA_VENDOR "Intel10_64ilp")
+            else()
+                set(BLA_VENDOR "Intel10_64lp")
+            endif()
+            
+            find_package(BLAS MODULE REQUIRED)
+            find_package(LAPACK MODULE)
+            
+            # Verify we actually got MKL
+            if(NOT "${BLAS_LIBRARIES}" MATCHES "mkl")
+                message(FATAL_ERROR "USE_MKL=ON but Intel MKL was not found. Found: ${BLAS_LIBRARIES}")
+            endif()
+            
+            message(STATUS "Found Intel MKL via FindBLAS: ${BLAS_LIBRARIES}")
+            list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
+            if(LAPACK_FOUND)
+                list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
+            endif()
+            
+            # MKL provides mkl_cblas.h, not cblas.h - no need to search for cblas.h
+        endif()
         
     else()
         # Use standard BLAS and LAPACK search
