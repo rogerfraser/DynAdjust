@@ -331,41 +331,47 @@ else()
             list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
         endif()
         
-        # Try to find cblas.h header for BLAS (could be OpenBLAS or other implementations)
-        set(BLAS_INCLUDE_SEARCH_PATHS
-            ${CMAKE_PREFIX_PATH}/include
-            ${CMAKE_PREFIX_PATH}/include/openblas
-        )
-        
-        if(WIN32)
-            list(APPEND BLAS_INCLUDE_SEARCH_PATHS
-                ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
-                ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/openblas
-                C:/vcpkg/installed/x64-windows/include
-                C:/vcpkg/installed/x64-windows/include/openblas
-            )
+        # Check if MKL was found by FindBLAS (MKL doesn't provide cblas.h, it uses mkl_cblas.h)
+        string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER)
+        if(BLAS_LIBRARIES_LOWER MATCHES "mkl")
+            message(STATUS "Intel MKL detected via FindBLAS - skipping cblas.h search")
         else()
-            list(APPEND BLAS_INCLUDE_SEARCH_PATHS
-                /usr/include
-                /usr/local/include
-                /usr/include/openblas
-                /usr/local/include/openblas
-                # Architecture-specific paths for Debian/Ubuntu
-                /usr/include/x86_64-linux-gnu
-                /usr/include/aarch64-linux-gnu
-                /usr/include/i386-linux-gnu
+            # Try to find cblas.h header for non-MKL BLAS implementations (OpenBLAS, etc.)
+            set(BLAS_INCLUDE_SEARCH_PATHS
+                ${CMAKE_PREFIX_PATH}/include
+                ${CMAKE_PREFIX_PATH}/include/openblas
             )
-        endif()
-        
-        find_path(BLAS_INCLUDE_DIRS 
-            NAMES cblas.h
-            PATHS ${BLAS_INCLUDE_SEARCH_PATHS}
-            REQUIRED
-        )
-        
-        if(BLAS_INCLUDE_DIRS)
-            message(STATUS "Found cblas.h at: ${BLAS_INCLUDE_DIRS}")
-            include_directories(${BLAS_INCLUDE_DIRS})
+            
+            if(WIN32)
+                list(APPEND BLAS_INCLUDE_SEARCH_PATHS
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
+                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/openblas
+                    C:/vcpkg/installed/x64-windows/include
+                    C:/vcpkg/installed/x64-windows/include/openblas
+                )
+            else()
+                list(APPEND BLAS_INCLUDE_SEARCH_PATHS
+                    /usr/include
+                    /usr/local/include
+                    /usr/include/openblas
+                    /usr/local/include/openblas
+                    # Architecture-specific paths for Debian/Ubuntu
+                    /usr/include/x86_64-linux-gnu
+                    /usr/include/aarch64-linux-gnu
+                    /usr/include/i386-linux-gnu
+                )
+            endif()
+            
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h
+                PATHS ${BLAS_INCLUDE_SEARCH_PATHS}
+                REQUIRED
+            )
+            
+            if(BLAS_INCLUDE_DIRS)
+                message(STATUS "Found cblas.h at: ${BLAS_INCLUDE_DIRS}")
+                include_directories(${BLAS_INCLUDE_DIRS})
+            endif()
         endif()
     endif()
 
