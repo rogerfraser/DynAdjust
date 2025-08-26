@@ -4,8 +4,8 @@ project(dynadjust VERSION 1.2.9)
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
-option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
+option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
 set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
 
@@ -17,8 +17,6 @@ endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
-
-set (DYNADJUST_VERSION "1.2.9")
 
 message("")
 message("=====================================================================")
@@ -68,43 +66,27 @@ message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 # Compiler flags
 # ----------------------------------------------------------------------------
 
-# ignore BOOST warning for the moment
-add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
-add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
-add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
-
-# These don't work with MSVC
-#add_compile_options(-Wno-ignored-qualifiers)
-#add_compile_options(-Wno-deprecated-declarations)
+# Suppress Boost warnings
+add_compile_definitions(
+    BOOST_ALLOW_DEPRECATED_HEADERS
+    BOOST_BIND_GLOBAL_PLACEHOLDERS
+    BOOST_DISABLE_PRAGMA_MESSAGE
+)
 
 if(BUILD_TESTING)
-    add_compile_options(-w)
+    # Suppress all warnings during testing
+    if(MSVC)
+        add_compile_options(/W0)
+    else()
+        add_compile_options(-w)
+    endif()
 endif()
 
 if(APPLE)
-    #    add_compile_options(-Werror -ferror-limit=1)
     add_compile_options(-Wno-unguarded-availability-new)
     add_compile_options(-Wno-deprecated-declarations)
     add_compile_options(-Wno-nullability-completeness)
 endif()
-
-## Debug flags
-#if (NOT BUILD_STATIC AND NOT APPLE)
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
-#endif()
-
-## Coverage if testing
-#if(NOT BUILD_STATIC AND NOT APPLE)
-#    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-#endif()
-
-## Linker flags
-#if(APPLE)
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
-#else()
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
-#endif()
 
 if (WIN32)
     add_compile_options(-DNOMINMAX)
@@ -199,11 +181,6 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Boost
 # ----------------------------------------------------------------------------
 
-#if (BUILD_STATIC and WIN32)
-#    set(Boost_USE_STATIC_LIBS ON)
-#    set(Boost_USE_STATIC_RUNTIME ON)
-#endif()
-
 find_package(Boost 1.58.0 CONFIG REQUIRED
     COMPONENTS system filesystem timer thread program_options)
 message(STATUS "Found Boost version: ${Boost_VERSION}")
@@ -224,29 +201,26 @@ set(DNA_LIBRARIES
 find_package(OpenMP)
 
 if(OpenMP_CXX_FOUND)
-    if (APPLE AND NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
-        message(STATUS "libomp not found (install with `brew install libomp`)")
-        set(USE_OPENMP_MAC OFF)
-    else()
-        set(USE_OPENMP_MAC ON)
-    endif()
-
-    if (APPLE AND USE_OPENMP_MAC)
-        message(STATUS "Enabled OpenMP on MacOS using libomp")
-        add_compile_options(-Xpreprocessor -fopenmp)
-        add_link_options(-L/opt/homebrew/lib)
-        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+    # Check for libomp on macOS
+    if(APPLE)
+        if(NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
+            message(STATUS "libomp not found (install with `brew install libomp`)")
+        else()
+            message(STATUS "Enabled OpenMP on macOS using libomp")
+            add_compile_options(-Xpreprocessor -fopenmp)
+            add_link_options(-L/opt/homebrew/lib)
+            list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+        endif()
     elseif(MSVC)
         message(STATUS "Enabled OpenMP for MSVC")
         add_compile_options(${OpenMP_CXX_FLAGS})
-        # Don't add OpenMP flags as link options for MSVC
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
     else()
+        # Linux and other Unix systems
         message(STATUS "Enabled OpenMP")
         add_compile_options(${OpenMP_CXX_FLAGS})
         add_link_options(${OpenMP_CXX_FLAGS})
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
-        #list(APPEND DNA_LIBRARIES OpenMP::OpenMP_CXX)
     endif()
 endif()
 
@@ -349,12 +323,17 @@ else()
                 /usr/local/include
                 /usr/include/openblas
                 /usr/local/include/openblas
+                # Architecture-specific paths for Debian/Ubuntu
+                /usr/include/x86_64-linux-gnu
+                /usr/include/aarch64-linux-gnu
+                /usr/include/i386-linux-gnu
             )
         endif()
         
         find_path(BLAS_INCLUDE_DIRS 
             NAMES cblas.h
             PATHS ${BLAS_INCLUDE_SEARCH_PATHS}
+            REQUIRED
         )
         
         if(BLAS_INCLUDE_DIRS)
@@ -385,8 +364,10 @@ if(BUILD_STATIC)
     message("=====================================================================")
     message("")
 
-    add_definitions(-DBUILD_STATIC)
-    add_definitions(-DXERCES_STATIC_LIBRARY)
+    add_compile_definitions(
+        BUILD_STATIC
+        XERCES_STATIC_LIBRARY
+    )
 
     # Set optimization flags based on compiler
     if(MSVC)
@@ -398,18 +379,12 @@ if(BUILD_STATIC)
         add_compile_options(-O3)
     endif()
 
-    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
-
-    if (UNIX AND NOT APPLE)
-    	list(APPEND DNA_LIBRARIES "gfortran" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "quadmath" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "openblas" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    if(BLAS_LIBRARIES)
+        message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     endif()
-
-    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+    if(LAPACK_LIBRARIES)
+        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+    endif()
 
     if (UNIX)
         # Find the static library equivalents
@@ -427,7 +402,6 @@ if(BUILD_STATIC)
                 if(NOT (libname STREQUAL "m" OR 
                         libname STREQUAL "dl" OR 
                         libname MATCHES "^-W*" OR 
-                        #libname STREQUAL "xerces-c" OR
                         libname STREQUAL "Accelerate"))
                     message(CHECK_START "Finding static '${lib}'")
                     find_library(STATIC_LIB_${libname}
@@ -439,8 +413,6 @@ if(BUILD_STATIC)
                         message(CHECK_PASS "Found")
                         list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
                     endif()
-                else()
-                    #message(STATUS "Finding static '${lib}' - Skipped")
                 endif()
             endif()
         endforeach()
