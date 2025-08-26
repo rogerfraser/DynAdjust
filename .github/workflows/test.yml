@@ -177,7 +177,7 @@ jobs:
 
   ctest_windows_dyn_mkl:
     name: Run tests on Windows (mkl)
-    runs-on: windows-latest
+    runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja

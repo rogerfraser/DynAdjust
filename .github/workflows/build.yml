@@ -208,7 +208,7 @@ jobs:
 
   build_windows_dyn_mkl:
     name: Windows build (mkl)
-    runs-on: windows-latest
+    runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
@@ -332,7 +332,7 @@ jobs:
   
   build_windows_dyn_openblas:
     name: Windows build (openblas)
-    runs-on: windows-latest
+    runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
@@ -418,7 +418,7 @@ jobs:
 
   build_windows_dyn_mkl_with_openblas_installed:
     name: Windows build openblas installed (mkl) 
-    runs-on: windows-latest
+    runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
