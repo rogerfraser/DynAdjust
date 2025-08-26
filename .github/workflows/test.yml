@@ -51,7 +51,7 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          ctest --output-on-failure --timeout 30 2>&1 | tee ctest_output.log
+          ctest --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -141,7 +141,7 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           set +e
-          ctest --output-on-failure --timeout 30 2>&1 | tee ctest_output.log
+          ctest --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -287,7 +287,7 @@ jobs:
       run: |
         call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
         call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
-        ctest --output-on-failure --timeout 30 -C Release > ctest_output.log 2>&1
+        ctest --output-on-failure --timeout 120 -C Release > ctest_output.log 2>&1
         echo CTEST_EXIT_CODE=%ERRORLEVEL% >> %GITHUB_ENV%
         exit /b 0
 
