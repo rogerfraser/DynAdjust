@@ -19,7 +19,6 @@ target_link_libraries (${PROJECT_NAME} dnaadjust ${DNA_LIBRARIES})
 set_target_properties (${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}adjust")
 
 
-
 if(BUILD_STATIC)
 
   # Create a static version with the same source files
