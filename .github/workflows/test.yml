@@ -46,7 +46,7 @@ jobs:
         run: |
           cmake dynadjust -DBUILD_TESTING=ON
           make -j2
-          ls
+          ls -la bin/
           
       - name: Run tests
         run: |
@@ -135,6 +135,7 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           cmake dynadjust -DBUILD_TESTING=ON
           make -j2
+          ls -la bin/
           
       - name: Run tests
         run: |
@@ -278,6 +279,7 @@ jobs:
         set UseEnv=true
         cmake -DUSE_MKL=ON -DBUILD_TESTING=ON -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
+        dir bin\
 
     - name: Run tests
       working-directory: "./src"

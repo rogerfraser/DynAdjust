@@ -21,10 +21,3 @@ add_library (${PROJECT_NAME} SHARED
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 
-install (TARGETS ${PROJECT_NAME} DESTINATION lib)
-
-# Install to the x64 directory
-set_target_properties (${PROJECT_NAME} PROPERTIES 
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/x64")    
-    
-install (TARGETS ${PROJECT_NAME} DESTINATION x64)

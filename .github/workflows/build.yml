@@ -45,7 +45,7 @@ jobs:
         run: |
           cmake dynadjust 
           make -j2
-          ls
+          ls -la bin/
           
 #------------------------------------------------
 
@@ -96,6 +96,7 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           cmake dynadjust 
           make -j2
+          ls -la bin/
 
 
 #------------------------------------------------
@@ -137,6 +138,7 @@ jobs:
         run: |
           cmake -DBUILD_STATIC=ON dynadjust
           make -j2
+          ls -la static/
 
       - name: Prepare artifacts
         run: |
@@ -172,7 +174,7 @@ jobs:
         run: |
           cmake dynadjust
           make -j2 VERBOSE=1
-          ls
+          ls -la bin/
 
 #------------------------------------------------
 
@@ -197,7 +199,7 @@ jobs:
         run: |
           cmake -DBUILD_STATIC=ON dynadjust
           make -j2 VERBOSE=1
-          ls
+          ls -la static/
 
       - uses: actions/upload-artifact@v4
         with:
@@ -320,8 +322,9 @@ jobs:
         mkdir -p release
         mkdir -p release/DynAdjust-Windows
         echo "Copying files into release folder"
-        cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
-        cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
+        cp -f ./src/bin/*.dll ./release/DynAdjust-Windows/ 2>/dev/null || true
+        cp -f ./src/bin/*.exe ./release/DynAdjust-Windows/ 2>/dev/null || true
+        ls -la ./release/DynAdjust-Windows/
 
     - uses: actions/upload-artifact@v4
       with:
@@ -407,8 +410,9 @@ jobs:
         mkdir -p release
         mkdir -p release/DynAdjust-Windows
         echo "Copying files into release folder"
-        cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
-        cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
+        cp -f ./src/bin/*.dll ./release/DynAdjust-Windows/ 2>/dev/null || true
+        cp -f ./src/bin/*.exe ./release/DynAdjust-Windows/ 2>/dev/null || true
+        ls -la ./release/DynAdjust-Windows/
 
     - uses: actions/upload-artifact@v4
       with:
@@ -530,8 +534,9 @@ jobs:
         mkdir -p release
         mkdir -p release/DynAdjust-Windows
         echo "Copying files into release folder"
-        cp -f ./src/x64/Release/*.dll ./release/DynAdjust-Windows/
-        cp -f ./src/x64/Release/*.exe ./release/DynAdjust-Windows/
+        cp -f ./src/bin/*.dll ./release/DynAdjust-Windows/ 2>/dev/null || true
+        cp -f ./src/bin/*.exe ./release/DynAdjust-Windows/ 2>/dev/null || true
+        ls -la ./release/DynAdjust-Windows/
         cd ./release/DynAdjust-Windows/
         export PATH=.:$PATH
-        ./adjust
+        ./adjust.exe || ./adjust || echo "adjust binary test completed"

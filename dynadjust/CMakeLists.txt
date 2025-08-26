@@ -36,6 +36,19 @@ if(BUILD_TESTING)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+# Set output directories for all platforms to use bin/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# For multi-config generators (Visual Studio, Xcode)
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
+endforeach()
+
 if (BUILD_STATIC)
     message(STATUS "Static building enabled (BUILD_STATIC=ON)")
     if (WIN32)
@@ -512,6 +525,59 @@ if(BUILD_STATIC)
     message("")
 endif()
 
+
+# ----------------------------------------------------------------------------
+# Unified Installation
+# ----------------------------------------------------------------------------
+
+# Set default install prefix if not specified
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    # Install to repo root bin directory (DynAdjust/bin)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/.." CACHE PATH "Installation Directory" FORCE)
+endif()
+
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+
+# Install all executables to bin directory
+install(TARGETS 
+    dnaimportwrapper dnareftranwrapper dnasegmentwrapper 
+    dnageoidwrapper dnaplotwrapper dynadjust dnaadjustwrapper
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION bin)
+
+# Install all libraries to bin directory  
+install(TARGETS
+    dnaimport dnareftran dnasegment dnageoid dnaplot dnaadjust
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION bin)
+
+# Install static executables if they exist
+if(BUILD_STATIC)
+    # Check if targets exist before trying to install them
+    if(TARGET dnaimportwrapper_static)
+        install(TARGETS dnaimportwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnareftranwrapper_static)
+        install(TARGETS dnareftranwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnasegmentwrapper_static)
+        install(TARGETS dnasegmentwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnageoidwrapper_static)
+        install(TARGETS dnageoidwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnaplotwrapper_static)
+        install(TARGETS dnaplotwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dynadjust_static)
+        install(TARGETS dynadjust_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnaadjustwrapper_static)
+        install(TARGETS dnaadjustwrapper_static RUNTIME DESTINATION bin)
+    endif()
+endif()
 
 # ----------------------------------------------------------------------------
 # Testing
