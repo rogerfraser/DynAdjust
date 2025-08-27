@@ -673,6 +673,12 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     lapack_int info, n = _rows;
 
+    // Create a backup of the matrix for diagnostics if dpotrf fails
+    // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
+    std::size_t buffer_size = buffersize();
+    double* backup_buffer = new double[buffer_size / sizeof(double)];
+    std::memcpy(backup_buffer, _buffer, buffer_size);
+
     // Perform Cholesky factorisation
     LAPACK_FUNC(dpotrf)(&uplo, &n, _buffer, &n, &info);
 
@@ -706,8 +712,13 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                       << " is not positive definite\n";
         }
         
-        // Matrix diagnostics
-        error_msg << "\nMatrix Diagnostics:\n";
+        // Matrix diagnostics using the backup (original matrix before dpotrf modified it)
+        error_msg << "\nMatrix Diagnostics (Original Matrix):\n";
+        
+        // Helper to access backup matrix elements
+        auto get_backup = [&](UINT32 row, UINT32 col) -> double {
+            return backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, row, col)];
+        };
         
         // Check diagonal elements
         double trace = 0.0;
@@ -718,7 +729,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         int inf_count = 0;
         
         for (UINT32 i = 0; i < _rows; ++i) {
-            double diag_val = get(i, i);
+            double diag_val = get_backup(i, i);
             trace += diag_val;
             
             if (std::isnan(diag_val)) nan_count++;
@@ -742,7 +753,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  First diagonal elements: ";
         UINT32 diag_show = std::min(_rows, (UINT32)10);
         for (UINT32 i = 0; i < diag_show; ++i) {
-            error_msg << get(i, i);
+            error_msg << get_backup(i, i);
             if (i < diag_show - 1) error_msg << ", ";
         }
         if (_rows > 10) error_msg << ", ...";
@@ -756,7 +767,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         
         for (UINT32 i = 0; i < _rows; ++i) {
             for (UINT32 j = i + 1; j < _cols; ++j) {
-                double diff = std::abs(get(i, j) - get(j, i));
+                double diff = std::abs(get_backup(i, j) - get_backup(j, i));
                 if (diff > symmetry_tol) {
                     asym_count++;
                     if (diff > max_asymmetry) {
@@ -777,13 +788,18 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             error_msg << "  Max asymmetry: " << max_asymmetry 
                       << " at [" << asym_row << "," << asym_col << "]\n";
             error_msg << "  A[" << asym_row << "," << asym_col << "] = " 
-                      << get(asym_row, asym_col) << "\n";
+                      << get_backup(asym_row, asym_col) << "\n";
             error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
-                      << get(asym_col, asym_row) << "\n";
+                      << get_backup(asym_col, asym_row) << "\n";
         }
         
+        // Clean up backup buffer before throwing
+        delete[] backup_buffer;
         throw std::runtime_error(error_msg.str());
     }
+    
+    // Clean up backup buffer after successful dpotrf
+    delete[] backup_buffer;
 
     // Perform Cholesky inverse
     LAPACK_FUNC(dpotri)(&uplo, &n, _buffer, &n, &info);
