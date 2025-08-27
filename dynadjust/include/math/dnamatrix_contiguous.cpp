@@ -661,7 +661,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         return *this;
 
     if (_rows != _cols)
-        throw std::runtime_error("choleskyinverse_mkl: Matrix is not square.");
+        throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
 
     char uplo(LOWER_TRIANGLE);
 
@@ -675,13 +675,13 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     LAPACK_FUNC(dpotrf)(&uplo, &n, _buffer, &n, &info);
 
     if (info != 0)
-        throw std::runtime_error("choleskyinverse_mkl(): Cholesky factorisation failed.");
+        throw std::runtime_error("cholesky_inverse(): Cholesky factorisation failed.");
 
     // Perform Cholesky inverse
     LAPACK_FUNC(dpotri)(&uplo, &n, _buffer, &n, &info);
 
     if (info != 0)
-        throw std::runtime_error("choleskyinverse_mkl: Cholesky inversion failed.");
+        throw std::runtime_error("cholesky_inverse(): Cholesky inversion failed.");
 
     // Copy empty triangle part
     if (LOWER_IS_CLEARED)
