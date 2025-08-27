@@ -277,7 +277,11 @@ jobs:
         set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
         set UseEnv=true
-        cmake -DUSE_MKL=ON -DBUILD_TESTING=ON -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" -G "Visual Studio 17 2022" -A x64 dynadjust
+        cmake -DUSE_MKL=ON ^
+              -DBUILD_TESTING=ON ^
+              -DVCPKG_MANIFEST_MODE=OFF ^
+              -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
+              -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
         dir bin\
 
