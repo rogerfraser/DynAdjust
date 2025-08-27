@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(dynadjust VERSION 1.2.9)
 
-option(BUILD_TESTING "Enable testing" ON)
+option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
 option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
@@ -723,7 +723,6 @@ if (BUILD_TESTING)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --scale-normals-to-unity)
 
     # bash command to check results
-<<<<<<< HEAD
     if(BASH_EXECUTABLE)
       add_test(NAME test-gnss-network
         COMMAND "${BASH_EXECUTABLE}" -c
@@ -731,9 +730,6 @@ if (BUILD_TESTING)
     else()
       message(STATUS "Bash not found; disabling test-gnss-network")
     endif()
-=======
-    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
->>>>>>> acd679e8 (Adopt daleroberts recent updates)
 
     add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar gnss-network.stn gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
     add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl gnss-network.stn gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
@@ -1705,7 +1701,6 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread-01
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
-<<<<<<< HEAD
     set_tests_properties(
         import-gnss-network geoid-gnss-network reftran-gnss-network 
         adjust-gnss-network test-gnss-network
@@ -1716,8 +1711,6 @@ if (BUILD_TESTING)
         adjust-gnss-network-phased adjust-gnss-network-verb
         adjust-gnss-network-staged-a adjust-gnss-network-staged-b
         PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
-=======
->>>>>>> acd679e8 (Adopt daleroberts recent updates)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
 
@@ -1742,3 +1735,4 @@ endif ()
 
 message ("")
 message ("")
+
