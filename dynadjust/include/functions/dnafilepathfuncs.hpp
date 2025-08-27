@@ -60,4 +60,14 @@ T leafStr(const T& filePath)
 	return std::filesystem::path(filePath).filename().string();
 }
 
+// Safe wrapper for std::filesystem::absolute that handles empty paths
+// On Linux, std::filesystem::absolute("") throws an exception
+// This function returns empty string for empty input
+inline std::string safe_absolute_path(const std::string& path)
+{
+	if (path.empty())
+		return "";
+	return std::filesystem::absolute(path).string();
+}
+
 #endif //DNAFILEPATHFUNCS_H_
