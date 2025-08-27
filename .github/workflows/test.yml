@@ -285,8 +285,7 @@ jobs:
       shell: cmd
       run: |
         vcpkg.exe integrate install
-        call "C:\Program Files (x86)\Intel\oneAPI\compiler\%ONEAPI_VERSION%\env\vars.bat"
-        call "C:\Program Files (x86)\Intel\oneAPI\mkl\%ONEAPI_VERSION%\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" intel64 vs2022
         set XSDROOT=%cd%\libxsd-4.2.0
         set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
@@ -303,8 +302,7 @@ jobs:
       working-directory: "./src"
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Intel\oneAPI\compiler\%ONEAPI_VERSION%\env\vars.bat"
-        call "C:\Program Files (x86)\Intel\oneAPI\mkl\%ONEAPI_VERSION%\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" intel64 vs2022
         ctest --output-on-failure --timeout 120 -C Release > ctest_output.log 2>&1
         echo CTEST_EXIT_CODE=%ERRORLEVEL% >> %GITHUB_ENV%
         exit /b 0
