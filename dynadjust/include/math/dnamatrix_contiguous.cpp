@@ -413,17 +413,17 @@ void matrix_2d::buy(const UINT32& rows, const UINT32& columns, double** mem_spac
 
     // an exception will be thrown by out_of_memory_handler
     // if memory cannot be allocated
-    (*mem_space) = new double[static_cast<std::size_t>(rows) * static_cast<std::size_t>(columns)];
+    std::size_t total_size = static_cast<std::size_t>(rows) * static_cast<std::size_t>(columns);
+    (*mem_space) = new double[total_size];
 
     if ((*mem_space) == nullptr) {
         std::stringstream ss;
         ss << "Insufficient memory for a " << rows << " x " << columns << " matrix.";
         throw NetMemoryException(ss.str());
     }
-
-    // an exception will be thrown by out_of_memory_handler
-    // if memory cannot be allocated
-    memset(*mem_space, 0, byteSize<double>(static_cast<std::size_t>(rows) * columns)); // initialise to zero
+    
+    // Initialize memory to zero to prevent uninitialized values
+    std::memset((*mem_space), 0, total_size * sizeof(double));
 }
 
 void matrix_2d::deallocate() {
@@ -672,6 +672,43 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         uplo = UPPER_TRIANGLE;
 
     lapack_int info, n = _rows;
+
+    // Check matrix symmetry before attempting Cholesky factorization
+    // This catches errors early and provides better diagnostics
+    const double symmetry_tol = 1e-10;
+    double max_asymmetry = 0.0;
+    UINT32 asym_row = 0, asym_col = 0;
+    int asym_count = 0;
+    
+    for (UINT32 i = 0; i < _rows; ++i) {
+        for (UINT32 j = i + 1; j < _cols; ++j) {
+            double diff = std::abs(get(i, j) - get(j, i));
+            if (diff > symmetry_tol) {
+                asym_count++;
+                if (diff > max_asymmetry) {
+                    max_asymmetry = diff;
+                    asym_row = i;
+                    asym_col = j;
+                }
+            }
+        }
+    }
+    
+    // If matrix is not symmetric, throw an exception with details
+    if (asym_count > 0) {
+        std::stringstream error_msg;
+        error_msg << "cholesky_inverse(): Matrix is not symmetric.\n";
+        error_msg << "  Tolerance: " << symmetry_tol << "\n";
+        error_msg << "  Asymmetric elements: " << asym_count << " out of " 
+                  << (_rows * (_rows - 1) / 2) << " upper triangle elements\n";
+        error_msg << "  Max asymmetry: " << max_asymmetry 
+                  << " at [" << asym_row << "," << asym_col << "]\n";
+        error_msg << "  A[" << asym_row << "," << asym_col << "] = " 
+                  << get(asym_row, asym_col) << "\n";
+        error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
+                  << get(asym_col, asym_row) << "\n";
+        throw std::runtime_error(error_msg.str());
+    }
 
     // Create a backup of the matrix for diagnostics if dpotrf fails
     // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
