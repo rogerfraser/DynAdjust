@@ -22,6 +22,8 @@
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <iomanip>
 #include <sstream>
+#include <cmath>
+#include <limits>
 #include <include/ide/trace.hpp>
 
 namespace dynadjust {
@@ -674,14 +676,130 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     // Perform Cholesky factorisation
     LAPACK_FUNC(dpotrf)(&uplo, &n, _buffer, &n, &info);
 
-    if (info != 0)
-        throw std::runtime_error("cholesky_inverse(): Cholesky factorisation failed.");
+    if (info != 0) {
+        std::stringstream error_msg;
+        error_msg << "cholesky_inverse(): Cholesky factorisation failed.\n";
+        error_msg << "\nSystem Information:\n";
+        error_msg << "  sizeof(lapack_int): " << sizeof(lapack_int) << " bytes\n";
+#ifdef USE_MKL
+        error_msg << "  sizeof(MKL_INT): " << sizeof(MKL_INT) << " bytes\n";
+        error_msg << "  BLAS/LAPACK: Intel MKL\n";
+#elif defined(__APPLE__)
+        error_msg << "  BLAS/LAPACK: Apple Accelerate\n";
+#else
+        error_msg << "  BLAS/LAPACK: OpenBLAS or system default\n";
+#endif
+#ifdef USE_ILP64
+        error_msg << "  Interface: ILP64 (64-bit integers)\n";
+#else
+        error_msg << "  Interface: LP64 (32-bit integers)\n";
+#endif
+        error_msg << "  Matrix dimensions: " << _rows << " x " << _cols << "\n";
+        error_msg << "  Triangle processed: " << (LOWER_IS_CLEARED ? "Upper" : "Lower") << "\n";
+        
+        error_msg << "\nError Details:\n";
+        error_msg << "  dpotrf info = " << info << "\n";
+        if (info < 0) {
+            error_msg << "  Meaning: Argument " << -info << " had an illegal value\n";
+        } else {
+            error_msg << "  Meaning: The leading minor of order " << info 
+                      << " is not positive definite\n";
+        }
+        
+        // Matrix diagnostics
+        error_msg << "\nMatrix Diagnostics:\n";
+        
+        // Check diagonal elements
+        double trace = 0.0;
+        double min_diag = std::numeric_limits<double>::max();
+        double max_diag = std::numeric_limits<double>::lowest();
+        int negative_diag_count = 0;
+        int nan_count = 0;
+        int inf_count = 0;
+        
+        for (UINT32 i = 0; i < _rows; ++i) {
+            double diag_val = get(i, i);
+            trace += diag_val;
+            
+            if (std::isnan(diag_val)) nan_count++;
+            if (std::isinf(diag_val)) inf_count++;
+            if (diag_val < 0) negative_diag_count++;
+            
+            if (!std::isnan(diag_val) && !std::isinf(diag_val)) {
+                min_diag = std::min(min_diag, diag_val);
+                max_diag = std::max(max_diag, diag_val);
+            }
+        }
+        
+        error_msg << "  Trace: " << trace << "\n";
+        error_msg << "  Min diagonal: " << min_diag << "\n";
+        error_msg << "  Max diagonal: " << max_diag << "\n";
+        error_msg << "  Negative diagonal elements: " << negative_diag_count << "\n";
+        error_msg << "  NaN count: " << nan_count << "\n";
+        error_msg << "  Inf count: " << inf_count << "\n";
+        
+        // Show first few diagonal elements
+        error_msg << "  First diagonal elements: ";
+        UINT32 diag_show = std::min(_rows, (UINT32)10);
+        for (UINT32 i = 0; i < diag_show; ++i) {
+            error_msg << get(i, i);
+            if (i < diag_show - 1) error_msg << ", ";
+        }
+        if (_rows > 10) error_msg << ", ...";
+        error_msg << "\n";
+        
+        // Check symmetry
+        double max_asymmetry = 0.0;
+        UINT32 asym_row = 0, asym_col = 0;
+        int asym_count = 0;
+        const double symmetry_tol = 1e-10;
+        
+        for (UINT32 i = 0; i < _rows; ++i) {
+            for (UINT32 j = i + 1; j < _cols; ++j) {
+                double diff = std::abs(get(i, j) - get(j, i));
+                if (diff > symmetry_tol) {
+                    asym_count++;
+                    if (diff > max_asymmetry) {
+                        max_asymmetry = diff;
+                        asym_row = i;
+                        asym_col = j;
+                    }
+                }
+            }
+        }
+        
+        error_msg << "\nSymmetry Check:\n";
+        if (asym_count == 0) {
+            error_msg << "  Matrix is symmetric (tolerance: " << symmetry_tol << ")\n";
+        } else {
+            error_msg << "  Matrix is NOT symmetric!\n";
+            error_msg << "  Asymmetric elements: " << asym_count << "\n";
+            error_msg << "  Max asymmetry: " << max_asymmetry 
+                      << " at [" << asym_row << "," << asym_col << "]\n";
+            error_msg << "  A[" << asym_row << "," << asym_col << "] = " 
+                      << get(asym_row, asym_col) << "\n";
+            error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
+                      << get(asym_col, asym_row) << "\n";
+        }
+        
+        throw std::runtime_error(error_msg.str());
+    }
 
     // Perform Cholesky inverse
     LAPACK_FUNC(dpotri)(&uplo, &n, _buffer, &n, &info);
 
-    if (info != 0)
-        throw std::runtime_error("cholesky_inverse(): Cholesky inversion failed.");
+    if (info != 0) {
+        std::stringstream error_msg;
+        error_msg << "cholesky_inverse(): Cholesky inversion failed.\n";
+        error_msg << "  dpotri info = " << info << "\n";
+        if (info < 0) {
+            error_msg << "  Meaning: Argument " << -info << " had an illegal value\n";
+        } else {
+            error_msg << "  Meaning: The (" << info << "," << info 
+                      << ") element of the factor U or L is zero\n";
+        }
+        throw std::runtime_error(error_msg.str());
+    }
 
     // Copy empty triangle part
     if (LOWER_IS_CLEARED)
