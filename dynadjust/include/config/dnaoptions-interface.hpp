@@ -178,6 +178,20 @@ const char* const TECTONIC_PLATE_POLE_FILE = "plate-pole-file";
 const char* const TECTONIC_PLATE_POLE_FILE_M = "plate-pole-file,m";
 const char* const TECTONIC_PLATE_MODEL_OPTION = "plate-model-option";
 
+// Undefine any system macros that might conflict
+#ifdef LSCALE
+#undef LSCALE
+#endif
+#ifdef PSCALE
+#undef PSCALE
+#endif
+#ifdef HSCALE
+#undef HSCALE
+#endif
+#ifdef VSCALE
+#undef VSCALE
+#endif
+
 const char* const VSCALE = "v-scale";
 const char* const PSCALE = "p-scale";
 const char* const LSCALE = "l-scale";
