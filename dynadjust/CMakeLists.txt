@@ -699,6 +699,7 @@ if (BUILD_TESTING)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb DESTINATION ./)    
     add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:dynadjust> -n sample --import --geoid --reftran --segment --adjust)
+    set_tests_properties(dynadjust-name-01 PROPERTIES ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}")
 
     # 6. urban data manipulation
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)

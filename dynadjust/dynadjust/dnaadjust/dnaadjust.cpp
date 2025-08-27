@@ -9693,6 +9693,11 @@ void dna_adjust::LoadNetworkFiles()
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
         }
         
+        // Check if all measurements are ignored (no measurements to process)
+        if (measurementCount_ == 0 || (v_CML_.size() > 0 && v_CML_.at(0).empty())) {
+            SignalExceptionAdjustment("LoadNetworkFiles(): No valid measurements to process. All measurements may be ignored.", 0);
+        }
+        
         // Ensure v_blockStationsMap_ matches expected state
         if (v_blockStationsMap_.empty()) {
             v_blockStationsMap_.resize(1);
