@@ -7,7 +7,7 @@ option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
 option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
 option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
-set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
+set(CMAKE_DISABLE_PRECOMPILE_HEADERS OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
