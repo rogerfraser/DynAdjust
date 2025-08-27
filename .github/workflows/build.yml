@@ -107,7 +107,6 @@ jobs:
           name: dynadjust-linux-mkl
           path: ./zip/
 
-
 #------------------------------------------------
 
   build_linux_static_openblas:
