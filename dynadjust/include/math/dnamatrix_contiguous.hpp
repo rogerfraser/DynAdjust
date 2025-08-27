@@ -94,7 +94,7 @@ typedef int lapack_int;
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
 
-typedef MKL_INT lapack_int;
+#define lapack_int MKL_INT
 
 #else
 
@@ -105,7 +105,7 @@ typedef MKL_INT lapack_int;
 #define BLAS_FORTRAN_SUFFIX
 #define BLAS_SYMBOL_SUFFIX
 
-typedef MKL_INT lapack_int;
+#define lapack_int MKL_INT
 
 #endif
 
