@@ -4126,12 +4126,9 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 	var_cart->put(1, v, scaleMatrix ? _it_msr->term3 * vScale : _it_msr->term3);		// ZY
 	var_cart->put(2, v, scaleMatrix ? _it_msr->term4 * vScale : _it_msr->term4);		// ZZ
 	
-	bool lowerisClear(true);
-	if (scaleMatrix || scalePartial)
-	{
-		var_cart->filllower();
-		lowerisClear = false;
-	}
+	// DR FIX: Always fill lower triangle from upper to ensure matrix is symmetric
+	var_cart->filllower();
+	bool lowerisClear(false);
 
 	try {
 
@@ -4150,6 +4147,9 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 				stn1_it->currentLatitude, stn1_it->currentLongitude, stn1_it->currentHeight,
 				datum_.GetEllipsoidRef(), 
 				pScale, lScale, hScale);
+			
+			// DR FIX: Ensure matrix remains symmetric after scaling transformations
+			var_cart->filllower();
 		}
 
 		// Copy elements of scaled variance matrix to variances held in internal memory (_it_msr)
@@ -4280,7 +4280,9 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 		_it_msr++;
 	}
 	
-	bool lowerisClear(true);
+	// DR FIX: Always fill lower triangle from upper to ensure matrix is symmetric
+	var_cart->filllower();
+	bool lowerisClear(false);
 
 	try {
 
@@ -4288,13 +4290,13 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 		{	
 			if (scalePartial)
 			{
-				var_cart->filllower();
-				lowerisClear = false;
 				ScaleGPSVCV_Cluster<double>(*var_cart, var_cart, 
 					mpositions, 
 					datum_.GetEllipsoidRef(), 
 					pScale, lScale, hScale);
 
+				// Ensure matrix remains symmetric after scaling transformations
+				var_cart->filllower();
 			}	// if (scalePartial)
 
 			// Copy elements of scaled variance matrix to variances held in internal memory (_it_msr)
@@ -4495,17 +4497,15 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 		_it_msr++;
 	}
 
-	bool lowerisClear(true);
-	if (scaleMatrix || scalePartial || coordType == LLH_type_i || coordType == LLh_type_i)
-	{
-		var_cart->filllower();
-		lowerisClear = false;
-	}
+	// DR FIX: Always fill lower triangle from upper to ensure matrix is symmetric
+	var_cart->filllower();
+	bool lowerisClear(false);
 
 	try {		
 
 		// Scale variance matrix using phi, lambda and height scalars?
 		if (scalePartial)
+		{
 			// If v-scale has been supplied, partial scalars will have been 
 			// multiplied by v-scale in LoadVarianceScaling.
 			// ScaleGPSVCV_Cluster also converts var_cart to cartesian system
@@ -4513,13 +4513,21 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 				mpositions, 
 				datum_.GetEllipsoidRef(),
 				pScale, lScale, hScale, coordType);
-
+			
+			// DR FIX: Ensure matrix remains symmetric after scaling transformations
+			var_cart->filllower();
+		}
 		// Propagate variance matrix into cartesian reference frame?
         else if (coordType == LLH_type_i || coordType == LLh_type_i)
+		{
 			PropagateVariances_GeoCart_Cluster<double>(*var_cart, var_cart,
 				mpositions, 
 				datum_.GetEllipsoidRef(), 
 				true); 		// Geographic -> Cartesian
+			
+			// DR FIX: Ensure matrix remains symmetric after propagation
+			var_cart->filllower();
+		}
 
 		if (scaleMatrix && !scalePartial)
 			var_cart->scale(vScale);
@@ -8021,6 +8029,12 @@ void dna_adjust::FormInverseVarianceMatrix(matrix_2d* vmat, bool LOWER_IS_CLEARE
 	// lower triangular form, thus alleviating the need to pass 
 	// LOWER_IS_CLEARED.  That is, force all operations to use a lower 
 	// triangular matrix.  Not sure if this would create an efficiency or not.
+
+	// DR FIX: Ensure perfect symmetry before inversion
+	// This handles any numerical errors from transformations
+	if (!LOWER_IS_CLEARED)
+		vmat->filllower();
+	
 	switch (projectSettings_.a.inverse_method_msr)
 	{
 //	case Gaussian:
@@ -8032,15 +8046,8 @@ void dna_adjust::FormInverseVarianceMatrix(matrix_2d* vmat, bool LOWER_IS_CLEARE
 	case Cholesky_mkl:
 	default:
 		// Inversion using Intel MKL
-		vmat->cholesky_inverse(LOWER_IS_CLEARED);
+		vmat->cholesky_inverse(false);  // lower triangle is now filled
 		break;
-	// choleskyinverse broke once the storage order of the matrix buffer was
-	// changed from row-wise to column wise.
-//	case Cholesky:
-//	default:
-		// Inversion using Numerical Recipes
-//		vmat->choleskyinverse(LOWER_IS_CLEARED);
-//		break;
 	}
 }
 	
