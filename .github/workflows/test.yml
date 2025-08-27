@@ -183,6 +183,7 @@ jobs:
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
+      ONEAPI_VERSION: "2025.2"
     
     steps:
 
@@ -265,13 +266,27 @@ jobs:
         curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
         tar zxvf libxsd-4.2.0.tar.gz
 
+    - name: Extract OneAPI version
+      shell: powershell
+      run: |
+        # Extract version from URL (e.g., 2025.2.1 -> 2025.2)
+        $url = "${{ env.WINDOWS_BASEKIT_URL }}"
+        if ($url -match 'toolkit-(\d+\.\d+)\.\d+') {
+          $version = $matches[1]
+          echo "ONEAPI_VERSION=$version" >> $env:GITHUB_ENV
+          Write-Host "Extracted OneAPI version: $version"
+        } else {
+          Write-Host "Failed to extract version, using default 2025.2"
+          echo "ONEAPI_VERSION=2025.2" >> $env:GITHUB_ENV
+        }
+
     - name: Build with CMake
       working-directory: "./src"
       shell: cmd
       run: |
         vcpkg.exe integrate install
-        call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
-        call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\compiler\%ONEAPI_VERSION%\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\mkl\%ONEAPI_VERSION%\env\vars.bat"
         set XSDROOT=%cd%\libxsd-4.2.0
         set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
         set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
@@ -288,8 +303,8 @@ jobs:
       working-directory: "./src"
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Intel\oneAPI\compiler\2025.1\env\vars.bat"
-        call "C:\Program Files (x86)\Intel\oneAPI\mkl\2025.1\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\compiler\%ONEAPI_VERSION%\env\vars.bat"
+        call "C:\Program Files (x86)\Intel\oneAPI\mkl\%ONEAPI_VERSION%\env\vars.bat"
         ctest --output-on-failure --timeout 120 -C Release > ctest_output.log 2>&1
         echo CTEST_EXIT_CODE=%ERRORLEVEL% >> %GITHUB_ENV%
         exit /b 0
