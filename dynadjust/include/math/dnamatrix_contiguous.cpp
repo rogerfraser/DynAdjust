@@ -849,15 +849,12 @@ void matrix_2d::blockadd(const UINT32& row_dest, const UINT32& col_dest, const m
 // Same as blockadd, but adds transpose.  mat_src must be square.
 void matrix_2d::blockTadd(const UINT32& row_dest, const UINT32& col_dest, const matrix_2d& mat_src,
                           const UINT32& row_src, const UINT32& col_src, const UINT32& rows, const UINT32& cols) {
-    UINT32 i_dest, j_dest;
+    UINT32 i_dest, j_dest, i_src, j_src;
     UINT32 i_dest_end(row_dest + rows), j_dest_end(col_dest + cols);
 
-    // Fix: Use offsets from 0 to correctly transpose the block
-    UINT32 i_offset, j_offset;
-    for (i_dest = row_dest, i_offset = 0; i_dest < i_dest_end; ++i_dest, ++i_offset)
-        for (j_dest = col_dest, j_offset = 0; j_dest < j_dest_end; ++j_dest, ++j_offset)
-            // Transpose: row_src + j_offset, col_src + i_offset (swap i and j)
-            elementadd(i_dest, j_dest, mat_src.get(row_src + j_offset, col_src + i_offset));
+    for (i_dest = row_dest, i_src = row_src; i_dest < i_dest_end; ++i_dest, ++i_src)
+        for (j_dest = col_dest, j_src = col_src; j_dest < j_dest_end; ++j_dest, ++j_src)
+            elementadd(i_dest, j_dest, mat_src.get(j_src, i_src));
 }
 
 void matrix_2d::blocksubtract(const UINT32& row_dest, const UINT32& col_dest, const matrix_2d& mat_src,
