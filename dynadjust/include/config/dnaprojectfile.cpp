@@ -31,6 +31,20 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/config/dnaoptions-helper.hpp>
 
+// Undefine any system macros that might conflict (macOS defines these)
+#ifdef LSCALE
+#undef LSCALE
+#endif
+#ifdef PSCALE
+#undef PSCALE
+#endif
+#ifdef HSCALE
+#undef HSCALE
+#endif
+#ifdef VSCALE
+#undef VSCALE
+#endif
+
 namespace dynadjust {
 
 CDnaProjectFile::CDnaProjectFile(void)
