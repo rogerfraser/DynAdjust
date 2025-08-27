@@ -602,7 +602,7 @@ if (BUILD_TESTING)
     add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
     add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
-    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
+    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr --scale-normals-to-unity)
 
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
