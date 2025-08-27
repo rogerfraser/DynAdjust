@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
+#include <string_view>
 
 #include <algorithm>
 #include <functional>
@@ -63,11 +64,12 @@ T leafStr(const T& filePath)
 // Safe wrapper for std::filesystem::absolute that handles empty paths
 // On Linux, std::filesystem::absolute("") throws an exception
 // This function returns empty string for empty input
-inline std::string safe_absolute_path(const std::string& path)
+// Accepts std::string_view for flexibility with both std::string and string_view
+inline std::string safe_absolute_path(std::string_view path)
 {
 	if (path.empty())
 		return "";
-	return std::filesystem::absolute(path).string();
+	return std::filesystem::absolute(std::string(path)).string();
 }
 
 #endif //DNAFILEPATHFUNCS_H_
