@@ -301,9 +301,8 @@ jobs:
       working-directory: "./src"
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" intel64 vs2022
+        call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
         ctest --output-on-failure --timeout 120 -C Release > ctest_output.log 2>&1
-        echo CTEST_EXIT_CODE=%ERRORLEVEL% >> %GITHUB_ENV%
 
     - name: Parse test results and create annotations
       if: always()
