@@ -668,52 +668,102 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
     const double tolerance = 1e-10;
     const int max_violations_to_check = 10;
-    int violations_found = 0;
-    std::stringstream validation_errors;
     
-    if (LOWER_IS_CLEARED) {
-        // Lower triangle should be cleared (all zeros), data is in upper triangle
-        for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
-            for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
-                double val = get(row, col);
-                if (std::abs(val) > tolerance) {
-                    if (violations_found == 0) {
-                        validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                        validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
-                        validation_errors << "  Found non-zero elements in lower triangle:\n";
-                    }
-                    validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                    violations_found++;
+    // First check if the matrix is symmetric
+    bool is_symmetric = true;
+    int asymmetry_count = 0;
+    double max_asymmetry = 0.0;
+    UINT32 max_asym_row = 0, max_asym_col = 0;
+    
+    for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
+        for (UINT32 col = row + 1; col < _cols; ++col) {
+            double diff = std::abs(get(row, col) - get(col, row));
+            if (diff > tolerance) {
+                asymmetry_count++;
+                if (diff > max_asymmetry) {
+                    max_asymmetry = diff;
+                    max_asym_row = row;
+                    max_asym_col = col;
                 }
-            }
-        }
-    } else {
-        // Upper triangle should be cleared (all zeros), data is in lower triangle
-        for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
-            for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
-                double val = get(row, col);
-                if (std::abs(val) > tolerance) {
-                    if (violations_found == 0) {
-                        validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                        validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
-                        validation_errors << "  Found non-zero elements in upper triangle:\n";
-                    }
-                    validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                    violations_found++;
+                if (asymmetry_count >= max_violations_to_check) {
+                    is_symmetric = false;
+                    break;
                 }
             }
         }
     }
     
-    if (violations_found > 0) {
-        if (violations_found >= max_violations_to_check) {
-            validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check << ")\n";
+    // If the matrix is symmetric, we can proceed regardless of LOWER_IS_CLEARED
+    // Symmetric matrices (like normal equations) have data in both triangles
+    if (is_symmetric) {
+        // For symmetric matrices, we need to ensure the appropriate triangle is used
+        if (LOWER_IS_CLEARED) {
+            // Data should be in upper triangle, copy to ensure consistency
+            filllower();
+        } else {
+            // Data should be in lower triangle, copy to ensure consistency
+            fillupper();
         }
-        validation_errors << "\nThis error typically occurs when:\n";
-        validation_errors << "  - The matrix data is stored in the wrong triangle\n";
-        validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
-        validation_errors << "  - The matrix hasn't been properly initialised\n";
-        throw std::runtime_error(validation_errors.str());
+        // Skip triangle validation for symmetric matrices
+    } else {
+        // Matrix is not symmetric, so validate the triangular structure
+        int violations_found = 0;
+        std::stringstream validation_errors;
+        
+        if (LOWER_IS_CLEARED) {
+            // Lower triangle should be cleared (all zeros), data is in upper triangle
+            for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
+                for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
+                    double val = get(row, col);
+                    if (std::abs(val) > tolerance) {
+                        if (violations_found == 0) {
+                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                            validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
+                            validation_errors << "  Found non-zero elements in lower triangle:\n";
+                        }
+                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                        violations_found++;
+                    }
+                }
+            }
+        } else {
+            // Upper triangle should be cleared (all zeros), data is in lower triangle
+            for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
+                for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
+                    double val = get(row, col);
+                    if (std::abs(val) > tolerance) {
+                        if (violations_found == 0) {
+                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                            validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
+                            validation_errors << "  Found non-zero elements in upper triangle:\n";
+                        }
+                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                        violations_found++;
+                    }
+                }
+            }
+        }
+        
+        if (violations_found > 0) {
+            if (violations_found >= max_violations_to_check) {
+                validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check << ")\n";
+            }
+            
+            // Add information about symmetry check
+            validation_errors << "\nSymmetry check:\n";
+            if (asymmetry_count > 0) {
+                validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count << " asymmetric elements\n";
+                validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << "," << max_asym_col << "]\n";
+                validation_errors << "  This might be a symmetric matrix with numerical errors\n";
+            }
+            
+            validation_errors << "\nThis error typically occurs when:\n";
+            validation_errors << "  - The matrix data is stored in the wrong triangle\n";
+            validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
+            validation_errors << "  - The matrix hasn't been properly initialised\n";
+            validation_errors << "  - A symmetric matrix has numerical precision issues\n";
+            throw std::runtime_error(validation_errors.str());
+        }
     }
 
     char uplo(LOWER_TRIANGLE);
