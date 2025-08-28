@@ -690,6 +690,18 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 #ifdef USE_MKL
         error_msg << "  sizeof(MKL_INT): " << sizeof(MKL_INT) << " bytes\n";
         error_msg << "  BLAS/LAPACK: Intel MKL\n";
+        
+        // MKL version and configuration info
+        MKLVersion v;
+        mkl_get_version(&v);
+        error_msg << "  MKL Version: " << v.MajorVersion << "." 
+                  << v.MinorVersion << " Update " << v.UpdateVersion << "\n";
+        error_msg << "  MKL Product ID: " << v.ProductId << "\n";
+        error_msg << "  MKL Build: " << v.Build << "\n";
+        error_msg << "  Interface layer: " << MKL_Get_Interface_Layer() 
+                  << " (0=auto, 1=LP64, 2=ILP64)\n";
+        error_msg << "  Threading layer: " << MKL_Get_Threading_Layer() 
+                  << " (0=auto, 1=Sequential, 2=GNU OpenMP, 3=Intel OpenMP, 4=TBB)\n";
 #elif defined(__APPLE__)
         error_msg << "  BLAS/LAPACK: Apple Accelerate\n";
 #else
@@ -701,7 +713,8 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Interface: LP64 (32-bit integers)\n";
 #endif
         error_msg << "  Matrix dimensions: " << _rows << " x " << _cols << "\n";
-        error_msg << "  Triangle processed: " << (LOWER_IS_CLEARED ? "Upper" : "Lower") << "\n";
+        error_msg << "  Triangle processed: uplo='" << uplo << "' (LOWER_IS_CLEARED=" 
+                  << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
         
         error_msg << "\nError Details:\n";
         error_msg << "  dpotrf info = " << info << "\n";
@@ -791,6 +804,76 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                       << get_backup(asym_row, asym_col) << "\n";
             error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
                       << get_backup(asym_col, asym_row) << "\n";
+        }
+        
+        // If dpotrf reported a specific leading minor failure, analyze it
+        if (info > 0) {
+            int k = info;  // The order of the failed leading minor
+            error_msg << "\nLeading Minor Analysis (k=" << k << "):\n";
+            
+            // Dump the leading k×k block
+            error_msg << "  Leading " << k << "×" << k << " block:\n";
+            int show_size = std::min(k, 10);  // Limit display to 10×10
+            for (int i = 0; i < show_size; ++i) {
+                error_msg << "    ";
+                for (int j = 0; j < show_size; ++j) {
+                    error_msg << std::scientific << std::setprecision(6) 
+                              << std::setw(14) << get_backup(i, j);
+                }
+                if (show_size < k) error_msg << " ...";
+                error_msg << "\n";
+            }
+            if (show_size < k) {
+                error_msg << "    ... (" << (k-show_size) << " more rows)\n";
+            }
+            
+            // Gershgorin circle theorem check
+            double gmin = std::numeric_limits<double>::infinity();
+            int gmin_row = -1;
+            for (int i = 0; i < k; ++i) {
+                double aii = get_backup(i, i);
+                double r = 0.0;
+                for (int j = 0; j < k; ++j) {
+                    if (j != i) r += std::abs(get_backup(i, j));
+                }
+                double gi = aii - r;
+                if (gi < gmin) {
+                    gmin = gi;
+                    gmin_row = i;
+                }
+            }
+            error_msg << "\n  Gershgorin Analysis:\n";
+            error_msg << "    Lower bound for eigenvalues: " << std::scientific 
+                      << std::setprecision(6) << gmin << "\n";
+            error_msg << "    Critical row: " << gmin_row << "\n";
+            if (gmin <= 0) {
+                error_msg << "    => Matrix is NOT positive definite (Gershgorin bound <= 0)\n";
+            } else {
+                error_msg << "    => Gershgorin bound > 0, but dpotrf still failed\n";
+                error_msg << "       This suggests numerical issues or interface problems\n";
+            }
+            
+            // Triangle comparison for the leading minor
+            error_msg << "\n  Triangle Comparison (first 3×3 of leading " << k << "×" << k << "):\n";
+            int cmp_size = std::min(k, 3);
+            error_msg << "    Upper triangle:\n";
+            for (int i = 0; i < cmp_size; ++i) {
+                error_msg << "      ";
+                for (int j = i; j < cmp_size; ++j) {
+                    error_msg << std::scientific << std::setprecision(6) 
+                              << std::setw(14) << get_backup(i, j);
+                }
+                error_msg << "\n";
+            }
+            error_msg << "    Lower triangle:\n";
+            for (int i = 0; i < cmp_size; ++i) {
+                error_msg << "      ";
+                for (int j = 0; j <= i; ++j) {
+                    error_msg << std::scientific << std::setprecision(6) 
+                              << std::setw(14) << get_backup(i, j);
+                }
+                error_msg << "\n";
+            }
         }
         
         // Clean up backup buffer before throwing
