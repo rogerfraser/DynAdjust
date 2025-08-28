@@ -671,8 +671,8 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     if (LOWER_IS_CLEARED)
         uplo = UPPER_TRIANGLE;
 
-    // DR FIX: ensure the triangle to be used is filled, just for testing for now
-    filllower();
+    // DR FIX: ensure the triangle to be used is filled upper, just for testing for now
+    fillupper();
 
     lapack_int info, n = _rows;
 
