@@ -124,9 +124,6 @@ void GetGPSVarianceMatrix(const msr_t_Iterator begin, matrix_2d* vmat)
 			vmat->put(var+2, cov+2, (bmsRecord++)->term3);		// m33
 		}
 	}
-	
-	// DR FIX: Ensure the matrix is symmetric by filling the lower triangle
-	vmat->filllower();
 }
 
 
