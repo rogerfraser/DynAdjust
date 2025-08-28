@@ -590,6 +590,8 @@ if (BUILD_TESTING)
     message("")
     message(STATUS "Setting up tests...")
 
+    find_program(BASH_EXECUTABLE NAMES bash bash.exe)
+
     # Create symbolic links
     add_custom_target(import_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaimportwrapper> dnaimport)
     add_custom_target(geoid_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnageoidwrapper> dnageoid)
@@ -605,7 +607,13 @@ if (BUILD_TESTING)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr --scale-normals-to-unity)
 
     # bash command to check results
-    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+    if(BASH_EXECUTABLE)
+      add_test(NAME test-gnss-network
+        COMMAND "${BASH_EXECUTABLE}" -c
+          "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+    else()
+      message(STATUS "Bash not found; disabling test-gnss-network")
+    endif()
 
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
     add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
@@ -747,8 +755,13 @@ if (BUILD_TESTING)
     add_test (NAME geo-inside-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt --interpolation-method 0)
 
     # bash command to check results
-    #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
-    #add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
+    if(BASH_EXECUTABLE)
+        add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
+        add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
+    else()
+      message(STATUS "Bash not found; disabling test-urban-phased-network")
+      message(STATUS "Bash not found; disabling test-urban-thread-network")
+    endif()
 
     # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2014 -e 01.01.2020)
@@ -1208,7 +1221,12 @@ if (BUILD_TESTING)
     add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
     add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr --flag-unused-stations)
     add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/NNR-MORVEL56_poles.dat)
-    #add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
+
+    if(BASH_EXECUTABLE)
+        add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
+    else()
+      message(STATUS "Bash not found; disabling ref-itrf-pmm-07 test")
+    endif()
 
     # 10. station discontinuities
     add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --export-discont-file --flag-unused-stations)
