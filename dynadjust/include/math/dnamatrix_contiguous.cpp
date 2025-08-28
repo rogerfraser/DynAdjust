@@ -696,12 +696,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         mkl_get_version(&v);
         error_msg << "  MKL Version: " << v.MajorVersion << "." 
                   << v.MinorVersion << " Update " << v.UpdateVersion << "\n";
-        error_msg << "  MKL Product ID: " << v.ProductId << "\n";
         error_msg << "  MKL Build: " << v.Build << "\n";
-        error_msg << "  Interface layer: " << MKL_Get_Interface_Layer() 
-                  << " (0=auto, 1=LP64, 2=ILP64)\n";
-        error_msg << "  Threading layer: " << MKL_Get_Threading_Layer() 
-                  << " (0=auto, 1=Sequential, 2=GNU OpenMP, 3=Intel OpenMP, 4=TBB)\n";
 #elif defined(__APPLE__)
         error_msg << "  BLAS/LAPACK: Apple Accelerate\n";
 #else
