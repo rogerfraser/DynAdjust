@@ -1048,6 +1048,15 @@ void matrix_2d::clearlower() {
         memset(getelementref(row, col), 0, (static_cast<std::size_t>(_mem_rows) - row) * sizeof(double));
 }
 
+// clearupper()
+void matrix_2d::clearupper() {
+    // Sets upper triangle elements to zero
+    UINT32 col, row;
+    for (row = 0; row < _rows; ++row)
+        for (col = row + 1; col < _cols; ++col)
+            put(row, col, 0.0);
+}
+
 // filllower()
 void matrix_2d::filllower() {
     // copies upper triangle to lower triangle

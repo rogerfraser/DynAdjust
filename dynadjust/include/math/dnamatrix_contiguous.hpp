@@ -344,6 +344,7 @@ class matrix_2d : public new_handler_support<matrix_2d> {
     void shrink(const UINT32& rows, const UINT32& columns);
     void grow(const UINT32& rows, const UINT32& columns);
     void clearlower(); // sets lower tri elements to zero
+    void clearupper(); // sets upper tri elements to zero
     void filllower();  // copies upper tri to lower
     void fillupper();  // copies lower tri to upper
     void zero();       // sets all elements to zero

@@ -6495,8 +6495,12 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		}
 		//////////////////
 	
+		// Clear upper triangle to match expected structure for cholesky_inverse
+		v_normals_.at(block).clearupper();
+		
 		// Calculate Inverse of AT * V-1 * A
-		FormInverseVarianceMatrix(&(v_normals_.at(block)));
+		// Explicitly set LOWER_IS_CLEARED to false (data is in lower triangle)
+		FormInverseVarianceMatrix(&(v_normals_.at(block)), false);
 
 		// Check for a failed inverse solution
 		if (boost::math::isnan(v_normals_.at(block).get(0, 0)) || 
