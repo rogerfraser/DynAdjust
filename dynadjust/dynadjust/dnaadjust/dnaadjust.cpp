@@ -6496,7 +6496,7 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		//////////////////
 	
 		// Calculate Inverse of AT * V-1 * A
-		FormInverseVarianceMatrix(&(v_normals_.at(block)));
+		FormInverseVarianceMatrix(&(v_normals_.at(block)), true);
 
 		// Check for a failed inverse solution
 		if (boost::math::isnan(v_normals_.at(block).get(0, 0)) || 
