@@ -673,43 +673,6 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     lapack_int info, n = _rows;
 
-    // Check matrix symmetry before attempting Cholesky factorization
-    // This catches errors early and provides better diagnostics
-    const double symmetry_tol = 1e-10;
-    double max_asymmetry = 0.0;
-    UINT32 asym_row = 0, asym_col = 0;
-    int asym_count = 0;
-    
-    for (UINT32 i = 0; i < _rows; ++i) {
-        for (UINT32 j = i + 1; j < _cols; ++j) {
-            double diff = std::abs(get(i, j) - get(j, i));
-            if (diff > symmetry_tol) {
-                asym_count++;
-                if (diff > max_asymmetry) {
-                    max_asymmetry = diff;
-                    asym_row = i;
-                    asym_col = j;
-                }
-            }
-        }
-    }
-    
-    // If matrix is not symmetric, throw an exception with details
-    if (asym_count > 0) {
-        std::stringstream error_msg;
-        error_msg << "cholesky_inverse(): Matrix is not symmetric.\n";
-        error_msg << "  Tolerance: " << symmetry_tol << "\n";
-        error_msg << "  Asymmetric elements: " << asym_count << " out of " 
-                  << (_rows * (_rows - 1) / 2) << " upper triangle elements\n";
-        error_msg << "  Max asymmetry: " << max_asymmetry 
-                  << " at [" << asym_row << "," << asym_col << "]\n";
-        error_msg << "  A[" << asym_row << "," << asym_col << "] = " 
-                  << get(asym_row, asym_col) << "\n";
-        error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
-                  << get(asym_col, asym_row) << "\n";
-        throw std::runtime_error(error_msg.str());
-    }
-
     // Create a backup of the matrix for diagnostics if dpotrf fails
     // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
     std::size_t buffer_size = buffersize();
