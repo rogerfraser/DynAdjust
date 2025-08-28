@@ -696,14 +696,8 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     // If the matrix is symmetric, we can proceed regardless of LOWER_IS_CLEARED
     // Symmetric matrices (like normal equations) have data in both triangles
     if (is_symmetric) {
-        // For symmetric matrices, we need to ensure the appropriate triangle is used
-        if (LOWER_IS_CLEARED) {
-            // Data should be in upper triangle, copy to ensure consistency
-            filllower();
-        } else {
-            // Data should be in lower triangle, copy to ensure consistency
-            fillupper();
-        }
+        // For symmetric matrices, LAPACK will use the triangle specified by uplo
+        // We don't need to modify the data or validate the triangle structure
         // Skip triangle validation for symmetric matrices
     } else {
         // Matrix is not symmetric, so validate the triangular structure
