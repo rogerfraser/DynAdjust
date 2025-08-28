@@ -671,6 +671,9 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     if (LOWER_IS_CLEARED)
         uplo = UPPER_TRIANGLE;
 
+    // DR FIX: ensure the triangle to be used is filled, just for testing for now
+    filllower();
+
     lapack_int info, n = _rows;
 
     // Create a backup of the matrix for diagnostics if dpotrf fails
