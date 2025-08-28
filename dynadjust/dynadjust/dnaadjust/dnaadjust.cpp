@@ -1,4 +1,3 @@
-#include <filesystem>
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
