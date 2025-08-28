@@ -20,8 +20,6 @@
 //============================================================================
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
-#include <filesystem>
-#include <thread>
 
 #include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
