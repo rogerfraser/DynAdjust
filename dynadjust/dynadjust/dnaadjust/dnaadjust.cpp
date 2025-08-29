@@ -4107,6 +4107,7 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 		scaleMatrix, scalePartial);
 
 	var_cart->redim(3, 3);
+	var_cart->zero();  // Initialize to zero to prevent uninitialized values
 
 	// vScale is performed on the fly, assuming that all VCVs for single baselines
 	// will always be in the cartesian reference frame
