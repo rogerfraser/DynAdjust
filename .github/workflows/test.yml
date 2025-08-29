@@ -312,6 +312,9 @@ jobs:
       shell: bash
       run: |
         if [ -f ctest_output.log ]; then
+          # Convert Windows line endings to Unix
+          dos2unix ctest_output.log 2>/dev/null || sed -i 's/\r$//' ctest_output.log
+          
           # Find the line with "tests passed" and get everything from there to the end
           SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
           

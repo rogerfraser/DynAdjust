@@ -7,9 +7,9 @@
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
 //                You may obtain a copy of the License at
-//               
+//
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//               
+//
 //                Unless required by applicable law or agreed to in writing, software
 //                distributed under the License is distributed on an "AS IS" BASIS,
 //                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,12 @@
 // Description  : DynAdjust Matrix library
 //============================================================================
 
+#include <cmath>
+#include <include/ide/trace.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <iomanip>
-#include <sstream>
-#include <cmath>
 #include <limits>
-#include <include/ide/trace.hpp>
+#include <sstream>
 
 namespace dynadjust {
 namespace math {
@@ -76,8 +76,7 @@ std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs) {
            << std::endl;
 
         for (UINT32 c, r = 0; r < rhs._mem_rows; ++r) {
-            for (c = 0; c < rhs._mem_cols; ++c)
-                os << std::scientific << std::setprecision(16) << rhs.get(r, c) << " ";
+            for (c = 0; c < rhs._mem_cols; ++c) os << std::scientific << std::setprecision(16) << rhs.get(r, c) << " ";
             os << std::endl;
         }
         os << rhs._maxvalRow << " " << rhs._maxvalCol << std::endl;
@@ -101,7 +100,7 @@ void out_of_memory_handler() {
         ss << (mem / KILOBYTE_SIZE) << " KB).";
     else if (mem < GIGABYTE_SIZE)
         ss << (mem / MEGABYTE_SIZE) << " MB).";
-    else // if (mem >= GIGABYTE_SIZE)
+    else  // if (mem >= GIGABYTE_SIZE)
         ss << (mem / GIGABYTE_SIZE) << " GB).";
 
     throw NetMemoryException(ss.str());
@@ -120,7 +119,13 @@ matrix_2d::matrix_2d()
 }
 
 matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns)
-    : _mem_cols(columns), _mem_rows(rows), _cols(columns), _rows(rows), _buffer(0), _maxvalCol(0), _maxvalRow(0),
+    : _mem_cols(columns),
+      _mem_rows(rows),
+      _cols(columns),
+      _rows(rows),
+      _buffer(0),
+      _maxvalCol(0),
+      _maxvalRow(0),
       _matrixType(mtx_full) {
     std::set_new_handler(out_of_memory_handler);
 
@@ -129,7 +134,13 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns)
 
 matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns, const double data[], const std::size_t& data_size,
                      const UINT32& matrix_type)
-    : _mem_cols(columns), _mem_rows(rows), _cols(columns), _rows(rows), _buffer(0), _maxvalCol(0), _maxvalRow(0),
+    : _mem_cols(columns),
+      _mem_rows(rows),
+      _cols(columns),
+      _rows(rows),
+      _buffer(0),
+      _maxvalCol(0),
+      _maxvalRow(0),
       _matrixType(matrix_type) {
     std::set_new_handler(out_of_memory_handler);
 
@@ -180,8 +191,14 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns, const double dat
 }
 
 matrix_2d::matrix_2d(const matrix_2d& newmat)
-    : _mem_cols(newmat.memColumns()), _mem_rows(newmat.memRows()), _cols(newmat.columns()), _rows(newmat.rows()),
-      _buffer(0), _maxvalCol(newmat.maxvalueCol()), _maxvalRow(newmat.maxvalueRow()), _matrixType(newmat.matrixType()) {
+    : _mem_cols(newmat.memColumns()),
+      _mem_rows(newmat.memRows()),
+      _cols(newmat.columns()),
+      _rows(newmat.rows()),
+      _buffer(0),
+      _maxvalCol(newmat.maxvalueCol()),
+      _maxvalRow(newmat.maxvalueRow()),
+      _matrixType(newmat.matrixType()) {
     std::set_new_handler(out_of_memory_handler);
 
     allocate(_mem_rows, _mem_cols);
@@ -199,7 +216,7 @@ matrix_2d::~matrix_2d() {
 
 std::size_t matrix_2d::get_size() {
     size_t size =
-        (7 * sizeof(UINT32)); // UINT32 _matrixType, _mem_cols, _mem_rows, _cols, _rows, _maxvalRow, _maxvalCol
+        (7 * sizeof(UINT32));  // UINT32 _matrixType, _mem_cols, _mem_rows, _cols, _rows, _maxvalRow, _maxvalCol
 
     switch (_matrixType) {
     case mtx_lower: size += sumOfConsecutiveIntegers(_mem_rows) * sizeof(double); break;
@@ -261,11 +278,11 @@ void matrix_2d::ReadMappedFileRegion(void* addr) {
                     continue;
                 }
 
-                memcpy(getelementref(r, ci), data_d, sizeof(double)); // xValue
+                memcpy(getelementref(r, ci), data_d, sizeof(double));  // xValue
                 data_d++;
-                memcpy(getelementref(r, ci + 1), data_d, sizeof(double)); // yValue
+                memcpy(getelementref(r, ci + 1), data_d, sizeof(double));  // yValue
                 data_d++;
-                memcpy(getelementref(r, ci + 2), data_d, sizeof(double)); // zValue
+                memcpy(getelementref(r, ci + 2), data_d, sizeof(double));  // zValue
                 data_d++;
 
                 data_i = reinterpret_cast<int*>(data_d);
@@ -351,11 +368,11 @@ void matrix_2d::WriteMappedFileRegion(void* addr) {
                     continue;
                 }
 
-                memcpy(data_d, getelementref(r, ci), sizeof(double)); // xValue
+                memcpy(data_d, getelementref(r, ci), sizeof(double));  // xValue
                 data_d++;
-                memcpy(data_d, getelementref(r, ci + 1), sizeof(double)); // yValue
+                memcpy(data_d, getelementref(r, ci + 1), sizeof(double));  // yValue
                 data_d++;
-                memcpy(data_d, getelementref(r, ci + 2), sizeof(double)); // zValue
+                memcpy(data_d, getelementref(r, ci + 2), sizeof(double));  // zValue
                 data_d++;
 
                 data_i = reinterpret_cast<int*>(data_d);
@@ -421,7 +438,7 @@ void matrix_2d::buy(const UINT32& rows, const UINT32& columns, double** mem_spac
         ss << "Insufficient memory for a " << rows << " x " << columns << " matrix.";
         throw NetMemoryException(ss.str());
     }
-    
+
     // Initialize memory to zero to prevent uninitialized values
     std::memset((*mem_space), 0, total_size * sizeof(double));
 }
@@ -619,62 +636,60 @@ void matrix_2d::sweep(UINT32 k1, UINT32 k2) {
         k2 = k;
     }
     //	n = a.nrows();
-    for (k = k1; k < k2; k++)      //	for (k = k1; k <= k2; k++)
-    {                              //	{
-        if (fabs(get(k, k)) < eps) //		if ( fabs( a(k, k) ) < eps)
+    for (k = k1; k < k2; k++)       //	for (k = k1; k <= k2; k++)
+    {                               //	{
+        if (fabs(get(k, k)) < eps)  //		if ( fabs( a(k, k) ) < eps)
         {
-            for (it = 0; it < _rows; it++) //			for (it = 1; it <= n; it++)
+            for (it = 0; it < _rows; it++)  //			for (it = 1; it <= n; it++)
             {
                 put(it, k, 0.);
-                put(k, it, 0.); //				a(it, k) = a(k, it) = 0.0;
+                put(k, it, 0.);  //				a(it, k) = a(k, it) = 0.0;
             }
-        } else {                                  //		else {
-            d = 1.0 / get(k, k);                  //			d = 1.0 / a(k, k);
-            put(k, k, d);                         //			a(k, k) = d;
-            for (i = 0; i < _rows; i++)           //			for (i = 1; i <= n; i++)
-                if (i != k)                       //				if (i != k)
-                    *getelementref(i, k) *= -d;   //					a(i, k) *= (T) - d;
-            for (j = 0; j < _rows; j++)           //			for (j = 1; j <= n; j++)
-                if (j != k)                       //				if (j != k)
-                    *getelementref(k, j) *= d;    //					a(k, j) *= (T) d;
-            for (i = 0; i < _rows; i++) {         //			for (i = 1; i <= n; i++) {
-                if (i != k) {                     //				if (i != k) {
-                    for (j = 0; j < _rows; j++) { //					for (j = 1; j <= n; j++) {
-                        if (j != k)               //						if (j != k)
+        } else {                                   //		else {
+            d = 1.0 / get(k, k);                   //			d = 1.0 / a(k, k);
+            put(k, k, d);                          //			a(k, k) = d;
+            for (i = 0; i < _rows; i++)            //			for (i = 1; i <= n; i++)
+                if (i != k)                        //				if (i != k)
+                    *getelementref(i, k) *= -d;    //					a(i, k) *= (T) - d;
+            for (j = 0; j < _rows; j++)            //			for (j = 1; j <= n; j++)
+                if (j != k)                        //				if (j != k)
+                    *getelementref(k, j) *= d;     //					a(k, j) *= (T) d;
+            for (i = 0; i < _rows; i++) {          //			for (i = 1; i <= n; i++) {
+                if (i != k) {                      //				if (i != k) {
+                    for (j = 0; j < _rows; j++) {  //					for (j = 1; j <= n; j++) {
+                        if (j != k)                //						if (j != k)
                             *getelementref(i, j) +=
-                                get(i, k) * get(k, j) / d; //							a(i, j) += a(i, k) *a(k, j) / d;
-                    } // end for j													//					} // end for j
-                } // end for i != k													//				} // end for i != k
-            } // end for i															//			} // end for i
-        } // end else																//		} // end else
-    } // end for k																	//	} // end for k
+                                get(i, k) * get(k, j) / d;  //							a(i, j) += a(i, k) *a(k, j) / d;
+                    }  // end for j													//					} // end for j
+                }  // end for i != k													//				} // end for i
+                   // != k
+            }  // end for i															//			} // end for i
+        }  // end else																//		} // end else
+    }  // end for k																	//	} // end for k
 }
 
 matrix_2d matrix_2d::sweepinverse() {
-    if (_rows != _cols)
-        throw std::runtime_error("sweepinverse: Matrix is not square.");
+    if (_rows != _cols) throw std::runtime_error("sweepinverse: Matrix is not square.");
 
     sweep(0, _rows);
     return *this;
 }
 
 matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
-    if (_rows < 1)
-        return *this;
+    if (_rows < 1) return *this;
 
-    if (_rows != _cols)
-        throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
+    if (_rows != _cols) throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
 
     // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
     const double tolerance = 1e-10;
     const int max_violations_to_check = 10;
-    
+
     // First check if the matrix is symmetric
     bool is_symmetric = true;
     int asymmetry_count = 0;
     double max_asymmetry = 0.0;
     UINT32 max_asym_row = 0, max_asym_col = 0;
-    
+
     for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
         for (UINT32 col = row + 1; col < _cols; ++col) {
             double diff = std::abs(get(row, col) - get(col, row));
@@ -692,7 +707,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             }
         }
     }
-    
+
     // If the matrix is symmetric, we can proceed regardless of LOWER_IS_CLEARED
     // Symmetric matrices (like normal equations) have data in both triangles
     if (is_symmetric) {
@@ -703,7 +718,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         // Matrix is not symmetric, so validate the triangular structure
         int violations_found = 0;
         std::stringstream validation_errors;
-        
+
         if (LOWER_IS_CLEARED) {
             // Lower triangle should be cleared (all zeros), data is in upper triangle
             for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
@@ -737,20 +752,26 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                 }
             }
         }
-        
+
         if (violations_found > 0) {
             if (violations_found >= max_violations_to_check) {
-                validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check << ")\n";
+                validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check
+                                  << ")\n";
             }
-            
+
             // Add information about symmetry check
             validation_errors << "\nSymmetry check:\n";
             if (asymmetry_count > 0) {
-                validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count << " asymmetric elements\n";
-                validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << "," << max_asym_col << "]\n";
+                validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count
+                                  << " asymmetric elements\n";
+                validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << ","
+                                  << max_asym_col << "]\n";
+                validation_errors << "[" << max_asym_row << "," << max_asym_col
+                                  << "] = " << get(max_asym_row, max_asym_col) << ", [" << max_asym_col << ","
+                                  << max_asym_row << "] = " << get(max_asym_col, max_asym_row) << "\n";
                 validation_errors << "  This might be a symmetric matrix with numerical errors\n";
             }
-            
+
             validation_errors << "\nThis error typically occurs when:\n";
             validation_errors << "  - The matrix data is stored in the wrong triangle\n";
             validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
@@ -763,8 +784,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     char uplo(LOWER_TRIANGLE);
 
     // Which triangle is filled - upper or lower?
-    if (LOWER_IS_CLEARED)
-        uplo = UPPER_TRIANGLE;
+    if (LOWER_IS_CLEARED) uplo = UPPER_TRIANGLE;
 
     lapack_int info, n = _rows;
 
@@ -785,12 +805,12 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 #ifdef USE_MKL
         error_msg << "  sizeof(MKL_INT): " << sizeof(MKL_INT) << " bytes\n";
         error_msg << "  BLAS/LAPACK: Intel MKL\n";
-        
+
         // MKL version and configuration info
         MKLVersion v;
         mkl_get_version(&v);
-        error_msg << "  MKL Version: " << v.MajorVersion << "." 
-                  << v.MinorVersion << " Update " << v.UpdateVersion << "\n";
+        error_msg << "  MKL Version: " << v.MajorVersion << "." << v.MinorVersion << " Update " << v.UpdateVersion
+                  << "\n";
         error_msg << "  MKL Build: " << v.Build << "\n";
 #elif defined(__APPLE__)
         error_msg << "  BLAS/LAPACK: Apple Accelerate\n";
@@ -803,26 +823,25 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Interface: LP64 (32-bit integers)\n";
 #endif
         error_msg << "  Matrix dimensions: " << _rows << " x " << _cols << "\n";
-        error_msg << "  Triangle processed: uplo='" << uplo << "' (LOWER_IS_CLEARED=" 
-                  << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
-        
+        error_msg << "  Triangle processed: uplo='" << uplo
+                  << "' (LOWER_IS_CLEARED=" << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
+
         error_msg << "\nError Details:\n";
         error_msg << "  dpotrf info = " << info << "\n";
         if (info < 0) {
             error_msg << "  Meaning: Argument " << -info << " had an illegal value\n";
         } else {
-            error_msg << "  Meaning: The leading minor of order " << info 
-                      << " is not positive definite\n";
+            error_msg << "  Meaning: The leading minor of order " << info << " is not positive definite\n";
         }
-        
+
         // Matrix diagnostics using the backup (original matrix before dpotrf modified it)
         error_msg << "\nMatrix Diagnostics (Original Matrix):\n";
-        
+
         // Helper to access backup matrix elements
         auto get_backup = [&](UINT32 row, UINT32 col) -> double {
             return backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, row, col)];
         };
-        
+
         // Check diagonal elements
         double trace = 0.0;
         double min_diag = std::numeric_limits<double>::max();
@@ -830,28 +849,28 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         int negative_diag_count = 0;
         int nan_count = 0;
         int inf_count = 0;
-        
+
         for (UINT32 i = 0; i < _rows; ++i) {
             double diag_val = get_backup(i, i);
             trace += diag_val;
-            
+
             if (std::isnan(diag_val)) nan_count++;
             if (std::isinf(diag_val)) inf_count++;
             if (diag_val < 0) negative_diag_count++;
-            
+
             if (!std::isnan(diag_val) && !std::isinf(diag_val)) {
                 min_diag = std::min(min_diag, diag_val);
                 max_diag = std::max(max_diag, diag_val);
             }
         }
-        
+
         error_msg << "  Trace: " << trace << "\n";
         error_msg << "  Min diagonal: " << min_diag << "\n";
         error_msg << "  Max diagonal: " << max_diag << "\n";
         error_msg << "  Negative diagonal elements: " << negative_diag_count << "\n";
         error_msg << "  NaN count: " << nan_count << "\n";
         error_msg << "  Inf count: " << inf_count << "\n";
-        
+
         // Show first few diagonal elements
         error_msg << "  First diagonal elements: ";
         UINT32 diag_show = std::min(_rows, (UINT32)10);
@@ -861,13 +880,13 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         }
         if (_rows > 10) error_msg << ", ...";
         error_msg << "\n";
-        
+
         // Check symmetry
         double max_asymmetry = 0.0;
         UINT32 asym_row = 0, asym_col = 0;
         int asym_count = 0;
         const double symmetry_tol = 1e-10;
-        
+
         for (UINT32 i = 0; i < _rows; ++i) {
             for (UINT32 j = i + 1; j < _cols; ++j) {
                 double diff = std::abs(get_backup(i, j) - get_backup(j, i));
@@ -881,42 +900,36 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                 }
             }
         }
-        
+
         error_msg << "\nSymmetry Check:\n";
         if (asym_count == 0) {
             error_msg << "  Matrix is symmetric (tolerance: " << symmetry_tol << ")\n";
         } else {
             error_msg << "  Matrix is NOT symmetric!\n";
             error_msg << "  Asymmetric elements: " << asym_count << "\n";
-            error_msg << "  Max asymmetry: " << max_asymmetry 
-                      << " at [" << asym_row << "," << asym_col << "]\n";
-            error_msg << "  A[" << asym_row << "," << asym_col << "] = " 
-                      << get_backup(asym_row, asym_col) << "\n";
-            error_msg << "  A[" << asym_col << "," << asym_row << "] = " 
-                      << get_backup(asym_col, asym_row) << "\n";
+            error_msg << "  Max asymmetry: " << max_asymmetry << " at [" << asym_row << "," << asym_col << "]\n";
+            error_msg << "  A[" << asym_row << "," << asym_col << "] = " << get_backup(asym_row, asym_col) << "\n";
+            error_msg << "  A[" << asym_col << "," << asym_row << "] = " << get_backup(asym_col, asym_row) << "\n";
         }
-        
+
         // If dpotrf reported a specific leading minor failure, analyze it
         if (info > 0) {
             int k = info;  // The order of the failed leading minor
             error_msg << "\nLeading Minor Analysis (k=" << k << "):\n";
-            
+
             // Dump the leading k×k block
             error_msg << "  Leading " << k << "×" << k << " block:\n";
             int show_size = std::min(k, 10);  // Limit display to 10×10
             for (int i = 0; i < show_size; ++i) {
                 error_msg << "    ";
                 for (int j = 0; j < show_size; ++j) {
-                    error_msg << std::scientific << std::setprecision(6) 
-                              << std::setw(14) << get_backup(i, j);
+                    error_msg << std::scientific << std::setprecision(6) << std::setw(14) << get_backup(i, j);
                 }
                 if (show_size < k) error_msg << " ...";
                 error_msg << "\n";
             }
-            if (show_size < k) {
-                error_msg << "    ... (" << (k-show_size) << " more rows)\n";
-            }
-            
+            if (show_size < k) { error_msg << "    ... (" << (k - show_size) << " more rows)\n"; }
+
             // Gershgorin circle theorem check
             double gmin = std::numeric_limits<double>::infinity();
             int gmin_row = -1;
@@ -933,8 +946,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                 }
             }
             error_msg << "\n  Gershgorin Analysis:\n";
-            error_msg << "    Lower bound for eigenvalues: " << std::scientific 
-                      << std::setprecision(6) << gmin << "\n";
+            error_msg << "    Lower bound for eigenvalues: " << std::scientific << std::setprecision(6) << gmin << "\n";
             error_msg << "    Critical row: " << gmin_row << "\n";
             if (gmin <= 0) {
                 error_msg << "    => Matrix is NOT positive definite (Gershgorin bound <= 0)\n";
@@ -942,7 +954,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
                 error_msg << "    => Gershgorin bound > 0, but dpotrf still failed\n";
                 error_msg << "       This suggests numerical issues or interface problems\n";
             }
-            
+
             // Triangle comparison for the leading minor
             error_msg << "\n  Triangle Comparison (first 3×3 of leading " << k << "×" << k << "):\n";
             int cmp_size = std::min(k, 3);
@@ -950,8 +962,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             for (int i = 0; i < cmp_size; ++i) {
                 error_msg << "      ";
                 for (int j = i; j < cmp_size; ++j) {
-                    error_msg << std::scientific << std::setprecision(6) 
-                              << std::setw(14) << get_backup(i, j);
+                    error_msg << std::scientific << std::setprecision(6) << std::setw(14) << get_backup(i, j);
                 }
                 error_msg << "\n";
             }
@@ -959,18 +970,17 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             for (int i = 0; i < cmp_size; ++i) {
                 error_msg << "      ";
                 for (int j = 0; j <= i; ++j) {
-                    error_msg << std::scientific << std::setprecision(6) 
-                              << std::setw(14) << get_backup(i, j);
+                    error_msg << std::scientific << std::setprecision(6) << std::setw(14) << get_backup(i, j);
                 }
                 error_msg << "\n";
             }
         }
-        
+
         // Clean up backup buffer before throwing
         delete[] backup_buffer;
         throw std::runtime_error(error_msg.str());
     }
-    
+
     // Clean up backup buffer after successful dpotrf
     delete[] backup_buffer;
 
@@ -984,8 +994,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         if (info < 0) {
             error_msg << "  Meaning: Argument " << -info << " had an illegal value\n";
         } else {
-            error_msg << "  Meaning: The (" << info << "," << info 
-                      << ") element of the factor U or L is zero\n";
+            error_msg << "  Meaning: The (" << info << "," << info << ") element of the factor U or L is zero\n";
         }
         throw std::runtime_error(error_msg.str());
     }
@@ -1004,8 +1013,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 matrix_2d matrix_2d::scale(const double& scalar) {
     UINT32 i, j;
     for (i = 0; i < _rows; ++i)
-        for (j = 0; j < _cols; ++j)
-            *getelementref(i, j) *= scalar;
+        for (j = 0; j < _cols; ++j) *getelementref(i, j) *= scalar;
     return *this;
 }
 
@@ -1053,8 +1061,7 @@ void matrix_2d::clearupper() {
     // Sets upper triangle elements to zero
     UINT32 col, row;
     for (row = 0; row < _rows; ++row)
-        for (col = row + 1; col < _cols; ++col)
-            put(row, col, 0.0);
+        for (col = row + 1; col < _cols; ++col) put(row, col, 0.0);
 }
 
 // filllower()
@@ -1062,8 +1069,7 @@ void matrix_2d::filllower() {
     // copies upper triangle to lower triangle
     UINT32 column, row;
     for (row = 1; row < _rows; row++)
-        for (column = 0; column < row; column++)
-            put(row, column, get(column, row));
+        for (column = 0; column < row; column++) put(row, column, get(column, row));
 }
 
 // fillupper()
@@ -1071,8 +1077,7 @@ void matrix_2d::fillupper() {
     // copies lower triangle to upper triangle
     UINT32 column, row;
     for (row = 1; row < _rows; row++)
-        for (column = 0; column < row; column++)
-            put(column, row, get(row, column));
+        for (column = 0; column < row; column++) put(column, row, get(row, column));
 }
 
 // zero()
@@ -1080,16 +1085,13 @@ void matrix_2d::zero() { memset(_buffer, 0, buffersize()); }
 
 // zero()
 void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) {
-
     UINT32 col(0), col_end(col_begin + columns);
-    for (col = col_begin; col < col_end; ++col)
-        memset(getelementref(row_begin, col), 0, rows * sizeof(double));
+    for (col = col_begin; col < col_end; ++col) memset(getelementref(row_begin, col), 0, rows * sizeof(double));
 }
 
 matrix_2d matrix_2d::operator=(const matrix_2d& rhs) {
     // Overloaded assignment operator
-    if (this == &rhs)
-        return *this;
+    if (this == &rhs) return *this;
 
     // If rhs data can fit within limits of this matrix, copy
     // and return. Otherwise, allocate new memory
@@ -1100,8 +1102,8 @@ matrix_2d matrix_2d::operator=(const matrix_2d& rhs) {
         _cols = rhs.columns();
         copybuffer(_rows, _cols, rhs);
 
-        _maxvalCol = rhs.maxvalueCol(); // col of max value
-        _maxvalRow = rhs.maxvalueRow(); // row of max value
+        _maxvalCol = rhs.maxvalueCol();  // col of max value
+        _maxvalRow = rhs.maxvalueRow();  // row of max value
 
         return *this;
     }
@@ -1109,15 +1111,15 @@ matrix_2d matrix_2d::operator=(const matrix_2d& rhs) {
     // Okay, rhs is larger, so allocate new memory. Call free
     // memory first before changing row and column dimensions!
     deallocate();
-    _mem_rows = rhs.memRows(); // change memory limits
+    _mem_rows = rhs.memRows();  // change memory limits
     _mem_cols = rhs.memColumns();
-    _rows = rhs.rows(); // change matrix dimensions
+    _rows = rhs.rows();  // change matrix dimensions
     _cols = rhs.columns();
     allocate(_mem_rows, _mem_cols);
     copybuffer(_rows, _cols, rhs);
 
-    _maxvalCol = rhs.maxvalueCol(); // col of max value
-    _maxvalRow = rhs.maxvalueRow(); // row of max value
+    _maxvalCol = rhs.maxvalueCol();  // col of max value
+    _maxvalRow = rhs.maxvalueRow();  // row of max value
 
     return *this;
 }
@@ -1129,8 +1131,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const {
 
     UINT32 row, column;
     for (row = 0; row < _rows; row++)
-        for (column = 0; column < _cols; ++column)
-            m.put(row, column, get(row, column) * rhs);
+        for (column = 0; column < _cols; ++column) m.put(row, column, get(row, column) * rhs);
     return m;
 }
 
@@ -1140,9 +1141,7 @@ matrix_2d matrix_2d::add(const matrix_2d& rhs) {
 
     UINT32 row, column;
     for (row = 0; row < _rows; row++) {
-        for (column = 0; column < _cols; ++column) {
-            *getelementref(row, column) += rhs.get(row, column);
-        }
+        for (column = 0; column < _cols; ++column) { *getelementref(row, column) += rhs.get(row, column); }
     }
     return *this;
 }
@@ -1162,13 +1161,13 @@ matrix_2d matrix_2d::multiply(const char* lhs_trans, const matrix_2d& rhs, const
     lapack_int rhs_mem_rows(memRows());
 
     if (strcmp(lhs_trans, "T") == 0) {
-        lhs_rows = columns(); // transpose
-        lhs_cols = rows();    // transpose
+        lhs_rows = columns();  // transpose
+        lhs_cols = rows();     // transpose
     }
 
     if (strcmp(rhs_trans, "T") == 0) {
-        rhs_rows = rhs.columns(); // transpose
-        rhs_cols = rhs.rows();    // transpose
+        rhs_rows = rhs.columns();  // transpose
+        rhs_cols = rhs.rows();     // transpose
     }
 
     if (lhs_cols != rhs_rows)
@@ -1199,13 +1198,13 @@ matrix_2d::multiply(const matrix_2d& lhs, const char* lhs_trans, const matrix_2d
     lapack_int rhs_mem_rows(rhs.memRows());
 
     if (strncmp(lhs_trans, "T", 1) == 0) {
-        lhs_rows = lhs.columns(); // transpose
-        lhs_cols = lhs.rows();    // transpose
+        lhs_rows = lhs.columns();  // transpose
+        lhs_cols = lhs.rows();     // transpose
     }
 
     if (strncmp(rhs_trans, "T", 1) == 0) {
-        rhs_rows = rhs.columns(); // transpose
-        rhs_cols = rhs.rows();    // transpose
+        rhs_rows = rhs.columns();  // transpose
+        rhs_cols = rhs.rows();     // transpose
     }
 
     if (lhs_cols != rhs_rows)
@@ -1220,7 +1219,7 @@ matrix_2d::multiply(const matrix_2d& lhs, const char* lhs_trans, const matrix_2d
                      rhs.getbuffer(), rhs.memRows(), 0.0, _buffer, _mem_rows);
 
     return *this;
-} // Multiply()
+}  // Multiply()
 
 // Transpose()
 matrix_2d matrix_2d::transpose(const matrix_2d& matA) {
@@ -1229,20 +1228,18 @@ matrix_2d matrix_2d::transpose(const matrix_2d& matA) {
 
     UINT32 column, row;
     for (row = 0; row < _rows; row++)
-        for (column = 0; column < _cols; column++)
-            *getelementref(row, column) = matA.get(column, row);
+        for (column = 0; column < _cols; column++) *getelementref(row, column) = matA.get(column, row);
     return *this;
-} // Transpose()
+}  // Transpose()
 
 // Transpose()
 matrix_2d matrix_2d::transpose() {
     matrix_2d m(_cols, _rows);
     UINT32 column, row;
     for (row = 0; row < _rows; row++)
-        for (column = 0; column < _cols; column++)
-            m.put(column, row, get(row, column));
+        for (column = 0; column < _cols; column++) m.put(column, row, get(row, column));
     return m;
-} // Transpose()
+}  // Transpose()
 
 // computes and retains the maximum value in the matrix
 double matrix_2d::compute_maximum_value() {
@@ -1267,8 +1264,7 @@ void matrix_2d::trace(const std::string& comment, const std::string& format) con
     else
         TRACE("%s (%d, %d):\n", comment.c_str(), _rows, _cols);
     for (i = 0; i < _rows; ++i) {
-        for (j = 0; j < _cols; ++j)
-            TRACE(format.c_str(), get(i, j));
+        for (j = 0; j < _cols; ++j) TRACE(format.c_str(), get(i, j));
         TRACE("\n");
     }
     TRACE("\n");
@@ -1308,13 +1304,12 @@ void matrix_2d::trace(const std::string& comment, const std::string& submat_comm
     UINT32 i, j, row_end(row_begin + rows), col_end(col_begin + columns);
 
     for (i = row_begin; i < row_end; ++i) {
-        for (j = col_begin; j < col_end; ++j)
-            TRACE(format.c_str(), get(i, j));
+        for (j = col_begin; j < col_end; ++j) TRACE(format.c_str(), get(i, j));
         TRACE("\n");
     }
     TRACE("\n");
 }
 #endif
 
-} // namespace math
-} // namespace dynadjust
+}  // namespace math
+}  // namespace dynadjust
