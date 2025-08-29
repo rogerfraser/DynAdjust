@@ -708,13 +708,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         }
     }
 
-    // If the matrix is symmetric, we can proceed regardless of LOWER_IS_CLEARED
-    // Symmetric matrices (like normal equations) have data in both triangles
-    if (is_symmetric) {
-        // For symmetric matrices, LAPACK will use the triangle specified by uplo
-        // We don't need to modify the data or validate the triangle structure
-        // Skip triangle validation for symmetric matrices
-    } else {
+    if (!is_symmetric) {
         // Matrix is not symmetric, so validate the triangular structure
         int violations_found = 0;
         std::stringstream validation_errors;
@@ -837,6 +831,29 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         // Matrix diagnostics using the backup (original matrix before dpotrf modified it)
         error_msg << "\nMatrix Diagnostics (Original Matrix):\n";
 
+        // If the matrix is triangular (not symmetric), fill in the empty triangle
+        // to make it symmetric for proper Gershgorin analysis
+        if (!is_symmetric) {
+            if (uplo == UPPER_TRIANGLE) {
+                // Data is in upper triangle, copy to lower
+                for (UINT32 i = 1; i < _rows; ++i) {
+                    for (UINT32 j = 0; j < i; ++j) {
+                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
+                            backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
+                    }
+                }
+            } else {
+                // Data is in lower triangle, copy to upper
+                for (UINT32 i = 0; i < _rows; ++i) {
+                    for (UINT32 j = i + 1; j < _cols; ++j) {
+                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
+                            backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
+                    }
+                }
+            }
+            error_msg << "  Note: Matrix was triangular (uplo='" << uplo << "'), filled to symmetric for analysis\n";
+        }
+
         // Helper to access backup matrix elements
         auto get_backup = [&](UINT32 row, UINT32 col) -> double {
             return backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, row, col)];
@@ -881,37 +898,6 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         if (_rows > 10) error_msg << ", ...";
         error_msg << "\n";
 
-        // Check symmetry
-        double max_asymmetry = 0.0;
-        UINT32 asym_row = 0, asym_col = 0;
-        int asym_count = 0;
-        const double symmetry_tol = 1e-10;
-
-        for (UINT32 i = 0; i < _rows; ++i) {
-            for (UINT32 j = i + 1; j < _cols; ++j) {
-                double diff = std::abs(get_backup(i, j) - get_backup(j, i));
-                if (diff > symmetry_tol) {
-                    asym_count++;
-                    if (diff > max_asymmetry) {
-                        max_asymmetry = diff;
-                        asym_row = i;
-                        asym_col = j;
-                    }
-                }
-            }
-        }
-
-        error_msg << "\nSymmetry Check:\n";
-        if (asym_count == 0) {
-            error_msg << "  Matrix is symmetric (tolerance: " << symmetry_tol << ")\n";
-        } else {
-            error_msg << "  Matrix is NOT symmetric!\n";
-            error_msg << "  Asymmetric elements: " << asym_count << "\n";
-            error_msg << "  Max asymmetry: " << max_asymmetry << " at [" << asym_row << "," << asym_col << "]\n";
-            error_msg << "  A[" << asym_row << "," << asym_col << "] = " << get_backup(asym_row, asym_col) << "\n";
-            error_msg << "  A[" << asym_col << "," << asym_row << "] = " << get_backup(asym_col, asym_row) << "\n";
-        }
-
         // If dpotrf reported a specific leading minor failure, analyze it
         if (info > 0) {
             int k = info;  // The order of the failed leading minor
@@ -923,7 +909,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             for (int i = 0; i < show_size; ++i) {
                 error_msg << "    ";
                 for (int j = 0; j < show_size; ++j) {
-                    error_msg << std::scientific << std::setprecision(6) << std::setw(14) << get_backup(i, j);
+                    error_msg << std::scientific << std::setprecision(3) << std::setw(11) << get_backup(i, j);
                 }
                 if (show_size < k) error_msg << " ...";
                 error_msg << "\n";
@@ -953,6 +939,99 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             } else {
                 error_msg << "    => Gershgorin bound > 0, but dpotrf still failed\n";
                 error_msg << "       This suggests numerical issues or interface problems\n";
+            }
+
+            // Compute smallest eigenvalues using LAPACK dsyevr
+            error_msg << "\n  Eigenvalue Analysis (smallest 10 eigenvalues):\n";
+            try {
+                // Create a copy of the leading minor for eigenvalue computation
+                int eig_n = k;  // Size of the leading minor that failed
+                int num_eigs = std::min(10, eig_n);  // Request up to 10 eigenvalues
+                
+                // Allocate workspace for dsyevr
+                double* eig_matrix = new double[eig_n * eig_n];
+                double* eigenvalues = new double[num_eigs];
+                double* eigenvectors = new double[eig_n * num_eigs];
+                int* isuppz = new int[2 * num_eigs];
+                
+                // Copy the leading minor (now symmetric after our filling)
+                for (int i = 0; i < eig_n; ++i) {
+                    for (int j = 0; j < eig_n; ++j) {
+                        eig_matrix[i * eig_n + j] = get_backup(i, j);
+                    }
+                }
+                
+                // LAPACK dsyevr parameters
+                char jobz = 'N';  // Only eigenvalues, no eigenvectors
+                char range = 'I'; // Compute eigenvalues by index range
+                char uplo_eig = 'L';  // Use lower triangle
+                double vl = 0.0, vu = 0.0;  // Not used with range='I'
+                int il = 1, iu = num_eigs;  // Compute first num_eigs eigenvalues
+                double abstol = 0.0;  // Use default tolerance
+                int m;  // Number of eigenvalues found
+                
+                // Workspace query
+                double work_query;
+                int lwork = -1;
+                int iwork_query;
+                int liwork = -1;
+                lapack_int info_eig;
+                
+                LAPACK_FUNC(dsyevr)(&jobz, &range, &uplo_eig, &eig_n, eig_matrix, &eig_n,
+                                   &vl, &vu, &il, &iu, &abstol, &m, eigenvalues, eigenvectors, &eig_n,
+                                   isuppz, &work_query, &lwork, &iwork_query, &liwork, &info_eig);
+                
+                lwork = (int)work_query;
+                liwork = iwork_query;
+                double* work = new double[lwork];
+                int* iwork = new int[liwork];
+                
+                // Actual computation
+                LAPACK_FUNC(dsyevr)(&jobz, &range, &uplo_eig, &eig_n, eig_matrix, &eig_n,
+                                   &vl, &vu, &il, &iu, &abstol, &m, eigenvalues, eigenvectors, &eig_n,
+                                   isuppz, work, &lwork, iwork, &liwork, &info_eig);
+                
+                if (info_eig == 0) {
+                    error_msg << "    Successfully computed " << m << " smallest eigenvalues:\n";
+                    for (int i = 0; i < m; ++i) {
+                        error_msg << "      λ[" << i+1 << "] = " << std::scientific << std::setprecision(3) 
+                                 << eigenvalues[i];
+                        if (eigenvalues[i] <= 0) {
+                            error_msg << " (NOT positive)";
+                        }
+                        error_msg << "\n";
+                    }
+                    
+                    // Count negative eigenvalues
+                    int neg_count = 0;
+                    for (int i = 0; i < m; ++i) {
+                        if (eigenvalues[i] <= 0) neg_count++;
+                    }
+                    if (neg_count > 0) {
+                        error_msg << "    => Found " << neg_count << " non-positive eigenvalue(s)\n";
+                        error_msg << "    => Matrix is NOT positive definite\n";
+                    } else {
+                        error_msg << "    => All computed eigenvalues are positive\n";
+                        if (m < eig_n) {
+                            error_msg << "    Note: Only computed first " << m << " of " << eig_n << " eigenvalues\n";
+                        }
+                    }
+                } else {
+                    error_msg << "    Failed to compute eigenvalues (dsyevr info = " << info_eig << ")\n";
+                }
+                
+                // Clean up
+                delete[] eig_matrix;
+                delete[] eigenvalues;
+                delete[] eigenvectors;
+                delete[] isuppz;
+                delete[] work;
+                delete[] iwork;
+                
+            } catch (const std::exception& e) {
+                error_msg << "    Eigenvalue computation failed: " << e.what() << "\n";
+            } catch (...) {
+                error_msg << "    Eigenvalue computation failed: unknown error\n";
             }
 
             // Triangle comparison for the leading minor
