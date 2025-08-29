@@ -528,6 +528,20 @@ void matrix_2d::redim(const UINT32& rows, const UINT32& columns) {
     // if new matrix size is smaller than or equal to the previous
     // matrix size, then simply change dimensions and return
     if (rows <= _mem_rows && columns <= _mem_cols) {
+        // Zero out the unused portions when reusing buffer
+        // Zero partial columns (rows beyond new row count)
+        for (UINT32 col = 0; col < columns && col < _mem_cols; ++col) {
+            for (UINT32 row = rows; row < _mem_rows; ++row) {
+                _buffer[col * _mem_rows + row] = 0.0;
+            }
+        }
+        // Zero full columns beyond new column count
+        if (columns < _mem_cols) {
+            std::size_t start_idx = columns * _mem_rows;
+            std::size_t count = (_mem_cols - columns) * _mem_rows;
+            std::memset(_buffer + start_idx, 0, count * sizeof(double));
+        }
+        
         _rows = rows;
         _cols = columns;
         return;
@@ -545,6 +559,13 @@ void matrix_2d::redim(const UINT32& rows, const UINT32& columns) {
 
     deallocate();
     allocate(rows, columns);
+    
+    // When DEBUG_INIT_NAN is enabled, the new allocation contains NaN
+    // We need to zero it for consistent behavior
+#if DEBUG_INIT_NAN
+    std::size_t total_size = static_cast<std::size_t>(rows) * static_cast<std::size_t>(columns);
+    std::memset(_buffer, 0, total_size * sizeof(double));
+#endif
 
     _rows = _mem_rows = rows;
     _cols = _mem_cols = columns;
