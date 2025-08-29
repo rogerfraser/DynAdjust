@@ -713,45 +713,6 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     if (_rows != _cols) throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
 
-#if DEBUG_INIT_NAN
-    // Check for NaN values which indicate uninitialized memory
-    int nan_count = 0;
-    int first_nan_row = -1, first_nan_col = -1;
-    std::vector<std::pair<int, int>> nan_locations;
-    
-    for (UINT32 i = 0; i < _rows; ++i) {
-        for (UINT32 j = 0; j < _cols; ++j) {
-            if (std::isnan(get(i, j))) {
-                if (nan_count == 0) {
-                    first_nan_row = i;
-                    first_nan_col = j;
-                }
-                if (nan_count < 10) {  // Store first 10 NaN locations
-                    nan_locations.push_back(std::make_pair(i, j));
-                }
-                nan_count++;
-            }
-        }
-    }
-    
-    if (nan_count > 0) {
-        std::stringstream error_msg;
-        error_msg << "cholesky_inverse(): FATAL - Matrix contains uninitialized values!\n";
-        error_msg << "  Found " << nan_count << " NaN values in " << _rows << "×" << _cols << " matrix\n";
-        error_msg << "  First NaN at [" << first_nan_row << "," << first_nan_col << "]\n";
-        error_msg << "  NaN locations (first 10):\n";
-        for (const auto& loc : nan_locations) {
-            error_msg << "    [" << loc.first << "," << loc.second << "]\n";
-        }
-        error_msg << "\nThis indicates the matrix was not properly initialized.\n";
-        error_msg << "Possible causes:\n";
-        error_msg << "  - Missing zero() call after allocation\n";
-        error_msg << "  - Incomplete matrix assembly\n";
-        error_msg << "  - Index calculation errors\n";
-        error_msg << "  - Buffer overrun from another operation\n";
-        throw std::runtime_error(error_msg.str());
-    }
-#endif
 
     if (DEBUG_MATRIX_2D) {
         // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
@@ -950,6 +911,45 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
         // Matrix diagnostics using the backup (original matrix before dpotrf modified it)
         error_msg << "\nMatrix Diagnostics (Original Matrix):\n";
+
+#if DEBUG_INIT_NAN
+        // Check for NaN values which indicate uninitialized memory
+        int init_nan_count = 0;
+        int first_nan_row = -1, first_nan_col = -1;
+        std::vector<std::pair<int, int>> nan_locations;
+        
+        for (UINT32 i = 0; i < _rows; ++i) {
+            for (UINT32 j = 0; j < _cols; ++j) {
+                double val = backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)];
+                if (std::isnan(val)) {
+                    if (init_nan_count == 0) {
+                        first_nan_row = i;
+                        first_nan_col = j;
+                    }
+                    if (init_nan_count < 10) {  // Store first 10 NaN locations
+                        nan_locations.push_back(std::make_pair(i, j));
+                    }
+                    init_nan_count++;
+                }
+            }
+        }
+        
+        if (init_nan_count > 0) {
+            error_msg << "\n*** FATAL: Matrix contains uninitialized values! ***\n";
+            error_msg << "  Found " << init_nan_count << " NaN values in " << _rows << "×" << _cols << " matrix\n";
+            error_msg << "  First NaN at [" << first_nan_row << "," << first_nan_col << "]\n";
+            error_msg << "  NaN locations (first 10):\n";
+            for (const auto& loc : nan_locations) {
+                error_msg << "    [" << loc.first << "," << loc.second << "]\n";
+            }
+            error_msg << "\nThis indicates the matrix was not properly initialized.\n";
+            error_msg << "Possible causes:\n";
+            error_msg << "  - Missing zero() call after allocation\n";
+            error_msg << "  - Incomplete matrix assembly\n";
+            error_msg << "  - Index calculation errors\n";
+            error_msg << "  - Buffer overrun from another operation\n\n";
+        }
+#endif
 
         // If the matrix is triangular (not symmetric), fill in the empty triangle
         // to make it symmetric for proper Gershgorin analysis
