@@ -25,11 +25,13 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
+#include <vector>
 
 namespace dynadjust {
 namespace math {
 
 #define DEBUG_MATRIX_2D 1
+#define DEBUG_INIT_NAN 1  // Enable NaN initialization to catch uninitialized memory
 
 std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs) {
     if (os.iword(0) == binary) {
@@ -441,8 +443,16 @@ void matrix_2d::buy(const UINT32& rows, const UINT32& columns, double** mem_spac
         throw NetMemoryException(ss.str());
     }
 
+#if DEBUG_INIT_NAN
+    // Initialize to NaN to catch uninitialized usage
+    double nan_val = std::numeric_limits<double>::quiet_NaN();
+    for (std::size_t i = 0; i < total_size; ++i) {
+        (*mem_space)[i] = nan_val;
+    }
+#else
     // Initialize memory to zero to prevent uninitialized values
     std::memset((*mem_space), 0, total_size * sizeof(double));
+#endif
 }
 
 void matrix_2d::deallocate() {
@@ -681,6 +691,46 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     if (_rows < 1) return *this;
 
     if (_rows != _cols) throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
+
+#if DEBUG_INIT_NAN
+    // Check for NaN values which indicate uninitialized memory
+    int nan_count = 0;
+    int first_nan_row = -1, first_nan_col = -1;
+    std::vector<std::pair<int, int>> nan_locations;
+    
+    for (UINT32 i = 0; i < _rows; ++i) {
+        for (UINT32 j = 0; j < _cols; ++j) {
+            if (std::isnan(get(i, j))) {
+                if (nan_count == 0) {
+                    first_nan_row = i;
+                    first_nan_col = j;
+                }
+                if (nan_count < 10) {  // Store first 10 NaN locations
+                    nan_locations.push_back(std::make_pair(i, j));
+                }
+                nan_count++;
+            }
+        }
+    }
+    
+    if (nan_count > 0) {
+        std::stringstream error_msg;
+        error_msg << "cholesky_inverse(): FATAL - Matrix contains uninitialized values!\n";
+        error_msg << "  Found " << nan_count << " NaN values in " << _rows << "×" << _cols << " matrix\n";
+        error_msg << "  First NaN at [" << first_nan_row << "," << first_nan_col << "]\n";
+        error_msg << "  NaN locations (first 10):\n";
+        for (const auto& loc : nan_locations) {
+            error_msg << "    [" << loc.first << "," << loc.second << "]\n";
+        }
+        error_msg << "\nThis indicates the matrix was not properly initialized.\n";
+        error_msg << "Possible causes:\n";
+        error_msg << "  - Missing zero() call after allocation\n";
+        error_msg << "  - Incomplete matrix assembly\n";
+        error_msg << "  - Index calculation errors\n";
+        error_msg << "  - Buffer overrun from another operation\n";
+        throw std::runtime_error(error_msg.str());
+    }
+#endif
 
     if (DEBUG_MATRIX_2D) {
         // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
@@ -1225,6 +1275,17 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin, const UIN
     UINT32 col(0), col_end(col_begin + columns);
     for (col = col_begin; col < col_end; ++col) memset(getelementref(row_begin, col), 0, rows * sizeof(double));
 }
+
+#if DEBUG_INIT_NAN
+// fillnan() - Fill matrix with NaN values for debugging uninitialized memory
+void matrix_2d::fillnan() {
+    double nan_val = std::numeric_limits<double>::quiet_NaN();
+    std::size_t total_size = static_cast<std::size_t>(_mem_rows) * static_cast<std::size_t>(_mem_cols);
+    for (std::size_t i = 0; i < total_size; ++i) {
+        _buffer[i] = nan_val;
+    }
+}
+#endif
 
 matrix_2d matrix_2d::operator=(const matrix_2d& rhs) {
     // Overloaded assignment operator

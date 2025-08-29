@@ -184,6 +184,15 @@ using namespace dynadjust::exception;
 namespace dynadjust {
 namespace math {
 
+// Debug flags
+#ifndef DEBUG_MATRIX_2D
+#define DEBUG_MATRIX_2D 1
+#endif
+
+#ifndef DEBUG_INIT_NAN
+#define DEBUG_INIT_NAN 1  // Enable NaN initialization to catch uninitialized memory
+#endif
+
 class matrix_2d;
 typedef std::vector<matrix_2d> v_mat_2d, *pv_mat_2d;
 typedef v_mat_2d::iterator _it_v_mat_2d;
@@ -355,6 +364,9 @@ class matrix_2d : public new_handler_support<matrix_2d> {
     void fillupper();  // copies lower tri to upper
     void zero();       // sets all elements to zero
     void zero(const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns);
+#if DEBUG_INIT_NAN
+    void fillnan();    // fill with NaN for debugging uninitialized memory
+#endif
     double compute_maximum_value();
 
     // Printing
