@@ -217,12 +217,14 @@ void dna_adjust::InitialiseAdjustment()
 	
 	// form inverse of variance for fixed stations
 	_inv_var_cart_c.redim(3, 3);
+	_inv_var_cart_c.zero();		// Initialize to zero to prevent uninitialized values
 	_inv_var_cart_c.put(0, 0, 1./_var_C);
 	_inv_var_cart_c.put(1, 1, 1./_var_C);
 	_inv_var_cart_c.put(2, 2, 1./_var_C);
 
 	// form inverse of variance for free stations
 	_inv_var_cart_f.redim(3, 3);
+	_inv_var_cart_f.zero();		// Initialize to zero to prevent uninitialized values
 	_inv_var_cart_f.put(0, 0, 1./_var_F);
 	_inv_var_cart_f.put(1, 1, 1./_var_F);
 	_inv_var_cart_f.put(2, 2, 1./_var_F);
@@ -4202,6 +4204,7 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 	UINT32 cluster_bsl, baseline_count(_it_msr->vectorCount1);
 	UINT32 cluster_cov, covariance_count;
 	var_cart->redim(baseline_count * 3, baseline_count * 3);
+	var_cart->zero();		// Initialize to zero to prevent uninitialized values
 
 	matrix_2d mpositions(baseline_count * 3, 1);
 
@@ -4434,6 +4437,7 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 		scaleMatrix, scalePartial);
 
 	var_cart->redim(point_count * 3, point_count * 3);		// performs zero on creation of new elements
+	var_cart->zero();		// Initialize to zero to prevent uninitialized values
 	
 	matrix_2d mpositions(point_count * 3, 1);
 	it_vstn_t stn1_it;
