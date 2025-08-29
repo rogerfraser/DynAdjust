@@ -850,12 +850,13 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Triangle processed: uplo='" << uplo
                   << "' (LOWER_IS_CLEARED=" << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
         
-        if (apply_scaling) {
+        error_msg << "  Diagonal range: [" << min_diag << ", " << max_diag << "]\n";
+        error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
+
+         if (apply_scaling) {
             error_msg << "\nScaling Information:\n";
             error_msg << "  Matrix was scaled to improve conditioning\n";
-            error_msg << "  Original diagonal range: [" << min_diag << ", " << max_diag << "]\n";
-            error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
-            error_msg << "  Scale factor applied: " << scale_factor << "\n";
+           error_msg << "   Scale factor applied: " << scale_factor << "\n";
         }
 
         error_msg << "\nError Details:\n";
