@@ -50,7 +50,7 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          ctest --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
+          ctest --stop-on-failure --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -307,7 +307,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-        ctest --output-on-failure --timeout 120 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
+        ctest --stop-on-failure --output-on-failure --timeout 120 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
         exit 0
 
     - name: Parse test results and create annotations
@@ -315,35 +315,38 @@ jobs:
       working-directory: "./src"
       shell: bash
       run: |
+        set +e  # Don't exit on error
         if [ -f ctest_output.log ]; then
-          # Convert Windows line endings to Unix
-          dos2unix ctest_output.log 2>/dev/null || sed -i 's/\r$//' ctest_output.log
+          # Convert Windows line endings to Unix (try multiple methods)
+          if command -v dos2unix &> /dev/null; then
+            dos2unix ctest_output.log 2>/dev/null
+          elif command -v sed &> /dev/null; then
+            sed -i.bak 's/\r$//' ctest_output.log 2>/dev/null || true
+          fi
           
           # Find the line with "tests passed" and get everything from there to the end
-          SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
+          SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log 2>/dev/null | head -1 | cut -d: -f1)
           
           if [ -n "$SUMMARY_LINE" ]; then
             # Get the first line (the summary line)
             FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
             # Get the multiline summary from the tests passed line onwards
-            SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | tr '\n' '\a')
+            SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | head -20)
             # Replace newlines with %0A for GitHub Actions annotation
-            SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
+            SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | sed ':a;N;$!ba;s/\n/%0A/g')
             
             # Check if there are failed tests
             if grep -q "tests failed" ctest_output.log; then
-              echo "::error title=Test results (windows mkl): $FIRST_LINE::$SUMMARY_CONTENT"
+              echo "::error title=Test results (windows mkl)::$FIRST_LINE - $SUMMARY_CONTENT"
             else
-              echo "::notice title=Test results (windows mkl): $FIRST_LINE::$SUMMARY_CONTENT"
+              echo "::notice title=Test results (windows mkl)::$FIRST_LINE - $SUMMARY_CONTENT"
             fi
-            exit 0
           else
             echo "::warning title=Test Warning::Could not find test summary in ctest output (tests may still be running or output format changed)"
-            exit 0
           fi
         else
           echo "::warning title=Test Warning::Could not find ctest output file (tests may not have run)"
-          exit 0
         fi
+        exit 0
 
 
