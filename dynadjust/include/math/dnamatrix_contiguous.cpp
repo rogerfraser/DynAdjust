@@ -788,6 +788,36 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     double* backup_buffer = new double[buffer_size / sizeof(double)];
     std::memcpy(backup_buffer, _buffer, buffer_size);
 
+    // Compute scaling factor based on diagonal elements to improve conditioning
+    double max_diag = 0.0;
+    double min_diag = std::numeric_limits<double>::max();
+    for (UINT32 i = 0; i < _rows; ++i) {
+        double diag_val = std::abs(get(i, i));
+        if (diag_val > max_diag) max_diag = diag_val;
+        if (diag_val > 0 && diag_val < min_diag) min_diag = diag_val;
+    }
+    
+    // Apply scaling if the condition number estimate is poor
+    double scale_factor = 1.0;
+    bool apply_scaling = false;
+    const double condition_threshold = 1e12;  // Threshold for poor conditioning
+    
+    if (max_diag > 0 && min_diag > 0) {
+        double condition_estimate = max_diag / min_diag;
+        if (condition_estimate > condition_threshold) {
+            // Use geometric mean of max and min diagonal for scaling
+            scale_factor = std::sqrt(max_diag * min_diag);
+            apply_scaling = true;
+            
+            // Scale the matrix: A_scaled = A / scale_factor
+            for (UINT32 i = 0; i < _rows; ++i) {
+                for (UINT32 j = 0; j < _cols; ++j) {
+                    *getelementref(i, j) /= scale_factor;
+                }
+            }
+        }
+    }
+
     // Perform Cholesky factorisation
     LAPACK_FUNC(dpotrf)(&uplo, &n, _buffer, &n, &info);
 
@@ -819,6 +849,14 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Matrix dimensions: " << _rows << " x " << _cols << "\n";
         error_msg << "  Triangle processed: uplo='" << uplo
                   << "' (LOWER_IS_CLEARED=" << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
+        
+        if (apply_scaling) {
+            error_msg << "\nScaling Information:\n";
+            error_msg << "  Matrix was scaled to improve conditioning\n";
+            error_msg << "  Original diagonal range: [" << min_diag << ", " << max_diag << "]\n";
+            error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
+            error_msg << "  Scale factor applied: " << scale_factor << "\n";
+        }
 
         error_msg << "\nError Details:\n";
         error_msg << "  dpotrf info = " << info << "\n";
@@ -1076,6 +1114,16 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             error_msg << "  Meaning: The (" << info << "," << info << ") element of the factor U or L is zero\n";
         }
         throw std::runtime_error(error_msg.str());
+    }
+
+    // Scale back the inverse if scaling was applied
+    // Since we scaled A -> A/s, the inverse is: inv(A) = inv(A/s) * s = s * inv(A_scaled)
+    if (apply_scaling) {
+        for (UINT32 i = 0; i < _rows; ++i) {
+            for (UINT32 j = 0; j < _cols; ++j) {
+                *getelementref(i, j) *= scale_factor;
+            }
+        }
     }
 
     // Copy empty triangle part
