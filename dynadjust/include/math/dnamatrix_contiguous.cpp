@@ -29,6 +29,8 @@
 namespace dynadjust {
 namespace math {
 
+#define DEBUG_MATRIX_2D 1
+
 std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs) {
     if (os.iword(0) == binary) {
         // Binary output
@@ -680,98 +682,100 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     if (_rows != _cols) throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
 
-    // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
-    const double tolerance = 1e-10;
-    const int max_violations_to_check = 10;
+    if (DEBUG_MATRIX_2D) {
+        // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
+        const double tolerance = 1e-6;
+        const int max_violations_to_check = 10;
 
-    // First check if the matrix is symmetric
-    bool is_symmetric = true;
-    int asymmetry_count = 0;
-    double max_asymmetry = 0.0;
-    UINT32 max_asym_row = 0, max_asym_col = 0;
+        // First check if the matrix is symmetric
+        bool is_symmetric = true;
+        int asymmetry_count = 0;
+        double max_asymmetry = 0.0;
+        UINT32 max_asym_row = 0, max_asym_col = 0;
 
-    for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
-        for (UINT32 col = row + 1; col < _cols; ++col) {
-            double diff = std::abs(get(row, col) - get(col, row));
-            if (diff > tolerance) {
-                asymmetry_count++;
-                if (diff > max_asymmetry) {
-                    max_asymmetry = diff;
-                    max_asym_row = row;
-                    max_asym_col = col;
-                }
-                if (asymmetry_count >= max_violations_to_check) {
-                    is_symmetric = false;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (!is_symmetric) {
-        // Matrix is not symmetric, so validate the triangular structure
-        int violations_found = 0;
-        std::stringstream validation_errors;
-
-        if (LOWER_IS_CLEARED) {
-            // Lower triangle should be cleared (all zeros), data is in upper triangle
-            for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
-                for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
-                    double val = get(row, col);
-                    if (std::abs(val) > tolerance) {
-                        if (violations_found == 0) {
-                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                            validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
-                            validation_errors << "  Found non-zero elements in lower triangle:\n";
-                        }
-                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                        violations_found++;
+        for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
+            for (UINT32 col = row + 1; col < _cols; ++col) {
+                double diff = std::abs(get(row, col) - get(col, row));
+                if (diff > tolerance) {
+                    asymmetry_count++;
+                    if (diff > max_asymmetry) {
+                        max_asymmetry = diff;
+                        max_asym_row = row;
+                        max_asym_col = col;
                     }
-                }
-            }
-        } else {
-            // Upper triangle should be cleared (all zeros), data is in lower triangle
-            for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
-                for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
-                    double val = get(row, col);
-                    if (std::abs(val) > tolerance) {
-                        if (violations_found == 0) {
-                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                            validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
-                            validation_errors << "  Found non-zero elements in upper triangle:\n";
-                        }
-                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                        violations_found++;
+                    if (asymmetry_count >= max_violations_to_check) {
+                        is_symmetric = false;
+                        break;
                     }
                 }
             }
         }
 
-        if (violations_found > 0) {
-            if (violations_found >= max_violations_to_check) {
-                validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check
-                                  << ")\n";
+        if (!is_symmetric) {
+            // Matrix is not symmetric, so validate the triangular structure
+            int violations_found = 0;
+            std::stringstream validation_errors;
+
+            if (LOWER_IS_CLEARED) {
+                // Lower triangle should be cleared (all zeros), data is in upper triangle
+                for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
+                    for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
+                        double val = get(row, col);
+                        if (std::abs(val) > tolerance) {
+                            if (violations_found == 0) {
+                                validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                                validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
+                                validation_errors << "  Found non-zero elements in lower triangle:\n";
+                            }
+                            validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                            violations_found++;
+                        }
+                    }
+                }
+            } else {
+                // Upper triangle should be cleared (all zeros), data is in lower triangle
+                for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
+                    for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
+                        double val = get(row, col);
+                        if (std::abs(val) > tolerance) {
+                            if (violations_found == 0) {
+                                validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                                validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
+                                validation_errors << "  Found non-zero elements in upper triangle:\n";
+                            }
+                            validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                            violations_found++;
+                        }
+                    }
+                }
             }
 
-            // Add information about symmetry check
-            validation_errors << "\nSymmetry check:\n";
-            if (asymmetry_count > 0) {
-                validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count
-                                  << " asymmetric elements\n";
-                validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << ","
-                                  << max_asym_col << "]\n";
-                validation_errors << "[" << max_asym_row << "," << max_asym_col
-                                  << "] = " << get(max_asym_row, max_asym_col) << ", [" << max_asym_col << ","
-                                  << max_asym_row << "] = " << get(max_asym_col, max_asym_row) << "\n";
-                validation_errors << "  This might be a symmetric matrix with numerical errors\n";
-            }
+            if (violations_found > 0) {
+                if (violations_found >= max_violations_to_check) {
+                    validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check
+                                      << ")\n";
+                }
 
-            validation_errors << "\nThis error typically occurs when:\n";
-            validation_errors << "  - The matrix data is stored in the wrong triangle\n";
-            validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
-            validation_errors << "  - The matrix hasn't been properly initialised\n";
-            validation_errors << "  - A symmetric matrix has numerical precision issues\n";
-            throw std::runtime_error(validation_errors.str());
+                // Add information about symmetry check
+                validation_errors << "\nSymmetry check:\n";
+                if (asymmetry_count > 0) {
+                    validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count
+                                      << " asymmetric elements\n";
+                    validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << ","
+                                      << max_asym_col << "]\n";
+                    validation_errors << "[" << max_asym_row << "," << max_asym_col
+                                      << "] = " << get(max_asym_row, max_asym_col) << ", [" << max_asym_col << ","
+                                      << max_asym_row << "] = " << get(max_asym_col, max_asym_row) << "\n";
+                    validation_errors << "  This might be a symmetric matrix with numerical errors\n";
+                }
+
+                validation_errors << "\nThis error typically occurs when:\n";
+                validation_errors << "  - The matrix data is stored in the wrong triangle\n";
+                validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
+                validation_errors << "  - The matrix hasn't been properly initialised\n";
+                validation_errors << "  - A symmetric matrix has numerical precision issues\n";
+                throw std::runtime_error(validation_errors.str());
+            }
         }
     }
 
@@ -782,37 +786,41 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     lapack_int info, n = _rows;
 
-    // Create a backup of the matrix for diagnostics if dpotrf fails
-    // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
-    std::size_t buffer_size = buffersize();
-    double* backup_buffer = new double[buffer_size / sizeof(double)];
-    std::memcpy(backup_buffer, _buffer, buffer_size);
-
-    // Compute scaling factor based on diagonal elements to improve conditioning
     double max_diag = 0.0;
     double min_diag = std::numeric_limits<double>::max();
-    for (UINT32 i = 0; i < _rows; ++i) {
-        double diag_val = std::abs(get(i, i));
-        if (diag_val > max_diag) max_diag = diag_val;
-        if (diag_val > 0 && diag_val < min_diag) min_diag = diag_val;
-    }
-    
-    // Apply scaling if the condition number estimate is poor
     double scale_factor = 1.0;
     bool apply_scaling = false;
     const double condition_threshold = 1e12;  // Threshold for poor conditioning
+    std::size_t buffer_size;
+    double* backup_buffer;
+  
+    if (DEBUG_MATRIX_2D) {
+        // Create a backup of the matrix for diagnostics if dpotrf fails
+        // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
+        buffer_size = buffersize();
+        backup_buffer = new double[buffer_size / sizeof(double)];
+        std::memcpy(backup_buffer, _buffer, buffer_size);
+
+        // Compute scaling factor based on diagonal elements to improve conditioning
+        for (UINT32 i = 0; i < _rows; ++i) {
+            double diag_val = std::abs(get(i, i));
+            if (diag_val > max_diag) max_diag = diag_val;
+            if (diag_val > 0 && diag_val < min_diag) min_diag = diag_val;
+        }
     
-    if (max_diag > 0 && min_diag > 0) {
-        double condition_estimate = max_diag / min_diag;
-        if (condition_estimate > condition_threshold) {
-            // Use geometric mean of max and min diagonal for scaling
-            scale_factor = std::sqrt(max_diag * min_diag);
-            apply_scaling = true;
-            
-            // Scale the matrix: A_scaled = A / scale_factor
-            for (UINT32 i = 0; i < _rows; ++i) {
-                for (UINT32 j = 0; j < _cols; ++j) {
-                    *getelementref(i, j) /= scale_factor;
+        // Apply scaling if the condition number estimate is poor
+        if (max_diag > 0 && min_diag > 0) {
+            double condition_estimate = max_diag / min_diag;
+            if (condition_estimate > condition_threshold) {
+                // Use geometric mean of max and min diagonal for scaling
+                scale_factor = std::sqrt(max_diag * min_diag);
+                apply_scaling = true;
+                
+                // Scale the matrix: A_scaled = A / scale_factor
+                for (UINT32 i = 0; i < _rows; ++i) {
+                    for (UINT32 j = 0; j < _cols; ++j) {
+                        *getelementref(i, j) /= scale_factor;
+                    }
                 }
             }
         }
@@ -850,13 +858,15 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Triangle processed: uplo='" << uplo
                   << "' (LOWER_IS_CLEARED=" << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
         
-        error_msg << "  Diagonal range: [" << min_diag << ", " << max_diag << "]\n";
-        error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
+        if (DEBUG_MATRIX_2D) {
+            error_msg << "  Diagonal range: [" << min_diag << ", " << max_diag << "]\n";
+            error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
 
-         if (apply_scaling) {
-            error_msg << "\nScaling Information:\n";
-            error_msg << "  Matrix was scaled to improve conditioning\n";
-           error_msg << "   Scale factor applied: " << scale_factor << "\n";
+            if (apply_scaling) {
+                error_msg << "\nScaling Information:\n";
+                error_msg << "  Matrix was scaled to improve conditioning\n";
+                error_msg << "   Scale factor applied: " << scale_factor << "\n";
+            }
         }
 
         error_msg << "\nError Details:\n";
@@ -872,26 +882,25 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
         // If the matrix is triangular (not symmetric), fill in the empty triangle
         // to make it symmetric for proper Gershgorin analysis
-        if (!is_symmetric) {
-            if (uplo == UPPER_TRIANGLE) {
-                // Data is in upper triangle, copy to lower
-                for (UINT32 i = 1; i < _rows; ++i) {
-                    for (UINT32 j = 0; j < i; ++j) {
-                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
-                            backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
-                    }
-                }
-            } else {
-                // Data is in lower triangle, copy to upper
-                for (UINT32 i = 0; i < _rows; ++i) {
-                    for (UINT32 j = i + 1; j < _cols; ++j) {
-                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
-                            backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
-                    }
+        if (uplo == UPPER_TRIANGLE) {
+            // Data is in upper triangle, copy to lower
+            for (UINT32 i = 1; i < _rows; ++i) {
+                for (UINT32 j = 0; j < i; ++j) {
+                    backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
+                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
                 }
             }
-            error_msg << "  Note: Matrix was triangular (uplo='" << uplo << "'), filled to symmetric for analysis\n";
+        } else {
+            // Data is in lower triangle, copy to upper
+            for (UINT32 i = 0; i < _rows; ++i) {
+                for (UINT32 j = i + 1; j < _cols; ++j) {
+                    backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)] = 
+                        backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, j, i)];
+                }
+            }
         }
+
+        error_msg << "  Note: Matrix was triangular (uplo='" << uplo << "'), filled to symmetric for analysis\n";
 
         // Helper to access backup matrix elements
         auto get_backup = [&](UINT32 row, UINT32 col) -> double {

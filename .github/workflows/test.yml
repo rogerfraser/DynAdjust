@@ -139,8 +139,10 @@ jobs:
       - name: Run tests
         run: |
           source /opt/intel/oneapi/setvars.sh
+          export MKL_VERBOSE=1
+          export MKL_NUM_THREADS=1
           set +e
-          ctest --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
+          ctest --output-on-failure --stop-on-failure --timeout 120 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
