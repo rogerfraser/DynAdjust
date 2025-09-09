@@ -124,12 +124,14 @@ std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
       continue;
     case 'X':
     case 'Y':
-      // GPS cluster measurements - only count if this is the first in the cluster
-      if (isNewCluster) {
-        // Each baseline/point in the cluster contributes 3 measurements
-        counts.measurement_count += _it_msr->vectorCount1 * 3;
-        counts.measurement_variance_count += _it_msr->vectorCount1 * 6;
-      }
+      // GPS cluster measurements - count each measurement record
+      // The binary file contains individual X/Y records for each baseline component
+      counts.measurement_count++;
+      counts.measurement_variance_count += 1 + axis++;
+      
+      if (axis > 2)
+        axis = 0;
+      
       continue;
     }
 

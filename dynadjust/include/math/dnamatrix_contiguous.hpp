@@ -186,11 +186,11 @@ namespace math {
 
 // Debug flags
 #ifndef DEBUG_MATRIX_2D
-#define DEBUG_MATRIX_2D 1
+#define DEBUG_MATRIX_2D 0
 #endif
 
 #ifndef DEBUG_INIT_NAN
-#define DEBUG_INIT_NAN 1  // Enable NaN initialization to catch uninitialized memory
+#define DEBUG_INIT_NAN 0  // Enable NaN initialization to catch uninitialized memory
 #endif
 
 class matrix_2d;

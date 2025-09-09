@@ -217,14 +217,12 @@ void dna_adjust::InitialiseAdjustment()
 	
 	// form inverse of variance for fixed stations
 	_inv_var_cart_c.redim(3, 3);
-	_inv_var_cart_c.zero();		// Initialize to zero to prevent uninitialized values
 	_inv_var_cart_c.put(0, 0, 1./_var_C);
 	_inv_var_cart_c.put(1, 1, 1./_var_C);
 	_inv_var_cart_c.put(2, 2, 1./_var_C);
 
 	// form inverse of variance for free stations
 	_inv_var_cart_f.redim(3, 3);
-	_inv_var_cart_f.zero();		// Initialize to zero to prevent uninitialized values
 	_inv_var_cart_f.put(0, 0, 1./_var_F);
 	_inv_var_cart_f.put(1, 1, 1./_var_F);
 	_inv_var_cart_f.put(2, 2, 1./_var_F);
@@ -681,11 +679,9 @@ void dna_adjust::PrepareStationandVarianceMatrices(const UINT32& block)
 
 		// redimension the estimated stations matrix
 		v_estimatedStations_.at(block).redim(v_unknownsCount_.at(block), 1);
-		// // v_estimatedStations_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	
 		// redimension the original stations
 		v_originalStations_.at(block).redim(v_unknownsCount_.at(block), 1);
-		// // v_originalStations_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	}
 	
 	// Populate matrices with coordinates and
@@ -732,25 +728,19 @@ void dna_adjust::PrepareStationandVarianceMatrices(const UINT32& block)
 
 			// resize rigorous coordinate estimate array
 			v_rigorousStations_.at(block).redim(v_unknownsCount_.at(block), 1);
-			// v_rigorousStations_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		
 			// resize rigorous variances
 			v_rigorousVariances_.at(block).redim(v_unknownsCount_.at(block), v_unknownsCount_.at(block));
-			// v_rigorousVariances_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 
 			// resize junction variances
 			v_junctionVariances_.at(block).redim(j, j);
-			// v_junctionVariances_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 
 			// resize junction station coordinate estimate arrays
 			if (!v_blockMeta_.at(block)._blockLast && !v_blockMeta_.at(block)._blockIsolated)
 			{
 				v_junctionVariancesFwd_.at(block).redim(j, j);
-				// v_junctionVariancesFwd_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 				v_junctionEstimatesFwd_.at(block).redim(j, 1);
-				// v_junctionEstimatesFwd_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 				v_junctionEstimatesRev_.at(block+1).redim(j, 1);
-				// v_junctionEstimatesRev_.at(block+1).zero();	// Initialize to zero to prevent uninitialized values
 			}
 		
 			PopulateEstimatedStationMatrix(block, v_unknownParams_.at(block));
@@ -772,13 +762,11 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 		// redimension the measurements matrix
 		v_measMinusComp_.at(block).redim(
 			v_measurementCount_.at(block), 1);
-		// v_measMinusComp_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		
 		// redimension the At*V-1 matrix
 		v_AtVinv_.at(block).redim(
 			v_unknownsCount_.at(block), 
 			v_measurementCount_.at(block));
-		// v_AtVinv_.at(block).zero();	// Initialize to zero to prevent uninitialized values	
 
 		break;
 	case Phased_Block_1Mode:
@@ -813,7 +801,6 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 			if (projectSettings_.a.recreate_stage_files) {
 				v_measMinusComp_.at(block).redim(
 					v_measurementCount_.at(block) + pseudoMsrElemCount,	1);
-				// v_measMinusComp_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 			}	// real measurements + JSLs (fwd + reverse)
 			else
 				v_measMinusComp_.at(block).setsize(
@@ -829,13 +816,11 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 			// redimension the measurements matrix
 			v_measMinusComp_.at(block).redim(
 				v_measurementCount_.at(block) + pseudoMsrElemCount,	1);	// real measurements + JSLs (fwd + reverse)
-			// v_measMinusComp_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 
 			// redimension the At*V-1 matrix
 			v_AtVinv_.at(block).redim(
 				v_unknownsCount_.at(block), 
 				v_measurementCount_.at(block) + pseudoMsrElemCount);	// real measurements + JSLs (fwd + reverse)
-			// v_AtVinv_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		}
 
 		if (pseudoMsrElemCount > 0)
@@ -862,14 +847,10 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 
 	// Redim all matrices
 	v_normals_.at(block).redim(v_unknownsCount_.at(block), v_unknownsCount_.at(block));
-	// v_normals_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	
 	v_design_.at(block).redim(v_measurementCount_.at(block), v_unknownsCount_.at(block));
-	// v_design_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	v_corrections_.at(block).redim(v_unknownsCount_.at(block), 1);
-	// v_corrections_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	v_precAdjMsrsFull_.at(block).redim(v_measurementVarianceCount_.at(block), 1);
-	// v_precAdjMsrsFull_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	
 	// All blocks in v_correctionsR_ are used for multi thread mode, but only the last is used
 	// in single thread mode
@@ -878,11 +859,9 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 	{
 		if (v_blockMeta_.at(block)._blockLast) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
-			// v_correctionsR_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		}
 		else if (projectSettings_.a.multi_thread) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
-			// v_correctionsR_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		}
 	}
 	
@@ -907,19 +886,15 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatricesStage(const UINT32& block)
 		v_normalsR_.at(block).redim(
 			v_unknownsCount_.at(block), 
 			v_unknownsCount_.at(block));
-		// v_normalsR_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 
 		// Redimension the corrections matrices
 		v_corrections_.at(block).redim(v_unknownsCount_.at(block), 1);
-		// v_corrections_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		if (v_blockMeta_.at(block)._blockLast) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
-			// v_correctionsR_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		}
 
 		// Redimension precision of adjusted measurements
 		v_precAdjMsrsFull_.at(block).redim(v_measurementVarianceCount_.at(block), 1);
-		// v_precAdjMsrsFull_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	}
 	else
 	{
@@ -2895,7 +2870,6 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		if (projectSettings_.a.multi_thread) {
 			v_normalsRC_.at(block).redim(
 				v_normalsR_.at(block).rows(), v_normalsR_.at(block).columns());
-			// v_normalsRC_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 		}
 
 		switch (projectSettings_.a.adjust_mode)
@@ -4138,7 +4112,6 @@ void dna_adjust::LoadVarianceMatrix_G(it_vmsr_t _it_msr, matrix_2d* var_cart)
 		scaleMatrix, scalePartial);
 
 	var_cart->redim(3, 3);
-	// var_cart->zero();  // Initialize to zero to prevent uninitialized values
 
 	// vScale is performed on the fly, assuming that all VCVs for single baselines
 	// will always be in the cartesian reference frame
@@ -4233,7 +4206,6 @@ void dna_adjust::LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart)
 	UINT32 cluster_bsl, baseline_count(_it_msr->vectorCount1);
 	UINT32 cluster_cov, covariance_count;
 	var_cart->redim(baseline_count * 3, baseline_count * 3);
-	// var_cart->zero();		// Initialize to zero to prevent uninitialized values
 
 	matrix_2d mpositions(baseline_count * 3, 1);
 
@@ -4466,7 +4438,6 @@ void dna_adjust::LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, co
 		scaleMatrix, scalePartial);
 
 	var_cart->redim(point_count * 3, point_count * 3);		// performs zero on creation of new elements
-	// var_cart->zero();		// Initialize to zero to prevent uninitialized values
 	
 	matrix_2d mpositions(point_count * 3, 1);
 	it_vstn_t stn1_it;
@@ -5986,6 +5957,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 			measMinusComp, estimatedStations, design,
 			stn1, stn2, buildnewMatrices);
 
+		// UpdateDesignMeasMatrices_GX increments design_row by 2 internally (for X->Y and Y->Z)
+		// We need one more increment to account for the Z component
 		design_row++;
 		
 		covariance_count = (*_it_msr)->vectorCount2;
@@ -6114,6 +6087,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 	}
 
 	matrix_2d tmp1(3, baseline_count*3), tmp2(baseline_count*3, 3);
+	tmp2.zero();
 
 	// Build  At * V-1 * A covariances
 	for (cluster_bsl=0; cluster_bsl<baseline_stations.size(); ++cluster_bsl)
@@ -6517,9 +6491,8 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		if (projectSettings_.a.scale_normals_to_unity)
 		{
 			S = new matrix_2d(v_normals_.at(block).rows(), v_normals_.at(block).rows());
-			SN = new matrix_2d(v_normals_.at(block).rows(), v_normals_.at(block).rows());
-			S->zero();	// Initialize to zero to prevent uninitialized values
-			SN->zero();	// Initialize to zero to prevent uninitialized values
+			S->zero();
+			SN->zero();
 			for (UINT32 i(0); i<v_normals_.at(block).rows(); ++i)
 				S->put(i, i, sqrt(v_normals_.at(block).get(i, i)));
 			// 2. Scale Normals to reduce the diagonal elements of Normals to unity
@@ -6579,7 +6552,6 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 	
 	// Solve corrections from normal equations
 	v_corrections_.at(block).redim(v_design_.at(block).columns(), 1);
-	// v_corrections_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	v_corrections_.at(block).multiply(v_normals_.at(block), "N", At_Vinv_m, "N");
 
 	if (projectSettings_.g.verbose > 0)
@@ -7581,8 +7553,8 @@ void dna_adjust::ComputePrecisionAdjMsrs_GX(const UINT32& block, it_vmsr_t& _it_
 	UINT32 cluster_bsl, baseline_count(_it_msr->vectorCount1);
 	UINT32 stn1, stn2;
 	UINT32 i, j;
-
 	matrix_2d precision_bsl(3, 3);
+	precision_bsl.zero();
 
 	for (cluster_bsl=0; cluster_bsl<baseline_count; ++cluster_bsl)
 	{

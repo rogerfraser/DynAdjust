@@ -312,7 +312,6 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 
 	// Solve corrections from normal equations
 	v_correctionsR_.at(block).redim(v_designR_.at(block).columns(), 1);
-	// v_correctionsR_.at(block).zero();	// Initialize to zero to prevent uninitialized values
 	v_correctionsR_.at(block).multiply(v_normalsR_.at(block), "N", At_Vinv_m, "N");
 
 	// debug output?

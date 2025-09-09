@@ -30,8 +30,8 @@
 namespace dynadjust {
 namespace math {
 
-#define DEBUG_MATRIX_2D 1
-#define DEBUG_INIT_NAN 1  // Enable NaN initialization to catch uninitialized memory
+#define DEBUG_MATRIX_2D 0
+#define DEBUG_INIT_NAN 0  // Enable NaN initialization to catch uninitialized memory
 
 std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs) {
     if (os.iword(0) == binary) {
@@ -1175,12 +1175,16 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         }
 
         // Clean up backup buffer before throwing
-        delete[] backup_buffer;
+        if (DEBUG_MATRIX_2D) {
+            delete[] backup_buffer;
+        }
         throw std::runtime_error(error_msg.str());
     }
 
     // Clean up backup buffer after successful dpotrf
-    delete[] backup_buffer;
+    if (DEBUG_MATRIX_2D) {
+        delete[] backup_buffer;
+    }
 
     // Perform Cholesky inverse
     LAPACK_FUNC(dpotri)(&uplo, &n, _buffer, &n, &info);
