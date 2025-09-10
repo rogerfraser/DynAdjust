@@ -50,7 +50,7 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          ctest --stop-on-failure --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
+          ctest --timeout 20 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -144,7 +144,7 @@ jobs:
           #export OMP_NUM_THREADS=1
           #export MKL_DOMAIN_NUM_THREADS="MKL_DOMAIN_ALL=1"
           set +e
-          ctest --output-on-failure --stop-on-failure --timeout 120 2>&1 | tee ctest_output.log
+          ctest --timeout 20 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
           exit 0
@@ -307,7 +307,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-        ctest --stop-on-failure --output-on-failure --timeout 120 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
+        ctest --timeout 20 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
         exit 0
 
     - name: Parse test results and create annotations
