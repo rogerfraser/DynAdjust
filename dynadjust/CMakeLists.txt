@@ -347,6 +347,15 @@ else()
             list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
         endif()
         
+        # When statically linking OpenBLAS, we need to link against gfortran
+        if(BUILD_STATIC AND NOT APPLE AND NOT WIN32)
+            string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER_CHECK)
+            if(BLAS_LIBRARIES_LOWER_CHECK MATCHES "openblas")
+                list(APPEND DNA_LIBRARIES gfortran)
+                message(STATUS "Adding gfortran for static OpenBLAS linking")
+            endif()
+        endif()
+        
         # Check if MKL was found by FindBLAS
         string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER)
         if(BLAS_LIBRARIES_LOWER MATCHES "mkl")
