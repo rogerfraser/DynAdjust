@@ -53,6 +53,7 @@ jobs:
           ctest --timeout 20 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
+          ctest --rerun-failed --output-on-failure
           exit 0
 
       - name: Parse test results and create annotations
@@ -147,6 +148,7 @@ jobs:
           ctest --timeout 20 2>&1 | tee ctest_output.log
           CTEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
+          ctest --rerun-failed --output-on-failure
           exit 0
 
       - name: Parse test results and create annotations
@@ -308,6 +310,7 @@ jobs:
       run: |
         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
         ctest --timeout 20 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
+        ctest --rerun-failed --output-on-failure
         exit 0
 
     - name: Parse test results and create annotations
