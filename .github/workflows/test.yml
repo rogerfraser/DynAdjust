@@ -178,6 +178,77 @@ jobs:
             echo "::error title=Test Error::Could not find ctest output file"
           fi
 
+  test_static_binaries:
+    name: Test static binaries from build workflow
+    runs-on: ubuntu-latest
+    needs: []  # Don't depend on other test jobs
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    
+    steps:
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      
+      - name: Download static binaries artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: dynadjust-linux-openblas-static
+          path: ./artifacts
+          branch: ${{ env.BRANCH_NAME }}
+          if_no_artifact_found: fail
+      
+      - name: Extract and prepare binaries
+        run: |
+          # Extract the binaries from the downloaded artifact
+          if [ -d "./artifacts/dynadjust-linux-static" ]; then
+            mv ./artifacts/dynadjust-linux-static/* ./bin/
+          else
+            # Fallback in case directory structure is different
+            find ./artifacts -type f -executable -exec mv {} ./bin/ \;
+          fi
+          
+          # Make sure binaries are executable
+          chmod +x ./bin/*
+          
+          # Create symlinks for the expected binary names
+          cd bin
+          for binary in *; do
+            # Create symlink without 'dna' prefix if it exists
+            if [[ $binary == dna* ]]; then
+              ln -sf "$binary" "${binary#dna}"
+            fi
+          done
+          cd ..
+          
+          ls -la ./bin/
+      
+      - name: Run GNSS network test
+        working-directory: ./sampleData
+        run: |
+          # Modify PATH to use our static binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script
+          bash run-gnss-network.sh
+          echo "GNSS network test completed successfully"
+      
+      - name: Run urban network test  
+        working-directory: ./sampleData
+        run: |
+          # Modify PATH to use our static binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script
+          bash run-urban-network.sh
+          echo "Urban network test completed successfully"
+
   ctest_windows_dyn_mkl:
     name: Run tests on Windows (mkl)
     runs-on: windows-2025
