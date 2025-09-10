@@ -194,8 +194,11 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Boost
 # ----------------------------------------------------------------------------
 
-find_package(Boost 1.58.0 CONFIG REQUIRED
-    COMPONENTS system filesystem timer thread program_options)
+# Force CMake to use FindBoost module instead of BoostConfig
+set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_CMAKE ON)
+find_package(Boost REQUIRED
+    COMPONENTS program_options)
 message(STATUS "Found Boost version: ${Boost_VERSION}")
 
 # ----------------------------------------------------------------------------
