@@ -37,7 +37,8 @@ std::optional<UINT32> MeasurementProcessor::ProcessForMode(
   case AdjustmentMode::Simultaneous:
     return ProcessSimultaneous(bmsBinaryRecords, bmsr_count, v_CML, counts);
   case AdjustmentMode::Phased:
-    // For now, just return nullopt for phased mode
+    // TODO For now, just return nullopt for phased mode and fallback to dna_adjust
+    // code. This will be implemented later.
     return std::nullopt;
   default:
     return std::nullopt;
@@ -47,28 +48,37 @@ std::optional<UINT32> MeasurementProcessor::ProcessForMode(
 std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
     const measurements::vmsr_t &bmsBinaryRecords, UINT32 bmsr_count,
     vvUINT32 &v_CML, MeasurementCounts &counts) {
-  // Basic stub implementation - would need to be completed
-  // with the actual measurement processing logic
 
   v_CML.clear();
-  v_CML.push_back(vUINT32());  // Start with empty vector, we'll resize later
+  v_CML.push_back(vUINT32()); 
 
   counts.measurement_count = 0;
   counts.measurement_variance_count = 0;
 
+  
   UINT32 m = 0, clusterID = 0;
-  UINT16 axis = 0;
+  UINT16 axis = 0;  // Shared axis counter for all GPS measurements (G, X, Y)
   bool isNewCluster = false;
+  
+  UINT32 g_count = 0, x_count = 0, y_count = 0, d_count = 0, d_sets = 0;
+  UINT32 other_count = 0;
+  UINT32 ignored_count = 0, covariance_count = 0;
+  
+  // Process measurements and count them
 
   for (auto _it_msr = bmsBinaryRecords.begin();
        _it_msr != bmsBinaryRecords.end(); ++_it_msr) {
     // Don't include ignored measurements
-    if (_it_msr->ignore)
+    if (_it_msr->ignore) {
+      ignored_count++;
       continue;
+    }
 
     // Don't include covariance terms
-    if (_it_msr->measStart > zMeas)
+    if (_it_msr->measStart > zMeas) {
+      covariance_count++;
       continue;
+    }
 
     // Check if this is a new GPS cluster
     isNewCluster = false;
@@ -86,11 +96,13 @@ std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
         v_CML.at(0).push_back(static_cast<UINT32>(
             std::distance(bmsBinaryRecords.begin(), _it_msr)));
         m++;
+        d_sets++;
       }
-      // Count the RO plus all target directions
+      // Count the angles 
       if (_it_msr->vectorCount2 > 0) {
-        counts.measurement_count += _it_msr->vectorCount2;
-        counts.measurement_variance_count += _it_msr->vectorCount2;
+        d_count += _it_msr->vectorCount2 - 1;
+        counts.measurement_count += _it_msr->vectorCount2 - 1;
+        counts.measurement_variance_count += _it_msr->vectorCount2 - 1;
       } else if (_it_msr->vectorCount1 >= 1) {
         // Just the RO, no targets
         counts.measurement_count += 1;
@@ -103,7 +115,7 @@ std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
     switch (_it_msr->measType) {
     case 'Y':
     case 'X':
-      // Handle GPS cluster measurements - only add first in cluster
+      // Handle GPS cluster measurements - only add first in cluster to v_CML
       if (isNewCluster) {
         v_CML.at(0).push_back(static_cast<UINT32>(
             std::distance(bmsBinaryRecords.begin(), _it_msr)));
@@ -116,30 +128,35 @@ std::optional<UINT32> MeasurementProcessor::ProcessSimultaneous(
       m++;  // Only increment m when we actually add to v_CML
     }
 
+    // Count all GPS measurements (G, X, Y) regardless of cluster
     switch (_it_msr->measType) {
     case 'G':
-      // GPS baseline measurements expand to 3 components (X, Y, Z)
-      counts.measurement_count += 3;
-      counts.measurement_variance_count += 6;  // Upper triangular covariance matrix
-      continue;
-    case 'X':
-    case 'Y':
-      // GPS cluster measurements - count each measurement record
-      // The binary file contains individual X/Y records for each baseline component
+      g_count++;
       counts.measurement_count++;
       counts.measurement_variance_count += 1 + axis++;
-      
       if (axis > 2)
         axis = 0;
-      
+      continue;
+    case 'X':
+      x_count++;
+      counts.measurement_count++;
+      counts.measurement_variance_count += 1 + axis++;
+      if (axis > 2)
+        axis = 0;
+      continue;
+    case 'Y':
+      y_count++;
+      counts.measurement_count++;
+      counts.measurement_variance_count += 1 + axis++;
+      if (axis > 2)
+        axis = 0;
       continue;
     }
 
+    other_count++;
     counts.measurement_count++;
     counts.measurement_variance_count++;
   }
-
-  // No need to resize since we're using push_back
 
   counts.measurement_params = counts.measurement_count;
 

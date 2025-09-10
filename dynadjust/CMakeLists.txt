@@ -36,17 +36,17 @@ if(BUILD_TESTING)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-# Set output directories for all platforms to use bin/
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Set output directories for all platforms to use ../bin/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
 
 # For multi-config generators (Visual Studio, Xcode)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
 endforeach()
 
 if (BUILD_STATIC)
@@ -601,25 +601,24 @@ if (BUILD_TESTING)
 
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous, phased-block 1, phased, staged)
-    add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
-    add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
+    add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-network.stn gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
+    add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
-    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr --scale-normals-to-unity)
+    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --scale-normals-to-unity)
 
     # bash command to check results
     if(BASH_EXECUTABLE)
       add_test(NAME test-gnss-network
         COMMAND "${BASH_EXECUTABLE}" -c
-          "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+          "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 gnss.simult.adj.expected)")
     else()
       message(STATUS "Bash not found; disabling test-gnss-network")
     endif()
 
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
-    add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
-    add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
-    add_test (NAME import-gnss-network-scaled COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_scaled ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --baseline-scalar-file ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.scalars -r GDA94) 
-    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --single-xml-file --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
+    add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar gnss-network.stn gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
+    add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl gnss-network.stn gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
+    add_test (NAME import-gnss-network-scaled COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_scaled gnss-network.stn gnss-network.msr --baseline-scalar-file gnss-network.scalars -r GDA94) 
+    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 gnss-network.stn gnss-network.msr --export-dna --export-xml --single-xml-file --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
     add_test (NAME segment-gnss-network-block1-a COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 90 --max 90 --starting-stns 220700210)
     add_test (NAME segment-gnss-network-block1-b COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 110 --max 110 --net-file)
     add_test (NAME segment-gnss-network-block1-c COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 80 --max 200 --net-file --starting-stns 211300940 --verbose 3)
@@ -1591,6 +1590,16 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread-01
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(
+        import-gnss-network geoid-gnss-network reftran-gnss-network 
+        adjust-gnss-network test-gnss-network
+        import-gnss-network-similar import-gnss-network-exclude
+        import-gnss-network-scaled import-gnss-network-block1
+        segment-gnss-network-block1-a segment-gnss-network-block1-b
+        segment-gnss-network-block1-c adjust-gnss-network-block1
+        adjust-gnss-network-phased adjust-gnss-network-verb
+        adjust-gnss-network-staged-a adjust-gnss-network-staged-b
+        PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
 

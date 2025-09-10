@@ -169,10 +169,10 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		//   Block   Junction stns  Inner stns  Measurements  Total stns  
 
-		snprintf(format_spec_netid, sizeof(format_spec_netid), "%%%d%s", NETID, "lu");
-		snprintf(format_spec_junct, sizeof(format_spec_junct), "%%%d%s", JUNCT, "lu");
-		snprintf(format_spec_inner, sizeof(format_spec_inner), "%%%d%s", INNER, "lu");
-		snprintf(format_spec_measr, sizeof(format_spec_measr), "%%%d%s", MEASR, "lu");
+		snprintf(format_spec_netid, sizeof(format_spec_netid), "%%%d%s", NETID, "u");
+		snprintf(format_spec_junct, sizeof(format_spec_junct), "%%%d%s", JUNCT, "u");
+		snprintf(format_spec_inner, sizeof(format_spec_inner), "%%%d%s", INNER, "u");
+		snprintf(format_spec_measr, sizeof(format_spec_measr), "%%%d%s", MEASR, "u");
 		
 		
 		UINT32 t;
@@ -306,7 +306,7 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 		{
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// 
 			seg_file.getline(line, PRINT_LINE_LENGTH);		// Block #
-			sscanf(line+5, "%ud", &blk);
+			sscanf(line+5, "%u", &blk);
 			if (b+1 != blk)
 				throw std::runtime_error("load_seg_file: segmentation file is corrupt.");
 			
@@ -332,6 +332,7 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 				{
 					sscanf(line, format_spec_inner, &i);
 					v_ISL.at(b).at(c) = i;
+					if (b == 0 && c < 3)
 					if (loadMetrics)
 						v_unknownsCount->at(b) += 3;
 				}
@@ -339,6 +340,7 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 				{
 					sscanf(line+12, format_spec_junct, &j);
 					v_JSL.at(b).at(c) = j;
+					if (c < 3)
 					if (loadMetrics)
 						v_unknownsCount->at(b) += 3;
 				}

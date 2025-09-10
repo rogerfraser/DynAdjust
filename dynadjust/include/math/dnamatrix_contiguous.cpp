@@ -549,16 +549,29 @@ void matrix_2d::redim(const UINT32& rows, const UINT32& columns) {
 
     //_method_ = "redim";
 
-    // double* new_buffer;
-    // buy(rows, columns, &new_buffer);
-    // copybuffer(_rows, _cols, &new_buffer);
-    // deallocate();
-    //_buffer = new_buffer;
-
+    
+    // Save the current buffer and dimensions
+    double* old_buffer = _buffer;
+    UINT32 old_rows = _rows;
+    UINT32 old_cols = _cols;
+    
+    // Allocate new buffer
+    double* new_buffer;
     std::set_new_handler(out_of_memory_handler);
-
-    deallocate();
-    allocate(rows, columns);
+    buy(rows, columns, &new_buffer);
+    
+    // Copy old data to new buffer if there was any
+    if (old_buffer != nullptr && old_rows > 0 && old_cols > 0) {
+        for (UINT32 col = 0; col < old_cols && col < columns; ++col) {
+            for (UINT32 row = 0; row < old_rows && row < rows; ++row) {
+                new_buffer[col * rows + row] = old_buffer[col * old_rows + row];
+            }
+        }
+        // Delete old buffer
+        delete[] old_buffer;
+    }
+    
+    _buffer = new_buffer;
     
     // When DEBUG_INIT_NAN is enabled, the new allocation contains NaN
     // We need to zero it for consistent behavior

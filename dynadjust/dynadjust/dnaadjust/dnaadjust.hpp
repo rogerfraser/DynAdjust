@@ -270,6 +270,12 @@ class dna_adjust {
     inline bool ExceptionRaised() {
         return adjustStatus_ == ADJUST_EXCEPTION_RAISED;
     }
+    inline void SetExceptionRaised() {
+        adjustStatus_ = ADJUST_EXCEPTION_RAISED;
+        isPreparing_ = false;
+        isCombining_ = false;
+        isAdjusting_ = false;
+    }
     inline DynAdjustPrinter* GetPrinter() { return printer_.get(); }
 
     // Printing methods moved to DynAdjustPrinter - use GetPrinter()->methodName() instead

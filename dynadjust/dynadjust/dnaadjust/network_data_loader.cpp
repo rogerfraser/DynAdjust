@@ -1,7 +1,7 @@
 //============================================================================
 // Name         : network_data_loader.cpp
-// Author       : Roger Fraser
-// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Author       : Dale Roberts <dale.o.roberts@gmail.com>
+// Contributors :
 // Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
