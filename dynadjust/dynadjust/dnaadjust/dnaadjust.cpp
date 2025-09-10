@@ -6491,8 +6491,7 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		if (projectSettings_.a.scale_normals_to_unity)
 		{
 			S = new matrix_2d(v_normals_.at(block).rows(), v_normals_.at(block).rows());
-			S->zero();
-			SN->zero();
+			SN = new matrix_2d(v_normals_.at(block).rows(), v_normals_.at(block).rows());
 			for (UINT32 i(0); i<v_normals_.at(block).rows(); ++i)
 				S->put(i, i, sqrt(v_normals_.at(block).get(i, i)));
 			// 2. Scale Normals to reduce the diagonal elements of Normals to unity
