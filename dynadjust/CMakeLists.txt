@@ -351,8 +351,33 @@ else()
         if(BUILD_STATIC AND NOT APPLE AND NOT WIN32)
             string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER_CHECK)
             if(BLAS_LIBRARIES_LOWER_CHECK MATCHES "openblas")
-                list(APPEND DNA_LIBRARIES gfortran)
-                message(STATUS "Adding gfortran for static OpenBLAS linking")
+                # Find gfortran library
+                find_library(GFORTRAN_LIBRARY
+                    NAMES gfortran
+                    PATHS
+                        /usr/lib/gcc/x86_64-linux-gnu/13
+                        /usr/lib/gcc/x86_64-linux-gnu/12
+                        /usr/lib/gcc/x86_64-linux-gnu/11
+                        /usr/lib/gcc/x86_64-linux-gnu/10
+                        /usr/lib/gcc/x86_64-linux-gnu/9
+                        /usr/lib/gcc/x86_64-linux-gnu/8
+                        /usr/lib/gcc/x86_64-linux-gnu/7
+                        /usr/lib/gcc/x86_64-linux-gnu
+                        /usr/lib/x86_64-linux-gnu
+                        /usr/lib64
+                        /usr/lib
+                        /usr/local/lib
+                    PATH_SUFFIXES gcc
+                )
+                
+                if(GFORTRAN_LIBRARY)
+                    list(APPEND DNA_LIBRARIES ${GFORTRAN_LIBRARY})
+                    message(STATUS "Found gfortran for static OpenBLAS linking: ${GFORTRAN_LIBRARY}")
+                else()
+                    message(WARNING "gfortran library not found - static OpenBLAS linking may fail")
+                    # Try adding it anyway in case it's in the default search path
+                    list(APPEND DNA_LIBRARIES gfortran)
+                endif()
             endif()
         endif()
         
