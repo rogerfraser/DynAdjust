@@ -500,21 +500,14 @@ jobs:
           ..\bin\geoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
           ..\bin\adjust.exe gnss --output-adj-msr
           
-          :: Check the output
-          fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
+          :: Check for Chi-Square test values
+          findstr /C:"0.843 < 1.165 < 1.170" gnss.simult.adj >nul
           if %ERRORLEVEL% equ 0 (
-            echo Test PASSED - output matches expected
+            echo Chi-Square test values match - test considered successful
             set TEST_RESULT=0
           ) else (
-            :: Check for Chi-Square test values
-            findstr "0.843 < 1.165 < 1.170" gnss.simult.adj >nul
-            if %ERRORLEVEL% equ 0 (
-              echo Chi-Square test values match - test considered successful
-              set TEST_RESULT=0
-            ) else (
-              echo Test FAILED - output does not match expected
-              set TEST_RESULT=1
-            )
+            echo Test FAILED - Chi-Square values do not match expected
+            set TEST_RESULT=1
           )
           
           :: Clean up
@@ -535,21 +528,14 @@ jobs:
           ..\bin\segment.exe urban --min-inner-stns 50 --max-block-stns 250
           ..\bin\adjust.exe urban --output-adj-msr --phased
           
-          :: Check the output
-          fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
+          :: Check for Chi-Square test values
+          findstr /C:"0.901 < 0.857 < 1.104" urban.phased.adj >nul
           if %ERRORLEVEL% equ 0 (
-            echo Test PASSED - output matches expected
+            echo Chi-Square test values match - test considered successful
             set TEST_RESULT=0
           ) else (
-            :: Check for Chi-Square test values
-            findstr "0.901 < 0.857 < 1.104" urban.phased.adj >nul
-            if %ERRORLEVEL% equ 0 (
-              echo Chi-Square test values match - test considered successful
-              set TEST_RESULT=0
-            ) else (
-              echo Test FAILED - output does not match expected
-              set TEST_RESULT=1
-            )
+            echo Test FAILED - Chi-Square values do not match expected
+            set TEST_RESULT=1
           )
           
           :: Clean up
@@ -642,21 +628,14 @@ jobs:
           ..\bin\geoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
           ..\bin\adjust.exe gnss --output-adj-msr
           
-          :: Check the output
-          fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
+          :: Check for Chi-Square test values
+          findstr /C:"0.843 < 1.165 < 1.170" gnss.simult.adj >nul
           if %ERRORLEVEL% equ 0 (
-            echo Test PASSED - output matches expected
+            echo Chi-Square test values match - test considered successful
             set TEST_RESULT=0
           ) else (
-            :: Check for Chi-Square test values
-            findstr "0.843 < 1.165 < 1.170" gnss.simult.adj >nul
-            if %ERRORLEVEL% equ 0 (
-              echo Chi-Square test values match - test considered successful
-              set TEST_RESULT=0
-            ) else (
-              echo Test FAILED - output does not match expected
-              set TEST_RESULT=1
-            )
+            echo Test FAILED - Chi-Square values do not match expected
+            set TEST_RESULT=1
           )
           
           :: Clean up
@@ -676,21 +655,14 @@ jobs:
           ..\bin\segment.exe urban --min-inner-stns 50 --max-block-stns 250
           ..\bin\adjust.exe urban --output-adj-msr --phased
           
-          :: Check the output
-          fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
+          :: Check for Chi-Square test values
+          findstr /C:"0.901 < 0.857 < 1.104" urban.phased.adj >nul
           if %ERRORLEVEL% equ 0 (
-            echo Test PASSED - output matches expected
+            echo Chi-Square test values match - test considered successful
             set TEST_RESULT=0
           ) else (
-            :: Check for Chi-Square test values
-            findstr "0.901 < 0.857 < 1.104" urban.phased.adj >nul
-            if %ERRORLEVEL% equ 0 (
-              echo Chi-Square test values match - test considered successful
-              set TEST_RESULT=0
-            ) else (
-              echo Test FAILED - output does not match expected
-              set TEST_RESULT=1
-            )
+            echo Test FAILED - Chi-Square values do not match expected
+            set TEST_RESULT=1
           )
           
           :: Clean up
