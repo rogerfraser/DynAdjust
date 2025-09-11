@@ -273,6 +273,371 @@ jobs:
             exit $TEST_EXIT_CODE
           fi
 
+  test_macos_static_binaries:
+    name: Test macOS static binaries from build workflow
+    runs-on: macos-latest
+    needs: []  # Don't depend on other test jobs
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    
+    steps:
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      
+      - name: Download static binaries artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: dynadjust-macos-static
+          path: ./artifacts
+          branch: ${{ env.BRANCH_NAME }}
+          if_no_artifact_found: fail
+      
+      - name: Extract and prepare binaries
+        run: |
+          # Create bin directory
+          mkdir -p ./bin/
+          
+          # Extract the binaries from the downloaded artifact
+          find ./artifacts -type f -perm +111 -exec mv {} ./bin/ \;
+          
+          # Make sure binaries are executable
+          chmod +x ./bin/*
+          
+          # Create symlinks for the expected binary names
+          cd bin
+          for binary in *; do
+            # Create symlink without 'dna' prefix if it exists
+            if [[ $binary == dna* ]]; then
+              ln -sf "$binary" "${binary#dna}"
+            fi
+          done
+          cd ..
+          
+          ls -la ./bin/
+      
+      - name: Run GNSS network test
+        working-directory: ./sampleData
+        run: |
+          # Modify PATH to use our static binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
+            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "GNSS network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
+      
+      - name: Run urban network test  
+        working-directory: ./sampleData
+        run: |
+          # Modify PATH to use our static binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
+            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "Urban network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
+
+  test_windows_mkl_binaries:
+    name: Test Windows MKL binaries from build workflow
+    runs-on: windows-latest
+    needs: []  # Don't depend on other test jobs
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c
+      VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
+      VCPKG_BINARY_SOURCES: "clear"
+      WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f5881e61-dcdc-40f1-9bd9-717081ac623c/intel-oneapi-base-toolkit-2025.2.1.46_offline.exe
+      ONEAPI_VERSION: "2025.2"
+    
+    steps:
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+          echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
+          key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v4
+        with:
+          path: C:\Program Files (x86)\Intel\oneAPI
+          key: intel-oneapi-${{ env.ONEAPI_HASH }}
+
+      - name: Install vcpkg prerequisites
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          Write-Host "Installing Intel OneAPI..."
+          $url = $env:WINDOWS_BASEKIT_URL
+          $components = "intel.oneapi.win.mkl.devel"
+          $tempExe = Join-Path $env:TEMP "webimage.exe"
+
+          Write-Host "Downloading installer from $url..."
+          curl.exe -L $url -o $tempExe
+
+          Write-Host "Extracting installer..."
+          $installerArgs = "-s -x -f webimage_extracted --log extract.log"
+          $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
+          Remove-Item $tempExe -Force
+
+          $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
+
+          Write-Host "Running bootstrapper..."
+          $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
+          $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
+          Remove-Item -Recurse -Force "webimage_extracted"
+
+      - name: Extract OneAPI version
+        shell: powershell
+        run: |
+          # Extract version from URL (e.g., 2025.2.1 -> 2025.2)
+          $url = "${{ env.WINDOWS_BASEKIT_URL }}"
+          if ($url -match 'toolkit-(\d+\.\d+)\.\d+') {
+            $version = $matches[1]
+            echo "ONEAPI_VERSION=$version" >> $env:GITHUB_ENV
+            Write-Host "Extracted OneAPI version: $version"
+          } else {
+            Write-Host "Failed to extract version, using default 2025.2"
+            echo "ONEAPI_VERSION=2025.2" >> $env:GITHUB_ENV
+          }
+
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      
+      - name: Download binaries artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: dynadjust-windows-mkl
+          path: ./artifacts
+          branch: ${{ env.BRANCH_NAME }}
+          if_no_artifact_found: fail
+      
+      - name: Extract and prepare binaries
+        shell: bash
+        run: |
+          # Create bin directory
+          mkdir -p ./bin/
+          
+          # Extract the binaries from the downloaded artifact
+          if [ -d "./artifacts/DynAdjust-Windows" ]; then
+            mv ./artifacts/DynAdjust-Windows/* ./bin/
+          else
+            # Fallback in case directory structure is different
+            find ./artifacts -name "*.exe" -o -name "*.dll" | xargs -I {} mv {} ./bin/
+          fi
+          
+          # Create symlinks/copies for the expected binary names
+          cd bin
+          for binary in *.exe; do
+            # Create copy without 'dna' prefix if it exists
+            if [[ $binary == dna* ]]; then
+              base="${binary%.exe}"
+              cp "$binary" "${base#dna}.exe"
+            fi
+          done
+          cd ..
+          
+          ls -la ./bin/
+      
+      - name: Run GNSS network test
+        working-directory: ./sampleData
+        shell: cmd
+        run: |
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set PATH=..\bin;%PATH%
+          bash run-gnss-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath gnss_test_output.log"
+          set TEST_EXIT_CODE=%ERRORLEVEL%
+          findstr "0.843 < 1.165 < 1.170" gnss_test_output.log >nul
+          if %ERRORLEVEL% equ 0 (
+            echo Chi-Square test values match ^(0.843 ^< 1.165 ^< 1.170^) - test considered successful
+            exit /b 0
+          ) else (
+            echo GNSS network test exit code: %TEST_EXIT_CODE%
+            exit /b %TEST_EXIT_CODE%
+          )
+      
+      - name: Run urban network test  
+        working-directory: ./sampleData
+        shell: cmd
+        run: |
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set PATH=..\bin;%PATH%
+          bash run-urban-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath urban_test_output.log"
+          set TEST_EXIT_CODE=%ERRORLEVEL%
+          findstr "0.901 < 0.857 < 1.104" urban_test_output.log >nul
+          if %ERRORLEVEL% equ 0 (
+            echo Chi-Square test values match ^(0.901 ^< 0.857 ^< 1.104^) - test considered successful
+            exit /b 0
+          ) else (
+            echo Urban network test exit code: %TEST_EXIT_CODE%
+            exit /b %TEST_EXIT_CODE%
+          )
+
+  test_windows_openblas_binaries:
+    name: Test Windows OpenBLAS binaries from build workflow
+    runs-on: windows-latest
+    needs: []  # Don't depend on other test jobs
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c openblas lapack-reference
+      VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
+      VCPKG_BINARY_SOURCES: "clear"
+    
+    steps:
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
+          key: vcpkg-${{ runner.os }}-openblas-${{ env.VCPKG_HASH }}
+
+      - name: Install vcpkg prerequisites
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
+          Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
+
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      
+      - name: Download binaries artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: dynadjust-windows-openblas
+          path: ./artifacts
+          branch: ${{ env.BRANCH_NAME }}
+          if_no_artifact_found: fail
+      
+      - name: Extract and prepare binaries
+        shell: bash
+        run: |
+          # Create bin directory
+          mkdir -p ./bin/
+          
+          # Extract the binaries from the downloaded artifact
+          if [ -d "./artifacts/DynAdjust-Windows" ]; then
+            mv ./artifacts/DynAdjust-Windows/* ./bin/
+          else
+            # Fallback in case directory structure is different
+            find ./artifacts -name "*.exe" -o -name "*.dll" | xargs -I {} mv {} ./bin/
+          fi
+          
+          # Create symlinks/copies for the expected binary names
+          cd bin
+          for binary in *.exe; do
+            # Create copy without 'dna' prefix if it exists
+            if [[ $binary == dna* ]]; then
+              base="${binary%.exe}"
+              cp "$binary" "${base#dna}.exe"
+            fi
+          done
+          cd ..
+          
+          ls -la ./bin/
+      
+      - name: Run GNSS network test
+        working-directory: ./sampleData
+        shell: cmd
+        run: |
+          vcpkg.exe integrate install
+          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
+          bash run-gnss-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath gnss_test_output.log"
+          set TEST_EXIT_CODE=%ERRORLEVEL%
+          findstr "0.843 < 1.165 < 1.170" gnss_test_output.log >nul
+          if %ERRORLEVEL% equ 0 (
+            echo Chi-Square test values match ^(0.843 ^< 1.165 ^< 1.170^) - test considered successful
+            exit /b 0
+          ) else (
+            echo GNSS network test exit code: %TEST_EXIT_CODE%
+            exit /b %TEST_EXIT_CODE%
+          )
+      
+      - name: Run urban network test  
+        working-directory: ./sampleData
+        shell: cmd
+        run: |
+          vcpkg.exe integrate install
+          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
+          bash run-urban-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath urban_test_output.log"
+          set TEST_EXIT_CODE=%ERRORLEVEL%
+          findstr "0.901 < 0.857 < 1.104" urban_test_output.log >nul
+          if %ERRORLEVEL% equ 0 (
+            echo Chi-Square test values match ^(0.901 ^< 0.857 ^< 1.104^) - test considered successful
+            exit /b 0
+          ) else (
+            echo Urban network test exit code: %TEST_EXIT_CODE%
+            exit /b %TEST_EXIT_CODE%
+          )
+
   ctest_windows_dyn_mkl:
     name: Run tests on Windows (mkl)
     runs-on: windows-2025
