@@ -16,7 +16,7 @@ env:
 jobs:
 
   ctest_linux_dyn_openblas:
-    name: Run tests on Linux (openblas)
+    name: Build and run ctests on Linux (openblas)
     runs-on: ubuntu-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
@@ -85,7 +85,7 @@ jobs:
           fi
           
   ctest_linux_dyn_mkl:
-    name: Run tests on Linux (mkl)
+    name: Build and run ctests on Linux (mkl)
     runs-on: ubuntu-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
@@ -177,8 +177,8 @@ jobs:
             echo "::error title=Test Error::Could not find ctest output file"
           fi
 
-  test_static_binaries:
-    name: Test static binaries from build workflow
+  test_linux_mkl_binaries:
+    name: Test Linux MKL binaries from build workflow
     runs-on: ubuntu-latest
     needs: []  # Don't depend on other test jobs
     env:
@@ -671,7 +671,7 @@ jobs:
           exit /b %TEST_RESULT%
 
   ctest_windows_dyn_mkl:
-    name: Run tests on Windows (mkl)
+    name: Build and run ctests on Windows (mkl)
     runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
