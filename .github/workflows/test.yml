@@ -304,11 +304,13 @@ jobs:
           # Create bin directory
           mkdir -p ./bin/
           
-          # Extract the binaries from the downloaded artifact
-          find ./artifacts -type f -perm +111 -exec mv {} ./bin/ \;
+          # Move binaries from artifacts directory
+          if [ -d "./artifacts" ]; then
+            mv ./artifacts/* ./bin/ 2>/dev/null || true
+          fi
           
           # Make sure binaries are executable
-          chmod +x ./bin/*
+          chmod +x ./bin/* 2>/dev/null || true
           
           # Create symlinks for the expected binary names
           cd bin
@@ -491,39 +493,73 @@ jobs:
           
           ls -la ./bin/
       
+      - name: Create wrapper scripts for Windows binaries
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd bin
+          # Create wrapper scripts without .exe extension
+          for exe in *.exe; do
+            base="${exe%.exe}"
+            echo "#!/bin/bash" > "$base"
+            echo "\"$(pwd)/$exe\" \"\$@\"" >> "$base"
+            chmod +x "$base"
+          done
+          cd ..
+
       - name: Run GNSS network test
         working-directory: ./sampleData
-        shell: cmd
+        shell: bash
         run: |
-          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-          set PATH=..\bin;%PATH%
-          bash run-gnss-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath gnss_test_output.log"
-          set TEST_EXIT_CODE=%ERRORLEVEL%
-          findstr "0.843 < 1.165 < 1.170" gnss_test_output.log >nul
-          if %ERRORLEVEL% equ 0 (
-            echo Chi-Square test values match ^(0.843 ^< 1.165 ^< 1.170^) - test considered successful
-            exit /b 0
-          ) else (
-            echo GNSS network test exit code: %TEST_EXIT_CODE%
-            exit /b %TEST_EXIT_CODE%
-          )
+          # Set up environment
+          export PATH="../bin:$PATH"
+          
+          # Source OneAPI environment if on Windows
+          if [ -f "/c/Program Files (x86)/Intel/oneAPI/setvars.sh" ]; then
+            source "/c/Program Files (x86)/Intel/oneAPI/setvars.sh"
+          fi
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
+            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "GNSS network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
       
       - name: Run urban network test  
         working-directory: ./sampleData
-        shell: cmd
+        shell: bash
         run: |
-          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-          set PATH=..\bin;%PATH%
-          bash run-urban-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath urban_test_output.log"
-          set TEST_EXIT_CODE=%ERRORLEVEL%
-          findstr "0.901 < 0.857 < 1.104" urban_test_output.log >nul
-          if %ERRORLEVEL% equ 0 (
-            echo Chi-Square test values match ^(0.901 ^< 0.857 ^< 1.104^) - test considered successful
-            exit /b 0
-          ) else (
-            echo Urban network test exit code: %TEST_EXIT_CODE%
-            exit /b %TEST_EXIT_CODE%
-          )
+          # Set up environment
+          export PATH="../bin:$PATH"
+          
+          # Source OneAPI environment if on Windows
+          if [ -f "/c/Program Files (x86)/Intel/oneAPI/setvars.sh" ]; then
+            source "/c/Program Files (x86)/Intel/oneAPI/setvars.sh"
+          fi
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
+            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "Urban network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
 
   test_windows_openblas_binaries:
     name: Test Windows OpenBLAS binaries from build workflow
@@ -604,39 +640,63 @@ jobs:
           
           ls -la ./bin/
       
+      - name: Create wrapper scripts for Windows binaries
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd bin
+          # Create wrapper scripts without .exe extension
+          for exe in *.exe; do
+            base="${exe%.exe}"
+            echo "#!/bin/bash" > "$base"
+            echo "\"$(pwd)/$exe\" \"\$@\"" >> "$base"
+            chmod +x "$base"
+          done
+          cd ..
+
       - name: Run GNSS network test
         working-directory: ./sampleData
-        shell: cmd
+        shell: bash
         run: |
-          vcpkg.exe integrate install
-          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
-          bash run-gnss-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath gnss_test_output.log"
-          set TEST_EXIT_CODE=%ERRORLEVEL%
-          findstr "0.843 < 1.165 < 1.170" gnss_test_output.log >nul
-          if %ERRORLEVEL% equ 0 (
-            echo Chi-Square test values match ^(0.843 ^< 1.165 ^< 1.170^) - test considered successful
-            exit /b 0
-          ) else (
-            echo GNSS network test exit code: %TEST_EXIT_CODE%
-            exit /b %TEST_EXIT_CODE%
-          )
+          # Set up environment
+          export PATH="../bin:/c/vcpkg/installed/x64-windows/bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
+            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "GNSS network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
       
       - name: Run urban network test  
         working-directory: ./sampleData
-        shell: cmd
+        shell: bash
         run: |
-          vcpkg.exe integrate install
-          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
-          bash run-urban-network.sh 2>&1 | powershell -Command "$input | Tee-Object -FilePath urban_test_output.log"
-          set TEST_EXIT_CODE=%ERRORLEVEL%
-          findstr "0.901 < 0.857 < 1.104" urban_test_output.log >nul
-          if %ERRORLEVEL% equ 0 (
-            echo Chi-Square test values match ^(0.901 ^< 0.857 ^< 1.104^) - test considered successful
-            exit /b 0
-          ) else (
-            echo Urban network test exit code: %TEST_EXIT_CODE%
-            exit /b %TEST_EXIT_CODE%
-          )
+          # Set up environment
+          export PATH="../bin:/c/vcpkg/installed/x64-windows/bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
+            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "Urban network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
 
   ctest_windows_dyn_mkl:
     name: Run tests on Windows (mkl)
