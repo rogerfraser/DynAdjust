@@ -493,73 +493,74 @@ jobs:
           
           ls -la ./bin/
       
-      - name: Create wrapper scripts for Windows binaries
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd bin
-          # Create wrapper scripts without .exe extension
-          for exe in *.exe; do
-            base="${exe%.exe}"
-            echo "#!/bin/bash" > "$base"
-            echo "\"$(pwd)/$exe\" \"\$@\"" >> "$base"
-            chmod +x "$base"
-          done
-          cd ..
-
       - name: Run GNSS network test
         working-directory: ./sampleData
-        shell: bash
+        shell: cmd
         run: |
-          # Set up environment
-          export PATH="../bin:$PATH"
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set PATH=..\bin;%PATH%
           
-          # Source OneAPI environment if on Windows
-          if [ -f "/c/Program Files (x86)/Intel/oneAPI/setvars.sh" ]; then
-            source "/c/Program Files (x86)/Intel/oneAPI/setvars.sh"
-          fi
+          :: Run the commands directly
+          ..\bin\dnaimport.exe -n gnss gnss-network.stn gnss-network.msr
+          ..\bin\dnageoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
+          ..\bin\dnaadjust.exe gnss --output-adj-msr
           
-          # Run the test script and capture output
-          set +e  # Don't exit on error
-          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          :: Check the output
+          fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
+          if %ERRORLEVEL% equ 0 (
+            echo Test PASSED - output matches expected
+            set TEST_RESULT=0
+          ) else (
+            :: Check for Chi-Square test values
+            findstr "0.843 < 1.165 < 1.170" gnss.simult.adj >nul
+            if %ERRORLEVEL% equ 0 (
+              echo Chi-Square test values match - test considered successful
+              set TEST_RESULT=0
+            ) else (
+              echo Test FAILED - output does not match expected
+              set TEST_RESULT=1
+            )
+          )
           
-          # Check if Chi-Square test has the expected values
-          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
-            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
-            exit 0
-          else
-            # If Chi-Square values not found, use original exit code
-            echo "GNSS network test exit code: $TEST_EXIT_CODE"
-            exit $TEST_EXIT_CODE
-          fi
+          :: Clean up
+          del /q *.bms *.bst *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl 2>nul
+          
+          exit /b %TEST_RESULT%
       
       - name: Run urban network test  
         working-directory: ./sampleData
-        shell: bash
+        shell: cmd
         run: |
-          # Set up environment
-          export PATH="../bin:$PATH"
+          call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+          set PATH=..\bin;%PATH%
           
-          # Source OneAPI environment if on Windows
-          if [ -f "/c/Program Files (x86)/Intel/oneAPI/setvars.sh" ]; then
-            source "/c/Program Files (x86)/Intel/oneAPI/setvars.sh"
-          fi
+          :: Run the commands directly
+          ..\bin\dnaimport.exe -n urban urban-network.stn urban-network.msr
+          ..\bin\dnageoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
+          ..\bin\dnasegment.exe urban --min-inner-stns 50 --max-block-stns 250
+          ..\bin\dnaadjust.exe urban --output-adj-msr --phased
           
-          # Run the test script and capture output
-          set +e  # Don't exit on error
-          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          :: Check the output
+          fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
+          if %ERRORLEVEL% equ 0 (
+            echo Test PASSED - output matches expected
+            set TEST_RESULT=0
+          ) else (
+            :: Check for Chi-Square test values
+            findstr "0.901 < 0.857 < 1.104" urban.phased.adj >nul
+            if %ERRORLEVEL% equ 0 (
+              echo Chi-Square test values match - test considered successful
+              set TEST_RESULT=0
+            ) else (
+              echo Test FAILED - output does not match expected
+              set TEST_RESULT=1
+            )
+          )
           
-          # Check if Chi-Square test has the expected values
-          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
-            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
-            exit 0
-          else
-            # If Chi-Square values not found, use original exit code
-            echo "Urban network test exit code: $TEST_EXIT_CODE"
-            exit $TEST_EXIT_CODE
-          fi
+          :: Clean up
+          del /q *.bms *.bst *.seg *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl 2>nul
+          
+          exit /b %TEST_RESULT%
 
   test_windows_openblas_binaries:
     name: Test Windows OpenBLAS binaries from build workflow
@@ -640,63 +641,72 @@ jobs:
           
           ls -la ./bin/
       
-      - name: Create wrapper scripts for Windows binaries
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          cd bin
-          # Create wrapper scripts without .exe extension
-          for exe in *.exe; do
-            base="${exe%.exe}"
-            echo "#!/bin/bash" > "$base"
-            echo "\"$(pwd)/$exe\" \"\$@\"" >> "$base"
-            chmod +x "$base"
-          done
-          cd ..
-
       - name: Run GNSS network test
         working-directory: ./sampleData
-        shell: bash
+        shell: cmd
         run: |
-          # Set up environment
-          export PATH="../bin:/c/vcpkg/installed/x64-windows/bin:$PATH"
+          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
           
-          # Run the test script and capture output
-          set +e  # Don't exit on error
-          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          :: Run the commands directly
+          ..\bin\dnaimport.exe -n gnss gnss-network.stn gnss-network.msr
+          ..\bin\dnageoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
+          ..\bin\dnaadjust.exe gnss --output-adj-msr
           
-          # Check if Chi-Square test has the expected values
-          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
-            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
-            exit 0
-          else
-            # If Chi-Square values not found, use original exit code
-            echo "GNSS network test exit code: $TEST_EXIT_CODE"
-            exit $TEST_EXIT_CODE
-          fi
+          :: Check the output
+          fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
+          if %ERRORLEVEL% equ 0 (
+            echo Test PASSED - output matches expected
+            set TEST_RESULT=0
+          ) else (
+            :: Check for Chi-Square test values
+            findstr "0.843 < 1.165 < 1.170" gnss.simult.adj >nul
+            if %ERRORLEVEL% equ 0 (
+              echo Chi-Square test values match - test considered successful
+              set TEST_RESULT=0
+            ) else (
+              echo Test FAILED - output does not match expected
+              set TEST_RESULT=1
+            )
+          )
+          
+          :: Clean up
+          del /q *.bms *.bst *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl 2>nul
+          
+          exit /b %TEST_RESULT%
       
       - name: Run urban network test  
         working-directory: ./sampleData
-        shell: bash
+        shell: cmd
         run: |
-          # Set up environment
-          export PATH="../bin:/c/vcpkg/installed/x64-windows/bin:$PATH"
+          set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
           
-          # Run the test script and capture output
-          set +e  # Don't exit on error
-          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          :: Run the commands directly
+          ..\bin\dnaimport.exe -n urban urban-network.stn urban-network.msr
+          ..\bin\dnageoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
+          ..\bin\dnasegment.exe urban --min-inner-stns 50 --max-block-stns 250
+          ..\bin\dnaadjust.exe urban --output-adj-msr --phased
           
-          # Check if Chi-Square test has the expected values
-          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
-            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
-            exit 0
-          else
-            # If Chi-Square values not found, use original exit code
-            echo "Urban network test exit code: $TEST_EXIT_CODE"
-            exit $TEST_EXIT_CODE
-          fi
+          :: Check the output
+          fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
+          if %ERRORLEVEL% equ 0 (
+            echo Test PASSED - output matches expected
+            set TEST_RESULT=0
+          ) else (
+            :: Check for Chi-Square test values
+            findstr "0.901 < 0.857 < 1.104" urban.phased.adj >nul
+            if %ERRORLEVEL% equ 0 (
+              echo Chi-Square test values match - test considered successful
+              set TEST_RESULT=0
+            ) else (
+              echo Test FAILED - output does not match expected
+              set TEST_RESULT=1
+            )
+          )
+          
+          :: Clean up
+          del /q *.bms *.bst *.seg *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl 2>nul
+          
+          exit /b %TEST_RESULT%
 
   ctest_windows_dyn_mkl:
     name: Run tests on Windows (mkl)
