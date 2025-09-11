@@ -136,7 +136,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake -DBUILD_STATIC=ON dynadjust
+          cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
           make -j2
           ls -la static/
 
@@ -197,7 +197,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake -DBUILD_STATIC=ON dynadjust
+          cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
           make -j2 VERBOSE=1
           ls -la static/
 

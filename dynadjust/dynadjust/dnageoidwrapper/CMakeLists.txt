@@ -49,8 +49,13 @@ if(BUILD_STATIC)
   set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   set_target_properties(dnageoid PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   
+  print_static_linking_info(${STATIC_TARGET_NAME} "${DNA_PROGRAM_PREFIX}geoid")
+  
   # Link with static libraries
   target_link_libraries(${STATIC_TARGET_NAME} PRIVATE ${STATIC_LIBS_LIST})
+
+  # Apply static build optimizations
+  optimize_static_target(${STATIC_TARGET_NAME})
   
   if(UNIX)
     if(APPLE)

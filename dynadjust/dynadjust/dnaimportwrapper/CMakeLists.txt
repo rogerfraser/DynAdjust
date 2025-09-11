@@ -49,8 +49,13 @@ if(BUILD_STATIC)
   set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   set_target_properties(dnaimport PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   
+  print_static_linking_info(${STATIC_TARGET_NAME} "${DNA_PROGRAM_PREFIX}import")
+  
   # Link with static libraries
   target_link_libraries(${STATIC_TARGET_NAME} PRIVATE ${STATIC_LIBS_LIST})
+  
+  # Apply static build optimizations
+  optimize_static_target(${STATIC_TARGET_NAME})
   
   if(UNIX)
     if(APPLE)
@@ -76,9 +81,7 @@ if(BUILD_STATIC)
         "-framework CoreServices"
         "-framework CoreFoundation")
     else()
-      target_link_options(${STATIC_TARGET_NAME} PRIVATE
-        -static)
-
+      # Linux static linking is handled by optimize_static_target()
     endif()
   elseif(WIN32)
     # On Windows with MSVC

@@ -206,6 +206,9 @@ jobs:
       
       - name: Extract and prepare binaries
         run: |
+          # Create bin directory
+          mkdir -p ./bin/
+          
           # Extract the binaries from the downloaded artifact
           if [ -d "./artifacts/dynadjust-linux-static" ]; then
             mv ./artifacts/dynadjust-linux-static/* ./bin/
