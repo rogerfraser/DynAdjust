@@ -474,24 +474,19 @@ jobs:
           
           # Extract the binaries from the downloaded artifact
           if [ -d "./artifacts/DynAdjust-Windows" ]; then
+            echo "Found DynAdjust-Windows directory"
             mv ./artifacts/DynAdjust-Windows/* ./bin/
           else
-            # Fallback in case directory structure is different
-            find ./artifacts -name "*.exe" -o -name "*.dll" | xargs -I {} mv {} ./bin/
+            echo "DynAdjust-Windows directory not found, searching for executables"
+            find ./artifacts -type f \( -name "*.exe" -o -name "*.dll" \) -exec mv {} ./bin/ \;
           fi
           
-          # Create symlinks/copies for the expected binary names
-          cd bin
-          for binary in *.exe; do
-            # Create copy without 'dna' prefix if it exists
-            if [[ $binary == dna* ]]; then
-              base="${binary%.exe}"
-              cp "$binary" "${base#dna}.exe"
-            fi
-          done
-          cd ..
-          
+          echo "Contents of ./bin directory:"
           ls -la ./bin/
+          
+          # Check what executables we have
+          echo "Executables found:"
+          ls -la ./bin/*.exe 2>/dev/null || echo "No .exe files found"
       
       - name: Run GNSS network test
         working-directory: ./sampleData
@@ -500,10 +495,10 @@ jobs:
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           set PATH=..\bin;%PATH%
           
-          :: Run the commands directly
-          ..\bin\dnaimport.exe -n gnss gnss-network.stn gnss-network.msr
-          ..\bin\dnageoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
-          ..\bin\dnaadjust.exe gnss --output-adj-msr
+          :: Run the commands directly using the correct names
+          ..\bin\import.exe -n gnss gnss-network.stn gnss-network.msr
+          ..\bin\geoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
+          ..\bin\adjust.exe gnss --output-adj-msr
           
           :: Check the output
           fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
@@ -534,11 +529,11 @@ jobs:
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           set PATH=..\bin;%PATH%
           
-          :: Run the commands directly
-          ..\bin\dnaimport.exe -n urban urban-network.stn urban-network.msr
-          ..\bin\dnageoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
-          ..\bin\dnasegment.exe urban --min-inner-stns 50 --max-block-stns 250
-          ..\bin\dnaadjust.exe urban --output-adj-msr --phased
+          :: Run the commands directly using the correct names
+          ..\bin\import.exe -n urban urban-network.stn urban-network.msr
+          ..\bin\geoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
+          ..\bin\segment.exe urban --min-inner-stns 50 --max-block-stns 250
+          ..\bin\adjust.exe urban --output-adj-msr --phased
           
           :: Check the output
           fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
@@ -622,24 +617,19 @@ jobs:
           
           # Extract the binaries from the downloaded artifact
           if [ -d "./artifacts/DynAdjust-Windows" ]; then
+            echo "Found DynAdjust-Windows directory"
             mv ./artifacts/DynAdjust-Windows/* ./bin/
           else
-            # Fallback in case directory structure is different
-            find ./artifacts -name "*.exe" -o -name "*.dll" | xargs -I {} mv {} ./bin/
+            echo "DynAdjust-Windows directory not found, searching for executables"
+            find ./artifacts -type f \( -name "*.exe" -o -name "*.dll" \) -exec mv {} ./bin/ \;
           fi
           
-          # Create symlinks/copies for the expected binary names
-          cd bin
-          for binary in *.exe; do
-            # Create copy without 'dna' prefix if it exists
-            if [[ $binary == dna* ]]; then
-              base="${binary%.exe}"
-              cp "$binary" "${base#dna}.exe"
-            fi
-          done
-          cd ..
-          
+          echo "Contents of ./bin directory:"
           ls -la ./bin/
+          
+          # Check what executables we have
+          echo "Executables found:"
+          ls -la ./bin/*.exe 2>/dev/null || echo "No .exe files found"
       
       - name: Run GNSS network test
         working-directory: ./sampleData
@@ -647,10 +637,10 @@ jobs:
         run: |
           set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
           
-          :: Run the commands directly
-          ..\bin\dnaimport.exe -n gnss gnss-network.stn gnss-network.msr
-          ..\bin\dnageoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
-          ..\bin\dnaadjust.exe gnss --output-adj-msr
+          :: Run the commands directly using the correct names
+          ..\bin\import.exe -n gnss gnss-network.stn gnss-network.msr
+          ..\bin\geoid.exe gnss -g gnss-network-geoid.gsb --convert-stn-hts
+          ..\bin\adjust.exe gnss --output-adj-msr
           
           :: Check the output
           fc /b gnss.simult.adj gnss.simult.adj.expected >nul 2>&1
@@ -680,11 +670,11 @@ jobs:
         run: |
           set PATH=..\bin;C:\vcpkg\installed\x64-windows\bin;%PATH%
           
-          :: Run the commands directly
-          ..\bin\dnaimport.exe -n urban urban-network.stn urban-network.msr
-          ..\bin\dnageoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
-          ..\bin\dnasegment.exe urban --min-inner-stns 50 --max-block-stns 250
-          ..\bin\dnaadjust.exe urban --output-adj-msr --phased
+          :: Run the commands directly using the correct names
+          ..\bin\import.exe -n urban urban-network.stn urban-network.msr
+          ..\bin\geoid.exe urban -g urban-network-geoid.gsb --convert-stn-hts
+          ..\bin\segment.exe urban --min-inner-stns 50 --max-block-stns 250
+          ..\bin\adjust.exe urban --output-adj-msr --phased
           
           :: Check the output
           fc /b urban.phased.adj urban.phased.adj.expected >nul 2>&1
