@@ -25,6 +25,14 @@ jobs:
 
     steps:
 
+      - name: Show CPU information
+        shell: bash
+        run: |
+          echo "CPU Information:"
+          lscpu || true
+          echo "---"
+          nproc || true
+
       - name: Install dependencies
         shell: bash
         run: |
@@ -92,6 +100,14 @@ jobs:
         libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript
 
     steps:
+
+      - name: Show CPU information
+        shell: bash
+        run: |
+          echo "CPU Information:"
+          lscpu || true
+          echo "---"
+          nproc || true
 
       - name: Generate cache triggers
         shell: bash
@@ -185,6 +201,14 @@ jobs:
         libxerces-c-dev xsdcxx libboost-program-options-dev
     
     steps:
+      - name: Show CPU information
+        shell: bash
+        run: |
+          echo "CPU Information:"
+          lscpu || true
+          echo "---"
+          nproc || true
+
       - name: Generate cache triggers
         shell: bash
         run: |
@@ -311,6 +335,14 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     
     steps:
+      - name: Show CPU information
+        shell: bash
+        run: |
+          echo "CPU Information:"
+          lscpu || true
+          echo "---"
+          nproc || true
+
       - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
@@ -407,6 +439,14 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     
     steps:
+      - name: Show CPU information
+        shell: bash
+        run: |
+          echo "CPU Information:"
+          sysctl -n machdep.cpu.brand_string || true
+          echo "---"
+          sysctl -n hw.ncpu || true
+
       - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
@@ -504,6 +544,12 @@ jobs:
       ONEAPI_VERSION: "2025.2"
     
     steps:
+      - name: Show CPU information
+        shell: powershell
+        run: |
+          Write-Host "CPU Information:"
+          Get-WmiObject -Class Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List
+
       - name: Generate cache triggers
         shell: bash
         run: |
@@ -679,6 +725,12 @@ jobs:
       VCPKG_BINARY_SOURCES: "clear"
     
     steps:
+      - name: Show CPU information
+        shell: powershell
+        run: |
+          Write-Host "CPU Information:"
+          Get-WmiObject -Class Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List
+
       - name: Generate cache triggers
         shell: bash
         run: |
@@ -806,6 +858,12 @@ jobs:
       ONEAPI_VERSION: "2025.2"
     
     steps:
+
+    - name: Show CPU information
+      shell: powershell
+      run: |
+        Write-Host "CPU Information:"
+        Get-WmiObject -Class Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors | Format-List
 
     - name: Generate cache triggers
       shell: bash
