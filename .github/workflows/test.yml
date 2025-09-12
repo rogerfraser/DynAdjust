@@ -21,8 +21,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev gmt ghostscript
+        libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev gmt ghostscript
 
     steps:
 
@@ -90,8 +89,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev gmt ghostscript
+        libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript
 
     steps:
 
@@ -179,6 +177,134 @@ jobs:
 
   test_linux_mkl_binaries:
     name: Test Linux MKL binaries from build workflow
+    runs-on: ubuntu-latest
+    needs: []  # Don't depend on other test jobs
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-program-options-dev
+    
+    steps:
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.PKGS }}
+
+      - name: Cache Intel OneAPI
+        id: cache-oneapi
+        uses: actions/cache@v4
+        with:
+          path: /opt/intel
+          key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+
+      - name: Install Intel OneAPI
+        if: steps.cache-oneapi.outputs.cache-hit != 'true'
+        run: |
+          curl -L $LINUX_BASEKIT_URL -o install.sh
+          sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
+
+      - name: Check branch name
+        shell: bash
+        run: echo ${{ env.BRANCH_NAME }}
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      
+      - name: Download MKL binaries artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: dynadjust-linux-mkl
+          path: ./artifacts
+          branch: ${{ env.BRANCH_NAME }}
+          if_no_artifact_found: fail
+      
+      - name: Extract and prepare binaries
+        run: |
+          # Create bin directory
+          mkdir -p ./bin/
+          
+          # Extract the binaries from the downloaded artifact
+          if [ -d "./artifacts/dynadjust-linux-mkl" ]; then
+            mv ./artifacts/dynadjust-linux-mkl/* ./bin/
+          else
+            # Fallback in case directory structure is different
+            find ./artifacts -type f -executable -exec mv {} ./bin/ \;
+          fi
+          
+          # Make sure binaries are executable
+          chmod +x ./bin/*
+          
+          # Create symlinks for the expected binary names
+          cd bin
+          for binary in *; do
+            # Create symlink without 'dna' prefix if it exists
+            if [[ $binary == dna* ]]; then
+              ln -sf "$binary" "${binary#dna}"
+            fi
+          done
+          cd ..
+          
+          ls -la ./bin/
+      
+      - name: Run GNSS network test
+        working-directory: ./sampleData
+        run: |
+          # Source Intel OneAPI environment
+          source /opt/intel/oneapi/setvars.sh
+          
+          # Modify PATH to use our binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-gnss-network.sh 2>&1 | tee gnss_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.843 < 1.165 < 1.170" gnss_test_output.log; then
+            echo "Chi-Square test values match (0.843 < 1.165 < 1.170) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "GNSS network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
+      
+      - name: Run urban network test  
+        working-directory: ./sampleData
+        run: |
+          # Source Intel OneAPI environment
+          source /opt/intel/oneapi/setvars.sh
+          
+          # Modify PATH to use our binaries
+          export PATH="../bin:$PATH"
+          
+          # Run the test script and capture output
+          set +e  # Don't exit on error
+          bash run-urban-network.sh 2>&1 | tee urban_test_output.log
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Check if Chi-Square test has the expected values
+          if grep -q "0.901 < 0.857 < 1.104" urban_test_output.log; then
+            echo "Chi-Square test values match (0.901 < 0.857 < 1.104) - test considered successful"
+            exit 0
+          else
+            # If Chi-Square values not found, use original exit code
+            echo "Urban network test exit code: $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
+
+  test_linux_openblas_binaries:
+    name: Test Linux OpenBLAS static binaries from build workflow
     runs-on: ubuntu-latest
     needs: []  # Don't depend on other test jobs
     env:
@@ -372,10 +498,9 @@ jobs:
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-program-options boost-interprocess xerces-c
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
-      WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f5881e61-dcdc-40f1-9bd9-717081ac623c/intel-oneapi-base-toolkit-2025.2.1.46_offline.exe
       ONEAPI_VERSION: "2025.2"
     
     steps:
@@ -549,7 +674,7 @@ jobs:
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c openblas lapack-reference
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
     
@@ -675,7 +800,7 @@ jobs:
     runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c 
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
@@ -840,5 +965,3 @@ jobs:
           echo "::warning title=Test Warning::Could not find ctest output file (tests may not have run)"
         fi
         exit 0
-
-

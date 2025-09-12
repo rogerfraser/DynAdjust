@@ -23,8 +23,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+        libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
 
     steps:
 
@@ -55,8 +54,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev
+        libxerces-c-dev xsdcxx libboost-program-options-dev
 
     steps:
 
@@ -98,6 +96,17 @@ jobs:
           make -j2
           ls -la bin/
 
+      - name: Prepare artifacts
+        run: |
+          for f in ./bin/*; do strip $f 2>/dev/null || true; done
+          mkdir -p ./zip/dynadjust-linux-mkl
+          mv ./bin/* ./zip/dynadjust-linux-mkl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dynadjust-linux-mkl
+          path: ./zip/
+
 
 #------------------------------------------------
 
@@ -107,8 +116,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        xsdcxx libboost-system-dev libboost-filesystem-dev libboost-timer-dev
-        libboost-thread-dev libboost-program-options-dev libopenblas-dev liblapacke-dev
+        xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
 
     steps:
 
@@ -213,7 +221,7 @@ jobs:
     runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
@@ -353,7 +361,7 @@ jobs:
     runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
     
@@ -440,7 +448,7 @@ jobs:
     runs-on: windows-2025
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
