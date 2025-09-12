@@ -97,7 +97,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript
+        libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript lldb-20
 
     steps:
 
@@ -118,7 +118,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y ${{ env.PKGS }} lldb
+          sudo apt-get install -y ${{ env.PKGS }}
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
