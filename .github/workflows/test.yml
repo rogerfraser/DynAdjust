@@ -97,7 +97,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
       PKGS: >
-        libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript lldb-20
+        libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript lldb-18
 
     steps:
 
