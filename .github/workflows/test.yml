@@ -209,7 +209,7 @@ jobs:
             # Run dnaadjust with lldb using the commands file
             echo "Running dnaadjust with lldb..."
             echo "===================="
-            lldb -s lldb_commands.txt ../bin/dnaadjust 2>&1 | tee lldb_output.log || true
+            lldb-18 -s lldb_commands.txt ../bin/dnaadjust 2>&1 | tee lldb_output.log || true
             
             # Show last 300 lines of output (increased for more context)
             echo "===================="
