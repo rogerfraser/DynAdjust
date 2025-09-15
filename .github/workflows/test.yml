@@ -6,8 +6,10 @@
 name: Run tests
 
 on:
-  workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["Build binaries (Linux, Mac, Windows)"]
+    types:
+      - completed
 
 env:
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f5881e61-dcdc-40f1-9bd9-717081ac623c/intel-oneapi-base-toolkit-2025.2.1.46_offline.exe
@@ -162,73 +164,65 @@ jobs:
           ctest --rerun-failed --output-on-failure
           exit 0
 
-      - name: Debug with lldb - GNSS network test
-        if: always()
-        run: |
-          source /opt/intel/oneapi/setvars.sh
-          echo "Running GNSS network test with lldb to capture segfault location..."
-          
-          # Copy test data to working directory
-          if [ -d "sampleData" ]; then
-            cd sampleData
-            
-            # First, import the data
-            echo "Importing GNSS network data..."
-            ../bin/dnaimport -n gnss gnss-network.stn gnss-network.msr || true
-            
-            # Create lldb commands file for better debugging
-            cat > lldb_commands.txt << 'EOF'
-          # Only stop on segmentation faults
-          process handle SIGSEGV --stop true --pass false --notify true
-          
-          # Add stop hook to show local variables
-          target stop-hook add --one-liner "frame variable"
-          
-          # Run the program
-          run gnss --output-adj-msr
-          
-          # When stopped on SIGSEGV, show backtrace with all threads
-          thread backtrace all
-          
-          # Show frame info
-          frame info
-          
-          # Show local variables
-          frame variable
-          
-          # Show registers
-          register read
-          
-          # Final backtrace
-          bt
-          
-          # Quit
-          quit
-          EOF
-            
-            # Run dnaadjust with lldb using the commands file
-            echo "Running dnaadjust with lldb..."
-            echo "===================="
-            lldb-18 -s lldb_commands.txt ../bin/dnaadjust 2>&1 | tee lldb_output.log || true
-            
-            # Show last 300 lines of output (increased for more context)
-            echo "===================="
-            echo "LLDB Output (last 300 lines):"
-            tail -300 lldb_output.log || true
-            
-            cd ..
-          else
-            echo "sampleData directory not found"
-          fi
+#      - name: Debug with lldb - GNSS network test
+#        if: always()
+#        run: |
+#          source /opt/intel/oneapi/setvars.sh
+#          echo "Running GNSS network test with lldb to capture segfault location..."
+#          
+#          # Copy test data to working directory
+#          if [ -d "sampleData" ]; then
+#            cd sampleData
+#            
+#            # First, import the data
+#            echo "Importing GNSS network data..."
+#            ../bin/dnaimport -n gnss gnss-network.stn gnss-network.msr || true
+#            
+#            # Create lldb commands file for better debugging
+#            cat > lldb_commands.txt << 'EOF'
+#          # Only stop on segmentation faults
+#          process handle SIGSEGV --stop true --pass false --notify true
+#          
+#          # Add stop hook to show local variables
+#          target stop-hook add --one-liner "frame variable"
+#          
+#          # Run the program
+#          run gnss --output-adj-msr
+#          
+#          # When stopped on SIGSEGV, show backtrace with all threads
+#          thread backtrace all
+#          
+#          # Show frame info
+#          frame info
+#          
+#          # Show local variables
+#          frame variable
+#          
+#          # Show registers
+#          register read
+#          
+#          # Final backtrace
+#          bt
+#          
+#          # Quit
+#          quit
+#          EOF
+#            
+#            # Run dnaadjust with lldb using the commands file
+#            echo "Running dnaadjust with lldb..."
+#            echo "===================="
+#            lldb-18 -s lldb_commands.txt ../bin/dnaadjust 2>&1 | tee lldb_output.log || true
+#            
+#            # Show last 300 lines of output (increased for more context)
+#            echo "===================="
+#            echo "LLDB Output (last 300 lines):"
+#            tail -300 lldb_output.log || true
+#            
+#            cd ..
+#          else
+#            echo "sampleData directory not found"
+#          fi
 
-=======
-          set +e
-          ctest --output-on-failure --timeout 120 2>&1 | tee ctest_output.log
-          CTEST_EXIT_CODE=${PIPESTATUS[0]}
-          echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
-          exit 0
-
->>>>>>> b3299de7 (Update GitHub actions)
       - name: Parse test results and create annotations
         if: always()
         shell: bash
