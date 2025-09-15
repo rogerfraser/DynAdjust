@@ -1,7 +1,4 @@
-# Compile and build binaries
-#
-# For updated Intel OneAPI URLs, see:
-# https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
+# Running ctests and also checking that the static binaries run correctly
 
 name: Run tests
 
@@ -12,6 +9,8 @@ on:
       - completed
 
 env:
+  # For updated Intel OneAPI URLs, see:
+  # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f5881e61-dcdc-40f1-9bd9-717081ac623c/intel-oneapi-base-toolkit-2025.2.1.46_offline.exe
   LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/3b7a16b3-a7b0-460f-be16-de0d64fa6b1e/intel-oneapi-base-toolkit-2025.2.1.44_offline.sh
 
