@@ -25,13 +25,11 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
-#include <vector>
 
 namespace dynadjust {
 namespace math {
 
 #define DEBUG_MATRIX_2D 0
-#define DEBUG_INIT_NAN 0  // Enable NaN initialization to catch uninitialized memory
 
 std::ostream& operator<<(std::ostream& os, const matrix_2d& rhs) {
     if (os.iword(0) == binary) {
@@ -443,16 +441,8 @@ void matrix_2d::buy(const UINT32& rows, const UINT32& columns, double** mem_spac
         throw NetMemoryException(ss.str());
     }
 
-#if DEBUG_INIT_NAN
-    // Initialize to NaN to catch uninitialized usage
-    double nan_val = std::numeric_limits<double>::quiet_NaN();
-    for (std::size_t i = 0; i < total_size; ++i) {
-        (*mem_space)[i] = nan_val;
-    }
-#else
     // Initialize memory to zero to prevent uninitialized values
     std::memset((*mem_space), 0, total_size * sizeof(double));
-#endif
 }
 
 void matrix_2d::deallocate() {
@@ -573,12 +563,6 @@ void matrix_2d::redim(const UINT32& rows, const UINT32& columns) {
     
     _buffer = new_buffer;
     
-    // When DEBUG_INIT_NAN is enabled, the new allocation contains NaN
-    // We need to zero it for consistent behavior
-#if DEBUG_INIT_NAN
-    std::size_t total_size = static_cast<std::size_t>(rows) * static_cast<std::size_t>(columns);
-    std::memset(_buffer, 0, total_size * sizeof(double));
-#endif
 
     _rows = _mem_rows = rows;
     _cols = _mem_cols = columns;
@@ -726,103 +710,102 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     if (_rows != _cols) throw std::runtime_error("cholesky_inverse(): Matrix is not square.");
 
+#ifdef DEBUG_MATRIX_2D
+    // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
+    const double tolerance = 1e-6;
+    const int max_violations_to_check = 10;
 
-    if (DEBUG_MATRIX_2D) {
-        // Validate that the triangular structure matches the LOWER_IS_CLEARED parameter
-        const double tolerance = 1e-6;
-        const int max_violations_to_check = 10;
+    // First check if the matrix is symmetric
+    bool is_symmetric = true;
+    int asymmetry_count = 0;
+    double max_asymmetry = 0.0;
+    UINT32 max_asym_row = 0, max_asym_col = 0;
 
-        // First check if the matrix is symmetric
-        bool is_symmetric = true;
-        int asymmetry_count = 0;
-        double max_asymmetry = 0.0;
-        UINT32 max_asym_row = 0, max_asym_col = 0;
-
-        for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
-            for (UINT32 col = row + 1; col < _cols; ++col) {
-                double diff = std::abs(get(row, col) - get(col, row));
-                if (diff > tolerance) {
-                    asymmetry_count++;
-                    if (diff > max_asymmetry) {
-                        max_asymmetry = diff;
-                        max_asym_row = row;
-                        max_asym_col = col;
-                    }
-                    if (asymmetry_count >= max_violations_to_check) {
-                        is_symmetric = false;
-                        break;
-                    }
+    for (UINT32 row = 0; row < _rows && is_symmetric; ++row) {
+        for (UINT32 col = row + 1; col < _cols; ++col) {
+            double diff = std::abs(get(row, col) - get(col, row));
+            if (diff > tolerance) {
+                asymmetry_count++;
+                if (diff > max_asymmetry) {
+                    max_asymmetry = diff;
+                    max_asym_row = row;
+                    max_asym_col = col;
                 }
-            }
-        }
-
-        if (!is_symmetric) {
-            // Matrix is not symmetric, so validate the triangular structure
-            int violations_found = 0;
-            std::stringstream validation_errors;
-
-            if (LOWER_IS_CLEARED) {
-                // Lower triangle should be cleared (all zeros), data is in upper triangle
-                for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
-                    for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
-                        double val = get(row, col);
-                        if (std::abs(val) > tolerance) {
-                            if (violations_found == 0) {
-                                validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                                validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
-                                validation_errors << "  Found non-zero elements in lower triangle:\n";
-                            }
-                            validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                            violations_found++;
-                        }
-                    }
+                if (asymmetry_count >= max_violations_to_check) {
+                    is_symmetric = false;
+                    break;
                 }
-            } else {
-                // Upper triangle should be cleared (all zeros), data is in lower triangle
-                for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
-                    for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
-                        double val = get(row, col);
-                        if (std::abs(val) > tolerance) {
-                            if (violations_found == 0) {
-                                validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
-                                validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
-                                validation_errors << "  Found non-zero elements in upper triangle:\n";
-                            }
-                            validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
-                            violations_found++;
-                        }
-                    }
-                }
-            }
-
-            if (violations_found > 0) {
-                if (violations_found >= max_violations_to_check) {
-                    validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check
-                                      << ")\n";
-                }
-
-                // Add information about symmetry check
-                validation_errors << "\nSymmetry check:\n";
-                if (asymmetry_count > 0) {
-                    validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count
-                                      << " asymmetric elements\n";
-                    validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << ","
-                                      << max_asym_col << "]\n";
-                    validation_errors << "[" << max_asym_row << "," << max_asym_col
-                                      << "] = " << get(max_asym_row, max_asym_col) << ", [" << max_asym_col << ","
-                                      << max_asym_row << "] = " << get(max_asym_col, max_asym_row) << "\n";
-                    validation_errors << "  This might be a symmetric matrix with numerical errors\n";
-                }
-
-                validation_errors << "\nThis error typically occurs when:\n";
-                validation_errors << "  - The matrix data is stored in the wrong triangle\n";
-                validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
-                validation_errors << "  - The matrix hasn't been properly initialised\n";
-                validation_errors << "  - A symmetric matrix has numerical precision issues\n";
-                throw std::runtime_error(validation_errors.str());
             }
         }
     }
+
+    if (!is_symmetric) {
+        // Matrix is not symmetric, so validate the triangular structure
+        int violations_found = 0;
+        std::stringstream validation_errors;
+
+        if (LOWER_IS_CLEARED) {
+            // Lower triangle should be cleared (all zeros), data is in upper triangle
+            for (UINT32 row = 1; row < _rows && violations_found < max_violations_to_check; ++row) {
+                for (UINT32 col = 0; col < row && violations_found < max_violations_to_check; ++col) {
+                    double val = get(row, col);
+                    if (std::abs(val) > tolerance) {
+                        if (violations_found == 0) {
+                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                            validation_errors << "  Expected: Lower triangle cleared (LOWER_IS_CLEARED = true)\n";
+                            validation_errors << "  Found non-zero elements in lower triangle:\n";
+                        }
+                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                        violations_found++;
+                    }
+                }
+            }
+        } else {
+            // Upper triangle should be cleared (all zeros), data is in lower triangle
+            for (UINT32 row = 0; row < _rows && violations_found < max_violations_to_check; ++row) {
+                for (UINT32 col = row + 1; col < _cols && violations_found < max_violations_to_check; ++col) {
+                    double val = get(row, col);
+                    if (std::abs(val) > tolerance) {
+                        if (violations_found == 0) {
+                            validation_errors << "cholesky_inverse(): Triangle validation failed!\n";
+                            validation_errors << "  Expected: Upper triangle cleared (LOWER_IS_CLEARED = false)\n";
+                            validation_errors << "  Found non-zero elements in upper triangle:\n";
+                        }
+                        validation_errors << "    [" << row << "," << col << "] = " << val << "\n";
+                        violations_found++;
+                    }
+                }
+            }
+        }
+
+        if (violations_found > 0) {
+            if (violations_found >= max_violations_to_check) {
+                validation_errors << "  ... (more violations exist, stopped checking after " << max_violations_to_check
+                                  << ")\n";
+            }
+
+            // Add information about symmetry check
+            validation_errors << "\nSymmetry check:\n";
+            if (asymmetry_count > 0) {
+                validation_errors << "  Matrix appears to be nearly symmetric with " << asymmetry_count
+                                  << " asymmetric elements\n";
+                validation_errors << "  Max asymmetry: " << max_asymmetry << " at [" << max_asym_row << ","
+                                  << max_asym_col << "]\n";
+                validation_errors << "[" << max_asym_row << "," << max_asym_col
+                                  << "] = " << get(max_asym_row, max_asym_col) << ", [" << max_asym_col << ","
+                                  << max_asym_row << "] = " << get(max_asym_col, max_asym_row) << "\n";
+                validation_errors << "  This might be a symmetric matrix with numerical errors\n";
+            }
+
+            validation_errors << "\nThis error typically occurs when:\n";
+            validation_errors << "  - The matrix data is stored in the wrong triangle\n";
+            validation_errors << "  - The LOWER_IS_CLEARED parameter is incorrect\n";
+            validation_errors << "  - The matrix hasn't been properly initialised\n";
+            validation_errors << "  - A symmetric matrix has numerical precision issues\n";
+            throw std::runtime_error(validation_errors.str());
+        }
+    }
+#endif
 
     char uplo(LOWER_TRIANGLE);
 
@@ -831,45 +814,43 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
 
     lapack_int info, n = _rows;
 
+#ifdef DEBUG_MATRIX_2D
     double max_diag = 0.0;
     double min_diag = std::numeric_limits<double>::max();
     double scale_factor = 1.0;
     bool apply_scaling = false;
     const double condition_threshold = 1e12;  // Threshold for poor conditioning
-    std::size_t buffer_size;
-    double* backup_buffer;
   
-    if (DEBUG_MATRIX_2D) {
-        // Create a backup of the matrix for diagnostics if dpotrf fails
-        // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
-        buffer_size = buffersize();
-        backup_buffer = new double[buffer_size / sizeof(double)];
-        std::memcpy(backup_buffer, _buffer, buffer_size);
+    // Create a backup of the matrix for diagnostics if dpotrf fails
+    // dpotrf modifies the matrix in-place, so we need the original for accurate diagnostics
+    std::size_t buffer_size = buffersize();
+    double* backup_buffer = new double[buffer_size / sizeof(double)];
+    std::memcpy(backup_buffer, _buffer, buffer_size);
 
-        // Compute scaling factor based on diagonal elements to improve conditioning
-        for (UINT32 i = 0; i < _rows; ++i) {
-            double diag_val = std::abs(get(i, i));
-            if (diag_val > max_diag) max_diag = diag_val;
-            if (diag_val > 0 && diag_val < min_diag) min_diag = diag_val;
-        }
+    // Compute scaling factor based on diagonal elements to improve conditioning
+    for (UINT32 i = 0; i < _rows; ++i) {
+        double diag_val = std::abs(get(i, i));
+        if (diag_val > max_diag) max_diag = diag_val;
+        if (diag_val > 0 && diag_val < min_diag) min_diag = diag_val;
+    }
     
-        // Apply scaling if the condition number estimate is poor
-        if (max_diag > 0 && min_diag > 0) {
-            double condition_estimate = max_diag / min_diag;
-            if (condition_estimate > condition_threshold) {
-                // Use geometric mean of max and min diagonal for scaling
-                scale_factor = std::sqrt(max_diag * min_diag);
-                apply_scaling = true;
-                
-                // Scale the matrix: A_scaled = A / scale_factor
-                for (UINT32 i = 0; i < _rows; ++i) {
-                    for (UINT32 j = 0; j < _cols; ++j) {
-                        *getelementref(i, j) /= scale_factor;
-                    }
+    // Apply scaling if the condition number estimate is poor
+    if (max_diag > 0 && min_diag > 0) {
+        double condition_estimate = max_diag / min_diag;
+        if (condition_estimate > condition_threshold) {
+            // Use geometric mean of max and min diagonal for scaling
+            scale_factor = std::sqrt(max_diag * min_diag);
+            apply_scaling = true;
+            
+            // Scale the matrix: A_scaled = A / scale_factor
+            for (UINT32 i = 0; i < _rows; ++i) {
+                for (UINT32 j = 0; j < _cols; ++j) {
+                    *getelementref(i, j) /= scale_factor;
                 }
             }
         }
     }
+#endif
 
     // Perform Cholesky factorisation
     LAPACK_FUNC(dpotrf)(&uplo, &n, _buffer, &n, &info);
@@ -903,16 +884,16 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         error_msg << "  Triangle processed: uplo='" << uplo
                   << "' (LOWER_IS_CLEARED=" << (LOWER_IS_CLEARED ? "true" : "false") << ")\n";
         
-        if (DEBUG_MATRIX_2D) {
-            error_msg << "  Diagonal range: [" << min_diag << ", " << max_diag << "]\n";
-            error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
+#ifdef DEBUG_MATRIX_2D
+        error_msg << "  Diagonal range: [" << min_diag << ", " << max_diag << "]\n";
+        error_msg << "  Condition estimate: " << (max_diag/min_diag) << "\n";
 
-            if (apply_scaling) {
-                error_msg << "\nScaling Information:\n";
-                error_msg << "  Matrix was scaled to improve conditioning\n";
-                error_msg << "   Scale factor applied: " << scale_factor << "\n";
-            }
+        if (apply_scaling) {
+            error_msg << "\nScaling Information:\n";
+            error_msg << "  Matrix was scaled to improve conditioning\n";
+            error_msg << "   Scale factor applied: " << scale_factor << "\n";
         }
+#endif  
 
         error_msg << "\nError Details:\n";
         error_msg << "  dpotrf info = " << info << "\n";
@@ -922,47 +903,8 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             error_msg << "  Meaning: The leading minor of order " << info << " is not positive definite\n";
         }
 
-        // Matrix diagnostics using the backup (original matrix before dpotrf modified it)
+#ifdef DEBUG_MATRIX_2D
         error_msg << "\nMatrix Diagnostics (Original Matrix):\n";
-
-#if DEBUG_INIT_NAN
-        // Check for NaN values which indicate uninitialized memory
-        int init_nan_count = 0;
-        int first_nan_row = -1, first_nan_col = -1;
-        std::vector<std::pair<int, int>> nan_locations;
-        
-        for (UINT32 i = 0; i < _rows; ++i) {
-            for (UINT32 j = 0; j < _cols; ++j) {
-                double val = backup_buffer[DNAMATRIX_INDEX(_mem_rows, _mem_cols, i, j)];
-                if (std::isnan(val)) {
-                    if (init_nan_count == 0) {
-                        first_nan_row = i;
-                        first_nan_col = j;
-                    }
-                    if (init_nan_count < 10) {  // Store first 10 NaN locations
-                        nan_locations.push_back(std::make_pair(i, j));
-                    }
-                    init_nan_count++;
-                }
-            }
-        }
-        
-        if (init_nan_count > 0) {
-            error_msg << "\n*** FATAL: Matrix contains uninitialized values! ***\n";
-            error_msg << "  Found " << init_nan_count << " NaN values in " << _rows << "×" << _cols << " matrix\n";
-            error_msg << "  First NaN at [" << first_nan_row << "," << first_nan_col << "]\n";
-            error_msg << "  NaN locations (first 10):\n";
-            for (const auto& loc : nan_locations) {
-                error_msg << "    [" << loc.first << "," << loc.second << "]\n";
-            }
-            error_msg << "\nThis indicates the matrix was not properly initialized.\n";
-            error_msg << "Possible causes:\n";
-            error_msg << "  - Missing zero() call after allocation\n";
-            error_msg << "  - Incomplete matrix assembly\n";
-            error_msg << "  - Index calculation errors\n";
-            error_msg << "  - Buffer overrun from another operation\n\n";
-        }
-#endif
 
         // If the matrix is triangular (not symmetric), fill in the empty triangle
         // to make it symmetric for proper Gershgorin analysis
@@ -1188,15 +1130,10 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         }
 
         // Clean up backup buffer before throwing
-        if (DEBUG_MATRIX_2D) {
-            delete[] backup_buffer;
-        }
-        throw std::runtime_error(error_msg.str());
-    }
-
-    // Clean up backup buffer after successful dpotrf
-    if (DEBUG_MATRIX_2D) {
         delete[] backup_buffer;
+#endif
+
+        throw std::runtime_error(error_msg.str());
     }
 
     // Perform Cholesky inverse
@@ -1211,10 +1148,16 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
         } else {
             error_msg << "  Meaning: The (" << info << "," << info << ") element of the factor U or L is zero\n";
         }
+#ifdef DEBUG_MATRIX_2D
+        // Clean up backup buffer before throwing
+        delete[] backup_buffer;
+#endif
         throw std::runtime_error(error_msg.str());
     }
 
-    // Scale back the inverse if scaling was applied
+#ifdef DEBUG_MATRIX_2D
+    // Clean up backup buffer after successful operations
+    delete[] backup_buffer;
     // Since we scaled A -> A/s, the inverse is: inv(A) = inv(A/s) * s = s * inv(A_scaled)
     if (apply_scaling) {
         for (UINT32 i = 0; i < _rows; ++i) {
@@ -1223,6 +1166,7 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
             }
         }
     }
+#endif 
 
     // Copy empty triangle part
     if (LOWER_IS_CLEARED)
@@ -1233,8 +1177,6 @@ matrix_2d matrix_2d::cholesky_inverse(bool LOWER_IS_CLEARED /*=false*/) {
     return *this;
 }
 
-// scale()
-//
 matrix_2d matrix_2d::scale(const double& scalar) {
     UINT32 i, j;
     for (i = 0; i < _rows; ++i)
@@ -1314,16 +1256,6 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin, const UIN
     for (col = col_begin; col < col_end; ++col) memset(getelementref(row_begin, col), 0, rows * sizeof(double));
 }
 
-#if DEBUG_INIT_NAN
-// fillnan() - Fill matrix with NaN values for debugging uninitialized memory
-void matrix_2d::fillnan() {
-    double nan_val = std::numeric_limits<double>::quiet_NaN();
-    std::size_t total_size = static_cast<std::size_t>(_mem_rows) * static_cast<std::size_t>(_mem_cols);
-    for (std::size_t i = 0; i < total_size; ++i) {
-        _buffer[i] = nan_val;
-    }
-}
-#endif
 
 matrix_2d matrix_2d::operator=(const matrix_2d& rhs) {
     // Overloaded assignment operator
