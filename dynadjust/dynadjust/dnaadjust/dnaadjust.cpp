@@ -739,7 +739,7 @@ void dna_adjust::PrepareStationandVarianceMatrices(const UINT32& block)
 			if (!v_blockMeta_.at(block)._blockLast && !v_blockMeta_.at(block)._blockIsolated)
 			{
 				v_junctionVariancesFwd_.at(block).redim(j, j);
-				v_junctionEstimatesFwd_.at(block).redim(j, 1);		
+				v_junctionEstimatesFwd_.at(block).redim(j, 1);
 				v_junctionEstimatesRev_.at(block+1).redim(j, 1);
 			}
 		
@@ -761,12 +761,12 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 
 		// redimension the measurements matrix
 		v_measMinusComp_.at(block).redim(
-			v_measurementCount_.at(block), 1);	
+			v_measurementCount_.at(block), 1);
 		
 		// redimension the At*V-1 matrix
 		v_AtVinv_.at(block).redim(
 			v_unknownsCount_.at(block), 
-			v_measurementCount_.at(block));	
+			v_measurementCount_.at(block));
 
 		break;
 	case Phased_Block_1Mode:
@@ -798,9 +798,10 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 			// created from a previous run.
 			
 			// redimension the measurements matrix
-			if (projectSettings_.a.recreate_stage_files)
+			if (projectSettings_.a.recreate_stage_files) {
 				v_measMinusComp_.at(block).redim(
-					v_measurementCount_.at(block) + pseudoMsrElemCount,	1);	// real measurements + JSLs (fwd + reverse)
+					v_measurementCount_.at(block) + pseudoMsrElemCount,	1);
+			}	// real measurements + JSLs (fwd + reverse)
 			else
 				v_measMinusComp_.at(block).setsize(
 					v_measurementCount_.at(block) + pseudoMsrElemCount,	1);
@@ -845,7 +846,8 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 	// Simultaneous, phased (multithreaded and block1) adjustments
 
 	// Redim all matrices
-	v_normals_.at(block).redim(v_unknownsCount_.at(block), v_unknownsCount_.at(block));	
+	v_normals_.at(block).redim(v_unknownsCount_.at(block), v_unknownsCount_.at(block));
+	
 	v_design_.at(block).redim(v_measurementCount_.at(block), v_unknownsCount_.at(block));
 	v_corrections_.at(block).redim(v_unknownsCount_.at(block), 1);
 	v_precAdjMsrsFull_.at(block).redim(v_measurementVarianceCount_.at(block), 1);
@@ -855,11 +857,12 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block)
 	if (projectSettings_.a.adjust_mode == PhasedMode && 
 		projectSettings_.a.adjust_mode != Phased_Block_1Mode)
 	{
-		if (v_blockMeta_.at(block)._blockLast)
+		if (v_blockMeta_.at(block)._blockLast) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
-
-		else if (projectSettings_.a.multi_thread)
+		}
+		else if (projectSettings_.a.multi_thread) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
+		}
 	}
 	
 
@@ -886,8 +889,9 @@ void dna_adjust::PrepareDesignAndMsrMnsCmpMatricesStage(const UINT32& block)
 
 		// Redimension the corrections matrices
 		v_corrections_.at(block).redim(v_unknownsCount_.at(block), 1);
-		if (v_blockMeta_.at(block)._blockLast)
+		if (v_blockMeta_.at(block)._blockLast) {
 			v_correctionsR_.at(block).redim(v_unknownsCount_.at(block), 1);
+		}
 
 		// Redimension precision of adjusted measurements
 		v_precAdjMsrsFull_.at(block).redim(v_measurementVarianceCount_.at(block), 1);
@@ -2863,9 +2867,10 @@ void dna_adjust::PrepareAdjustmentBlock(const UINT32 block, const UINT32 thread_
 		// variances, excluding parameter station variances and junction station variances
 		v_normalsR_.at(block) = v_normals_.at(block);
 
-		if (projectSettings_.a.multi_thread)
+		if (projectSettings_.a.multi_thread) {
 			v_normalsRC_.at(block).redim(
 				v_normalsR_.at(block).rows(), v_normalsR_.at(block).columns());
+		}
 
 		switch (projectSettings_.a.adjust_mode)
 		{
@@ -5952,6 +5957,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 			measMinusComp, estimatedStations, design,
 			stn1, stn2, buildnewMatrices);
 
+		// UpdateDesignMeasMatrices_GX increments design_row by 2 internally (for X->Y and Y->Z)
+		// We need one more increment to account for the Z component
 		design_row++;
 		
 		covariance_count = (*_it_msr)->vectorCount2;
@@ -6080,6 +6087,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 	}
 
 	matrix_2d tmp1(3, baseline_count*3), tmp2(baseline_count*3, 3);
+	tmp2.zero();
 
 	// Build  At * V-1 * A covariances
 	for (cluster_bsl=0; cluster_bsl<baseline_stations.size(); ++cluster_bsl)
@@ -6495,8 +6503,12 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		}
 		//////////////////
 	
+		// Clear upper triangle to match expected structure for cholesky_inverse
+		v_normals_.at(block).clearupper();
+		
 		// Calculate Inverse of AT * V-1 * A
-		FormInverseVarianceMatrix(&(v_normals_.at(block)));
+		// Explicitly set LOWER_IS_CLEARED to false (data is in lower triangle)
+		FormInverseVarianceMatrix(&(v_normals_.at(block)), false);
 
 		// Check for a failed inverse solution
 		if (boost::math::isnan(v_normals_.at(block).get(0, 0)) || 
@@ -7540,8 +7552,8 @@ void dna_adjust::ComputePrecisionAdjMsrs_GX(const UINT32& block, it_vmsr_t& _it_
 	UINT32 cluster_bsl, baseline_count(_it_msr->vectorCount1);
 	UINT32 stn1, stn2;
 	UINT32 i, j;
-
 	matrix_2d precision_bsl(3, 3);
+	precision_bsl.zero();
 
 	for (cluster_bsl=0; cluster_bsl<baseline_count; ++cluster_bsl)
 	{
@@ -9691,6 +9703,11 @@ void dna_adjust::LoadNetworkFiles()
            
         if (!success) {
             SignalExceptionAdjustment("LoadNetworkFiles(): Failed to load network files", 0);
+        }
+        
+        // Check if all measurements are ignored (no measurements to process)
+        if (measurementCount_ == 0 || (v_CML_.size() > 0 && v_CML_.at(0).empty())) {
+            SignalExceptionAdjustment("LoadNetworkFiles(): No valid measurements to process. All measurements may be ignored.", 0);
         }
         
         // Ensure v_blockStationsMap_ matches expected state

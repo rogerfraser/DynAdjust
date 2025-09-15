@@ -124,6 +124,9 @@ public:
 
   // Measurement filtering
   void RemoveNonMeasurements(vUINT32& measurement_list, const vmsr_t& measurements);
+  void RecalculateMeasurementCounts(const vUINT32& measurement_list, const vmsr_t& measurements,
+                                    UINT32& measurementParams, UINT32& measurementCount, 
+                                    UINT32& measurementVarianceCount);
 
   // Station filtering  
   void RemoveInvalidStations(vUINT32& station_list, const vASL& associated_stations);

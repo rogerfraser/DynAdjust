@@ -20,6 +20,7 @@
 //============================================================================
 
 #include <include/io/seg_file.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
 
 namespace dynadjust { 
 namespace iostreams {
@@ -168,10 +169,10 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		//   Block   Junction stns  Inner stns  Measurements  Total stns  
 
-		snprintf(format_spec_netid, sizeof(format_spec_netid), "%%%d%s", NETID, "lu");
-		snprintf(format_spec_junct, sizeof(format_spec_junct), "%%%d%s", JUNCT, "lu");
-		snprintf(format_spec_inner, sizeof(format_spec_inner), "%%%d%s", INNER, "lu");
-		snprintf(format_spec_measr, sizeof(format_spec_measr), "%%%d%s", MEASR, "lu");
+		snprintf(format_spec_netid, sizeof(format_spec_netid), "%%%d%s", NETID, "u");
+		snprintf(format_spec_junct, sizeof(format_spec_junct), "%%%d%s", JUNCT, "u");
+		snprintf(format_spec_inner, sizeof(format_spec_inner), "%%%d%s", INNER, "u");
+		snprintf(format_spec_measr, sizeof(format_spec_measr), "%%%d%s", MEASR, "u");
 		
 		
 		UINT32 t;
@@ -305,7 +306,7 @@ void SegFile::LoadSegFile(const std::string& seg_filename, UINT32& blockCount,
 		{
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// 
 			seg_file.getline(line, PRINT_LINE_LENGTH);		// Block #
-			sscanf(line+5, "%ud", &blk);
+			sscanf(line+5, "%u", &blk);
 			if (b+1 != blk)
 				throw std::runtime_error("load_seg_file: segmentation file is corrupt.");
 			
@@ -612,13 +613,13 @@ void SegFile::WriteSegFile(const std::string& seg_filename, const std::string& b
 	// Print formatted header
 	print_file_header(seg_file, "DYNADJUST SEGMENTATION OUTPUT FILE");
 	
-	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << std::filesystem::absolute(seg_filename).string() << std::endl << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << safe_absolute_path(seg_filename) << std::endl << std::endl;
 
 	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
 	seg_file << command_line_arguments << std::endl << std::endl;
 
-	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << std::filesystem::absolute(bst_filename).string() << std::endl;
-	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << std::filesystem::absolute(bms_filename).string() << std::endl;	
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << safe_absolute_path(bst_filename) << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << safe_absolute_path(bms_filename) << std::endl;	
 
 	UINT32 b = 1;
 	

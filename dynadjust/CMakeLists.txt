@@ -4,10 +4,10 @@ project(dynadjust VERSION 1.2.9)
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
-option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
+option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
 
-set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
+set(CMAKE_DISABLE_PRECOMPILE_HEADERS OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
@@ -17,8 +17,6 @@ endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
-
-set (DYNADJUST_VERSION "1.2.9")
 
 message("")
 message("=====================================================================")
@@ -38,8 +36,71 @@ if(BUILD_TESTING)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+# Set output directories for all platforms to use ../bin/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
+
+# For multi-config generators (Visual Studio, Xcode)
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_SOURCE_DIR}/../bin)
+endforeach()
+
 if (BUILD_STATIC)
     message(STATUS "Static building enabled (BUILD_STATIC=ON)")
+    
+    # Include static build optimizations
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/StaticBuildOptimizations.cmake)
+    
+    # Enable link-time optimization for static builds
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_OUTPUT)
+        if(IPO_SUPPORTED)
+            message(STATUS "Link-time optimization (LTO/IPO) is supported and enabled for static builds")
+            set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+            
+            # Add compiler-specific LTO flags
+            if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+                add_compile_options(-flto=auto -ffunction-sections -fdata-sections)
+                if(NOT APPLE)
+                    add_link_options(-flto=auto -Wl,--gc-sections)
+                else()
+                    add_link_options(-flto=auto -Wl,-dead_strip)
+                endif()
+            elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+                add_compile_options(-flto=thin -ffunction-sections -fdata-sections)
+                if(NOT APPLE)
+                    add_link_options(-flto=thin -Wl,--gc-sections)
+                else()
+                    add_link_options(-flto=thin -Wl,-dead_strip)
+                endif()
+            elseif(MSVC)
+                add_compile_options(/GL)
+                add_link_options(/LTCG)
+            endif()
+        else()
+            message(STATUS "Link-time optimization (LTO/IPO) is not supported: ${IPO_OUTPUT}")
+        endif()
+    else()
+        message(STATUS "Link-time optimization disabled for non-Release builds")
+    endif()
+    
+    # Function to print static linking information for each target
+    function(print_static_linking_info TARGET_NAME PROGRAM_NAME)
+        message(STATUS "")
+        message(STATUS "Static linking for ${PROGRAM_NAME}:")
+        message(STATUS "  Target: ${TARGET_NAME}")
+        message(STATUS "  Libraries being linked:")
+        foreach(lib ${STATIC_LIBS_LIST})
+            get_filename_component(LIB_NAME ${lib} NAME)
+            message(STATUS "    - ${LIB_NAME}")
+        endforeach()
+    endfunction()
+    
     if (WIN32)
         message(STATUS "Static building on Windows requires vcpkg")
         set(VCPKG_CRT_LINKAGE dynamic)
@@ -68,43 +129,27 @@ message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 # Compiler flags
 # ----------------------------------------------------------------------------
 
-# ignore BOOST warning for the moment
-add_compile_options("-DBOOST_ALLOW_DEPRECATED_HEADERS")
-add_compile_options("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
-add_compile_options("-DBOOST_DISABLE_PRAGMA_MESSAGE")
-
-# These don't work with MSVC
-#add_compile_options(-Wno-ignored-qualifiers)
-#add_compile_options(-Wno-deprecated-declarations)
+# Suppress Boost warnings
+add_compile_definitions(
+    BOOST_ALLOW_DEPRECATED_HEADERS
+    BOOST_BIND_GLOBAL_PLACEHOLDERS
+    BOOST_DISABLE_PRAGMA_MESSAGE
+)
 
 if(BUILD_TESTING)
-    add_compile_options(-w)
+    # Suppress all warnings during testing
+    if(MSVC)
+        add_compile_options(/W0)
+    else()
+        add_compile_options(-w)
+    endif()
 endif()
 
 if(APPLE)
-    #    add_compile_options(-Werror -ferror-limit=1)
     add_compile_options(-Wno-unguarded-availability-new)
     add_compile_options(-Wno-deprecated-declarations)
     add_compile_options(-Wno-nullability-completeness)
 endif()
-
-## Debug flags
-#if (NOT BUILD_STATIC AND NOT APPLE)
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
-#endif()
-
-## Coverage if testing
-#if(NOT BUILD_STATIC AND NOT APPLE)
-#    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-#endif()
-
-## Linker flags
-#if(APPLE)
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
-#else()
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
-#endif()
 
 if (WIN32)
     add_compile_options(-DNOMINMAX)
@@ -199,13 +244,11 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Boost
 # ----------------------------------------------------------------------------
 
-#if (BUILD_STATIC and WIN32)
-#    set(Boost_USE_STATIC_LIBS ON)
-#    set(Boost_USE_STATIC_RUNTIME ON)
-#endif()
-
-find_package(Boost 1.58.0 CONFIG REQUIRED
-    COMPONENTS system filesystem timer thread program_options)
+# Force CMake to use FindBoost module instead of BoostConfig
+set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_CMAKE ON)
+find_package(Boost REQUIRED
+    COMPONENTS program_options)
 message(STATUS "Found Boost version: ${Boost_VERSION}")
 
 # ----------------------------------------------------------------------------
@@ -224,29 +267,26 @@ set(DNA_LIBRARIES
 find_package(OpenMP)
 
 if(OpenMP_CXX_FOUND)
-    if (APPLE AND NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
-        message(STATUS "libomp not found (install with `brew install libomp`)")
-        set(USE_OPENMP_MAC OFF)
-    else()
-        set(USE_OPENMP_MAC ON)
-    endif()
-
-    if (APPLE AND USE_OPENMP_MAC)
-        message(STATUS "Enabled OpenMP on MacOS using libomp")
-        add_compile_options(-Xpreprocessor -fopenmp)
-        add_link_options(-L/opt/homebrew/lib)
-        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+    # Check for libomp on macOS
+    if(APPLE)
+        if(NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
+            message(STATUS "libomp not found (install with `brew install libomp`)")
+        else()
+            message(STATUS "Enabled OpenMP on macOS using libomp")
+            add_compile_options(-Xpreprocessor -fopenmp)
+            add_link_options(-L/opt/homebrew/lib)
+            list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+        endif()
     elseif(MSVC)
         message(STATUS "Enabled OpenMP for MSVC")
         add_compile_options(${OpenMP_CXX_FLAGS})
-        # Don't add OpenMP flags as link options for MSVC
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
     else()
+        # Linux and other Unix systems
         message(STATUS "Enabled OpenMP")
         add_compile_options(${OpenMP_CXX_FLAGS})
         add_link_options(${OpenMP_CXX_FLAGS})
         list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
-        #list(APPEND DNA_LIBRARIES OpenMP::OpenMP_CXX)
     endif()
 endif()
 
@@ -262,11 +302,6 @@ else()
     message(STATUS "Using LP64 interface for BLAS and LAPACK")
 endif()
 
-if(USE_MKL AND (NOT APPLE))
-    add_compile_options("-DUSE_MKL")
-    set(BLA_VENDOR Intel10_64lp)
-endif()
-
 if(APPLE)
     message(STATUS "Looking for BLAS and LAPACK on MacOS")
 
@@ -279,104 +314,165 @@ if(APPLE)
     endif()
     list(APPEND DNA_LIBRARIES ${ACCELERATE_LIB})
 
-elseif(WIN32)
-    if (USE_MKL)
-        add_compile_options("-DUSE_MKL")
-        if (ILP64)
-            set(BLA_VENDOR "Intel10_64ilp" CACHE STRING "Force MKL" FORCE)
-        else()
-            set(BLA_VENDOR "Intel10_64lp" CACHE STRING "Force MKL" FORCE)
-        endif()
+else()
+    # Windows and Linux/Unix handling
+    if(WIN32)
+        message(STATUS "Looking for BLAS and LAPACK on Windows")
     else()
-        set(BLA_VENDOR "OpenBLAS" CACHE STRING "Force OpenBLAS" FORCE)
+        message(STATUS "Looking for BLAS and LAPACK on Linux/Unix")
+        if(BUILD_STATIC)
+            set(BLA_STATIC ON)
+        endif()
     endif()
 
-    message(STATUS "Looking for BLAS and LAPACK on Windows (BLA_VENDOR=${BLA_VENDOR})")
-
-    find_package(BLAS REQUIRED)
-    add_link_options(${BLAS_LINKER_FLAGS})
-    message(STATUS "BLAS_LINKER_FLAGS=${BLAS_LINKER_FLAGS}")
-    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-    list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
-
-    if (NOT USE_MKL)
-        set(BLA_VENDOR "Generic" CACHE STRING "Force Generic" FORCE)
-    endif()
-
-    find_package(LAPACK)
-    if (LAPACK_FOUND)
-        add_link_options(${LAPACK_LINKER_FLAGS})
-        message(STATUS "LAPACK_LINKER_FLAGS=${LAPACK_LINKER_FLAGS}")
-        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
-        list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
-    endif()
-
-    if(NOT USE_MKL)
-        # Find OpenBLAS package which should set include directories
-        find_package(OpenBLAS CONFIG QUIET)
-        if(OpenBLAS_FOUND)
-            message(STATUS "Found OpenBLAS via CONFIG")
-            # OpenBLAS::OpenBLAS target should have include directories set
-            if(TARGET OpenBLAS::OpenBLAS)
-                list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS)
-            endif()
+    if(USE_MKL)
+        # Use Intel MKL's native CMake config
+        add_compile_options("-DUSE_MKL")
+        
+        # Set MKL interface based on ILP64 option
+        if(ILP64)
+            set(MKL_INTERFACE "ilp64")
         else()
-            # Fallback to manual search
-            find_path(BLAS_INCLUDE_DIRS 
-                NAMES cblas.h
-                PATHS 
-                    ${CMAKE_PREFIX_PATH}/include
-                    ${CMAKE_PREFIX_PATH}/include/openblas
+            set(MKL_INTERFACE "lp64")
+        endif()
+        
+        # Find MKL using its CMake config
+        find_package(MKL CONFIG)
+        
+        if(MKL_FOUND)
+            message(STATUS "Found Intel MKL using MKLConfig.cmake")
+            message(STATUS "  MKL Version: ${MKL_VERSION}")
+            message(STATUS "  MKL Interface: ${MKL_INTERFACE}")
+            message(STATUS "  MKL Threading: ${MKL_THREADING}")
+            
+            # Use the modern MKL target
+            list(APPEND DNA_LIBRARIES MKL::MKL)
+        else()
+            # MKL CONFIG not found, try with FindBLAS
+            message(STATUS "MKLConfig.cmake not found, trying FindBLAS with BLA_VENDOR set to Intel MKL")
+            
+            if(ILP64)
+                set(BLA_VENDOR "Intel10_64ilp")
+            else()
+                set(BLA_VENDOR "Intel10_64lp")
+            endif()
+            
+            find_package(BLAS MODULE REQUIRED)
+            find_package(LAPACK MODULE)
+            
+            # Verify we actually got MKL
+            if(NOT "${BLAS_LIBRARIES}" MATCHES "mkl")
+                message(FATAL_ERROR "USE_MKL=ON but Intel MKL was not found. Found: ${BLAS_LIBRARIES}")
+            endif()
+            
+            message(STATUS "Found Intel MKL via FindBLAS: ${BLAS_LIBRARIES}")
+            list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
+            if(LAPACK_FOUND)
+                list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
+            endif()
+            
+            # MKL provides mkl_cblas.h, not cblas.h - no need to search for cblas.h
+        endif()
+        
+    else()
+        # Use standard BLAS and LAPACK search
+        find_package(BLAS MODULE REQUIRED)
+        find_package(LAPACK MODULE)
+        
+        message(STATUS "Found BLAS: ${BLAS_LIBRARIES}")
+        if(LAPACK_FOUND)
+            message(STATUS "Found LAPACK: ${LAPACK_LIBRARIES}")
+        endif()
+        
+        # Add libraries and linker flags
+        if(WIN32)
+            add_link_options(${BLAS_LINKER_FLAGS})
+            if(LAPACK_FOUND)
+                add_link_options(${LAPACK_LINKER_FLAGS})
+            endif()
+        endif()
+        
+        list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES})
+        if(LAPACK_FOUND)
+            list(APPEND DNA_LIBRARIES ${LAPACK_LIBRARIES})
+        endif()
+        
+        # When statically linking OpenBLAS, we need to link against gfortran
+        if(BUILD_STATIC AND NOT APPLE AND NOT WIN32)
+            string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER_CHECK)
+            if(BLAS_LIBRARIES_LOWER_CHECK MATCHES "openblas")
+                # Find gfortran library
+                find_library(GFORTRAN_LIBRARY
+                    NAMES gfortran
+                    PATHS
+                        /usr/lib/gcc/x86_64-linux-gnu/13
+                        /usr/lib/gcc/x86_64-linux-gnu/12
+                        /usr/lib/gcc/x86_64-linux-gnu/11
+                        /usr/lib/gcc/x86_64-linux-gnu/10
+                        /usr/lib/gcc/x86_64-linux-gnu/9
+                        /usr/lib/gcc/x86_64-linux-gnu/8
+                        /usr/lib/gcc/x86_64-linux-gnu/7
+                        /usr/lib/gcc/x86_64-linux-gnu
+                        /usr/lib/x86_64-linux-gnu
+                        /usr/lib64
+                        /usr/lib
+                        /usr/local/lib
+                    PATH_SUFFIXES gcc
+                )
+                
+                if(GFORTRAN_LIBRARY)
+                    list(APPEND DNA_LIBRARIES ${GFORTRAN_LIBRARY})
+                    message(STATUS "Found gfortran for static OpenBLAS linking: ${GFORTRAN_LIBRARY}")
+                else()
+                    message(WARNING "gfortran library not found - static OpenBLAS linking may fail")
+                    # Try adding it anyway in case it's in the default search path
+                    list(APPEND DNA_LIBRARIES gfortran)
+                endif()
+            endif()
+        endif()
+        
+        # Check if MKL was found by FindBLAS
+        string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER)
+        if(BLAS_LIBRARIES_LOWER MATCHES "mkl")
+            message(STATUS "Intel MKL detected via FindBLAS - skipping cblas.h search")
+            add_compile_options("-DUSE_MKL")
+        else()
+            # Try to find cblas.h header for non-MKL BLAS implementations (OpenBLAS, etc.)
+            set(BLAS_INCLUDE_SEARCH_PATHS
+                ${CMAKE_PREFIX_PATH}/include
+                ${CMAKE_PREFIX_PATH}/include/openblas
+            )
+            
+            if(WIN32)
+                list(APPEND BLAS_INCLUDE_SEARCH_PATHS
                     ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
                     ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/openblas
                     C:/vcpkg/installed/x64-windows/include
                     C:/vcpkg/installed/x64-windows/include/openblas
-                REQUIRED
-            )
-            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
-            include_directories(${BLAS_INCLUDE_DIRS})
-        endif()
-    endif()
-
-elseif(UNIX)
-    message(STATUS "Looking for BLAS and LAPACK on Linux")
-
-    if (BUILD_STATIC)
-        set(BLA_STATIC ON)
-    endif()
-
-    find_package(BLAS REQUIRED)
-
-    find_package(LAPACK)
-
-    if ("${BLAS_LIBRARIES}" MATCHES "libmkl")
-        message(STATUS "Using Intel MKL for fast linear algebra")
-        add_compile_options("-DUSE_MKL")
-        set(USE_MKL ON)
-    	list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    else()
-        message(STATUS "Using OpenBLAS and LAPACK for fast linear algebra (${BLAS_LINKER_FLAGS})")
-        # Try to find OpenBLAS package first
-        find_package(OpenBLAS CONFIG QUIET)
-        if(OpenBLAS_FOUND AND TARGET OpenBLAS::OpenBLAS)
-            message(STATUS "Found OpenBLAS via CONFIG")
-            list(APPEND DNA_LIBRARIES OpenBLAS::OpenBLAS ${LAPACK_LIBRARIES})
-        else()
-            # Fallback to manual search
-            find_path(BLAS_INCLUDE_DIRS 
-                NAMES cblas.h 
-                PATHS 
-                    ${CMAKE_PREFIX_PATH}/include
-                    ${CMAKE_PREFIX_PATH}/include/openblas
+                )
+            else()
+                list(APPEND BLAS_INCLUDE_SEARCH_PATHS
                     /usr/include
                     /usr/local/include
                     /usr/include/openblas
                     /usr/local/include/openblas
+                    # Architecture-specific paths for Debian/Ubuntu
+                    /usr/include/x86_64-linux-gnu
+                    /usr/include/aarch64-linux-gnu
+                    /usr/include/i386-linux-gnu
+                )
+            endif()
+            
+            find_path(BLAS_INCLUDE_DIRS 
+                NAMES cblas.h
+                PATHS ${BLAS_INCLUDE_SEARCH_PATHS}
                 REQUIRED
             )
-            message(STATUS "BLAS_INCLUDE_DIRS=${BLAS_INCLUDE_DIRS}")
-            include_directories(${BLAS_INCLUDE_DIRS})
-            list(APPEND DNA_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+            
+            if(BLAS_INCLUDE_DIRS)
+                message(STATUS "Found cblas.h at: ${BLAS_INCLUDE_DIRS}")
+                include_directories(${BLAS_INCLUDE_DIRS})
+            endif()
         endif()
     endif()
 
@@ -402,8 +498,10 @@ if(BUILD_STATIC)
     message("=====================================================================")
     message("")
 
-    add_definitions(-DBUILD_STATIC)
-    add_definitions(-DXERCES_STATIC_LIBRARY)
+    add_compile_definitions(
+        BUILD_STATIC
+        XERCES_STATIC_LIBRARY
+    )
 
     # Set optimization flags based on compiler
     if(MSVC)
@@ -415,18 +513,12 @@ if(BUILD_STATIC)
         add_compile_options(-O3)
     endif()
 
-    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
-
-    if (UNIX AND NOT APPLE)
-    	list(APPEND DNA_LIBRARIES "gfortran" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "quadmath" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "openblas" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    	list(APPEND DNA_LIBRARIES "lapacke" ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    if(BLAS_LIBRARIES)
+        message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
     endif()
-
-    message(STATUS "BLAS_LIBRARIES=${BLAS_LIBRARIES}")
-    message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+    if(LAPACK_LIBRARIES)
+        message(STATUS "LAPACK_LIBRARIES=${LAPACK_LIBRARIES}")
+    endif()
 
     if (UNIX)
         # Find the static library equivalents
@@ -444,7 +536,6 @@ if(BUILD_STATIC)
                 if(NOT (libname STREQUAL "m" OR 
                         libname STREQUAL "dl" OR 
                         libname MATCHES "^-W*" OR 
-                        #libname STREQUAL "xerces-c" OR
                         libname STREQUAL "Accelerate"))
                     message(CHECK_START "Finding static '${lib}'")
                     find_library(STATIC_LIB_${libname}
@@ -456,14 +547,41 @@ if(BUILD_STATIC)
                         message(CHECK_PASS "Found")
                         list(APPEND STATIC_LIBS_LIST ${STATIC_LIB_${libname}})
                     endif()
-                else()
-                    #message(STATUS "Finding static '${lib}' - Skipped")
                 endif()
             endif()
         endforeach()
 
         message("")
         message(STATUS "STATIC_LIBS_LIST=${STATIC_LIBS_LIST}")
+        
+        # Print sizes of static libraries
+        message(STATUS "")
+        message(STATUS "Static library sizes:")
+        message(STATUS "---------------------")
+        foreach(lib ${STATIC_LIBS_LIST})
+            if(EXISTS ${lib})
+                file(SIZE ${lib} LIB_SIZE)
+                math(EXPR LIB_SIZE_MB "${LIB_SIZE} / 1048576")
+                math(EXPR LIB_SIZE_KB "(${LIB_SIZE} % 1048576) / 1024")
+                get_filename_component(LIB_NAME ${lib} NAME)
+                message(STATUS "  ${LIB_NAME}: ${LIB_SIZE_MB}.${LIB_SIZE_KB} MB (${LIB_SIZE} bytes)")
+            else()
+                message(STATUS "  ${lib}: File not found")
+            endif()
+        endforeach()
+        
+        # Calculate total size
+        set(TOTAL_SIZE 0)
+        foreach(lib ${STATIC_LIBS_LIST})
+            if(EXISTS ${lib})
+                file(SIZE ${lib} LIB_SIZE)
+                math(EXPR TOTAL_SIZE "${TOTAL_SIZE} + ${LIB_SIZE}")
+            endif()
+        endforeach()
+        math(EXPR TOTAL_SIZE_MB "${TOTAL_SIZE} / 1048576")
+        message(STATUS "---------------------")
+        message(STATUS "Total static libraries size: ${TOTAL_SIZE_MB} MB")
+        message(STATUS "")
     endif()
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/static)
@@ -525,6 +643,59 @@ endif()
 
 
 # ----------------------------------------------------------------------------
+# Unified Installation
+# ----------------------------------------------------------------------------
+
+# Set default install prefix if not specified
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    # Install to repo root bin directory (DynAdjust/bin)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/.." CACHE PATH "Installation Directory" FORCE)
+endif()
+
+message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+
+# Install all executables to bin directory
+install(TARGETS 
+    dnaimportwrapper dnareftranwrapper dnasegmentwrapper 
+    dnageoidwrapper dnaplotwrapper dynadjust dnaadjustwrapper
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION bin)
+
+# Install all libraries to bin directory  
+install(TARGETS
+    dnaimport dnareftran dnasegment dnageoid dnaplot dnaadjust
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION bin)
+
+# Install static executables if they exist
+if(BUILD_STATIC)
+    # Check if targets exist before trying to install them
+    if(TARGET dnaimportwrapper_static)
+        install(TARGETS dnaimportwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnareftranwrapper_static)
+        install(TARGETS dnareftranwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnasegmentwrapper_static)
+        install(TARGETS dnasegmentwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnageoidwrapper_static)
+        install(TARGETS dnageoidwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnaplotwrapper_static)
+        install(TARGETS dnaplotwrapper_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dynadjust_static)
+        install(TARGETS dynadjust_static RUNTIME DESTINATION bin)
+    endif()
+    if(TARGET dnaadjustwrapper_static)
+        install(TARGETS dnaadjustwrapper_static RUNTIME DESTINATION bin)
+    endif()
+endif()
+
+# ----------------------------------------------------------------------------
 # Testing
 # ----------------------------------------------------------------------------
 
@@ -535,6 +706,8 @@ if (BUILD_TESTING)
     message("")
     message(STATUS "Setting up tests...")
 
+    find_program(BASH_EXECUTABLE NAMES bash bash.exe)
+
     # Create symbolic links
     add_custom_target(import_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaimportwrapper> dnaimport)
     add_custom_target(geoid_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnageoidwrapper> dnageoid)
@@ -544,19 +717,24 @@ if (BUILD_TESTING)
 
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous, phased-block 1, phased, staged)
-    add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
-    add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
+    add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-network.stn gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
+    add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
-    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
+    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --scale-normals-to-unity)
 
     # bash command to check results
-    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+    if(BASH_EXECUTABLE)
+      add_test(NAME test-gnss-network
+        COMMAND "${BASH_EXECUTABLE}" -c
+          "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 gnss.simult.adj.expected)")
+    else()
+      message(STATUS "Bash not found; disabling test-gnss-network")
+    endif()
 
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
-    add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
-    add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
-    add_test (NAME import-gnss-network-scaled COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_scaled ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --baseline-scalar-file ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.scalars -r GDA94) 
-    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --single-xml-file --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
+    add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar gnss-network.stn gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
+    add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl gnss-network.stn gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
+    add_test (NAME import-gnss-network-scaled COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_scaled gnss-network.stn gnss-network.msr --baseline-scalar-file gnss-network.scalars -r GDA94) 
+    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 gnss-network.stn gnss-network.msr --export-dna --export-xml --single-xml-file --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94 --flag-unused-stations) 
     add_test (NAME segment-gnss-network-block1-a COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 90 --max 90 --starting-stns 220700210)
     add_test (NAME segment-gnss-network-block1-b COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 110 --max 110 --net-file)
     add_test (NAME segment-gnss-network-block1-c COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 80 --max 200 --net-file --starting-stns 211300940 --verbose 3)
@@ -567,8 +745,8 @@ if (BUILD_TESTING)
     add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --purge-stage-files --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
 
     # 2. urban network (phased-sequential)
-    add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --flag-unused-stations)
-    add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
+    add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban urban-network.stn urban-network.msr --flag-unused-stations)
+    add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150 --test-integrity)
     add_test (NAME adjust-urban-network-verbose COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --verbose 3)
     add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased --stn-corrections --export-sinex-file --export-xml-stn-file --export-dna-stn-file --output-pos-uncertainty --export-dna-msr --export-xml-msr)
@@ -578,76 +756,72 @@ if (BUILD_TESTING)
     add_test (NAME plot-urban-seg-msr COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-msr)
 
     # 3. urban network (transform to GDA2020, phased-concurrent)
-    add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt urban-network.stn urban-network.msr)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
-    add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
+    add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g urban-network-geoid.gsb --convert-stn-hts)
     add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85 --verb 3)
     add_test (NAME adjust-urban-network-thread-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-projection 3)
     add_test (NAME adjust-urban-network-thread-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi --verb 5)
 
     # 4. urban network (phased-staged)
-    add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --flag-unused-stations)
-    add_test (NAME geoid-urban-network-stage COMMAND $<TARGET_FILE:dnageoidwrapper> urban_st -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
+    add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st urban-network.stn urban-network.msr --flag-unused-stations)
+    add_test (NAME geoid-urban-network-stage COMMAND $<TARGET_FILE:dnageoidwrapper> urban_st -g urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME segment-urban-network-stage COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_st --min 90 --max 90)
     add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --output-adj-msr --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr --stn-corrections --output-corrections-file)
 
     # test all frame labels
-    add_test (NAME imp-frame-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-01 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1988 -e 03.12.1988)
-    add_test (NAME ref-frame-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-01 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-02 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1988 -e 03.12.1988)
-    add_test (NAME ref-frame-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-02 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-03 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1989 -e 01.09.1989)
-    add_test (NAME ref-frame-misc-03 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-03 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-04 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1990 -e 01.10.1990)
-    add_test (NAME ref-frame-misc-04 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-04 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-05 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1991 -e 01.01.1991)
-    add_test (NAME ref-frame-misc-05 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-05 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-06 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1992 -e 01.02.1992)
-    add_test (NAME ref-frame-misc-06 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-06 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-07 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-07 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1993 -e 01.03.1993)
-    add_test (NAME ref-frame-misc-07 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-07 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-08 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-08 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1994 -e 01.04.1994)
-    add_test (NAME ref-frame-misc-08 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-08 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-09 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-09 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1996 -e 01.06.1996)
-    add_test (NAME ref-frame-misc-09 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-09 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-10 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-10 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf1997 -e 01.07.1997)
-    add_test (NAME ref-frame-misc-10 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-10 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-11 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-11 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf2000 -e 22.2.2000)
-    add_test (NAME ref-frame-misc-11 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-11 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-12 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-12 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf2005 -e 5.5.2005)
-    add_test (NAME ref-frame-misc-12 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-12 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-13 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-13 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf2008 -e 8.8.2008)
-    add_test (NAME ref-frame-misc-13 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-13 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-14 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-14 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf2014 -e 2020)
-    add_test (NAME ref-frame-misc-14 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-14 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-15 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-15 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r itrf2020 -e today)
-    add_test (NAME ref-frame-misc-15 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-15 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-16 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-16 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r gda94)
-    add_test (NAME ref-frame-misc-16 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-16 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-17 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-17 ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r gda2020)
-    add_test (NAME ref-frame-misc-17 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-17 --verb 6 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME imp-frame-misc-18 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r wgs84)
-    add_test (NAME imp-frame-misc-19 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs 84")
-    add_test (NAME imp-frame-misc-20 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (ensemble)")
-    add_test (NAME imp-frame-misc-21 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G730)")
-    add_test (NAME imp-frame-misc-22 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G873)")
-    add_test (NAME imp-frame-misc-23 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G1150)")
-    add_test (NAME imp-frame-misc-24 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G1674)")
-    add_test (NAME imp-frame-misc-25 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G1762)")
-    add_test (NAME imp-frame-misc-26 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (G2139)")
-    add_test (NAME imp-frame-misc-27 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr -r "wgs84 (transit)")
+    add_test (NAME imp-frame-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-01 urban-network.stn urban-network.msr -r itrf1988 -e 03.12.1988)
+    add_test (NAME ref-frame-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-01 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-02 urban-network.stn urban-network.msr -r itrf1988 -e 03.12.1988)
+    add_test (NAME ref-frame-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-02 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-03 urban-network.stn urban-network.msr -r itrf1989 -e 01.09.1989)
+    add_test (NAME ref-frame-misc-03 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-03 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-04 urban-network.stn urban-network.msr -r itrf1990 -e 01.10.1990)
+    add_test (NAME ref-frame-misc-04 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-04 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-05 urban-network.stn urban-network.msr -r itrf1991 -e 01.01.1991)
+    add_test (NAME ref-frame-misc-05 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-05 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-06 urban-network.stn urban-network.msr -r itrf1992 -e 01.02.1992)
+    add_test (NAME ref-frame-misc-06 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-06 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-07 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-07 urban-network.stn urban-network.msr -r itrf1993 -e 01.03.1993)
+    add_test (NAME ref-frame-misc-07 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-07 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-08 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-08 urban-network.stn urban-network.msr -r itrf1994 -e 01.04.1994)
+    add_test (NAME ref-frame-misc-08 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-08 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-09 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-09 urban-network.stn urban-network.msr -r itrf1996 -e 01.06.1996)
+    add_test (NAME ref-frame-misc-09 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-09 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-10 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-10 urban-network.stn urban-network.msr -r itrf1997 -e 01.07.1997)
+    add_test (NAME ref-frame-misc-10 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-10 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-11 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-11 urban-network.stn urban-network.msr -r itrf2000 -e 22.2.2000)
+    add_test (NAME ref-frame-misc-11 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-11 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-12 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-12 urban-network.stn urban-network.msr -r itrf2005 -e 5.5.2005)
+    add_test (NAME ref-frame-misc-12 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-12 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-13 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-13 urban-network.stn urban-network.msr -r itrf2008 -e 8.8.2008)
+    add_test (NAME ref-frame-misc-13 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-13 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-14 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-14 urban-network.stn urban-network.msr -r itrf2014 -e 2020)
+    add_test (NAME ref-frame-misc-14 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-14 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-15 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-15 urban-network.stn urban-network.msr -r itrf2020 -e today)
+    add_test (NAME ref-frame-misc-15 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-15 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-16 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-16 urban-network.stn urban-network.msr -r gda94)
+    add_test (NAME ref-frame-misc-16 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-16 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-17 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe-17 urban-network.stn urban-network.msr -r gda2020)
+    add_test (NAME ref-frame-misc-17 COMMAND $<TARGET_FILE:dnareftranwrapper> impframe-17 --verb 6 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME imp-frame-misc-18 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r wgs84)
+    add_test (NAME imp-frame-misc-19 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs 84")
+    add_test (NAME imp-frame-misc-20 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (ensemble)")
+    add_test (NAME imp-frame-misc-21 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G730)")
+    add_test (NAME imp-frame-misc-22 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G873)")
+    add_test (NAME imp-frame-misc-23 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G1150)")
+    add_test (NAME imp-frame-misc-24 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G1674)")
+    add_test (NAME imp-frame-misc-25 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G1762)")
+    add_test (NAME imp-frame-misc-26 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (G2139)")
+    add_test (NAME imp-frame-misc-27 COMMAND $<TARGET_FILE:dnaimportwrapper> -n impframe urban-network.stn urban-network.msr -r "wgs84 (transit)")
 
-    # 5. dynadjust project mode
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj DESTINATION ./)
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb DESTINATION ./)    
+    # 5. dynadjust project mode    
     add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:dynadjust> -n sample --import --geoid --reftran --segment --adjust)
+    set_tests_properties(dynadjust-name-01 PROPERTIES ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}")
 
     # 6. urban data manipulation
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
-    add_test (NAME imp-urb00-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_dna ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
+    add_test (NAME imp-urb00-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_dna urban-network.stn urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
     add_test (NAME imp-urb01-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --include-msr-types gxyemsabdpqr --exclude-msr-types vz)
     add_test (NAME imp-urb02-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --search-nearby-stn --nearby-stn-buffer 0.4)
     add_test (NAME imp-urb03-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --search-similar-msr --ignore-similar-msr --flag-unused-stations)
@@ -659,40 +833,45 @@ if (BUILD_TESTING)
     add_test (NAME imp-urb08-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --geo-file urban.geo)
     add_test (NAME plt-urb01-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --centre-station 1004 --area-radius 5000 --plot-msr-types gxyasvz --msr-line-width 0.5)
     add_test (NAME plt-urb02-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --centre-latitude -37.480489013 --centre-longitude 144.573579814 --area-radius 3000 --omit-measurements)
-    add_test (NAME imp-psu01-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo ${CMAKE_SOURCE_DIR}/../sampleData/pseudo.stn --flag-unused-stations)
-    add_test (NAME geo-psu00-dna-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-dna-geo-file)
-    add_test (NAME imp-psu02-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo ${CMAKE_SOURCE_DIR}/../sampleData/pseudo.stn ${CMAKE_SOURCE_DIR}/../sampleData/pseudo-driver-file.msr --simulate --geo-file pseudo.geo --export-xml)
+    add_test (NAME imp-psu01-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo pseudo.stn --flag-unused-stations)
+    add_test (NAME geo-psu00-dna-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g gnss-network-geoid.gsb --export-dna-geo-file)
+    add_test (NAME imp-psu02-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo pseudo.stn pseudo-driver-file.msr --simulate --geo-file pseudo.geo --export-xml)
     add_test (NAME imp-psu03-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo pseudostn.xml pseudomsr.xml --export-asl --export-aml --export-map)
-    add_test (NAME geo-psu01-xml-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --interpolation-method 0)
+    add_test (NAME geo-psu01-xml-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g gnss-network-geoid.gsb --convert --interpolation-method 0)
     add_test (NAME adj-psu00-xml-data COMMAND $<TARGET_FILE:dnaadjustwrapper> pseudo --output-adj-msr --free-stn-sd 5.0 --fixed-stn-sd 0.000005 --max-iterations 15 --output-tstat-adj-msr --sort-adj-msr-field 7 --sort-stn-orig-order --stn-coord-types XYZPLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
-    add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box "-36.3000,145.4500,-36.4500,146.4500" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
-    add_test (NAME imp-gnss1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --include-stns-assoc-msrs "BEEC,BNLA,EURA,HOTH,MNSF,MYRT,320500750,385900240" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g -r itrf2014 --override-input-ref-frame)
+    add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml gnssstn.xml gnssmsr.xml --bounding-box "-36.3000,145.4500,-36.4500,146.4500" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
+    add_test (NAME imp-gnss1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml gnssstn.xml gnssmsr.xml --include-stns-assoc-msrs "BEEC,BNLA,EURA,HOTH,MNSF,MYRT,320500750,385900240" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g -r itrf2014 --override-input-ref-frame)
 
     # 7. geoid data manipulation
-    add_test (NAME geo-interpolate-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.3348253617 --longitude 145.5741006771)
-    add_test (NAME geo-interpolate-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.2704890597 --longitude 146.4809871537 --interpolation-method 0)
-    add_test (NAME geo-interpolate-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --summary)
+    add_test (NAME geo-interpolate-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb --interactive --latitude -36.3348253617 --longitude 145.5741006771)
+    add_test (NAME geo-interpolate-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb --interactive --latitude -36.2704890597 --longitude 146.4809871537 --interpolation-method 0)
+    add_test (NAME geo-interpolate-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb --summary)
     add_test (NAME geo-interpolate-04 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
-    add_test (NAME geo-interpolate-05 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
-    add_test (NAME geo-interpolate-06 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-csv.csv)    
-    add_test (NAME geo-interpolate-07 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt --decimal-degrees --direction 0 --export-dna-geo-file)
-    add_test (NAME geo-interpolate-08 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-csv.csv --decimal-degrees --direction 0 --export-dna-geo-file)
-    add_test (NAME geo-ntv2-create-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ${CMAKE_SOURCE_DIR}/../sampleData/ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_default.gsb)
-    add_test (NAME geo-ntv2-create-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ${CMAKE_SOURCE_DIR}/../sampleData/ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --grid-version 1.0.1.0 --system-fr ___GDA94 --system-to ___AHD71 --sub-grid-n 1D-grid --creation 21.04.2021 --update 22.04.2021)
-    add_test (NAME geo-ntv2-export-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-ntv2-asc)
-    add_test (NAME geo-ntv2-export-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-ntv2-asc --grid-shift-type radians)
+    add_test (NAME geo-interpolate-05 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb -t geoid-points-dat.txt)
+    add_test (NAME geo-interpolate-06 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb -t geoid-points-csv.csv)    
+    add_test (NAME geo-interpolate-07 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb -t geoid-points-dat.txt --decimal-degrees --direction 0 --export-dna-geo-file)
+    add_test (NAME geo-interpolate-08 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb -t geoid-points-csv.csv --decimal-degrees --direction 0 --export-dna-geo-file)
+    add_test (NAME geo-ntv2-create-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_default.gsb)
+    add_test (NAME geo-ntv2-create-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --grid-version 1.0.1.0 --system-fr ___GDA94 --system-to ___AHD71 --sub-grid-n 1D-grid --creation 21.04.2021 --update 22.04.2021)
+    add_test (NAME geo-ntv2-export-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb --export-ntv2-asc)
+    add_test (NAME geo-ntv2-export-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb --export-ntv2-asc --grid-shift-type radians)
     add_test (NAME geo-ntv2-export-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb)
     add_test (NAME geo-ntv2-export-04 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb --grid-shift-type radians)
-    add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-    add_test (NAME geo-outside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
+    add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside urban-network.stn urban-network.msr)
+    add_test (NAME geo-outside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g gnss-network-geoid.gsb --convert --verbose 1)
     add_test (NAME geo-outside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ./gnss-network-geoid.gsb.asc --convert --verbose 2)
     add_test (NAME geo-inside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ./gnss-network-geoid.gsb.asc --convert --export-dna-geo)
-    add_test (NAME geo-inside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
-    add_test (NAME geo-inside-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt --interpolation-method 0)
+    add_test (NAME geo-inside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t geoid-points-dat.txt)
+    add_test (NAME geo-inside-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t geoid-points-dat.txt --interpolation-method 0)
 
     # bash command to check results
-    #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
-    #add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
+    if(BASH_EXECUTABLE)
+        add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 urban.phased.adj.expected)")
+        add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 urban_mt.phased-mt.adj.expected)")
+    else()
+      message(STATUS "Bash not found; disabling test-urban-phased-network")
+      message(STATUS "Bash not found; disabling test-urban-thread-network")
+    endif()
 
     # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2014 -e 01.01.2020)
@@ -1146,24 +1325,29 @@ if (BUILD_TESTING)
     add_test (NAME itrf2020-param-27 COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2008)
 
     # 9. gnss reference frame transformations with plate motion model
-    add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --flag-unused-stations)
-    add_test (NAME ref-itrf-pmm-02 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_a -r itrf1997 -e 25.10.2017 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME ref-itrf-pmm-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_b -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --flag-unused-stations)
-    add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-    add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr --flag-unused-stations)
-    add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/NNR-MORVEL56_poles.dat)
-    #add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
+    add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 TEST_ITRF05.SNX --flag-unused-stations)
+    add_test (NAME ref-itrf-pmm-02 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_a -r itrf1997 -e 25.10.2017 --export-dna --verb 2 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME ref-itrf-pmm-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_b -r itrf2005 TEST_ITRF05.SNX --flag-unused-stations)
+    add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b PB2002_plates.dig -m PB2002_poles.dat)
+    add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 apr.ITRF2008.04.06.2020.stn apr.ITRF2008.04.06.2020.msr --flag-unused-stations)
+    add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b MORVEL56_plates.dig -m NNR-MORVEL56_poles.dat)
+
+    if(BASH_EXECUTABLE)
+        add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 apr.ITRF2008.01.01.2021.stn.expected)")
+    else()
+      message(STATUS "Bash not found; disabling ref-itrf-pmm-07 test")
+    endif()
 
     # 10. station discontinuities
-    add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --export-discont-file --flag-unused-stations)
-    add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna --flag-unused-stations)
-    add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
+    add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 TEST_ITRF05.SNX --discontinuity-file disconts20201205.snx --export-discont-file --flag-unused-stations)
+    add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 TEST_ITRF05.SNX --discontinuity-file disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna --flag-unused-stations)
+    add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame TEST_ITRF05.SNX sa-gnss-stn.xml sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
     add_test (NAME adj-discont-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> discont --constraint "ALIC,CCC")
-    add_test (NAME imp-discont-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --export-xml)
-    add_test (NAME imp-discont-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2000 --override-input-ref-frame ./discontstn.xml ./discontmsr.xml --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
+    add_test (NAME imp-discont-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 TEST_ITRF05.SNX --export-xml)
+    add_test (NAME imp-discont-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2000 --override-input-ref-frame ./discontstn.xml ./discontmsr.xml --discontinuity-file disconts20201205.snx)
 
     # 11. measurements to stations sorting
-    add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
+    add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-network.stn gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
 
     # 12. help modules and version
     add_test (NAME imp-help-00 COMMAND $<TARGET_FILE:dnaimportwrapper> -h)
@@ -1225,57 +1409,57 @@ if (BUILD_TESTING)
     add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
 
     # 13. Handle database id, output measurement to stations, output adjustment information on each iteration, scale normals to unity, report results, type-b
-    add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr) 
+    add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid dsg.stn dsg.msr dsg-ignored.msr) 
     add_test (NAME adjust-dbid-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
     add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1 --constraints "236300210,CCC")
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> -p dbid.dnaproj)
-    add_test (NAME adjust-dbid-06 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --type-b-sd-glob "0.01,0.01,0.035" --type-b-sd-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.typeb --output-pos)
+    add_test (NAME adjust-dbid-06 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --type-b-sd-glob "0.01,0.01,0.035" --type-b-sd-file dsg.typeb --output-pos)
 
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
-    add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
-    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file --output-msr-to-stn)
-    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --search-similar-msr --ignore-similar-msr --flag-unused-stations)
-    add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --export-xml)
+    add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc dsg.stn dsg.msr dsg-ignored.msr --stn-renaming-file dsg.renaming --export-xml)
+    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc dsg.stn dsg-retained.msr dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file --output-msr-to-stn)
+    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc dsg.stn dsg.msr dsg-retained.msr dsg-retained.msr dsg-ignored.msr --search-similar-msr --ignore-similar-msr --flag-unused-stations)
+    add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc dsg.stn dsg.msr dsg-retained.msr dsg-ignored.msr --export-xml)
     add_test (NAME segment-misc-plt COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500)
     add_test (NAME plot-misc-omit COMMAND $<TARGET_FILE:dnaplotwrapper> misc --omit-measurements --omit-title-block)
     add_test (NAME plot-misc-all COMMAND $<TARGET_FILE:dnaplotwrapper> misc --plot-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
     add_test (NAME plot-misc-gph-stn COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-stn)
     add_test (NAME plot-misc-gph-msr COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-msr)
-    add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
+    add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
     add_test (NAME reftran-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> misc -r itrf1991 --export-xml --verb 3)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
     add_test (NAME segment-misc-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 50 --max 100 --starting-stns 230900140 --seg-file ./misc.seg)
     add_test (NAME import-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc --import-block-stn-msr 2)
     add_test (NAME import-misc-07 COMMAND $<TARGET_FILE:dnaimportwrapper> -p misc.dnaproj)
-    add_test (NAME import-noname-01 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
-    add_test (NAME import-noname-02 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
-    add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
+    add_test (NAME import-noname-01 COMMAND $<TARGET_FILE:dnaimportwrapper> dsg.stn dsg.msr)
+    add_test (NAME import-noname-02 COMMAND $<TARGET_FILE:dnaimportwrapper> dsg.stn dsg.msr)
+    add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig dsg.stn dsg.msr skye-tutorial.stn skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
     add_test (NAME segment-noncontiguous-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --search-level 1 --test-integrity --verbose 3)
     add_test (NAME segment-noncontiguous-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --contiguous-blocks 0 --search-level 1 --test-integrity  --verbose 3)
     add_test (NAME segment-noncontiguous-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> -p noncontig.dnaproj)
     add_test (NAME import-block-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml)
     add_test (NAME segment-block COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 2 --max 3)
-    add_test (NAME import-block-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr --seg-file ${CMAKE_SOURCE_DIR}/../sampleData/misc.seg --import-block 2)
+    add_test (NAME import-block-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc dsg.stn dsg.msr --seg-file misc.seg --import-block 2)
     add_test (NAME import-include-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml --include-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
     add_test (NAME import-exclude-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./miscstn.xml ./miscmsr.xml --exclude-msr-types "ABCDEGHIJKLMNPQRSVXYZ" --flag --export-dna)
     add_test (NAME import-stn-msr-connect COMMAND $<TARGET_FILE:dnaimportwrapper> -n connect ./miscstn.xml ./miscmsr.xml --include-stns-assoc-msrs "365300060,360100260,269100210")
     add_test (NAME import-all COMMAND $<TARGET_FILE:dnaimportwrapper> -n all 
         ./miscstn.xml 
         ./miscmsr.xml
-        ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr
-        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr
-        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml 
-        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml
-        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr 
-        ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX 
-        ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+        apr.ITRF2008.04.06.2020.stn 
+        apr.ITRF2008.04.06.2020.msr
+        gnss-network.stn 
+        gnss-network.msr
+        sa-gnss-stn.xml 
+        sa-gnss-msr.xml
+        skye-tutorial.stn 
+        skye-tutorial.msr 
+        TEST_ITRF05.SNX 
+        urban-network.stn 
+        urban-network.msr)
     add_test (NAME plot-all-01 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 1)
     add_test (NAME plot-all-02 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 2)
     add_test (NAME plot-all-03 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 3)
@@ -1292,14 +1476,14 @@ if (BUILD_TESTING)
     add_test (NAME plot-all-14 COMMAND $<TARGET_FILE:dnaplotwrapper> all --centre-latitude "-86.0101" --centre-longitude "145.0202")
     add_test (NAME plot-all-15 COMMAND $<TARGET_FILE:dnaplotwrapper> all --title "A plot generated by cmake testing." --org-unit "Geoscience Australia" --org-subunit "National Geodesy")
     add_test (NAME plot-all-16 COMMAND $<TARGET_FILE:dnaplotwrapper> all --export-png --omit-title)
-    add_test (NAME plot-all-17 COMMAND $<TARGET_FILE:dnaplotwrapper> all --export-png --plate ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig --map 8)
+    add_test (NAME plot-all-17 COMMAND $<TARGET_FILE:dnaplotwrapper> all --export-png --plate MORVEL56_plates.dig --map 8)
     add_test (NAME import-misc-08 COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig 
-        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr
-        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml 
-        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml
-        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn 
-        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr)
+        gnss-network.stn 
+        gnss-network.msr
+        sa-gnss-stn.xml 
+        sa-gnss-msr.xml
+        skye-tutorial.stn 
+        skye-tutorial.msr)
     add_test (NAME segment-misc-08 COMMAND $<TARGET_FILE:dnasegmentwrapper> contig --contiguous-blocks 0)
     add_test (NAME import-misc-08a COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-block-stn-msr 1 --export-dna)
     add_test (NAME import-misc-08b COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-contiguous-stn-msr 0 --export-dna)
@@ -1313,11 +1497,11 @@ if (BUILD_TESTING)
     # invalid input file
     add_test (NAME import-invalid-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n invalid invalidfile.txt)
     # the --search-nearby-stn option in import will return a failure if nearby stations are found.  In this case, check it is non-zero (i.e. it will fail!)
-    add_test (NAME import-nearby COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --search-nearby-stn --nearby-stn-buffer 10)
+    add_test (NAME import-nearby COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban urban-network.stn urban-network.msr --search-nearby-stn --nearby-stn-buffer 10)
     # files don't exist
-    add_test (NAME import-no-files COMMAND $<TARGET_FILE:dnaimportwrapper> -n bigdata ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.stn ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.msr)
+    add_test (NAME import-no-files COMMAND $<TARGET_FILE:dnaimportwrapper> -n bigdata bigdata.stn bigdata.msr)
     # reference frame doesn't exist
-    add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 dsg.stn dsg.msr)
     # no stations and measurements (generated above)
     add_test (NAME import-no-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./null.stn ./null.msr)
     # no dynaml.xsd
@@ -1328,7 +1512,7 @@ if (BUILD_TESTING)
     # no project file
     add_test (NAME import-no-project COMMAND $<TARGET_FILE:dnaimportwrapper> -p ./nofile.dnaproj)
     # measurement stns not in station file
-    add_test (NAME import-no-stns COMMAND $<TARGET_FILE:dnaimportwrapper> -n nostn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-no-stns COMMAND $<TARGET_FILE:dnaimportwrapper> -n nostn urban-network.stn dsg.msr)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
     # excessive block and network numbers
@@ -1379,11 +1563,11 @@ if (BUILD_TESTING)
     # no project file
     add_test (NAME geoid-no-project COMMAND $<TARGET_FILE:dnageoidwrapper> -p ./nofile.dnaproj)
     # no standard options
-    add_test (NAME geoid-no-std-options COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb)
+    add_test (NAME geoid-no-std-options COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb)
     # no interpolation input file
     add_test (NAME geoid-no-input-file COMMAND $<TARGET_FILE:dnageoidwrapper> largenet)
     # no standard options
-    add_test (NAME geoid-no-bst COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb largenet)
+    add_test (NAME geoid-no-bst COMMAND $<TARGET_FILE:dnageoidwrapper> -g gnss-network-geoid.gsb largenet)
     # no help module
     add_test (NAME geoid-no-help COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module cplusplus)
     # no geoid file
@@ -1403,7 +1587,7 @@ if (BUILD_TESTING)
     # no binary files
     add_test (NAME segment-no-bst-bms COMMAND $<TARGET_FILE:dnasegmentwrapper> extremelylargenetwork)
     # no net file
-    add_test (NAME segment-no-net-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n nonetfile ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME segment-no-net-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n nonetfile dsg.stn dsg.msr)
     add_test (NAME segment-no-net-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --net-file)
     # no option arguments
     add_test (NAME segment-no-opt-arg-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --starting-stns)
@@ -1412,7 +1596,7 @@ if (BUILD_TESTING)
     add_test (NAME segment-no-opt-arg-04 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --contiguous)
     add_test (NAME segment-no-opt-arg-05 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --search)
     # all measurements ignored
-    add_test (NAME segment-all-ignored-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n allignored ${CMAKE_SOURCE_DIR}/../sampleData/stn_allignored.xml ${CMAKE_SOURCE_DIR}/../sampleData/msr_allignored.xml)
+    add_test (NAME segment-all-ignored-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n allignored stn_allignored.xml msr_allignored.xml)
     add_test (NAME segment-all-ignored-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> allignored)
     # no help module
     add_test (NAME segment-no-help COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module cplusplus)
@@ -1437,10 +1621,10 @@ if (BUILD_TESTING)
     # no binary files
     add_test (NAME adjust-no-bst-bms COMMAND $<TARGET_FILE:dnaadjustwrapper> largenet)
     # no segment file
-    add_test (NAME import-no-seg COMMAND $<TARGET_FILE:dnaimportwrapper> -n noseg ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-no-seg COMMAND $<TARGET_FILE:dnaimportwrapper> -n noseg dsg.stn dsg.msr)
     add_test (NAME adjust-no-seg COMMAND $<TARGET_FILE:dnaadjustwrapper> noseg --phased)
     # no memory mapped files from previous adjustment
-    add_test (NAME import-no-memmap COMMAND $<TARGET_FILE:dnaimportwrapper> -n memmap ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-no-memmap COMMAND $<TARGET_FILE:dnaimportwrapper> -n memmap dsg.stn dsg.msr)
     add_test (NAME segment-no-memmap COMMAND $<TARGET_FILE:dnasegmentwrapper> memmap --min 2 --max 3)
     add_test (NAME adjust-no-memmap-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged --create --purge)
     add_test (NAME adjust-no-memmap-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged)
@@ -1462,7 +1646,7 @@ if (BUILD_TESTING)
     # no project file
     add_test (NAME plot-no-project COMMAND $<TARGET_FILE:dnaplotwrapper> -p ./nofile.dnaproj)
     # no standard options
-    add_test (NAME plot-no-std-options COMMAND $<TARGET_FILE:dnaplotwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-plot.gsb)
+    add_test (NAME plot-no-std-options COMMAND $<TARGET_FILE:dnaplotwrapper> -g gnss-network-plot.gsb)
     # no such network
     add_test (NAME plot-no-network COMMAND $<TARGET_FILE:dnaplotwrapper> largenet)
     # no network-name
@@ -1473,7 +1657,7 @@ if (BUILD_TESTING)
     add_test (NAME plot-box-ew COMMAND $<TARGET_FILE:dnaplotwrapper> all --bounding "-36.3000,146.4500,-36.4500,145.4500")
     add_test (NAME plot-box-ns COMMAND $<TARGET_FILE:dnaplotwrapper> all --bounding "-36.4500,145.4500,-36.3000,146.4500")
     # no seg file, no apu file, no cor file, no plate
-    add_test (NAME import-no-seg-apu-cor COMMAND $<TARGET_FILE:dnaimportwrapper> -n nosegapucor ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-no-seg-apu-cor COMMAND $<TARGET_FILE:dnaimportwrapper> -n nosegapucor dsg.stn dsg.msr)
     add_test (NAME plot-no-seg COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --phased)
     add_test (NAME plot-no-cor COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --correction-arrows)
     add_test (NAME plot-no-apu COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --error-ellipses)
@@ -1494,7 +1678,7 @@ if (BUILD_TESTING)
     # no project file and network name
     add_test (NAME dyna-no-proj-no-name COMMAND $<TARGET_FILE:dynadjust> --import)
     # no programs
-    add_test (NAME dyna-no-programs COMMAND $<TARGET_FILE:dynadjust>  -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj)
+    add_test (NAME dyna-no-programs COMMAND $<TARGET_FILE:dynadjust>  -p sample.dnaproj)
     # no project file
     add_test (NAME dyna-no-project COMMAND $<TARGET_FILE:dynadjust> -p ./nofile.dnaproj)
     # name doesn't match project file
@@ -1517,8 +1701,24 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread-01
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(
+        import-gnss-network geoid-gnss-network reftran-gnss-network 
+        adjust-gnss-network test-gnss-network
+        import-gnss-network-similar import-gnss-network-exclude
+        import-gnss-network-scaled import-gnss-network-block1
+        segment-gnss-network-block1-a segment-gnss-network-block1-b
+        segment-gnss-network-block1-c adjust-gnss-network-block1
+        adjust-gnss-network-phased adjust-gnss-network-verb
+        adjust-gnss-network-staged-a adjust-gnss-network-staged-b
+        PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
+
+    # Set working directory for all tests to sampleData
+    get_property(all_tests DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
+    foreach(test ${all_tests})
+        set_tests_properties(${test} PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
+    endforeach()
 
     message (STATUS "Finished setting up tests")
     message ("")

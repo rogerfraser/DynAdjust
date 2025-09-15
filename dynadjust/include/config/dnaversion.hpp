@@ -123,13 +123,11 @@ const char* const __the_app_name__ = "DynAdjust";
 const char* const __metadata_app_name__ = "metadata";
 const char* const __dynadjust_app_name__ = "dynadjust";
 
-#if defined(__APPLE__) // Apple Accelerate framework // (-DACCELERATE_LAPACK_ILP64=1 for ILP64)
-    #define __LINEAR_ALGEBRA_LIB__ "OpenBLAS"
-#elif (defined(_WIN32) && !defined(MKL_ILP64) && !defined(MKL_LP64)) // Windows - No LAPACKE and no MKL
-    #define __LINEAR_ALGEBRA_LIB__ "OpenBLAS"
-#elif (defined(MKL_ILP64) || defined(MKL_LP64)) // Linux or Windows - Intel MKL with ILP64
+#if defined(USE_MKL)
     #define __LINEAR_ALGEBRA_LIB__ "Intel MKL"
-#else // LAPACKE fall back
+#elif defined(__APPLE__)
+    #define __LINEAR_ALGEBRA_LIB__ "Apple Accelerate Framework"
+#else
     #define __LINEAR_ALGEBRA_LIB__ "OpenBLAS"
 #endif
 

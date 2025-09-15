@@ -12,17 +12,13 @@ add_executable (${PROJECT_NAME}
 			dnaplotwrapper.cpp
 			${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
+target_precompile_headers (${PROJECT_NAME} PUBLIC precompile.h)
+
 target_link_libraries (${PROJECT_NAME} dnaplot ${DNA_LIBRARIES})
 
 set_target_properties (${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}plot")
 
-install (TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-# Install to the x64 directory
-set_target_properties (${PROJECT_NAME} PROPERTIES 
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/x64")    
-    
-install (TARGETS ${PROJECT_NAME} DESTINATION x64)
 
 if(BUILD_STATIC)
 
@@ -52,8 +48,13 @@ if(BUILD_STATIC)
   set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   set_target_properties(dnaplot PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   
+  print_static_linking_info(${STATIC_TARGET_NAME} "${DNA_PROGRAM_PREFIX}plot")
+  
   # Link with static libraries
   target_link_libraries(${STATIC_TARGET_NAME} PRIVATE ${STATIC_LIBS_LIST})
+
+  # Apply static build optimizations
+  optimize_static_target(${STATIC_TARGET_NAME})
   
   if(UNIX)
     if(APPLE)
@@ -98,6 +99,4 @@ if(BUILD_STATIC)
   set_target_properties(${STATIC_TARGET_NAME} PROPERTIES 
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/static")
     
-  # Install to the static directory
-  install(TARGETS ${STATIC_TARGET_NAME} DESTINATION static)
 endif()
