@@ -19,13 +19,7 @@
 // Description  : DynAdjust Interoperability library Executable
 //============================================================================
 
-#include <filesystem>
 #include <dynadjust/dnaimportwrapper/dnaimportwrapper.hpp>
-#include <include/parameters/dnaepsg.hpp>
-#include <include/functions/dnastrutils.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
-#include <mutex>
-#include <thread>
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;

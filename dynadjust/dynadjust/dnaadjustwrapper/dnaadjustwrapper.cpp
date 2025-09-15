@@ -1,4 +1,3 @@
-#include <filesystem>
 //============================================================================
 // Name         : dnaadjustwrapper.cpp
 // Author       : Roger Fraser
@@ -21,14 +20,6 @@
 //============================================================================
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
-#include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
-#include <dynadjust/dnaadjust/dnaadjust_printer.hpp>
-
-#include <include/functions/dnastrutils.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
-#include <thread>
-
-#include "threading_init.hpp"
 
 extern bool running;
 extern std::mutex cout_mutex;

@@ -1,4 +1,3 @@
-#include <filesystem>
 //============================================================================
 // Name         : dnageoidwrapper.cpp
 // Author       : Roger Fraser
@@ -22,9 +21,6 @@
 //============================================================================
 
 #include <dynadjust/dnageoidwrapper/dnageoidwrapper.hpp>
-
-#include <include/functions/dnastrutils.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 
 using namespace dynadjust;
 

@@ -1,4 +1,3 @@
-#include <filesystem>
 //============================================================================
 // Name         : dnareftranwrapper.cpp
 // Author       : Roger Fraser
@@ -22,9 +21,6 @@
 //============================================================================
 
 #include <dynadjust/dnareftranwrapper/dnareftranwrapper.hpp>
-
-#include <include/functions/dnastrutils.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 
 using namespace dynadjust;
 

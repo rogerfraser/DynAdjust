@@ -1,4 +1,3 @@
-#include <filesystem>
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 // Copyright    : Copyright 2017-2025 Geoscience Australia
@@ -19,8 +18,6 @@
 //============================================================================
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
-#include <dynadjust/dnaadjust/network_data_loader.hpp>
-#include <dynadjust/dnaadjust/dnaadjust_printer.hpp>
 #include <dynadjust/dnaadjust/dnaadjust-multi.cpp>
 
 namespace dynadjust {
