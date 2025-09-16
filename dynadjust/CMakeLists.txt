@@ -1700,11 +1700,19 @@ if (BUILD_TESTING)
     set_tests_properties(
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread-01
         PROPERTIES RUN_SERIAL TRUE)
-    set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+
+    if(BASH_EXECUTABLE)
+        set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    endif()
+
+    if(BASH_EXECUTABLE)
+        set_tests_properties(test-gnss-network
+        PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
+    endif()
+
     set_tests_properties(
         import-gnss-network geoid-gnss-network reftran-gnss-network 
-        adjust-gnss-network test-gnss-network
-        import-gnss-network-similar import-gnss-network-exclude
+        adjust-gnss-network import-gnss-network-similar import-gnss-network-exclude
         import-gnss-network-scaled import-gnss-network-block1
         segment-gnss-network-block1-a segment-gnss-network-block1-b
         segment-gnss-network-block1-c adjust-gnss-network-block1
