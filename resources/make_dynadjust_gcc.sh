@@ -401,16 +401,16 @@ else
 
 	echo "Copying libraries and binaries to $DYNADJUST_INSTALL_PATH ..."
 
-	if [[ ( -e "./bin/dynadjust" ) && ( "all" == "$_binary" || "$_binary" =~ "dynadjust" ) ]]; then
-		sudo cp ./bin/dynadjust "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dynadjust" ) && ( "all" == "$_binary" || "$_binary" =~ "dynadjust" ) ]]; then
+		sudo cp ../../bin/dynadjust "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dynadjust" "$BIN_FOLDER_FULLPATH/dynadjust"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/dynadjust" /opt/dynadjust/dynadjust
 		echo " - dynadjust"
 	fi
 
-	if [[ ( -e "./bin/dnaadjust" ) && ( "all" == "$_binary" || "$_binary" =~ "adjust" ) ]]; then
-		sudo cp ./bin/libdnaadjust.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnaadjust "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnaadjust" ) && ( "all" == "$_binary" || "$_binary" =~ "adjust" ) ]]; then
+		sudo cp ../../bin/libdnaadjust.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnaadjust "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnaadjust" "$BIN_FOLDER_FULLPATH/dnaadjust"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnaadjust.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext" /opt/dynadjust/libdnaadjust.$_lib_ext 
@@ -418,9 +418,9 @@ else
 		echo " - dnaadjust, libdnaadjust.$_lib_ext"
 	fi
 
-	if [[ ( -e "./bin/dnaimport" ) && ( "all" == "$_binary" || "$_binary" =~ "import" ) ]]; then
-		sudo cp ./bin/libdnaimport.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnaimport "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnaimport" ) && ( "all" == "$_binary" || "$_binary" =~ "import" ) ]]; then
+		sudo cp ../../bin/libdnaimport.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnaimport "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnaimport" "$BIN_FOLDER_FULLPATH/dnaimport"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnaimport.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext" /opt/dynadjust/libdnaimport.$_lib_ext
@@ -428,9 +428,9 @@ else
 		echo " - dnaimport, libdnaimport.$_lib_ext"
 	fi
 
-	if [[ ( -e "./bin/dnareftran" ) && ( "all" == "$_binary" || "$_binary" =~ "reftran" ) ]]; then
-		sudo cp ./bin/libdnareftran.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnareftran "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnareftran" ) && ( "all" == "$_binary" || "$_binary" =~ "reftran" ) ]]; then
+		sudo cp ../../bin/libdnareftran.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnareftran "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnareftran" "$BIN_FOLDER_FULLPATH/dnareftran"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext" "$BIN_FOLDER_FULLPATH/libdnareftran.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext" /opt/dynadjust/libdnareftran.$_lib_ext
@@ -438,9 +438,9 @@ else
 		echo " - dnareftran, libdnareftran.$_lib_ext"
 	fi
 
-	if [[ ( -e "./bin/dnageoid" ) && ( "all" == "$_binary" || "$_binary" =~ "geoid" ) ]]; then
-		sudo cp ./bin/libdnageoid.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnageoid "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnageoid" ) && ( "all" == "$_binary" || "$_binary" =~ "geoid" ) ]]; then
+		sudo cp ../../bin/libdnageoid.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnageoid "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnageoid" "$BIN_FOLDER_FULLPATH/dnageoid"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnageoid.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext" /opt/dynadjust/libdnageoid.$_lib_ext
@@ -448,9 +448,9 @@ else
 		echo " - dnageoid, libdnageoid.$_lib_ext"
 	fi
 
-	if [[ ( -e "./bin/dnasegment" ) && ( "all" == "$_binary" || "$_binary" =~ "segment" ) ]]; then
-		sudo cp ./bin/libdnasegment.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnasegment "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnasegment" ) && ( "all" == "$_binary" || "$_binary" =~ "segment" ) ]]; then
+		sudo cp ../../bin/libdnasegment.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnasegment "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnasegment" "$BIN_FOLDER_FULLPATH/dnasegment"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnasegment.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext" /opt/dynadjust/libdnasegment.$_lib_ext 
@@ -458,9 +458,9 @@ else
 		echo " - dnasegment, libdnasegment.$_lib_ext"
 	fi
 
-	if [[ ( -e "./bin/dnaplot" ) && ( "all" == "$_binary" || "$_binary" =~ "plot" ) ]]; then
-		sudo cp ./bin/libdnaplot.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
-		sudo cp ./bin/dnaplot "$DYNADJUST_INSTALL_PATH/"
+	if [[ ( -e "../../bin/dnaplot" ) && ( "all" == "$_binary" || "$_binary" =~ "plot" ) ]]; then
+		sudo cp ../../bin/libdnaplot.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ../../bin/dnaplot "$DYNADJUST_INSTALL_PATH/"
 		ln -sf "$DYNADJUST_INSTALL_PATH/dnaplot" "$BIN_FOLDER_FULLPATH/dnaplot"
 		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext" "$BIN_FOLDER_FULLPATH/libdnaplot.$_lib_ext"
 		sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext" /opt/dynadjust/libdnaplot.$_lib_ext 
