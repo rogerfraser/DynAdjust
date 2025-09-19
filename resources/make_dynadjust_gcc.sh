@@ -304,11 +304,11 @@ echo " "
 # determine whether to prepare cmake files with testing or not
 case ${_test} in
     0) # skip tests
-        echo -e "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=OFF -DUSE_MKL=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="OFF" -DUSE_MKL=ON -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
     *) # run cmake tests with code coverage
-        echo -e "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=ON -DUSE_MKL=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="ON" -DUSE_MKL=ON -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
 esac
 
 echo -e "\n==========================================================================="
