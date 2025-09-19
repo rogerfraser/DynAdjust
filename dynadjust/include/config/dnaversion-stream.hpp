@@ -81,6 +81,9 @@ void output_version(T& stream, bool PAD=false)
 	else
 		stream << "Version:      ";
     stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__ << " with " << __LINEAR_ALGEBRA_LIB__;
+#if defined(_OPENMP)
+	stream << " (with OpenMP)";
+#endif
 }
 	
 
