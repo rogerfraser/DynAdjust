@@ -92,7 +92,7 @@ jobs:
       - name: Build with CMake
         run: |
           source /opt/intel/oneapi/setvars.sh
-          cmake dynadjust 
+          cmake dynadjust -DUSE_MKL=ON
           make -j2
           ls -la bin/
 
