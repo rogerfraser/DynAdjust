@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 project(dynadjust VERSION 1.2.9)
 
-option(BUILD_TESTING "Enable testing" ON)
-option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
-option(ILP64 "Use ILP64 Interface for BLAS and LAPACK" OFF)
-option(USE_OPENMP_MAC "Use OpenMP on macOS (requires `brew install libomp`)" OFF)
+option(BUILD_TESTING "Enable testing" OFF)
+option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
+option(USE_OPENMP "Use OpenMP for parallel processing" OFF)
+option(ILP64 "Use ILP64 interface (64-bit matrix indexing) for BLAS and LAPACK" OFF)
 
 set(CMAKE_DISABLE_PRECOMPILE_HEADERS OFF)
 
@@ -264,32 +264,37 @@ set(DNA_LIBRARIES
 # OpenMP
 # ----------------------------------------------------------------------------
 
-find_package(OpenMP)
+if(USE_OPENMP)
+    find_package(OpenMP)
 
-if(OpenMP_CXX_FOUND)
-    # Check for libomp on macOS
-    if(APPLE)
-        if(NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
-            message(STATUS "libomp not found (install with `brew install libomp`)")
-        else()
-            message(STATUS "Enabled OpenMP on macOS using libomp")
-            add_compile_options(-Xpreprocessor -fopenmp)
-            add_link_options(-L/opt/homebrew/lib)
+    if(OpenMP_CXX_FOUND)
+        # Check for libomp on macOS
+        if(APPLE)
+            if(NOT "${OpenMP_CXX_LIBRARIES}" MATCHES ".*libomp.*")
+                message(WARNING "libomp not found (install with `brew install libomp`)")
+                message(STATUS "OpenMP disabled")
+            else()
+                message(STATUS "Enabled OpenMP on macOS using libomp")
+                add_compile_options(-Xpreprocessor -fopenmp)
+                add_link_options(-L/opt/homebrew/lib)
+                list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+            endif()
+        elseif(MSVC)
+            message(STATUS "Enabled OpenMP for MSVC")
+            add_compile_options(${OpenMP_CXX_FLAGS})
             list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
-        endif()
-    elseif(MSVC)
-        message(STATUS "Enabled OpenMP for MSVC")
-        add_compile_options(${OpenMP_CXX_FLAGS})
-        list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
-    else()
-        # Linux and other Unix systems
-        if (NOT USE_MKL)            
+        else()
+            # Linux and other Unix systems
             message(STATUS "Enabled OpenMP")
             add_compile_options(${OpenMP_CXX_FLAGS})
             add_link_options(${OpenMP_CXX_FLAGS})
             list(APPEND DNA_LIBRARIES ${OpenMP_CXX_LIBRARIES})
         endif()
+    else()
+        message(WARNING "OpenMP not found. Building without parallel processing support.")
     endif()
+else()
+    message(STATUS "OpenMP disabled (enable with -DUSE_OPENMP=ON)")
 endif()
 
 # ----------------------------------------------------------------------------
@@ -436,8 +441,7 @@ else()
         # Check if MKL was found by FindBLAS
         string(TOLOWER "${BLAS_LIBRARIES}" BLAS_LIBRARIES_LOWER)
         if(BLAS_LIBRARIES_LOWER MATCHES "mkl")
-            message(STATUS "Intel MKL detected via FindBLAS - skipping cblas.h search")
-            add_compile_options("-DUSE_MKL")
+            message(FATAL_ERROR "Intel MKL detected via FindBLAS but USE_MKL=OFF. If you want to use MKL then set USE_MKL=ON.")
         else()
             # Try to find cblas.h header for non-MKL BLAS implementations (OpenBLAS, etc.)
             set(BLAS_INCLUDE_SEARCH_PATHS
