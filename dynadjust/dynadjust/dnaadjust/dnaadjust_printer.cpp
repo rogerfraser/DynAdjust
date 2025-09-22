@@ -1394,9 +1394,18 @@ void DynAdjustPrinter::PrintAdjStationsUniqueList(std::ostream& os,
                                                            const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
                                                            bool recomputeGeographicCoords, bool updateGeographicCoords,
                                                            bool reapplyTypeBUncertainties) {
-    // Use new printer infrastructure for header generation
-    PrintStationColumnHeaders(os, adjust_.projectSettings_.o._stn_coord_types, 
-                            stationVariances != nullptr ? adjust_.projectSettings_.o._stn_corr : 0);
+    
+    AdjFile adj;
+    try {
+        adj.print_adj_stn_header(os);
+
+        // Use new printer infrastructure for header generation
+        PrintStationColumnHeaders(os, adjust_.projectSettings_.o._stn_coord_types, 
+                                stationVariances != nullptr ? adjust_.projectSettings_.o._stn_corr : 0);
+    }
+    catch (const std::runtime_error& e) {
+        adjust_.SignalExceptionAdjustment(e.what(), 0);
+    }
     
     UINT32 block(UINT_MAX), stn, mat_index;
     _it_u32u32_uint32_pair _it_bsmu;
