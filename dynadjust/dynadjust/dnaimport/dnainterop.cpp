@@ -389,8 +389,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	return parseStatus_;
 }
 	
-void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
+void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount,
+							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile, std::string* success_msg)
 {
     // Lock before parsing the file
@@ -399,7 +399,19 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 	parseStatus_ = PARSE_SUCCESS;
 	_filespecifiedreferenceframe = false;
 	_filespecifiedepoch = false;
-	
+
+	// Check if DynaML.xsd exists in the current directory
+	// This prevents the XML parser from hanging when the schema file is missing
+	if (!std::filesystem::exists("DynaML.xsd"))
+	{
+		import_file_mutex.unlock();
+		std::stringstream ss;
+		ss << "ParseXML(): DynaML.xsd schema file not found in the current directory." << std::endl;
+		ss << "  The XML parser requires this file to validate XML input files." << std::endl;
+		ss << "  Please ensure DynaML.xsd is present in the working directory.";
+		SignalExceptionParse(ss.str(), 0);
+	}
+
 	try
 	{
 		// Instantiate individual parsers.

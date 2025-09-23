@@ -32,3 +32,6 @@ doc/
 
 # readme and other files not requiring external contribution
 README.md
+
+# Testing directory created by CTest
+testing/
