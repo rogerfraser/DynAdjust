@@ -1510,9 +1510,10 @@ if (BUILD_TESTING)
     add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 dsg.stn dsg.msr)
     # no stations and measurements (generated above)
     add_test (NAME import-no-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./null.stn ./null.msr)
-    # no dynaml.xsd
-    file (REMOVE DynaML.xsd)
+    # no DynaML.xsd - remove file in platform-independent manner (using CMake command) by setting up a test dependency
+    add_test (NAME import-no-xsd-file-remove COMMAND ${CMAKE_COMMAND} -E remove DynaML.xsd)
     add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
+    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove)
     # no geoid file
     add_test (NAME import-no-geoid COMMAND $<TARGET_FILE:dnaimportwrapper> -n geoid --geo-file ./nofile.geo)
     # no project file
@@ -1724,7 +1725,6 @@ if (BUILD_TESTING)
 
     file(MAKE_DIRECTORY ${TESTING_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/../sampleData/ DESTINATION ${TESTING_DIR})
-    file(REMOVE ${TESTING_DIR}/DynaML.xsd)
 
     get_property(all_tests DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
     foreach(test ${all_tests})
