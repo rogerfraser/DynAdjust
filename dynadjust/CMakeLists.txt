@@ -1711,27 +1711,24 @@ if (BUILD_TESTING)
         set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
     endif()
 
-    if(BASH_EXECUTABLE)
-        set_tests_properties(test-gnss-network
-        PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
-    endif()
-
-    set_tests_properties(
-        import-gnss-network geoid-gnss-network reftran-gnss-network 
-        adjust-gnss-network import-gnss-network-similar import-gnss-network-exclude
-        import-gnss-network-scaled import-gnss-network-block1
-        segment-gnss-network-block1-a segment-gnss-network-block1-b
-        segment-gnss-network-block1-c adjust-gnss-network-block1
-        adjust-gnss-network-phased adjust-gnss-network-verb
-        adjust-gnss-network-staged-a adjust-gnss-network-staged-b
-        PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
 
-    # Set working directory for all tests to sampleData
+    # Setup testing directory
+
+    set(TESTING_DIR ${CMAKE_SOURCE_DIR}/../testing)
+
+    if(EXISTS ${TESTING_DIR})
+        file(REMOVE_RECURSE ${TESTING_DIR})
+    endif()
+
+    file(MAKE_DIRECTORY ${TESTING_DIR})
+    file(COPY ${CMAKE_SOURCE_DIR}/../sampleData/ DESTINATION ${TESTING_DIR})
+    file(REMOVE ${TESTING_DIR}/DynaML.xsd)
+
     get_property(all_tests DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
     foreach(test ${all_tests})
-        set_tests_properties(${test} PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../sampleData)
+        set_tests_properties(${test} PROPERTIES WORKING_DIRECTORY ${TESTING_DIR})
     endforeach()
 
     message (STATUS "Finished setting up tests")
