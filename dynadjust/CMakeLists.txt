@@ -1510,10 +1510,6 @@ if (BUILD_TESTING)
     add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 dsg.stn dsg.msr)
     # no stations and measurements (generated above)
     add_test (NAME import-no-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./null.stn ./null.msr)
-    # no DynaML.xsd - remove file in platform-independent manner (using CMake command) by setting up a test dependency
-    add_test (NAME import-no-xsd-file-remove COMMAND ${CMAKE_COMMAND} -E remove DynaML.xsd)
-    add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
-    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove)
     # no geoid file
     add_test (NAME import-no-geoid COMMAND $<TARGET_FILE:dnaimportwrapper> -n geoid --geo-file ./nofile.geo)
     # no project file
@@ -1527,7 +1523,7 @@ if (BUILD_TESTING)
     add_test (NAME import-misc-network-size COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-contiguous-stn-msr 5000 --export-dna)
 
     set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
-        import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
+        import-no-data import-no-geoid import-no-project import-no-stns import-no-help
         import-misc-block-size import-misc-network-size import-misc-07
         PROPERTIES WILL_FAIL TRUE)
 
@@ -1674,6 +1670,13 @@ if (BUILD_TESTING)
         plot-no-option plot-invalid-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
         plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu plot-no-plate 
         PROPERTIES WILL_FAIL TRUE)
+
+    ### IMPORT ###
+    # no DynaML.xsd - remove file in platform-independent manner (using CMake command) by setting up a test dependency
+    add_test (NAME import-no-xsd-file-remove COMMAND ${CMAKE_COMMAND} -E remove DynaML.xsd)
+    add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
+    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove)
+    set_tests_properties(import-no-xsd-file PROPERTIES WILL_FAIL TRUE)
 
     ### DYNADJUST ###
     # no options
