@@ -100,6 +100,11 @@ int main(int argc, char* argv[])
 	std::string cmd_line_banner;
 	fileproc_help_header(&cmd_line_banner);
 
+	// Get the directory containing the current executable
+	// std::filesystem handles platform differences (e.g., / vs \, .exe extensions)
+	std::filesystem::path exe_path = std::filesystem::weakly_canonical(argv[0]);
+	std::filesystem::path exe_dir = exe_path.parent_path();
+
 	project_settings p;
 	boost::program_options::variables_map vm;
 	boost::program_options::positional_options_description positional_options;
@@ -283,7 +288,13 @@ int main(int argc, char* argv[])
 	if (vm.count(RUN_IMPORT))
 	{
 		std::stringstream cmd;
-		cmd << __import_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path import_exe = exe_dir / __import_app_name__;
+		if (!std::filesystem::exists(import_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			import_exe = __import_app_name__;
+		}
+		cmd << import_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -307,7 +318,13 @@ int main(int argc, char* argv[])
 	if (vm.count(RUN_REFTRAN))
 	{
 		std::stringstream cmd;
-		cmd << __reftran_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path reftran_exe = exe_dir / __reftran_app_name__;
+		if (!std::filesystem::exists(reftran_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			reftran_exe = __reftran_app_name__;
+		}
+		cmd << reftran_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -328,7 +345,13 @@ int main(int argc, char* argv[])
 	if (vm.count(RUN_GEOID))
 	{
 		std::stringstream cmd;
-		cmd << __geoid_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path geoid_exe = exe_dir / __geoid_app_name__;
+		if (!std::filesystem::exists(geoid_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			geoid_exe = __geoid_app_name__;
+		}
+		cmd << geoid_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -349,7 +372,13 @@ int main(int argc, char* argv[])
 	if (vm.count(RUN_SEGMENT))
 	{
 		std::stringstream cmd;
-		cmd << __segment_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path segment_exe = exe_dir / __segment_app_name__;
+		if (!std::filesystem::exists(segment_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			segment_exe = __segment_app_name__;
+		}
+		cmd << segment_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -368,9 +397,15 @@ int main(int argc, char* argv[])
 	
 	// Run adjust (optional)
 	if (vm.count(RUN_ADJUST))
-	{		
+	{
 		std::stringstream cmd;
-		cmd << __adjust_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path adjust_exe = exe_dir / __adjust_app_name__;
+		if (!std::filesystem::exists(adjust_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			adjust_exe = __adjust_app_name__;
+		}
+		cmd << adjust_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";

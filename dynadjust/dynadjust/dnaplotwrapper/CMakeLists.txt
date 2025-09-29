@@ -7,23 +7,26 @@ add_definitions (-DBUILD_PLOT_EXE)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
-add_executable (${PROJECT_NAME} 
-			${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-			dnaplotwrapper.cpp
-			${CMAKE_SOURCE_DIR}/dynadjust.rc)
+if(NOT BUILD_STATIC)
+  add_executable (${PROJECT_NAME} 
+  			${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+  			dnaplotwrapper.cpp
+  			${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
-target_precompile_headers (${PROJECT_NAME} PUBLIC precompile.h)
+  target_precompile_headers (${PROJECT_NAME} PUBLIC precompile.h)
 
-target_link_libraries (${PROJECT_NAME} dnaplot ${DNA_LIBRARIES})
+  target_link_libraries (${PROJECT_NAME} dnaplot ${DNA_LIBRARIES})
 
-set_target_properties (${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}plot")
-
-
+  set_target_properties (${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}plot")
+endif()
 
 if(BUILD_STATIC)
 
-  # Create a static version with the same source files
-  get_target_property(TARGET_SOURCES ${PROJECT_NAME} SOURCES)
+  # Define source files for static build
+  set(TARGET_SOURCES
+    ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+    dnaplotwrapper.cpp
+    ${CMAKE_SOURCE_DIR}/dynadjust.rc)
   
   # Create the static executable with _static suffix
   set(STATIC_TARGET_NAME "${PROJECT_NAME}_static")
@@ -44,8 +47,7 @@ if(BUILD_STATIC)
     target_sources(${STATIC_TARGET_NAME} PRIVATE ${src})
   endforeach()
 
-  # Speed things up by not bothering with normal build
-  set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+  # When building static, exclude the library from the build
   set_target_properties(dnaplot PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
   
   print_static_linking_info(${STATIC_TARGET_NAME} "${DNA_PROGRAM_PREFIX}plot")
@@ -95,8 +97,4 @@ if(BUILD_STATIC)
   set_target_properties(${STATIC_TARGET_NAME}
     PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}plot")
   
-  # Also set runtime output directory to the static subdirectory
-  set_target_properties(${STATIC_TARGET_NAME} PROPERTIES 
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/static")
-    
 endif()

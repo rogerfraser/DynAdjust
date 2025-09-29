@@ -145,13 +145,13 @@ jobs:
         run: |
           cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
           make -j2
-          ls -la static/
+          ls -la bin/
 
       - name: Prepare artifacts
         run: |
-          for f in ./static/*; do strip $f; done
+          for f in ./bin/*; do strip $f; done
           mkdir -p ./zip/dynadjust-linux-static
-          mv ./static/* ./zip/dynadjust-linux-static
+          mv ./bin/* ./zip/dynadjust-linux-static
 
       - uses: actions/upload-artifact@v4
         with:
@@ -206,12 +206,12 @@ jobs:
         run: |
           cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
           make -j2 VERBOSE=1
-          ls -la static/
+          ls -la bin/
 
       - uses: actions/upload-artifact@v4
         with:
           name: dynadjust-macos-static
-          path: ./static/
+          path: ./bin/
 
 #------------------------------------------------
 
