@@ -14,9 +14,9 @@ The steps required to install DynAdjust on your system will depend upon your ope
 
 ## Pre-built Binary Packages
 
-[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
+[![GitHub Releases](https://img.shields.io/github/v/release/geoscienceaustralia/DynAdjust.svg)](https://github.com/geoscienceaustralia/DynAdjust/releases)
 
-For each stable release, we publish pre-compiled **zip** archives for various platforms on the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
+For each stable release, we publish pre-compiled **zip** archives for various platforms on the [releases page](https://github.com/geoscienceaustralia/dynadjust/releases/latest).
 
 | Zip file (example)               | Platform                 | BLAS/LAPACK backend | Link type |
 |----------------------------------|--------------------------|---------------------|-----------|
@@ -27,19 +27,19 @@ For each stable release, we publish pre-compiled **zip** archives for various pl
 | `dynadjust-linux-openblas.zip`   | Ubuntu 22.04 +           | OpenBLAS            | dynamic   |
 | `dynadjust-linux-static.zip`     | Any modern x86‑64 Linux  | OpenBLAS            | static    |
 
-Note that we build DynAdjust in two flavours: dynamic and static.
+Note that we build DynAdjust in two flavours: *dynamic* and *static*.
 
 The *dynamic* build keeps the executable small and relies on shared system libraries that are already present, distributed by the operating system, or shared across multiple software packages. That means security patches and performance upgrades (e.g., new Intel MKL version) arrive automatically through normal system updates.
 
-The *static* build moves in the opposite direction: we compile every required library directly into one self-contained binary. Nothing else has to be installed for the program to run, which is invaluable when we need to run DynAdjust in the cloud or in production as it provides an exact version for regulatory reproducibility. Because it is insulated from future changes in operating-system libraries, it gives us a deterministic, "known-good" binary that will behave identically next year even if the underlying machines, operating systems, or libraries are patched or replaced.
+The *static* build moves in the opposite direction: we combine every required library directly into one self-contained binary. Nothing else has to be installed for the program to run, which is invaluable when DynAdjust needs to be run in the cloud or in production as it provides an exact version for regulatory reproducibility. Because it is insulated from future changes in operating-system libraries, it gives us a deterministic, "known-good" binary that will behave identically even after the underlying machines, operating systems, or libraries are patched or replaced.
 
 Maintaining both variants therefore gives us flexibility: the dynamic build inherits dependency updates automatically, while the static build guarantees portability and long-term reproducibility in controlled settings.
 
-Each archive contains the six command‑line tools:
+Each archive contains the seven command‑line tools:
 ```
-dnaadjust   dnageoid   dnaimport   dnaplot   dnareftran   dnasegment
+dynadjust, dnaadjust, dnageoid, dnaimport, dnaplot, dnareftran, dnasegment
 ```
-For dynamic builds additional shared libraries (`.dll`, `.so`, `.dylib`) are included and each DynAdjust command is broken into a wrapper executable and a shared library.
+For dynamic builds, additional shared libraries (`.dll`, `.so`, `.dylib`) are included and each DynAdjust command is broken into a wrapper executable and a shared library.
 
 ### Windows Packages
 
@@ -67,9 +67,9 @@ vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-sy
 ```
 
 Unzip **`dynadjust-windows-openblas.zip`** (e.g. to `C:\Tools\DynAdjust`) and run `dnaadjust.exe`.
-If Windows cannot find `libopenblas.dll` ensure `C:\vcpkg\installed-windows` is on `PATH`.
+If Windows cannot find `openblas.dll` ensure `%VCPKG_ROOT%\installed\x64-windows\bin` is on `PATH`.
 
-#### Windows + MKL Package
+#### Windows + Intel MKL Package
 
 Install the runtime DLLs with `vcpkg`
 
@@ -138,7 +138,7 @@ If you see an error like **"cannot open shared object file"** revisit the prereq
 
 ### Troubleshooting Notes
 
-* *Windows OpenBLAS*: missing DLL → ensure vcpkg `bin` directory is on `PATH`, then start a new terminal.
+* *Windows OpenBLAS*: missing DLLs → ensure vcpkg `bin` directory is on `PATH`, then start a new terminal.
 * *macOS*: Gatekeeper warnings can be cleared by opening the app via **right‑click → Open** once.
 * *Static Linux*: verify you downloaded the x86‑64 build (`uname -m` prints `x86_64`).
 * *Performance*: the MKL build generally runs faster on Intel CPUs; OpenBLAS is licence‑friendly and portable.

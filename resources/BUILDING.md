@@ -8,37 +8,21 @@ repository](../.github/CONTRIBUTING.md).
 
 
 ## Table of contents
-
-- [Building DynAdjust from source
-  code](#building-dynadjust-from-source-code){#toc-building-dynadjust-from-source-code}
-  - [Overview of
-    prerequisites](#overview-of-prerequisites){#toc-overview-of-prerequisites}
-  - [Linux (Ubuntu)](#linux-ubuntu){#toc-linux-ubuntu}
-    - [Installing
-      prerequisites](#installing-prerequisites){#toc-installing-prerequisites}
-    - [Compile the source
-      code](#compile-the-source-code){#toc-compile-the-source-code}
-  - [MacOS](#macos){#toc-macos}
-    - [Install
-      prerequisites](#install-prerequisites){#toc-install-prerequisites}
-    - [Compile the source
-      code](#compile-the-source-code-1){#toc-compile-the-source-code-1}
-  - [Windows using
-    Cmake](#windows-using-cmake){#toc-windows-using-cmake}
-    - [Install
-      prerequisites](#install-prerequisites-1){#toc-install-prerequisites-1}
-    - [Install Intel oneAPI MKL
-      library](#install-intel-oneapi-mkl-library){#toc-install-intel-oneapi-mkl-library}
-    - [Download the source
-      code](#download-the-source-code){#toc-download-the-source-code}
-    - [Compile the source
-      code](#compile-the-source-code-2){#toc-compile-the-source-code-2}
-  - [Windows using Visual
-    Studio](#windows-using-visual-studio){#toc-windows-using-visual-studio}
-    - [Install Windows
-      prerequisites](#install-windows-prerequisites){#toc-install-windows-prerequisites}
-    - [Building Windows binaries in Visual
-      Studio](#building-windows-binaries-in-visual-studio){#toc-building-windows-binaries-in-visual-studio}
+- [Overview of prerequisites](#overview-of-prerequisites)
+- [Linux (Ubuntu)](#linux-ubuntu)
+  - [Installing prerequisites](#installing-prerequisites)
+  - [Compile the source code](#compile-the-source-code)
+- [MacOS](#macos)
+  - [Install prerequisites](#install-prerequisites)
+  - [Compile the source code](#compile-the-source-code-1)
+- [Windows using Cmake](#windows-using-cmake)
+  - [Install prerequisites](#install-prerequisites-1)
+  - [Install Intel oneAPI MKL library](#install-intel-oneapi-mkl-library)
+  - [Download the source code](#download-the-source-code)
+  - [Compile the source code](#compile-the-source-code-2)
+- [Windows using Visual Studio](#windows-using-visual-studio)
+  - [Install Windows prerequisites](#install-windows-prerequisites)
+  - [Building Windows binaries in Visual Studio](#building-windows-binaries-in-visual-studio)
 
 
 ## Overview of prerequisites
@@ -83,7 +67,7 @@ sudo apt install -y libxerces-c-dev xsdcxx libboost-system-dev libboost-filesyst
 ```
 
 You now have two options,
-either[OpenBLAS](http://www.openmathlib.org/OpenBLAS/) or[Intel oneAPI
+either [OpenBLAS](http://www.openmathlib.org/OpenBLAS/) or [Intel oneAPI
 Math Kernel
 Library](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
 
