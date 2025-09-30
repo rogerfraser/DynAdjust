@@ -1,6 +1,8 @@
 # Installing DynAdjust
 
-The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to [build from source code](BUILDING.md) or install pre-built binaries. In addition, installation may require the installation (or building) of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
+The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to [build from source code](BUILDING.md) or install pre-built binaries. This page will provide instructions on installing and running pre-built binaries.
+
+Installation may require the installation of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
 
 ## Contents
 - [Pre-built Binary Packages](#pre-built-binary-packages)
@@ -43,43 +45,24 @@ For dynamic builds, additional shared libraries (`.dll`, `.so`, `.dylib`) are in
 
 ### Windows Packages
 
-#### Install *vcpkg* (one‑time)
+#### Windows (with OpenBLAS) Package
 
-Open **PowerShell** with admin rights and run:
-
-```powershell
-git clone https://github.com/microsoft/vcpkg C:\vcpkg
-C:\vcpkg\bootstrap-vcpkg.bat
+1. Unzip `dynadjust-windows-openblas.zip` (e.g. to `C:\Tools\DynAdjust`).
+2. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
+3. Open the command prompt, and run the following command to verify the installation has been successful:
+```bash
+dnaadjust.exe --help
 ```
 
-Add it to your `PATH` permanently if desired:
+#### Windows (with Intel MKL) Package
 
-```powershell
-setx PATH "$env:PATH;C:\vcpkg"
+1. Install the **Intel OneAPI Math Kernel Library (oneMKL)** from the [Intel oneMKL website](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html).  No extra configuration required because the installer registers MKL on the system search path.
+2. Unzip `dynadjust-windows-mkl.zip` (e.g. to `C:\Tools\DynAdjust`).
+3. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
+4. Open the command prompt, and run the following command to verify the installation has been successful:
+```bash
+dnaadjust.exe --help
 ```
-
-#### Windows + OpenBLAS Package
-
-Install the runtime DLLs with `vcpkg`
-
-```powershell
-vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c openblas lapack-reference
-```
-
-Unzip **`dynadjust-windows-openblas.zip`** (e.g. to `C:\Tools\DynAdjust`) and run `dnaadjust.exe`.
-If Windows cannot find `openblas.dll` ensure `%VCPKG_ROOT%\installed\x64-windows\bin` is on `PATH`.
-
-#### Windows + Intel MKL Package
-
-Install the runtime DLLs with `vcpkg`
-
-```powershell
-vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c
-```
-
-Install the **Intel OneAPI Base Toolkit** (runtime‑only, MKL component) from the Intel website.
-
-Unzip **`dynadjust-windows-mkl.zip`** and use the tools—no extra configuration required because the installer registers MKL on the system search path.
 
 ### macOS Packages
 
@@ -112,7 +95,8 @@ sudo apt install -y libxerces-c libboost-system libboost-filesystem  libboost-th
 Unzip the archive, then run:
 
 ```bash
-LD_LIBRARY_PATH=$PWD ./dnaadjust --help
+LD_LIBRARY_PATH=$PWD 
+./dnaadjust --help
 ```
 
 #### Static Build (`dynadjust-linux-static.zip`)
@@ -138,7 +122,7 @@ If you see an error like **"cannot open shared object file"** revisit the prereq
 
 ### Troubleshooting Notes
 
-* *Windows OpenBLAS*: missing DLLs → ensure vcpkg `bin` directory is on `PATH`, then start a new terminal.
+* *Windows OpenBLAS*: missing DLLs → ensure the path to where Dynadjust was unzipped is on `PATH`, then start a new command prompt.
 * *macOS*: Gatekeeper warnings can be cleared by opening the app via **right‑click → Open** once.
 * *Static Linux*: verify you downloaded the x86‑64 build (`uname -m` prints `x86_64`).
 * *Performance*: the MKL build generally runs faster on Intel CPUs; OpenBLAS is licence‑friendly and portable.
