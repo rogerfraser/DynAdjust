@@ -96,5 +96,11 @@ if(BUILD_STATIC)
   # Set the output name to be the same as the dynamic version
   set_target_properties(${STATIC_TARGET_NAME}
     PROPERTIES OUTPUT_NAME "${DNA_PROGRAM_PREFIX}plot")
-  
+
+endif()
+
+if(NOT BUILD_STATIC)
+  set(DNAPLOT_TARGET ${PROJECT_NAME} PARENT_SCOPE)
+else()
+  set(DNAPLOT_TARGET ${STATIC_TARGET_NAME} PARENT_SCOPE)
 endif()
