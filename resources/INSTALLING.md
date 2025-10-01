@@ -1,6 +1,8 @@
 # Installing DynAdjust
 
-The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to [build from source code](BUILDING.md) or install pre-built binaries. In addition, installation may require the installation (or building) of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
+The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to [build from source code](BUILDING.md) or install pre-built binaries. This page will provide instructions on installing and running pre-built binaries.
+
+Installation may require the installation of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
 
 ## Contents
 - [Pre-built Binary Packages](#pre-built-binary-packages)
@@ -14,9 +16,9 @@ The steps required to install DynAdjust on your system will depend upon your ope
 
 ## Pre-built Binary Packages
 
-[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
+[![GitHub Releases](https://img.shields.io/github/v/release/geoscienceaustralia/DynAdjust.svg)](https://github.com/geoscienceaustralia/DynAdjust/releases)
 
-For each stable release, we publish pre-compiled **zip** archives for various platforms on the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
+For each stable release, we publish pre-compiled **zip** archives for various platforms on the [releases page](https://github.com/geoscienceaustralia/dynadjust/releases/latest).
 
 | Zip file (example)               | Platform                 | BLAS/LAPACK backend | Link type |
 |----------------------------------|--------------------------|---------------------|-----------|
@@ -27,59 +29,40 @@ For each stable release, we publish pre-compiled **zip** archives for various pl
 | `dynadjust-linux-openblas.zip`   | Ubuntu 22.04 +           | OpenBLAS            | dynamic   |
 | `dynadjust-linux-static.zip`     | Any modern x86‑64 Linux  | OpenBLAS            | static    |
 
-Note that we build DynAdjust in two flavours: dynamic and static.
+Note that we build DynAdjust in two flavours: *dynamic* and *static*.
 
 The *dynamic* build keeps the executable small and relies on shared system libraries that are already present, distributed by the operating system, or shared across multiple software packages. That means security patches and performance upgrades (e.g., new Intel MKL version) arrive automatically through normal system updates.
 
-The *static* build moves in the opposite direction: we compile every required library directly into one self-contained binary. Nothing else has to be installed for the program to run, which is invaluable when we need to run DynAdjust in the cloud or in production as it provides an exact version for regulatory reproducibility. Because it is insulated from future changes in operating-system libraries, it gives us a deterministic, "known-good" binary that will behave identically next year even if the underlying machines, operating systems, or libraries are patched or replaced.
+The *static* build moves in the opposite direction: we combine every required library directly into one self-contained binary. Nothing else has to be installed for the program to run, which is invaluable when DynAdjust needs to be run in the cloud or in production as it provides an exact version for regulatory reproducibility. Because it is insulated from future changes in operating-system libraries, it gives us a deterministic, "known-good" binary that will behave identically even after the underlying machines, operating systems, or libraries are patched or replaced.
 
 Maintaining both variants therefore gives us flexibility: the dynamic build inherits dependency updates automatically, while the static build guarantees portability and long-term reproducibility in controlled settings.
 
-Each archive contains the six command‑line tools:
+Each archive contains the seven command‑line tools:
 ```
-dnaadjust   dnageoid   dnaimport   dnaplot   dnareftran   dnasegment
+dynadjust, dnaadjust, dnageoid, dnaimport, dnaplot, dnareftran, dnasegment
 ```
-For dynamic builds additional shared libraries (`.dll`, `.so`, `.dylib`) are included and each DynAdjust command is broken into a wrapper executable and a shared library.
+For dynamic builds, additional shared libraries (`.dll`, `.so`, `.dylib`) are included and each DynAdjust command is broken into a wrapper executable and a shared library.
 
 ### Windows Packages
 
-#### Install *vcpkg* (one‑time)
+#### Windows (with OpenBLAS) Package
 
-Open **PowerShell** with admin rights and run:
-
-```powershell
-git clone https://github.com/microsoft/vcpkg C:\vcpkg
-C:\vcpkg\bootstrap-vcpkg.bat
+1. Unzip `dynadjust-windows-openblas.zip` (e.g. to `C:\Tools\DynAdjust`).
+2. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
+3. Open the command prompt, and run the following command to verify the installation has been successful:
+```bash
+dnaadjust.exe --help
 ```
 
-Add it to your `PATH` permanently if desired:
+#### Windows (with Intel MKL) Package
 
-```powershell
-setx PATH "$env:PATH;C:\vcpkg"
+1. Install the **Intel OneAPI Math Kernel Library (oneMKL)** from the [Intel oneMKL website](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html).  No extra configuration required because the installer registers MKL on the system search path.
+2. Unzip `dynadjust-windows-mkl.zip` (e.g. to `C:\Tools\DynAdjust`).
+3. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
+4. Open the command prompt, and run the following command to verify the installation has been successful:
+```bash
+dnaadjust.exe --help
 ```
-
-#### Windows + OpenBLAS Package
-
-Install the runtime DLLs with `vcpkg`
-
-```powershell
-vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c openblas lapack-reference
-```
-
-Unzip **`dynadjust-windows-openblas.zip`** (e.g. to `C:\Tools\DynAdjust`) and run `dnaadjust.exe`.
-If Windows cannot find `libopenblas.dll` ensure `C:\vcpkg\installed-windows` is on `PATH`.
-
-#### Windows + MKL Package
-
-Install the runtime DLLs with `vcpkg`
-
-```powershell
-vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options boost-interprocess xerces-c
-```
-
-Install the **Intel OneAPI Base Toolkit** (runtime‑only, MKL component) from the Intel website.
-
-Unzip **`dynadjust-windows-mkl.zip`** and use the tools—no extra configuration required because the installer registers MKL on the system search path.
 
 ### macOS Packages
 
@@ -112,7 +95,8 @@ sudo apt install -y libxerces-c libboost-system libboost-filesystem  libboost-th
 Unzip the archive, then run:
 
 ```bash
-LD_LIBRARY_PATH=$PWD ./dnaadjust --help
+LD_LIBRARY_PATH=$PWD 
+./dnaadjust --help
 ```
 
 #### Static Build (`dynadjust-linux-static.zip`)
@@ -138,7 +122,7 @@ If you see an error like **"cannot open shared object file"** revisit the prereq
 
 ### Troubleshooting Notes
 
-* *Windows OpenBLAS*: missing DLL → ensure vcpkg `bin` directory is on `PATH`, then start a new terminal.
+* *Windows OpenBLAS*: missing DLLs → ensure the path to where Dynadjust was unzipped is on `PATH`, then start a new command prompt.
 * *macOS*: Gatekeeper warnings can be cleared by opening the app via **right‑click → Open** once.
 * *Static Linux*: verify you downloaded the x86‑64 build (`uname -m` prints `x86_64`).
 * *Performance*: the MKL build generally runs faster on Intel CPUs; OpenBLAS is licence‑friendly and portable.
