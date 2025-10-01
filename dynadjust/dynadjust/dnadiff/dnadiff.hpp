@@ -53,6 +53,7 @@ class DnaDiff {
     double ParseDouble(const std::string& str) const;
     bool CompareValues(double val1, double val2) const;
     bool CompareTokens(const std::string& token1, const std::string& token2) const;
+    std::string NormalisePath(const std::string& path) const;
 
     // Skip non-comparable content
     bool ShouldSkipLine(const std::string& line) const;

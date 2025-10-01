@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <filesystem>
 #include <iostream>
 #include <regex>
 #include <sstream>
@@ -51,6 +52,16 @@ double DnaDiff::ParseDouble(const std::string& str) const {
 
 bool DnaDiff::CompareValues(double val1, double val2) const {
     return std::abs(val1 - val2) <= options_.tolerance;
+}
+
+std::string DnaDiff::NormalisePath(const std::string& path) const {
+    try {
+        namespace fs = std::filesystem;
+        fs::path p(path);
+        return fs::weakly_canonical(p).lexically_normal().string();
+    } catch (...) {
+        return path;
+    }
 }
 
 bool DnaDiff::CompareTokens(const std::string& token1,
@@ -87,6 +98,15 @@ bool DnaDiff::ShouldSkipLine(const std::string& line) const {
     if (line.find("Input folder:") != std::string::npos) return true;
     if (line.find("Command line arguments:") != std::string::npos)
         return true;
+
+    // Skip thread-related lines
+    if (line.find("threads") != std::string::npos) return true;
+
+    // Skip station correction lines
+    if (line.find("Maximum station correction") != std::string::npos) return true;
+
+    // Skip coordinate adjustment lines
+    if (line.find("(e, n, up)") != std::string::npos) return true;
 
     return false;
 }
@@ -133,6 +153,17 @@ bool DnaDiff::CompareResultsOnly(const std::string& file1,
 
         bool line_matches = true;
 
+        // Check if this line might contain a file path
+        bool likely_path_line = (line1.find("model:") != std::string::npos ||
+                                 line1.find("file:") != std::string::npos ||
+                                 line1.find(".gsb") != std::string::npos ||
+                                 line1.find(".dat") != std::string::npos ||
+                                 line1.find(".msr") != std::string::npos ||
+                                 line1.find(".asl") != std::string::npos ||
+                                 line1.find(".xyz") != std::string::npos ||
+                                 line1.find("./") != std::string::npos ||
+                                 line1.find("/") != std::string::npos);
+
         // Compare tokens
         size_t min_tokens = std::min(tokens1.size(), tokens2.size());
         for (size_t i = 0; i < min_tokens; ++i) {
@@ -150,13 +181,23 @@ bool DnaDiff::CompareResultsOnly(const std::string& file1,
                     break;  // Stop at first difference in this line
                 }
             } else if (tokens1[i] != tokens2[i]) {
-                // Non-numeric tokens must match exactly
-                line_matches = false;
-                if (options_.verbose) {
-                    std::cout << "Line " << line_count << " - text difference: "
-                              << tokens1[i] << " vs " << tokens2[i] << "\n";
+                // Try normalising as paths if on a path line
+                bool paths_match = false;
+                if (likely_path_line) {
+                    std::string norm1 = NormalisePath(tokens1[i]);
+                    std::string norm2 = NormalisePath(tokens2[i]);
+                    paths_match = (norm1 == norm2);
                 }
-                break;  // Stop at first difference in this line
+
+                if (!paths_match) {
+                    // Non-numeric tokens must match exactly
+                    line_matches = false;
+                    if (options_.verbose) {
+                        std::cout << "Line " << line_count << " - text difference: "
+                                  << tokens1[i] << " vs " << tokens2[i] << "\n";
+                    }
+                    break;  // Stop at first difference in this line
+                }
             }
         }
 

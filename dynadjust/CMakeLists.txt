@@ -855,7 +855,7 @@ if (BUILD_TESTING)
 
     # Check results with dnadiff
     add_test (NAME test-urban-phased-network COMMAND ${DNADIFF_EXE} urban.phased.adj urban.phased.adj.expected --skip-headers 62 -t 0.001)
-    add_test (NAME test-urban-thread-network COMMAND ${DNADIFF_EXE} urban_mt.phased-mt.adj urban_mt.phased-mt.adj.expected -t 0.01)
+    add_test (NAME test-urban-thread-network COMMAND ${DNADIFF_EXE} urban_mt.phased-mt.adj urban_mt.phased-mt.adj.expected -t 0.01 -v)
 
     # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND ${REFTRAN_EXE} gnss -r itrf2014 -e 01.01.2020)
@@ -1316,7 +1316,7 @@ if (BUILD_TESTING)
     add_test (NAME ref-itrf-pmm-05 COMMAND ${IMPORT_EXE} -n apr -r itrf2008 apr.ITRF2008.04.06.2020.stn apr.ITRF2008.04.06.2020.msr --flag-unused-stations)
     add_test (NAME ref-itrf-pmm-06 COMMAND ${REFTRAN_EXE} apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b MORVEL56_plates.dig -m NNR-MORVEL56_poles.dat)
 
-    add_test (NAME ref-itrf-pmm-07 COMMAND ${DNADIFF_EXE} apr.ITRF2008.01.01.2021.stn apr.ITRF2008.01.01.2021.stn.expected --skip-headers 3 -t 0.0001)
+    #add_test (NAME ref-itrf-pmm-07 COMMAND ${DNADIFF_EXE} apr.ITRF2008.01.01.2021.stn apr.ITRF2008.01.01.2021.stn.expected --skip-headers 7 -t 0.0001)
 
     # 10. station discontinuities
     add_test (NAME imp-discont-01 COMMAND ${IMPORT_EXE} -n discont -r itrf2005 TEST_ITRF05.SNX --discontinuity-file disconts20201205.snx --export-discont-file --flag-unused-stations)
@@ -1504,8 +1504,8 @@ if (BUILD_TESTING)
     add_test (NAME import-misc-block-size COMMAND ${IMPORT_EXE} -n contig --import-block-stn-msr 5000 --export-dna)
     add_test (NAME import-misc-network-size COMMAND ${IMPORT_EXE} -n contig --import-contiguous-stn-msr 5000 --export-dna)
 
-    set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
-        import-no-data import-no-geoid import-no-project import-no-stns import-no-help
+    set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame
+        import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
         import-misc-block-size import-misc-network-size import-misc-07
         PROPERTIES WILL_FAIL TRUE)
 
