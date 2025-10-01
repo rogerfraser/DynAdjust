@@ -205,13 +205,22 @@ automatically referenced upon compiling DynAdjust without modification.
 
 ### Download the DynAdjust source code
 
-Download an official release (e.g., 1.2.9) for example this link:
+Download and unzip an official release (e.g. 1.2.8) to `C:\Data\Dev\` via the following command:
 
-    https://github.com/GeoscienceAustralia/DynAdjust/archive/refs/tags/v1.2.9.zip
+```cmd
+cd C:\Data\Dev
+curl https://github.com/GeoscienceAustralia/DynAdjust/archive/refs/tags/v1.2.8.zip -o DynaDjust-1.2.8.zip
+tar -xf DynAdjust-1.2.8.zip
+````
 
-and now unzip it.
+Alternativey, you can use git to get the latest version:
 
-### Compile the source code via command prompt
+```cmd
+cd C:\Data\Dev
+git clone https://github.com/GeoscienceAustralia/DynAdjust.git C:\Data\Dev
+```
+
+### Option 1: Compile the source code via command prompt
 
 ``` cmd
 cd path\to\DynAdjust
@@ -220,36 +229,13 @@ cmake -G "Visual Studio 17 2022" -A x64 -D USE_MKL=ON -D CMAKE_TOOLCHAIN_FILE="C
 cmake --build build --config Release --parallel
 ```
 
-### Compile the source code via the Visual Studio IDE
+### Option 2: Compile the source code via the Visual Studio IDE
 
-If the default installation path
-(`C:\Program Files (x86)\CodeSynthesis XSD 4.0`) is used during setup,
-the XSD and xerces-c paths will be correctly referenced via the Visual
-Studio property sheet `dynadjust.props`. As with the boost paths, the
-header and library folder paths for XSD and xerces-c are saved using
-*User Macros*, named **XsdIncludeDir**, **XsdLibDir_x64**, and
-**XsdLibDir_Win32**:
+Upon executing Visual Studio, select **Open a local folder** and navigate to the root folder where DynAdjust was extracted (above), where the top-most `CMakeLists.txt` file exists.
 
-- **XsdIncludeDir**:
-  `C:\Program Files (x86)\CodeSynthesis XSD 4.0\include`
-- **XsdLibDir_x64**:
-  `C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib64\vc-12.0`
-- **XsdLibDir_Win32**:
-  `C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib\vc-12.0`
+![Get Started](get-started.png)
 
-If an alternative installation path is chosen, change the User Macros
-accordingly.
-
-#### Install Intel oneAPI Math Kernel Library (MKL)
-
-
-
-> **Note:** The entire oneAPI toolkit is quite large -- choose MKL
-> installation only for a minimum build set up.
-
-### Building Windows binaries in Visual Studio
-
-Upon executing Visual Studio, select **Open a local folder** and navigate to the root folder where DynAdjust was extracted (above), where the top-most `CMakeLists.txt` file exists.  Upon opening this folder, Visual Studio will
+Upon opening this folder, Visual Studio will
 
 * Add **CMake** items to the **Project** menu, with commands for viewing and editing CMake scripts.
 
@@ -261,7 +247,11 @@ Upon executing Visual Studio, select **Open a local folder** and navigate to the
 
 Once CMake cache generation has succeeded, you can also view your projects organized logically by targets. Choose the **Select View** button on the **Solution Explorer** toolbar. From the list in **Solution Explorer - Views**, select **CMake Targets View** and press **Enter** to open the targets view.
 
-The `CMakeLists.txt` file for DynAdjust manages several *executables* and dependent *dynamic link libraries (DLL)*.
+![Targets](targets.png)
+
+This will display all the DynAdjust *executables* and dependent *dynamic link library (DLL)* projects defined in the `CMakeLists.txt` file.
+
+![Targets](projects.png)
 
 The project for each *executable* is named using the convention `dna<program-name>wrapper`, except for the main program `dynadjust`.
 Upon compilation, these projects will create executables named `<program-name>.exe`. Each executable named `<program-name>.exe` is
