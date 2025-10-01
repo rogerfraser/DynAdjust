@@ -3,3 +3,11 @@ name: Run tests
 on:
   workflow_dispatch:
   push:
+
+jobs:
+  foo:
+    name: foo
+    runs-on: ubuntu-latest
+    steps:
+      - name: bar
+        run: echo "bar"
