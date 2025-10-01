@@ -190,11 +190,7 @@ vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-sy
 
 #### Install Code Synthesis XSD library
 
-If you do not have [Code Synthesis XSD](https://www.codesynthesis.com/products/xsd/), you can install it using the following steps:
-
-1. Download the [Windows 10 binary package](https://www.codesynthesis.com/products/xsd/download.xhtml) (version 4.2.0). The direct link is http://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz.
-2. Extract the compressed binary package to a folder (e.g `C:\Tools\xsd\`).
-3. Add `C:\Tools\xsd` to the system PATH environment variable.
+DynAdjust requires [Code Synthesis XSD](https://www.codesynthesis.com/products/xsd/) to parse XML files.  Since version 1.2.9, the CMake project file will automatically download XSD.  hence, there is no need to manually download and install it.
 
 #### Install Intel oneAPI MKL library
 
@@ -267,5 +263,5 @@ The `CMakePresets.json` file manages four configurations:
 To build DynAdjust:
 
 1. Select the Build Configuration you would like to build (e.g. `build-rel-mkl`)
-2. From the Project Menu, select **Delete cache and reconfigure**
+2. From the Project Menu, select **Delete Cache and Reconfigure**
 3. Select **Build All**, or select the executable or DLL and then **Build*
