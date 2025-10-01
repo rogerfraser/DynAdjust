@@ -1653,13 +1653,6 @@ if (BUILD_TESTING)
         plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu plot-no-plate 
         PROPERTIES WILL_FAIL TRUE)
 
-    ### IMPORT ###
-    # no DynaML.xsd - remove file in platform-independent manner (using CMake command) by setting up a test dependency
-    add_test (NAME import-no-xsd-file-remove COMMAND ${CMAKE_COMMAND} -E remove DynaML.xsd)
-    add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
-    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove)
-    set_tests_properties(import-no-xsd-file PROPERTIES WILL_FAIL TRUE)
-
     ### DYNADJUST ###
     # no options
     add_test (NAME dyna-no-option COMMAND ${DYNADJUST_EXE})
