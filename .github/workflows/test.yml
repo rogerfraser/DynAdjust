@@ -3,10 +3,8 @@
 name: Run tests
 
 on:
-  workflow_run:
-    workflows: ["Build binaries (Linux, Mac, Windows)"]
-    types:
-      - completed
+  workflow_dispatch:
+  push:
 
 env:
   # For updated Intel OneAPI URLs, see:
