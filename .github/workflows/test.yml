@@ -97,7 +97,7 @@ jobs:
     name: Build and run ctests on Linux (mkl)
     runs-on: ubuntu-latest
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       PKGS: >
         libxerces-c-dev xsdcxx libboost-program-options-dev gmt ghostscript lldb-18
 
@@ -128,6 +128,8 @@ jobs:
         with:
           path: /opt/intel
           key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+          restore-keys: |
+            intel-oneapi-linux-
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -263,7 +265,7 @@ jobs:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       PKGS: >
         libxerces-c-dev xsdcxx libboost-program-options-dev
-    
+
     steps:
       - name: Show CPU information
         shell: bash
@@ -289,7 +291,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/intel
-          key: intel-oneapi-linux-all-${{ env.ONEAPI_HASH }}
+          key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+          restore-keys: |
+            intel-oneapi-linux-
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -603,11 +607,11 @@ jobs:
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-system boost-program-options boost-interprocess xerces-c
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
-    
+
     steps:
       - name: Show CPU information
         shell: powershell
@@ -626,14 +630,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
-          key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
+          key: vcpkg-${{ runner.os }}-mkl-${{ env.VCPKG_HASH }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-mkl-
+            vcpkg-${{ runner.os }}-
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
         uses: actions/cache@v4
         with:
           path: C:\Program Files (x86)\Intel\oneAPI
-          key: intel-oneapi-${{ env.ONEAPI_HASH }}
+          key: intel-oneapi-windows-${{ env.ONEAPI_HASH }}
+          restore-keys: |
+            intel-oneapi-windows-
 
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -785,10 +794,10 @@ jobs:
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c openblas lapack-reference
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
-    
+
     steps:
       - name: Show CPU information
         shell: powershell
@@ -807,6 +816,9 @@ jobs:
         with:
           path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
           key: vcpkg-${{ runner.os }}-openblas-${{ env.VCPKG_HASH }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-openblas-
+            vcpkg-${{ runner.os }}-
 
       - name: Install vcpkg prerequisites
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -916,12 +928,12 @@ jobs:
     name: Build and run ctests on Windows (mkl)
     runs-on: windows-2025
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
-    
+
     steps:
 
     - name: Show CPU information
@@ -941,14 +953,19 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
-        key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
+        key: vcpkg-${{ runner.os }}-mkl-${{ env.VCPKG_HASH }}
+        restore-keys: |
+          vcpkg-${{ runner.os }}-mkl-
+          vcpkg-${{ runner.os }}-
 
     - name: Cache Intel OneAPI
       id: cache-oneapi
       uses: actions/cache@v4
       with:
         path: C:\Program Files (x86)\Intel\oneAPI
-        key: intel-oneapi-${{ env.ONEAPI_HASH }}
+        key: intel-oneapi-windows-${{ env.ONEAPI_HASH }}
+        restore-keys: |
+          intel-oneapi-windows-
 
     - name: Install vcpkg prerequisites
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'

@@ -74,6 +74,8 @@ jobs:
         with:
           path: /opt/intel
           key: intel-oneapi-linux-${{ env.ONEAPI_HASH }}
+          restore-keys: |
+            intel-oneapi-linux-
 
       - name: Install Intel OneAPI
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
@@ -219,12 +221,12 @@ jobs:
     name: Windows build (mkl)
     runs-on: windows-2025
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
       ONEAPI_VERSION: "2025.2"
-    
+
     steps:
 
     - name: Generate cache triggers
@@ -238,14 +240,19 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
-        key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
+        key: vcpkg-${{ runner.os }}-mkl-${{ env.VCPKG_HASH }}
+        restore-keys: |
+          vcpkg-${{ runner.os }}-mkl-
+          vcpkg-${{ runner.os }}-
 
     - name: Cache Intel OneAPI
       id: cache-oneapi
       uses: actions/cache@v4
       with:
         path: C:\Program Files (x86)\Intel\oneAPI
-        key: intel-oneapi-${{ env.ONEAPI_HASH }}
+        key: intel-oneapi-windows-${{ env.ONEAPI_HASH }}
+        restore-keys: |
+          intel-oneapi-windows-
 
     - name: Install vcpkg prerequisites
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -335,6 +342,7 @@ jobs:
               -DVCPKG_MANIFEST_MODE=OFF ^
               -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -DBUILD_TESTING=OFF ^
+              -DUSE_UNITY_BUILD=ON ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
 
@@ -360,11 +368,11 @@ jobs:
     name: Windows build (openblas)
     runs-on: windows-2025
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
       VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
       VCPKG_BINARY_SOURCES: "clear"
-    
+
     steps:
 
     - name: Generate cache triggers
@@ -378,6 +386,9 @@ jobs:
       with:
         path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
         key: vcpkg-${{ runner.os }}-openblas-${{ env.VCPKG_HASH }}
+        restore-keys: |
+          vcpkg-${{ runner.os }}-openblas-
+          vcpkg-${{ runner.os }}-
 
     - name: Install vcpkg prerequisites
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -423,6 +434,7 @@ jobs:
         cmake -DUSE_MKL=OFF ^
               -DVCPKG_MANIFEST_MODE=OFF ^
               -DBUILD_TESTING=OFF ^
+              -DUSE_UNITY_BUILD=ON ^
               -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
@@ -442,141 +454,3 @@ jobs:
       with:
         name: dynadjust-windows-openblas
         path: ./release/
-        
-
-  build_windows_dyn_mkl_with_openblas_installed:
-    name: Windows build openblas installed (mkl) 
-    runs-on: windows-2025
-    env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
-      VCPKG_PACKAGES: boost-geometry boost-process boost-iostreams boost-spirit boost-program-options boost-interprocess xerces-c vcpkg-tool-ninja openblas lapack-reference
-      VCPKG_INSTALLATION_ROOT: "C:/vcpkg"
-      VCPKG_BINARY_SOURCES: "clear"
-      ONEAPI_VERSION: "2025.2"
-    
-    steps:
-
-    - name: Generate cache triggers
-      shell: bash
-      run: |
-        echo VCPKG_HASH=$(echo "${VCPKG_PACKAGES}" | sed "s/ /_/g" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-        echo ONEAPI_HASH=$(echo "${WINDOWS_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-
-    - name: Cache vcpkg
-      id: cache-vcpkg
-      uses: actions/cache@v4
-      with:
-        path: ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
-        key: vcpkg-${{ runner.os }}-${{ env.VCPKG_HASH }}
-
-    - name: Cache Intel OneAPI
-      id: cache-oneapi
-      uses: actions/cache@v4
-      with:
-        path: C:\Program Files (x86)\Intel\oneAPI
-        key: intel-oneapi-${{ env.ONEAPI_HASH }}
-
-    - name: Install vcpkg prerequisites
-      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-      shell: powershell
-      run: |
-        vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
-
-    - name: List installed packages
-      shell: powershell
-      run: vcpkg.exe list
-
-    - name: Install Intel OneAPI
-      if: steps.cache-oneapi.outputs.cache-hit != 'true'
-      shell: powershell
-      run: |
-        Write-Host "Installing Intel OneAPI..."
-        $url = $env:WINDOWS_BASEKIT_URL
-        $components = "intel.oneapi.win.mkl.devel"
-        $tempExe = Join-Path $env:TEMP "webimage.exe"
-
-        Write-Host "Downloading installer from $url..."
-        curl.exe -L $url -o $tempExe
-
-        Write-Host "Extracting installer..."
-        $installerArgs = "-s -x -f webimage_extracted --log extract.log"
-        $proc = Start-Process -FilePath $tempExe -ArgumentList $installerArgs -NoNewWindow -Wait -PassThru
-        Remove-Item $tempExe -Force
-
-        $bootstrapperPath = Join-Path -Path (Join-Path $PWD "webimage_extracted") "bootstrapper.exe"
-
-        Write-Host "Listing available components..."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList "--list-components" -NoNewWindow -Wait -PassThru -RedirectStandardOutput components
-        get-content components
-
-        Write-Host "Running bootstrapper..."
-        $bootstrapArgs = "-s --action install --components=$components --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=."
-        $procBootstrap = Start-Process -FilePath $bootstrapperPath -ArgumentList $bootstrapArgs -NoNewWindow -Wait -PassThru
-        Remove-Item -Recurse -Force "webimage_extracted"
-
-    - name: Check branch name
-      shell: bash
-      run: echo ${{ env.BRANCH_NAME }}
-
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ env.BRANCH_NAME }}
-        path: "./src"
-
-    - name: Download and install xsd
-      working-directory: "./src"
-      shell: bash
-      run: |
-        curl.exe -L -O https://www.codesynthesis.com/download/xsd/4.2/libxsd-4.2.0.tar.gz
-        tar zxvf libxsd-4.2.0.tar.gz
-
-    - name: Extract OneAPI version
-      shell: powershell
-      run: |
-        # Extract version from URL (e.g., 2025.2.1 -> 2025.2)
-        $url = "${{ env.WINDOWS_BASEKIT_URL }}"
-        if ($url -match 'toolkit-(\d+\.\d+)\.\d+') {
-          $version = $matches[1]
-          echo "ONEAPI_VERSION=$version" >> $env:GITHUB_ENV
-          Write-Host "Extracted OneAPI version: $version"
-        } else {
-          Write-Host "Failed to extract version, using default 2025.2"
-          echo "ONEAPI_VERSION=2025.2" >> $env:GITHUB_ENV
-        }
-
-    - name: Build with CMake
-      working-directory: "./src"
-      shell: cmd
-      run: |
-        vcpkg.exe integrate install
-        call "C:\Program Files (x86)\Intel\oneAPI\compiler\%ONEAPI_VERSION%\env\vars.bat"
-        call "C:\Program Files (x86)\Intel\oneAPI\mkl\%ONEAPI_VERSION%\env\vars.bat"
-        set XSDROOT=%cd%\libxsd-4.2.0
-        set VPKG_INCLUDE=${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\include
-        set INCLUDE=%XSDROOT%;%VPKG_INCLUDE%;%INCLUDE%
-        set UseEnv=true
-        cmake -DUSE_MKL=ON ^
-              -DVCPKG_MANIFEST_MODE=OFF ^
-              -DBUILD_TESTING=OFF ^
-              -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
-              -G "Visual Studio 17 2022" -A x64 dynadjust
-        cmake --build %cd% --config Release --parallel 2
-
-    - name: Check library
-      shell: bash
-      run: |
-        # collating artifacts
-        mkdir -p release
-        mkdir -p release/DynAdjust-Windows
-        echo "Copying files into release folder"
-        cp -f ./src/bin/*.dll ./release/DynAdjust-Windows/ 2>/dev/null || true
-        cp -f ./src/bin/*.exe ./release/DynAdjust-Windows/ 2>/dev/null || true
-        ls -la ./release/DynAdjust-Windows/
-        cd ./release/DynAdjust-Windows/
-        export PATH=.:$PATH
-        ./adjust.exe || ./adjust || echo "adjust binary test completed"
