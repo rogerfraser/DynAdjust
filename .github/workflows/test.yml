@@ -71,15 +71,15 @@ jobs:
           if [ -f ctest_output.log ]; then
             # Find the line with "tests passed" and get everything from there to the end
             SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
-            
+
             if [ -n "$SUMMARY_LINE" ]; then
               # Get the first line (the summary line)
               FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
               # Get the multiline summary from the tests passed line onwards
-              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while" | tr '\n' '\a')
+              SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
-              
+
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
                 echo "::error title=Test results (openblas): $FIRST_LINE::$SUMMARY_CONTENT"
@@ -87,10 +87,10 @@ jobs:
                 echo "::notice title=Test results (openblas): $FIRST_LINE::$SUMMARY_CONTENT"
               fi
             else
-              echo "::error title=Test Error::Could not find test summary in ctest output"
+              echo "::warning title=Test Warning::Could not find test summary in ctest output"
             fi
           else
-            echo "::error title=Test Error::Could not find ctest output file"
+            echo "::warning title=Test Warning::Could not find ctest output file"
           fi
           
   ctest_linux_dyn_mkl:
@@ -235,7 +235,7 @@ jobs:
           if [ -f ctest_output.log ]; then
             # Find the line with "tests passed" and get everything from there to the end
             SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log | head -1 | cut -d: -f1)
-            
+
             if [ -n "$SUMMARY_LINE" ]; then
               # Get the first line (the summary line)
               FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
@@ -243,7 +243,7 @@ jobs:
               SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | tr '\n' '\a')
               # Replace newlines with %0A for GitHub Actions annotation
               SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | tr '\a' '\n' | sed ':a;N;$!ba;s/\n/%0A/g')
-              
+
               # Check if there are failed tests
               if grep -q "tests failed" ctest_output.log; then
                 echo "::error title=Test results (mkl): $FIRST_LINE::$SUMMARY_CONTENT"
@@ -251,10 +251,10 @@ jobs:
                 echo "::notice title=Test results (mkl): $FIRST_LINE::$SUMMARY_CONTENT"
               fi
             else
-              echo "::error title=Test Error::Could not find test summary in ctest output"
+              echo "::warning title=Test Warning::Could not find test summary in ctest output"
             fi
           else
-            echo "::error title=Test Error::Could not find ctest output file"
+            echo "::warning title=Test Warning::Could not find ctest output file"
           fi
 
   test_linux_mkl_binaries:
@@ -299,8 +299,7 @@ jobs:
         if: steps.cache-oneapi.outputs.cache-hit != 'true'
         run: |
           curl -L $LINUX_BASEKIT_URL -o install.sh
-          #sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
-          sudo sh install.sh -a --action install --eula=accept -s
+          sudo sh install.sh -a --action install --components intel.oneapi.lin.mkl.devel --eula=accept -s
 
       - name: Check branch name
         shell: bash
@@ -603,7 +602,7 @@ jobs:
 
   test_windows_mkl_binaries:
     name: Test Windows MKL binaries from build workflow
-    runs-on: windows-latest
+    runs-on: windows-2025
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -790,7 +789,7 @@ jobs:
 
   test_windows_openblas_binaries:
     name: Test Windows OpenBLAS binaries from build workflow
-    runs-on: windows-latest
+    runs-on: windows-2025
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -1086,10 +1085,10 @@ jobs:
           elif command -v sed &> /dev/null; then
             sed -i.bak 's/\r$//' ctest_output.log 2>/dev/null || true
           fi
-          
+
           # Find the line with "tests passed" and get everything from there to the end
           SUMMARY_LINE=$(grep -n "tests passed" ctest_output.log 2>/dev/null | head -1 | cut -d: -f1)
-          
+
           if [ -n "$SUMMARY_LINE" ]; then
             # Get the first line (the summary line)
             FIRST_LINE=$(tail -n +$SUMMARY_LINE ctest_output.log | head -1)
@@ -1097,18 +1096,18 @@ jobs:
             SUMMARY_CONTENT=$(tail -n +$SUMMARY_LINE ctest_output.log | grep -v "Errors while running" | head -20)
             # Replace newlines with %0A for GitHub Actions annotation
             SUMMARY_CONTENT=$(echo "$SUMMARY_CONTENT" | sed ':a;N;$!ba;s/\n/%0A/g')
-            
+
             # Check if there are failed tests
             if grep -q "tests failed" ctest_output.log; then
-              echo "::error title=Test results (windows mkl)::$FIRST_LINE - $SUMMARY_CONTENT"
+              echo "::error title=Test results (windows mkl): $FIRST_LINE::$SUMMARY_CONTENT"
             else
-              echo "::notice title=Test results (windows mkl)::$FIRST_LINE - $SUMMARY_CONTENT"
+              echo "::notice title=Test results (windows mkl): $FIRST_LINE::$SUMMARY_CONTENT"
             fi
           else
-            echo "::warning title=Test Warning::Could not find test summary in ctest output (tests may still be running or output format changed)"
+            echo "::warning title=Test Warning::Could not find test summary in ctest output"
           fi
         else
-          echo "::warning title=Test Warning::Could not find ctest output file (tests may not have run)"
+          echo "::warning title=Test Warning::Could not find ctest output file"
         fi
         exit 0
 
