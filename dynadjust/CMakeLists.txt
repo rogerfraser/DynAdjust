@@ -9,9 +9,17 @@ option(ILP64 "Use ILP64 interface (64-bit matrix indexing) for BLAS and LAPACK" 
 
 # Build optimization options
 option(USE_PRECOMPILED_HEADERS "Use precompiled headers to speed up compilation" ON)
+option(USE_UNITY_BUILD "Use unity builds to speed up compilation" OFF)
 
 # Enable precompiled headers
 set(CMAKE_DISABLE_PRECOMPILE_HEADERS OFF)
+
+# Enable unity builds if requested
+if(USE_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD ON)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 16)
+    message(STATUS "Unity builds enabled (batch size: ${CMAKE_UNITY_BUILD_BATCH_SIZE})")
+endif()
 
 # Fix Boost 1.70+ issue with CMake 3.14+
 if(POLICY CMP0167)
