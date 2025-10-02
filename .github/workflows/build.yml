@@ -27,20 +27,6 @@ jobs:
 
     steps:
 
-      - name: Generate cache triggers
-        shell: bash
-        run: |
-          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-
-      - name: Cache apt packages
-        id: cache-apt
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
-
       - name: Install dependencies
         shell: bash
         run: |
@@ -77,16 +63,6 @@ jobs:
         shell: bash
         run: |
           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-
-      - name: Cache apt packages
-        id: cache-apt
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
@@ -147,20 +123,6 @@ jobs:
       XERCES_VERSION: 3.2.4
 
     steps:
-
-      - name: Generate cache triggers
-        shell: bash
-        run: |
-          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
-
-      - name: Cache apt packages
-        id: cache-apt
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
@@ -244,13 +206,27 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          brew update
-          brew install ${{ env.BREW_PACKAGES }}
+          if [ "${{ steps.cache-brew.outputs.cache-hit }}" != "true" ]; then
+            brew update
+            brew install ${{ env.BREW_PACKAGES }}
+          else
+            # Cache hit - link or install packages
+            export HOMEBREW_NO_AUTO_UPDATE=1
+            for pkg in ${{ env.BREW_PACKAGES }}; do
+              if brew list --formula | grep -q "^${pkg}\$"; then
+                echo "Linking $pkg..."
+                brew link --overwrite --force $pkg || true
+              else
+                echo "Installing $pkg..."
+                brew install $pkg
+              fi
+            done
+          fi
 
       - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
-          
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
@@ -292,13 +268,27 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          brew update
-          brew install ${{ env.BREW_PACKAGES }}
+          if [ "${{ steps.cache-brew.outputs.cache-hit }}" != "true" ]; then
+            brew update
+            brew install ${{ env.BREW_PACKAGES }}
+          else
+            # Cache hit - link or install packages
+            export HOMEBREW_NO_AUTO_UPDATE=1
+            for pkg in ${{ env.BREW_PACKAGES }}; do
+              if brew list --formula | grep -q "^${pkg}\$"; then
+                echo "Linking $pkg..."
+                brew link --overwrite --force $pkg || true
+              else
+                echo "Installing $pkg..."
+                brew install $pkg
+              fi
+            done
+          fi
 
       - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
-          
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
