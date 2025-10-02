@@ -129,7 +129,7 @@ If you see an error like **"cannot open shared object file"** revisit the prereq
 
 ## Docker Image
 
-[![docker build](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build%20docker%20image?label=docker%20build)](https://hub.docker.com/repository/docker/icsm/dynadjust)
+[![docker build](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml/badge.svg)](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/icsm/dynadjust)](https://hub.docker.com/repository/docker/icsm/dynadjust)
 
 The DynAdjust repository comes with a [Dockerfile](https://github.com/icsm-au/DynAdjust/blob/master/Dockerfile) which builds a DynAdjust docker image for the Linux environment each time changes are pushed to the main repository. This means if you have docker installed on your system, a DynAdjust image can be run on your system (whether Linux, Mac or Windows) within a virtual environment managed by docker.
