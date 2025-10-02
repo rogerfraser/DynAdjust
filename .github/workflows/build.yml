@@ -47,8 +47,10 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ env.PKGS }}
+          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
+            sudo apt-get update
+          fi
+          sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
       - name: Check branch name
         shell: bash
@@ -97,8 +99,10 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ env.PKGS }}
+          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
+            sudo apt-get update
+          fi
+          sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -174,8 +178,10 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ env.PKGS }}
+          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
+            sudo apt-get update
+          fi
+          sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
       - name: Check branch name
         shell: bash
@@ -243,9 +249,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/Library/Caches/Homebrew
-            /usr/local/Cellar
-            /opt/homebrew/Cellar
+            /opt/homebrew/Cellar/boost
+            /opt/homebrew/Cellar/xerces-c
+            /opt/homebrew/Cellar/xsd
           key: brew-${{ runner.os }}-${{ env.BREW_HASH }}
           restore-keys: |
             brew-${{ runner.os }}-
@@ -257,16 +263,9 @@ jobs:
             brew update
             brew install ${{ env.BREW_PACKAGES }}
           else
-            # Cache hit - link or install packages
             export HOMEBREW_NO_AUTO_UPDATE=1
             for pkg in ${{ env.BREW_PACKAGES }}; do
-              if brew list --formula | grep -q "^${pkg}\$"; then
-                echo "Linking $pkg..."
-                brew link --overwrite --force $pkg || true
-              else
-                echo "Installing $pkg..."
-                brew install $pkg
-              fi
+              brew link --overwrite --force $pkg 2>/dev/null || brew install $pkg
             done
           fi
 
@@ -305,9 +304,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/Library/Caches/Homebrew
-            /usr/local/Cellar
-            /opt/homebrew/Cellar
+            /opt/homebrew/Cellar/boost
+            /opt/homebrew/Cellar/xerces-c
+            /opt/homebrew/Cellar/xsd
           key: brew-${{ runner.os }}-${{ env.BREW_HASH }}
           restore-keys: |
             brew-${{ runner.os }}-
@@ -319,16 +318,9 @@ jobs:
             brew update
             brew install ${{ env.BREW_PACKAGES }}
           else
-            # Cache hit - link or install packages
             export HOMEBREW_NO_AUTO_UPDATE=1
             for pkg in ${{ env.BREW_PACKAGES }}; do
-              if brew list --formula | grep -q "^${pkg}\$"; then
-                echo "Linking $pkg..."
-                brew link --overwrite --force $pkg || true
-              else
-                echo "Installing $pkg..."
-                brew install $pkg
-              fi
+              brew link --overwrite --force $pkg 2>/dev/null || brew install $pkg
             done
           fi
 
