@@ -115,9 +115,10 @@ jobs:
     name: Linux build (openblas / static)
     runs-on: ubuntu-latest
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       PKGS: >
         xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
+      XERCES_VERSION: 3.2.4
 
     steps:
 
@@ -128,19 +129,29 @@ jobs:
       - name: Check branch name
         shell: bash
         run: echo ${{ env.BRANCH_NAME }}
-          
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
 
+      - name: Cache static xerces
+        id: cache-xerces
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/libxerces-c*.a
+            /usr/local/include/xercesc
+            /usr/local/lib/pkgconfig/xerces-c.pc
+          key: xerces-static-${{ env.XERCES_VERSION }}-${{ runner.os }}
+
       - name: Build static xerces
+        if: steps.cache-xerces.outputs.cache-hit != 'true'
         run: |
-          XERCES_VERSION=3.2.4
-          curl -L -O https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-${XERCES_VERSION}.tar.bz2 
-          bzip2 -dc xerces-c-${XERCES_VERSION}.tar.bz2 | tar xvf - 
-          cd xerces-c-${XERCES_VERSION} 
-          PKG_CONFIG="pkg-config --static" ./configure --without-curl --without-icu --enable-static --disable-shared 
-          make -j2 
+          curl -L -O https://archive.apache.org/dist/xerces/c/3/sources/xerces-c-${{ env.XERCES_VERSION }}.tar.bz2
+          bzip2 -dc xerces-c-${{ env.XERCES_VERSION }}.tar.bz2 | tar xvf -
+          cd xerces-c-${{ env.XERCES_VERSION }}
+          PKG_CONFIG="pkg-config --static" ./configure --without-curl --without-icu --enable-static --disable-shared
+          make -j2
           sudo make install 
 
       - name: Build with CMake
