@@ -54,12 +54,15 @@ jobs:
           
       - name: Run tests
         run: |
-          set +e
-          ctest --timeout 20 2>&1 | tee ctest_output.log
-          CTEST_EXIT_CODE=${PIPESTATUS[0]}
-          echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
-          ctest --rerun-failed --output-on-failure
-          exit 0
+          ctest --timeout 20 --output-on-failure 2>&1 | tee ctest_output.log
+
+      - name: Upload test log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-linux-openblas-log
+          path: Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
 
       - name: Parse test results and create annotations
         if: always()
@@ -154,11 +157,15 @@ jobs:
           #export MKL_NUM_THREADS=1
           #export OMP_NUM_THREADS=1
           #export MKL_DOMAIN_NUM_THREADS="MKL_DOMAIN_ALL=1"
-          set +e
-          ctest --timeout 20 2>&1 | tee ctest_output.log
-          CTEST_EXIT_CODE=${PIPESTATUS[0]}
-          echo "CTEST_EXIT_CODE=$CTEST_EXIT_CODE" >> $GITHUB_ENV
-          exit $CTEST_EXIT_CODE
+          ctest --timeout 20 --output-on-failure 2>&1 | tee ctest_output.log
+
+      - name: Upload test log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-linux-mkl-log
+          path: Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
 
 #      - name: Debug with lldb - GNSS network test
 #        if: always()
@@ -1039,9 +1046,15 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-        ctest --timeout 20 -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
-        ctest --rerun-failed --output-on-failure
-        exit 0
+        ctest --timeout 20 --output-on-failure -C Release 2>&1 | powershell -Command "$input | Tee-Object -FilePath ctest_output.log"
+
+    - name: Upload test log on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ctest-windows-mkl-log
+        path: src/Testing/Temporary/LastTest.log
+        if-no-files-found: ignore
 
     - name: Parse test results and create annotations
       if: always()
