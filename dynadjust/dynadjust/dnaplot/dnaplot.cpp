@@ -152,7 +152,7 @@ void dna_plot::CleanupGnuplotFiles(const plotGraphMode& graphMode)
 
 	// delete
 	std::string system_file_cmd = ss.str();
-	std::system(system_file_cmd.c_str());
+	(void)std::system(system_file_cmd.c_str());
 }
 
 void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode)
@@ -1142,7 +1142,7 @@ void dna_plot::CreateGMTCommandFiles()
 		// change file permission to executable
 #if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)		
 		std::string system_file_cmd = _CHMOD_CMD_ + v_gmt_cmd_filenames_.at(block);
-		std::system(system_file_cmd.c_str());
+		(void)std::system(system_file_cmd.c_str());
 #endif
 
 		// break out for specific block (n) plots
@@ -2174,7 +2174,7 @@ void dna_plot::AggregateGMTPDFs()
 	// aggregate!
 	system_file_cmd = ss.str();
 
-	std::system(system_file_cmd.c_str());
+	(void)std::system(system_file_cmd.c_str());
 }
 
 
@@ -2215,7 +2215,7 @@ void dna_plot::CleanupGMTFiles()
 
 	// delete
 	std::string clean_up_gmt_config_files = ss.str();
-	std::system(clean_up_gmt_config_files.c_str());
+	(void)std::system(clean_up_gmt_config_files.c_str());
 
 }
 	
