@@ -21,15 +21,30 @@ jobs:
     name: Linux build (openblas)
     runs-on: ubuntu-latest
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       PKGS: >
         libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
 
     steps:
 
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
+
       - name: Install dependencies
         shell: bash
         run: |
+          sudo apt-get update
           sudo apt-get install -y ${{ env.PKGS }}
 
       - name: Check branch name
@@ -52,7 +67,7 @@ jobs:
     name: Linux build (mkl)
     runs-on: ubuntu-latest
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       PKGS: >
         libxerces-c-dev xsdcxx libboost-program-options-dev
 
@@ -62,10 +77,21 @@ jobs:
         shell: bash
         run: |
           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
         run: |
+          sudo apt-get update
           sudo apt-get install -y ${{ env.PKGS }}
 
       - name: Cache Intel OneAPI
@@ -122,9 +148,25 @@ jobs:
 
     steps:
 
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
+
       - name: Install dependencies
         shell: bash
-        run: sudo apt-get install -y ${{ env.PKGS }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.PKGS }}
 
       - name: Check branch name
         shell: bash
@@ -176,11 +218,34 @@ jobs:
   build_mac_dyn:
     name: Mac build (accelerate)
     runs-on: macos-15
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      BREW_PACKAGES: boost xerces-c xsd
+
     steps:
+
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo BREW_HASH=$(echo "${{ env.BREW_PACKAGES }}" | md5 | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache Homebrew packages
+        id: cache-brew
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /usr/local/Cellar
+            /opt/homebrew/Cellar
+          key: brew-${{ runner.os }}-${{ env.BREW_HASH }}
+          restore-keys: |
+            brew-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
-        run: brew install boost xerces-c xsd
+        run: |
+          brew update
+          brew install ${{ env.BREW_PACKAGES }}
 
       - name: Check branch name
         shell: bash
@@ -201,11 +266,34 @@ jobs:
   build_mac_static:
     name: Mac build (accelerate / static)
     runs-on: macos-15
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      BREW_PACKAGES: boost xerces-c xsd
+
     steps:
+
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo BREW_HASH=$(echo "${{ env.BREW_PACKAGES }}" | md5 | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache Homebrew packages
+        id: cache-brew
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /usr/local/Cellar
+            /opt/homebrew/Cellar
+          key: brew-${{ runner.os }}-${{ env.BREW_HASH }}
+          restore-keys: |
+            brew-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
-        run: brew install boost xerces-c xsd
+        run: |
+          brew update
+          brew install ${{ env.BREW_PACKAGES }}
 
       - name: Check branch name
         shell: bash
