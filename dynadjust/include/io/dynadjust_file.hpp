@@ -34,7 +34,8 @@
 /// \endcond
 
 #include <include/config/dnaexports.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-structs.hpp>
 
 #define __FILE_VERSION__ "1.0"
 

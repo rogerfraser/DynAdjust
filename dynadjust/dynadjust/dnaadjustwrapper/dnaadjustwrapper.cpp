@@ -21,6 +21,42 @@
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
 
+/// \cond
+#include <time.h>
+#include <algorithm>
+#include <filesystem>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+/// \endcond
+
+#include <include/config/dnaoptions-interface.hpp>
+#include <include/config/dnaprojectfile.hpp>
+#include <include/config/dnatypes-gui.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
+#include <include/parameters/dnaepsg.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/asl_file.hpp>
+#include <dynadjust/dnaadjust/dnaadjust.hpp>
+#include <dynadjust/dnaadjust/dnaadjust_printer.hpp>
+#include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <dynadjust/dnaadjustwrapper/threading_init.hpp>
+
+using namespace dynadjust::networkadjust;
+using namespace dynadjust::exception;
+using namespace dynadjust::iostreams;
+
 extern bool running;
 extern std::mutex cout_mutex;
 

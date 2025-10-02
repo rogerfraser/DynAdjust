@@ -22,10 +22,12 @@
 #ifndef DYNADJUST_NETWORK_IO_FILE_METADATA_HPP
 #define DYNADJUST_NETWORK_IO_FILE_METADATA_HPP
 
+/// \cond
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <string>
+/// \endcond
 
 namespace dynadjust {
 namespace networkadjust {

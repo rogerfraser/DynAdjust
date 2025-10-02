@@ -42,7 +42,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake dynadjust 
+          cmake dynadjust -DBUILD_TESTING=OFF
           make -j2
           ls -la bin/
           
@@ -92,7 +92,7 @@ jobs:
       - name: Build with CMake
         run: |
           source /opt/intel/oneapi/setvars.sh
-          cmake dynadjust -DUSE_MKL=ON
+          cmake dynadjust -DUSE_MKL=ON -DBUILD_TESTING=OFF
           make -j2
           ls -la bin/
 
@@ -143,7 +143,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
+          cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF dynadjust
           make -j2
           ls -la bin/
 
@@ -179,7 +179,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake dynadjust
+          cmake dynadjust -DBUILD_TESTING=OFF
           make -j2 VERBOSE=1
           ls -la bin/
 
@@ -204,7 +204,7 @@ jobs:
 
       - name: Build with CMake
         run: |
-          cmake -DBUILD_STATIC=ON -DCMAKE_BUILD_TYPE=Release dynadjust
+          cmake -DBUILD_STATIC=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release dynadjust
           make -j2 VERBOSE=1
           ls -la bin/
 
@@ -334,6 +334,7 @@ jobs:
         cmake -DUSE_MKL=ON ^
               -DVCPKG_MANIFEST_MODE=OFF ^
               -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
+              -DBUILD_TESTING=OFF ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
 
@@ -421,6 +422,7 @@ jobs:
         set XSDROOT=%cd%\libxsd-4.2.0
         cmake -DUSE_MKL=OFF ^
               -DVCPKG_MANIFEST_MODE=OFF ^
+              -DBUILD_TESTING=OFF ^
               -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2
@@ -560,6 +562,7 @@ jobs:
         set UseEnv=true
         cmake -DUSE_MKL=ON ^
               -DVCPKG_MANIFEST_MODE=OFF ^
+              -DBUILD_TESTING=OFF ^
               -DCMAKE_TOOLCHAIN_FILE"=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake" ^
               -G "Visual Studio 17 2022" -A x64 dynadjust
         cmake --build %cd% --config Release --parallel 2

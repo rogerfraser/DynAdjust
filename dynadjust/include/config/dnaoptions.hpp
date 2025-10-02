@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaoptions.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust options include file
 //============================================================================
 
+#pragma once
 #ifndef DNAOPTIONS_HPP
 #define DNAOPTIONS_HPP
 
@@ -34,7 +34,8 @@
 /// \endcond
 
 #include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-basic.hpp>  // Need enum definitions like DMS
 
 const bool FREE = true;
 const bool NOTFREE = false;

@@ -7,6 +7,10 @@ option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_OPENMP "Use OpenMP for parallel processing" OFF)
 option(ILP64 "Use ILP64 interface (64-bit matrix indexing) for BLAS and LAPACK" OFF)
 
+# Build optimization options
+option(USE_PRECOMPILED_HEADERS "Use precompiled headers to speed up compilation" ON)
+
+# Enable precompiled headers
 set(CMAKE_DISABLE_PRECOMPILE_HEADERS OFF)
 
 # Fix Boost 1.70+ issue with CMake 3.14+
@@ -509,14 +513,17 @@ if(BUILD_STATIC)
         XERCES_STATIC_LIBRARY
     )
 
-    # Set optimization flags based on compiler
     if(MSVC)
-        # Use MSVC-specific optimization flags
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-        add_compile_options(/O2)
+        if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+            add_compile_options(/O2)
+        endif()
     else()
-        # Use GCC/Clang optimization flags
-        add_compile_options(-O3)
+        if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "")
+            add_compile_options(-O3)
+        elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            add_compile_options(-O2)
+        endif()
     endif()
 
     if(BLAS_LIBRARIES)
@@ -696,8 +703,6 @@ if (BUILD_TESTING)
     message("=====================================================================")
     message("")
     message(STATUS "Setting up tests...")
-
-
 
 
     # test execution of dynadjust binaries
@@ -1478,7 +1483,7 @@ if (BUILD_TESTING)
     # no DynaML.xsd - remove file in platform-independent manner (using CMake command) by setting up a test dependency
     add_test (NAME import-no-xsd-file-remove COMMAND ${CMAKE_COMMAND} -E remove DynaML.xsd)
     add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:${DNAIMPORT_TARGET}> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
-    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove)
+    set_tests_properties(import-no-xsd-file PROPERTIES DEPENDS import-no-xsd-file-remove TIMEOUT 5)
     # Restore DynaML.xsd after testing its absence
     add_test (NAME import-no-xsd-file-restore COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DynaML.xsd)
     set_tests_properties(import-no-xsd-file-restore PROPERTIES DEPENDS import-no-xsd-file)
@@ -1640,8 +1645,8 @@ if (BUILD_TESTING)
     add_test (NAME plot-no-plate COMMAND $<TARGET_FILE:${DNAPLOT_TARGET}> nosegapucor --plate ./noplate.file)
 
     set_tests_properties(
-        plot-no-option plot-invalid-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
-        plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu plot-no-plate 
+        plot-no-option plot-invalid-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help
+        plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu plot-no-plate
         PROPERTIES WILL_FAIL TRUE)
 
     ### DYNADJUST ###

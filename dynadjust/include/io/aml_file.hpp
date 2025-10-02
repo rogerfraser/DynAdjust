@@ -19,6 +19,7 @@
 // Description  : DynAdjust associated measurement file io operations
 //============================================================================
 
+#pragma once
 #ifndef DYNADJUST_AML_FILE_H_
 #define DYNADJUST_AML_FILE_H_
 

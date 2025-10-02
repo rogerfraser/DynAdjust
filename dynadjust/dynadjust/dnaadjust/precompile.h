@@ -17,7 +17,14 @@
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
+
+// Platform-specific type inclusion
+#ifdef _WIN32
+    #include <include/config/dnatypes.hpp>  // Full types on Windows for better PCH
+#else
+    #include <include/config/dnatypes-fwd.hpp>  // Forward declarations on Unix
+#endif
+
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/exception/dnaexception.hpp>

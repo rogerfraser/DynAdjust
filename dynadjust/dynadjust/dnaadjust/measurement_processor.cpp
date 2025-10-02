@@ -20,7 +20,7 @@
 //============================================================================
 
 #include "measurement_processor.hpp"
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
 using namespace dynadjust::measurements;
 

@@ -1,9 +1,9 @@
 //============================================================================
 // Name         : dnatransformationparameters.hpp
 // Author       : Roger Fraser
-// Contributors : Joshua Batchelor
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+//              : Joshua Batchelor
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@
 /// \endcond
 
 #include <include/parameters/dnaepsg.hpp>
+#include <include/config/dnatypes-containers.hpp>  // For uint32_uint32_pair
 
 using namespace dynadjust::epsg;
 

@@ -59,7 +59,7 @@
 #include <vector>
 /// \endcond
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/exception/dnaexception.hpp>
 
 #include <include/io/dynadjust_file.hpp>

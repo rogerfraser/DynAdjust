@@ -19,6 +19,7 @@
 // Description  : Type B uncertainty file io and helps
 //============================================================================
 
+#pragma once
 #ifndef DNAIOTYPEB_H_
 #define DNAIOTYPEB_H_
 
@@ -29,7 +30,7 @@
 #endif
 
 #include <include/io/dynadjust_file.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>

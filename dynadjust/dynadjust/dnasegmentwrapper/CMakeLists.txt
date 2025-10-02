@@ -8,9 +8,10 @@ add_definitions (-DBUILD_SEGMENT_EXE)
 include_directories(${PROJECT_SOURCE_DIR})
 
 if(NOT BUILD_STATIC)
-  add_executable (${PROJECT_NAME} 
+  add_executable (${PROJECT_NAME}
                   ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
                   ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+                  ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp
                   dnasegmentwrapper.cpp
                   ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
@@ -35,10 +36,14 @@ if(BUILD_STATIC)
   set(STATIC_TARGET_NAME "${PROJECT_NAME}_static")
   add_executable(${STATIC_TARGET_NAME} ${TARGET_SOURCES})
   
+  # Add template instantiations to static build
+  target_sources(${STATIC_TARGET_NAME} PRIVATE
+                 ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp)
+
   # Add dnasegment library sources directly
   get_target_property(THE_SOURCES dnasegment SOURCES)
   get_target_property(THE_SOURCE_DIR dnasegment SOURCE_DIR)
-  
+
   # Add these sources directly to the static executable
   foreach(src ${THE_SOURCES})
     # Check if it's a relative path

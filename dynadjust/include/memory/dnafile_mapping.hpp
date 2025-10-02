@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnafile_mapping.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust Memory Mapped File Library
 //============================================================================
 
+#pragma once
 #ifndef DNAFILEMAPPING_H_
 #define DNAFILEMAPPING_H_
 
@@ -37,7 +37,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 /// \endcond
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
 namespace dynadjust { 
 namespace memory {

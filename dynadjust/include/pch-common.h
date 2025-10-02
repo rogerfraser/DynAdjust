@@ -1,0 +1,74 @@
+//============================================================================
+// Name         : pch-common.h
+// Author       : Roger Fraser
+// Contributors : Dale Roberts
+// Version      : 1.00
+// Copyright    : Copyright 2017 Geoscience Australia
+//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//
+//                http ://www.apache.org/licenses/LICENSE-2.0
+//
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
+//
+// Description  : Common precompiled header foundation for DynAdjust
+//                Include only stable, frequently-used headers that rarely change
+//============================================================================
+
+#pragma once
+
+// C standard library headers
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+// C++ standard library headers - containers
+#include <algorithm>
+#include <deque>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+#include <string>
+#include <vector>
+
+// C++ standard library headers - I/O
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+// C++ standard library headers - utilities
+#include <exception>
+#include <functional>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <numeric>
+#include <stdexcept>
+#include <utility>
+
+// Core DynAdjust configuration headers that are very stable
+#include <include/config/dnaversion.hpp>
+#include <include/config/dnaexports.hpp>
+#include <include/config/dnaversion-stream.hpp>
+#include <include/config/dnaconsts.hpp>
+#include <include/config/dnatypes-fwd.hpp>  // Forward declarations only
+#include <include/config/dnatypes-basic.hpp>  // Basic types including iosMode enum
+#include <include/config/dnatypes-gui.hpp>
+#include <include/config/dnaoptions-interface.hpp>
+#include <include/exception/dnaexception.hpp>
+
+// Common lightweight function headers
+#include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/functions/dnastringfuncs.hpp>
+#include <include/functions/dnaintegermanipfuncs.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>

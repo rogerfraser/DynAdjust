@@ -11,6 +11,7 @@ if(NOT BUILD_STATIC)
   add_executable (${PROJECT_NAME}
                   ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
                   ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+                  ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp
                   dnaimportwrapper.cpp
                   ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
@@ -38,6 +39,10 @@ if(BUILD_STATIC)
   get_target_property(THE_SOURCES dnaimport SOURCES)
   get_target_property(THE_SOURCE_DIR dnaimport SOURCE_DIR)
   
+  # Add template instantiations to static build
+  target_sources(${STATIC_TARGET_NAME} PRIVATE
+                 ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp)
+
   # Add these sources directly to the static executable
   foreach(src ${THE_SOURCES})
     # Check if it's a relative path

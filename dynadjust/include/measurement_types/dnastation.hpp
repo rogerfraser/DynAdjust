@@ -36,11 +36,12 @@
 #include <fstream>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+// #include <boost/shared_ptr.hpp> // Replaced with std::shared_ptr
 /// \endcond
 
 #include <include/config/dnaexports.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-structs.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaoptions.hpp>

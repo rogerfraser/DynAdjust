@@ -22,24 +22,21 @@
 #ifndef NETWORK_DATA_LOADER_HPP_
 #define NETWORK_DATA_LOADER_HPP_
 
+/// \cond
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <sstream>
+/// \endcond
 
 #include <include/config/dnaoptions-interface.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
-#include <include/io/asl_file.hpp>
-#include <include/io/bms_file.hpp>
 #include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
 #include <include/io/map_file.hpp>
-
-#include <include/functions/dnatemplatefuncs.hpp>
-#include <include/functions/dnastrmanipfuncs.hpp>
-#include <include/functions/dnatemplatestnmsrfuncs.hpp>
-#include <include/measurement_types/dnastation.hpp>
+#include <include/io/asl_file.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
 #include "measurement_processor.hpp"
