@@ -35,22 +35,29 @@ jobs:
         run: |
           echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
-      - name: Cache apt packages
+      - name: Cache installed packages
         id: cache-apt
         uses: actions/cache@v4
         with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
+          path: ~/apt-install-cache
+          key: apt-installed-${{ runner.os }}-${{ env.APT_HASH }}
+
+      - name: Restore packages from cache
+        if: steps.cache-apt.outputs.cache-hit == 'true'
+        run: |
+          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo ldconfig
 
       - name: Install dependencies
+        if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
-            sudo apt-get update
-          fi
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
+
+          # Cache the installed files
+          mkdir -p ~/apt-install-cache
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
       - name: Check branch name
         shell: bash
@@ -87,22 +94,29 @@ jobs:
           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
           echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
-      - name: Cache apt packages
+      - name: Cache installed packages
         id: cache-apt
         uses: actions/cache@v4
         with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
+          path: ~/apt-install-cache
+          key: apt-installed-${{ runner.os }}-${{ env.APT_HASH }}
+
+      - name: Restore packages from cache
+        if: steps.cache-apt.outputs.cache-hit == 'true'
+        run: |
+          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo ldconfig
 
       - name: Install dependencies
+        if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
-            sudo apt-get update
-          fi
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
+
+          # Cache the installed files
+          mkdir -p ~/apt-install-cache
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -166,22 +180,29 @@ jobs:
         run: |
           echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
-      - name: Cache apt packages
+      - name: Cache installed packages
         id: cache-apt
         uses: actions/cache@v4
         with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
-          restore-keys: |
-            apt-packages-${{ runner.os }}-
+          path: ~/apt-install-cache
+          key: apt-installed-${{ runner.os }}-${{ env.APT_HASH }}
+
+      - name: Restore packages from cache
+        if: steps.cache-apt.outputs.cache-hit == 'true'
+        run: |
+          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo ldconfig
 
       - name: Install dependencies
+        if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          if [ "${{ steps.cache-apt.outputs.cache-hit }}" != "true" ]; then
-            sudo apt-get update
-          fi
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
+
+          # Cache the installed files
+          mkdir -p ~/apt-install-cache
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
       - name: Check branch name
         shell: bash

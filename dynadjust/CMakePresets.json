@@ -14,7 +14,8 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows",
         "USE_MKL": "OFF",
         "USE_OPENMP": "ON",
-        "BUILD_TESTING":"OFF"
+        "BUILD_TESTING":"OFF",
+        "USE_UNITY_BUILD":"ON"
       }
     },
     {
@@ -35,7 +36,8 @@
         "MKL_INTERFACE": "lp64",
         "ENABLE_SCALAPACK": "True",
         "BLA_VENDOR": "Intel10_64lp",
-        "BUILD_TESTING":"OFF"
+        "BUILD_TESTING":"OFF",
+        "USE_UNITY_BUILD":"ON"
       }
     },
     {
@@ -49,7 +51,8 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows",
         "USE_MKL": "OFF",
         "USE_OPENMP": "ON",
-        "BUILD_TESTING":"ON"
+        "BUILD_TESTING":"ON",
+        "USE_UNITY_BUILD":"ON"
       }
     },
     {
@@ -70,7 +73,8 @@
         "MKL_INTERFACE": "lp64",
         "ENABLE_SCALAPACK": "True",
         "BLA_VENDOR": "Intel10_64lp",
-        "BUILD_TESTING":"ON"
+        "BUILD_TESTING":"ON",
+        "USE_UNITY_BUILD":"ON"
       }
     }
   ],
