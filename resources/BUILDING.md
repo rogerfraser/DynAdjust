@@ -151,7 +151,7 @@ cmake -S dynadjust -B build
 cmake --build build --parallel
 ```
 
-## Windows using Visual Studo and CMake
+## Windows using Visual Studo, CMake, and vcpkg
 
 ### Prerequisites
 
@@ -160,11 +160,9 @@ cmake --build build --parallel
 Microsoft's Visual Studio 2022 Community Edition is available from
 https://visualstudio.microsoft.com/vs/community/
 
-C++ is required for compiling all DynAdjust binaries. MFC is only required
-for building `GeoidInt.exe` - Geoid Interpolation software with a
-(dialog-based) graphical user interface.
+C++ is required for compiling all DynAdjust binaries. During installation of Visual Studio, ensure C++ Desktop development and [CMake tools for Windows](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#installation) components are installed. Dot NET is not used for any DynAdjust projects, however MFC is required for building `GeoidInt.exe` (Geoid Interpolation software), which has a (dialog-based) graphical user interface.
 
-During installation, ensure C++ Desktop development and [CMake tools for Windows](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#installation) components are installed.  Full instructions for installing and using packages with CMake in Visual studio can be found [here](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vs?pivots=shell-cmd). Below is a brief summary of the steps.
+Full instructions for installing and using packages with CMake in Visual studio can be found [here](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vs?pivots=shell-cmd). Below is a brief summary of the steps.
 
 #### Install git
 
@@ -180,6 +178,8 @@ git clone https://github.com/microsoft/vcpkg C:\vcpkg
 C:\vcpkg\bootstrap-vcpkg.bat
 ```
 
+As per [Microsoft's guidelines](https://learn.microsoft.com/en-us/vcpkg/users/buildsystems/cmake-integration) for setting up CMake projects to use vcpkg, DynAdjust has been configured to use the vcpkg toolchain file via the `CMakePresets.json` file.  There is no need to manually change or configure the use of vcpkg.
+
 #### Install dependency packages using vcpkg
 
 Now we can install the dependencies.
@@ -190,23 +190,23 @@ vcpkg install boost-geometry boost-process boost-iostreams boost-spirit boost-sy
 
 #### Install Code Synthesis XSD library
 
-DynAdjust requires [Code Synthesis XSD](https://www.codesynthesis.com/products/xsd/) to parse XML files.  Since version 1.2.9, the CMake project file will automatically download XSD.  hence, there is no need to manually download and install it.
+DynAdjust requires [Code Synthesis XSD](https://www.codesynthesis.com/products/xsd/) to parse XML files.  Since version 1.2.9, the CMake project file will automatically download XSD.  Hence, there is no need to manually download and install it.
 
 #### Install Intel oneAPI MKL library
 
-If you do not have it, install the [Intel oneAPI Math Kernel Library {oneMKL)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html). No extra configuration required because the installer registers MKL on the system PATH.  With Visual Studio 2022 already installed, the Intel oneMKL installer
+If you do not have it, download and install the [Intel oneAPI Math Kernel Library {oneMKL)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html). No extra configuration required because the installer registers MKL on the system PATH.  Also, if Visual Studio 2022 is already installed, the Intel oneMKL installer
 will automatically enable integration into the Visual Studio 2022 IDE.
-This means that the oneAPI MKL and TBB libraries and headers will be
+This means that the oneAPI MKL libraries and headers will be
 automatically referenced upon compiling DynAdjust without modification.
 
 ### Download the DynAdjust source code
 
-Download and unzip an official release (e.g. 1.2.8) to `C:\Data\Dev\` via the following command:
+Download and unzip an official release (e.g. 1.2.9) to `C:\Data\Dev\` via the following command:
 
 ```cmd
 cd C:\Data\Dev
-curl https://github.com/GeoscienceAustralia/DynAdjust/archive/refs/tags/v1.2.8.zip -o DynaDjust-1.2.8.zip
-tar -xf DynAdjust-1.2.8.zip
+curl https://github.com/GeoscienceAustralia/DynAdjust/archive/refs/tags/v1.2.9.zip -o DynaDjust-1.2.9.zip
+tar -xf DynAdjust-1.2.9.zip
 ````
 
 Alternativey, you can use git to get the latest version:
