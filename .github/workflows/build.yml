@@ -27,6 +27,23 @@ jobs:
 
     steps:
 
+      - name: root suid tar
+        run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
+
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
+
       - name: Install dependencies
         shell: bash
         run: |
@@ -59,10 +76,23 @@ jobs:
 
     steps:
 
+      - name: root suid tar
+        run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
+
       - name: Generate cache triggers
         shell: bash
         run: |
           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
@@ -123,6 +153,23 @@ jobs:
       XERCES_VERSION: 3.2.4
 
     steps:
+
+      - name: root suid tar
+        run: sudo chown root /bin/tar && sudo chmod u+s /bin/tar
+
+      - name: Generate cache triggers
+        shell: bash
+        run: |
+          echo APT_HASH=$(echo "${{ env.PKGS }}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
+
+      - name: Cache apt packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-packages-${{ runner.os }}-${{ env.APT_HASH }}
+          restore-keys: |
+            apt-packages-${{ runner.os }}-
 
       - name: Install dependencies
         shell: bash
