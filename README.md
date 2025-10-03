@@ -1,5 +1,5 @@
-[![cmake workflow](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/cmake_release.yml/badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/cmake_release.yml)
-[![cmake tests](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test_coverage.yml)
+[![cmake workflow](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/build.yml/badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/build.yml)
+[![cmake tests](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test.yml/badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test.yml)
 [![docker build](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml/badge.svg)](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml)
 [![codacy badge](https://img.shields.io/codacy/grade/a3944cda0c72445f8a13b1f82b64f714)](https://app.codacy.com/gh/icsm-au/DynAdjust/dashboard)
 [![cii best practices](https://img.shields.io/badge/cii%20best%20practices-passing-success)](https://bestpractices.coreinfrastructure.org/projects/4894)

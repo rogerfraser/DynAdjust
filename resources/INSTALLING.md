@@ -129,16 +129,16 @@ If you see an error like **"cannot open shared object file"** revisit the prereq
 
 ## Docker Image
 
-[![docker build](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml/badge.svg)](https://github.com/icsm-au/DynAdjust/actions/workflows/docker.yml)
-[![Docker Pulls](https://img.shields.io/docker/pulls/icsm/dynadjust)](https://hub.docker.com/repository/docker/icsm/dynadjust)
+[![docker build](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/docker.yml/badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/docker.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/agrsga/dynadjust)](https://hub.docker.com/repository/docker/agrsga/dynadjust)
 
-The DynAdjust repository comes with a [Dockerfile](https://github.com/icsm-au/DynAdjust/blob/master/Dockerfile) which builds a DynAdjust docker image for the Linux environment each time changes are pushed to the main repository. This means if you have docker installed on your system, a DynAdjust image can be run on your system (whether Linux, Mac or Windows) within a virtual environment managed by docker.
+The DynAdjust repository comes with a [Dockerfile](https://github.com/geoscienceaustralia/DynAdjust/blob/master/Dockerfile) which builds a DynAdjust docker image for the Linux environment each time changes are pushed to the main repository. This means if you have docker installed on your system, a DynAdjust image can be run on your system (whether Linux, Mac or Windows) within a virtual environment managed by docker.
 
-To access the latest docker image, please visit the [DynAdjust repo on Docker Hub](https://hub.docker.com/r/icsm/dynadjust).
+To access the latest docker image, please visit the [DynAdjust repo on Docker Hub](https://hub.docker.com/r/agrsga/dynadjust).
 
 Alternatively, you can pull a DynAdjust docker image from your system via:
 
   ``` bash
-  $ docker pull icsm/dynadjust
+  $ docker pull agrsga/dynadjust
   ```
 

@@ -131,7 +131,7 @@ function args_check {
             echo -e "  list (e.g. Mint is based on Ubuntu), try running:"
             echo -e "    $ ${_script} -d base-distro\n"
             echo -e "  If this fails to work, please submit an issue at:"
-            echo -e "  https://github.com/icsm-au/DynAdjust/issues including this message"
+            echo -e "  https://github.com/geoscienceaustralia/DynAdjust/issues including this message"
             echo -e "  and your distribution."
             help
             exit 1 # error

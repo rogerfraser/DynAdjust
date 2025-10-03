@@ -44,18 +44,18 @@ If you plan to make changes to the code base, please ensure you have read the [i
 
 ### Raising and Addressing an Issue
 
-[![GitHub Issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
+[![GitHub Issues](https://img.shields.io/github/issues/geoscienceaustralia/DynAdjust.svg)](https://github.com/geoscienceaustralia/DynAdjust/issues)
 
 The general process for addressing issues in DynAdjust is as follows:
 
 1. **Search for Existing Issues**  
-   Search the [issue tracker](https://github.com/icsm-au/DynAdjust/issues) for any occurrence of the issue you would like to address.
+   Search the [issue tracker](https://github.com/geoscienceaustralia/DynAdjust/issues) for any occurrence of the issue you would like to address.
    - If it is closely related to an existing open issue, add a comment to the open issue rather than creating a new one.
-   - If the issue was previously raised but is now closed, remove the `is:open` filter to search through [all issues](https://github.com/icsm-au/DynAdjust/issues?q=is%3Aissue). If you feel the issue persists, reopen it with additional comments.
+   - If the issue was previously raised but is now closed, remove the `is:open` filter to search through [all issues](https://github.com/geoscienceaustralia/DynAdjust/issues?q=is%3Aissue). If you feel the issue persists, reopen it with additional comments.
    - If the issue has not been raised before, proceed to the next step.
 
 2. **Create or Reopen an Issue**  
-   - **Defects:** Provide reproduction steps, sample command line arguments, and snippets of output demonstrating the defect. Assign an appropriate [label](https://github.com/icsm-au/DynAdjust/issues/labels).
+   - **Defects:** Provide reproduction steps, sample command line arguments, and snippets of output demonstrating the defect. Assign an appropriate [label](https://github.com/geoscienceaustralia/DynAdjust/issues/labels).
    - **Enhancements:** Describe the desired or expected behaviour not currently provided. Cite any relevant technical documents and, wherever possible, include test cases.
    - **Compilation Issues:** Include details of your operating system, compiler version, and the relevant error or warning message.
    - **Feedback:** Share your thoughts on improving DynAdjust by suggesting new functions, alternative algorithms, documentation updates, or even sample data.
@@ -92,19 +92,19 @@ DynAdjust adopts a structured and collaborative Git workflow to ensure clarity, 
 
 ### General Discussion
 
-Most discussions happen in the [issue tracker](https://github.com/icsm-au/DynAdjust/issues) or within pull requests. For general questions, please feel free to post on the repository's [discussion page](https://github.com/icsm-au/DynAdjust/discussions).
+Most discussions happen in the [issue tracker](https://github.com/geoscienceaustralia/DynAdjust/issues) or within pull requests. For general questions, please feel free to post on the repository's [discussion page](https://github.com/geoscienceaustralia/DynAdjust/discussions).
 
 We encourage language that is objective, professional, respectful, and considerate of the diverse user and developer audience. DynAdjust’s community includes theoretical geodesists, GIS users, software developers, and senior experts. Please model positive communication behaviours.
 
 ### Private Reports
 
-While we encourage all issues, defects, enhancements, and queries to be tracked publicly via the [issue tracker](https://github.com/icsm-au/DynAdjust/issues), if you need to submit a private report or request, please contact [geodesy@ga.gov.au](mailto:geodesy@ga.gov.au).
+While we encourage all issues, defects, enhancements, and queries to be tracked publicly via the [issue tracker](https://github.com/geoscienceaustralia/DynAdjust/issues), if you need to submit a private report or request, please contact [geodesy@ga.gov.au](mailto:geodesy@ga.gov.au).
 
 ## Core Functionality, Algorithms and Formulae
 
-[![Documentation (User's Guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/icsm-au/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
+[![Documentation (User's Guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/geoscienceaustralia/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 
-DynAdjust implements a wide range of specialist geodetic and surveying algorithms and formulae. These have been sourced from journal articles, reference texts, published standards, and other peer-reviewed publications. All functionality, algorithms, and formulae are documented in the [DynAdjust User's Guide](https://github.com/icsm-au/DynAdjust/blob/master/resources/DynAdjust%20Users%20Guide.pdf) and are appropriately cited with full bibliographic references. When proposing a new feature that implements an undocumented algorithm or formula, please provide its full reference.
+DynAdjust implements a wide range of specialist geodetic and surveying algorithms and formulae. These have been sourced from journal articles, reference texts, published standards, and other peer-reviewed publications. All functionality, algorithms, and formulae are documented in the [DynAdjust User's Guide](https://github.com/geoscienceaustralia/DynAdjust/blob/master/resources/DynAdjust%20Users%20Guide.pdf) and are appropriately cited with full bibliographic references. When proposing a new feature that implements an undocumented algorithm or formula, please provide its full reference.
 
 A DynAdjust Steering Committee meets periodically to review the functionality and discuss potential enhancements. If you would like the Steering Committee to consider your suggestions, please contact [geodesy@ga.gov.au](mailto:geodesy@ga.gov.au).
 
@@ -124,10 +124,10 @@ Please write code that is compatible with a wide range of platforms (e.g. UNIX, 
 
 ### Folder and File Structure
 
-- **DynAdjust-Specific Code:** Located in the [`dynadjust/dynadjust/`](https://github.com/icsm-au/DynAdjust/tree/master/dynadjust/dynadjust) folder. Projects with names ending in `...wrapper` are command-line interface programs, while others are libraries.
-- **General Code:** Located in the [`dynadjust/include/`](https://github.com/icsm-au/DynAdjust/tree/master/dynadjust/include) folder.
-- **Documentation and Build Scripts:** Located in the [`resources/`](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.
-- **Sample Data:** Located in the [`sampleData/`](https://github.com/icsm-au/DynAdjust/tree/master/sampleData) folder.
+- **DynAdjust-Specific Code:** Located in the [`dynadjust/dynadjust/`](https://github.com/geoscienceaustralia/DynAdjust/tree/master/dynadjust/dynadjust) folder. Projects with names ending in `...wrapper` are command-line interface programs, while others are libraries.
+- **General Code:** Located in the [`dynadjust/include/`](https://github.com/geoscienceaustralia/DynAdjust/tree/master/dynadjust/include) folder.
+- **Documentation and Build Scripts:** Located in the [`resources/`](https://github.com/geoscienceaustralia/DynAdjust/tree/master/resources) folder.
+- **Sample Data:** Located in the [`sampleData/`](https://github.com/geoscienceaustralia/DynAdjust/tree/master/sampleData) folder.
 
 ### Best Practice
 
@@ -144,28 +144,28 @@ Consistent, high quality coding standards are essential for delivering robust so
 
 ### Release Schedule
 
-[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
+[![GitHub Releases](https://img.shields.io/github/v/release/geoscienceaustralia/DynAdjust.svg)](https://github.com/geoscienceaustralia/DynAdjust/releases)
 
-Although code changes occur frequently, we aim to deliver new [releases](https://github.com/icsm-au/DynAdjust/releases) on a regular basis. The current release schedule cadence is six months.
+Although code changes occur frequently, we aim to deliver new [releases](https://github.com/geoscienceaustralia/DynAdjust/releases) on a regular basis. The current release schedule cadence is six months.
 
 ## Automated Test Suite
 
-The [`make_dynadjust_gcc.sh`](https://github.com/icsm-au/DynAdjust/blob/master/resources/make_dynadjust_gcc.sh)
+The [`make_dynadjust_gcc.sh`](https://github.com/geoscienceaustralia/DynAdjust/blob/master/resources/make_dynadjust_gcc.sh)
 script provides a method to build the code and run tests locally and on GitHub via our continuous integration (CI) system.
 
-With every commit and pull request, the project is tested using a unit test suite managed by CMake (via [`CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt)).
+With every commit and pull request, the project is tested using a unit test suite managed by CMake (via [`CMakeLists.txt`](https://github.com/geoscienceaustralia/DynAdjust/blob/master/dynadjust/CMakeLists.txt)).
 
 ### Continuous Integration
 
-[![cmake tests](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build,%20test%20and%20code%20coverage?label=cmake%20tests)](https://github.com/icsm-au/DynAdjust/actions/workflows/test_coverage.yml)
+[![cmake tests](https://img.shields.io/github/workflow/status/geoscienceaustralia/dynadjust/Build,%20test%20and%20code%20coverage?label=cmake%20tests)](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test_coverage.yml)
 
-DynAdjust utilises an automated test suite managed by GitHub Actions and [Travis](https://travis-ci.org/github/icsm-au/DynAdjust) to build and test code changes. The CI system is configured to run builds for Linux using the [`test_coverage.yml`](https://github.com/icsm-au/DynAdjust/actions/workflows/test_coverage.yml) script.
+DynAdjust utilises an automated test suite managed by GitHub Actions and [Travis](https://travis-ci.org/github/geoscienceaustralia/DynAdjust) to build and test code changes. The CI system is configured to run builds for Linux using the [`test_coverage.yml`](https://github.com/geoscienceaustralia/DynAdjust/actions/workflows/test_coverage.yml) script.
 
 ### Test Code Coverage
 
-[![coveralls status](https://img.shields.io/coveralls/github/icsm-au/DynAdjust)](https://coveralls.io/github/icsm-au/DynAdjust)
+[![coveralls status](https://img.shields.io/coveralls/github/geoscienceaustralia/DynAdjust)](https://coveralls.io/github/geoscienceaustralia/DynAdjust)
 
-To ensure that the test suite covers as much of the code base as possible, code coverage analysis is executed on every commit and pull request. The code coverage tool used is [coveralls.io](https://coveralls.io/github/icsm-au/DynAdjust).
+To ensure that the test suite covers as much of the code base as possible, code coverage analysis is executed on every commit and pull request. The code coverage tool used is [coveralls.io](https://coveralls.io/github/geoscienceaustralia/DynAdjust).
 
 ### Static Code Analysis
 

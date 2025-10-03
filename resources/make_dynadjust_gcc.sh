@@ -48,9 +48,9 @@ function help {
     echo -e "                       By default, \"all\" binaries are built."
     echo -e "  -c [ --no-clone ]    By default, the latest version will be cloned from GitHub"
 	echo -e "                       into the current directory, using:"
-	echo -e "                         git clone https://github.com/icsm-au/DynAdjust.git"
+	echo -e "                         git clone https://github.com/geoscienceaustralia/DynAdjust.git"
     echo -e "                       Provide this option if building source from a local copy, e.g.:"
-	echo -e "                         $ wget https://github.com/icsm-au/DynAdjust/archive/refs/tags/v1.1.0.tar.gz -O DynAdjust-1.1.0.tar.gz"
+	echo -e "                         $ wget https://github.com/geoscienceaustralia/DynAdjust/archive/refs/tags/v1.1.0.tar.gz -O DynAdjust-1.1.0.tar.gz"
     echo -e "                         $ tar xzvf DynAdjust-1.1.0.tar.gz"
     echo -e "                         $ cd DynAdjust-1.1.0/"
 	echo -e "                         $ bash ./resources/make_dynadjust_gc.sh (this script)"
@@ -175,7 +175,7 @@ _test_dir="$_clone_dir/sampleData"
 # set build dir
 _build_dir="$_root_dir/build_gcc"
 # set clone url
-_clone_url="https://github.com/icsm-au/DynAdjust.git"
+_clone_url="https://github.com/geoscienceaustralia/DynAdjust.git"
 
 # usr bin directory
 BIN_FOLDER="~/bin"
