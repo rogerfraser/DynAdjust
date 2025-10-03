@@ -45,8 +45,10 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar --no-recursion -xf ~/apt-install-cache/packages.tar -C /
+          echo "Restoring packages from cache..."
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
+          echo "Cache restoration complete"
 
       - name: Install dependencies
         if: steps.cache-apt.outputs.cache-hit != 'true'
