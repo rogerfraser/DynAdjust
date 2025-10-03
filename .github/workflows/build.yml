@@ -78,8 +78,9 @@ jobs:
           fi
 
           # Filter and create tarball
-          echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
+          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
+          echo "Creating tarball from $TOTAL_FILES files..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
@@ -166,8 +167,9 @@ jobs:
           fi
 
           # Filter and create tarball
-          echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
+          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
+          echo "Creating tarball from $TOTAL_FILES files..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
@@ -281,8 +283,9 @@ jobs:
           fi
 
           # Filter and create tarball
-          echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
+          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
+          echo "Creating tarball from $TOTAL_FILES files..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
