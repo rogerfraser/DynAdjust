@@ -263,8 +263,8 @@ jobs:
     needs: []  # Don't depend on other test jobs
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-      # PKGS: >
-      #   libxerces-c-dev xsdcxx libboost-program-options-dev
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-program-options-dev
 
     steps:
       - name: Show CPU information
@@ -280,11 +280,11 @@ jobs:
         run: |
           echo ONEAPI_HASH=$(echo "${LINUX_BASEKIT_URL}" | md5sum | cut -f 1 -d" ") >> $GITHUB_ENV
 
-      # - name: Install dependencies
-      #   shell: bash
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y ${{ env.PKGS }}
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.PKGS }}
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
