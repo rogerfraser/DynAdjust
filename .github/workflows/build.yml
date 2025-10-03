@@ -45,37 +45,20 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          echo "Restoring packages from cache..."
-          ls -lh ~/apt-install-cache/packages.tar
-
-          echo "Extracting .deb files to apt cache..."
           sudo tar -xf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ --strip-components=1
-
-          echo "Installing .deb files with dpkg..."
           sudo dpkg -i /var/cache/apt/archives/*.deb
           sudo ldconfig
-
-          echo "Cache restoration complete"
 
       - name: Install dependencies
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "Running apt-get update..."
           sudo apt-get update
-
-          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          echo "Cached $(ls -1 /var/cache/apt/archives/*.deb 2>/dev/null | wc -l) .deb files"
-          ls -lh /var/cache/apt/archives/*.deb | head -20
-
-          echo "Creating cache tarball..."
           mkdir -p ~/apt-install-cache
           sudo tar -cf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ .
           sudo chown $USER ~/apt-install-cache/packages.tar
-          ls -lh ~/apt-install-cache/packages.tar
-          echo "Cache created successfully"
 
       - name: Check branch name
         shell: bash
@@ -84,27 +67,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
-
-      - name: Verify dependencies
-        run: |
-          echo "Checking for Boost..."
-          dpkg -l | grep boost || echo "Boost not found via dpkg"
-          ls /usr/lib/x86_64-linux-gnu/libboost* 2>/dev/null || echo "No Boost libraries found"
-          ls /usr/lib/x86_64-linux-gnu/cmake/Boost* 2>/dev/null || echo "No Boost CMake files found"
-
-          echo ""
-          echo "Checking for BLAS/LAPACK..."
-          dpkg -l | grep -E '(blas|lapack)' || echo "BLAS/LAPACK not found via dpkg"
-
-          echo ""
-          echo "Standard library locations:"
-          ls -la /usr/lib/x86_64-linux-gnu/libopenblas* 2>/dev/null || echo "No OpenBLAS libraries found"
-          ls -la /usr/lib/x86_64-linux-gnu/libblas* 2>/dev/null || echo "No BLAS libraries found"
-          ls -la /usr/lib/x86_64-linux-gnu/liblapack* 2>/dev/null || echo "No LAPACK libraries found"
-
-          echo ""
-          echo "Alternative library locations:"
-          ls -la /usr/lib/x86_64-linux-gnu/openblas-pthread/ 2>/dev/null || echo "No openblas-pthread directory"
 
       - name: Build with CMake
         run: |
@@ -115,7 +77,6 @@ jobs:
 #------------------------------------------------
 
   build_linux_dyn_mkl:
-    if: ${{ false }}
     name: Linux build (mkl)
     runs-on: ubuntu-latest
     env:
@@ -144,49 +105,20 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xf ~/apt-install-cache/packages.tar -C /
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ --strip-components=1
+          sudo dpkg -i /var/cache/apt/archives/*.deb
           sudo ldconfig
 
       - name: Install dependencies
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "Running apt-get update..."
           sudo apt-get update
-
-          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
-
-          # Get list of installed packages (convert multiline PKGS to single line)
-          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
-          echo "Package list: $PKGS_LIST"
-
-          # Get list of files from all packages
-          echo "Getting file list from dpkg..."
-          dpkg -L $PKGS_LIST > /tmp/pkg_files.txt 2>&1 || true
-          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
-          echo "First 10 files:"
-          head -10 /tmp/pkg_files.txt
-
-          if [ ! -s /tmp/pkg_files.txt ]; then
-            echo "WARNING: No files found from dpkg, skipping cache creation"
-            exit 0
-          fi
-
-          # Filter and create tarball (uncompressed for speed)
-          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
-          echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
-
-          if [ -f ~/apt-install-cache/packages.tar ]; then
-            echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar
-          else
-            echo "WARNING: Cache file was not created, but continuing"
-          fi
+          sudo tar -cf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ .
+          sudo chown $USER ~/apt-install-cache/packages.tar
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -232,7 +164,6 @@ jobs:
 #------------------------------------------------
 
   build_linux_static_openblas:
-    if: ${{ false }}
     name: Linux build (openblas / static)
     runs-on: ubuntu-latest
     env:
@@ -261,49 +192,20 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xf ~/apt-install-cache/packages.tar -C /
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ --strip-components=1
+          sudo dpkg -i /var/cache/apt/archives/*.deb
           sudo ldconfig
 
       - name: Install dependencies
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "Running apt-get update..."
           sudo apt-get update
-
-          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
-
-          # Get list of installed packages (convert multiline PKGS to single line)
-          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
-          echo "Package list: $PKGS_LIST"
-
-          # Get list of files from all packages
-          echo "Getting file list from dpkg..."
-          dpkg -L $PKGS_LIST > /tmp/pkg_files.txt 2>&1 || true
-          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
-          echo "First 10 files:"
-          head -10 /tmp/pkg_files.txt
-
-          if [ ! -s /tmp/pkg_files.txt ]; then
-            echo "WARNING: No files found from dpkg, skipping cache creation"
-            exit 0
-          fi
-
-          # Filter and create tarball (uncompressed for speed)
-          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
-          echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
-
-          if [ -f ~/apt-install-cache/packages.tar ]; then
-            echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar
-          else
-            echo "WARNING: Cache file was not created, but continuing"
-          fi
+          sudo tar -cf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ .
+          sudo chown $USER ~/apt-install-cache/packages.tar
 
       - name: Check branch name
         shell: bash
@@ -353,7 +255,6 @@ jobs:
 #------------------------------------------------
 
   build_mac_dyn:
-    if: ${{ false }}
     name: Mac build (accelerate)
     runs-on: macos-15
     env:
@@ -409,7 +310,6 @@ jobs:
 #------------------------------------------------
 
   build_mac_static:
-    if: ${{ false }}
     name: Mac build (accelerate / static)
     runs-on: macos-15
     env:
@@ -470,7 +370,6 @@ jobs:
 #------------------------------------------------
 
   build_windows_dyn_mkl:
-    if: ${{ false }}
     name: Windows build (mkl)
     runs-on: windows-2025
     env:
@@ -618,7 +517,6 @@ jobs:
 #------------------------------------------------  
   
   build_windows_dyn_openblas:
-    if: ${{ false }}
     name: Windows build (openblas)
     runs-on: windows-2025
     env:
