@@ -57,7 +57,7 @@ jobs:
 
           # Cache the installed files
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T -
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
 
       - name: Check branch name
         shell: bash
@@ -116,7 +116,7 @@ jobs:
 
           # Cache the installed files
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T -
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -202,7 +202,7 @@ jobs:
 
           # Cache the installed files
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T -
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
 
       - name: Check branch name
         shell: bash
