@@ -67,23 +67,32 @@ jobs:
           PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
           echo "Package list: $PKGS_LIST"
 
+          # Debug: Show files from each package individually
+          echo "Checking files from each package:"
+          for pkg in $PKGS_LIST; do
+            echo "--- Package: $pkg ---"
+            dpkg -L "$pkg" 2>&1 | head -10 || echo "Failed to list files for $pkg"
+          done
+
           # Get list of files from all packages
           echo "Getting file list from dpkg..."
           dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
 
-          echo "Paths:"
-          grep -v '/$' /tmp/pkg_files_all.txt
-
-          # Filter using grep to remove directories (they end with / or are listed as directories)
+          # Filter to include only regular files (not directories)
           echo "Filtering file list..."
-          grep -v '/$' /tmp/pkg_files_all.txt | while read path; do
-            [ -e "$path" ] && echo "$path"
-          done > /tmp/pkg_files.txt 2>/dev/null || true
+          while read path; do
+            [ -f "$path" ] && echo "$path"
+          done < /tmp/pkg_files_all.txt > /tmp/pkg_files.txt 2>/dev/null || true
 
           TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
           echo "Total files to cache: $TOTAL_FILES"
 
-          cat /tmp/pkg_files.txt
+          echo "Sample of files to cache (first 20):"
+          head -20 /tmp/pkg_files.txt
+
+          echo ""
+          echo "Checking for Boost files:"
+          grep -i boost /tmp/pkg_files.txt | head -10 || echo "No Boost files found"
 
           if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
