@@ -45,7 +45,7 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xf ~/apt-install-cache/packages.tar -C /
+          sudo tar --no-recursion -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
 
       - name: Install dependencies
@@ -67,20 +67,25 @@ jobs:
 
           # Get list of files from all packages
           echo "Getting file list from dpkg..."
-          dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files.txt || true
-          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
-          echo "First 10 files:"
-          head -10 /tmp/pkg_files.txt
+          dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
 
-          if [ ! -s /tmp/pkg_files.txt ]; then
+          # Filter to only actual files (not directories)
+          echo "Filtering to actual files only..."
+          while read path; do
+            [ -f "$path" ] && echo "$path"
+          done < /tmp/pkg_files_all.txt > /tmp/pkg_files.txt
+
+          TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
+          echo "Total actual files: $TOTAL_FILES"
+
+          if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
             exit 0
           fi
 
-          # Filter and create tarball (uncompressed for speed)
-          TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
-          echo "Creating tarball from $TOTAL_FILES unique files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=100 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T - || true
+          # Create tarball with --no-recursion to prevent directory expansion
+          echo "Creating tarball..."
+          sudo tar --ignore-failed-read --no-recursion --checkpoint=500 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T /tmp/pkg_files.txt || true
 
           if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
