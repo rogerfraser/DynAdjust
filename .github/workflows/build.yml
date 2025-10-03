@@ -63,26 +63,22 @@ jobs:
           echo "Running apt-get update..."
           sudo apt-get update
 
-          echo "Downloading packages: ${{ env.PKGS }}"
+          echo "Installing packages: ${{ env.PKGS }}"
+          sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
+
+          echo "Getting list of installed packages..."
+          dpkg --get-selections | awk '{print $1}' | sort > /tmp/installed_pkgs.txt
+
+          echo "Downloading .deb files for installed packages..."
           mkdir -p ~/apt-install-cache/debs
           cd ~/apt-install-cache/debs
 
-          # Download packages and all dependencies
-          echo "Getting dependency list..."
-          apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | grep -v "^|" | grep -v "^<" | sort -u > /tmp/pkg_list.txt
+          while read pkg; do
+            apt-get download "$pkg" 2>/dev/null || echo "Skipped: $pkg"
+          done < /tmp/installed_pkgs.txt
 
-          echo "Package list (first 20):"
-          head -20 /tmp/pkg_list.txt
-
-          echo "Downloading .deb files..."
-          xargs -a /tmp/pkg_list.txt apt-get download
-
-          echo "Downloaded $(ls -1 | wc -l) .deb files"
-          ls -lh
-
-          echo "Installing packages..."
-          sudo dpkg -i *.deb || true
-          sudo apt-get install -f -y
+          echo "Downloaded $(ls -1 *.deb 2>/dev/null | wc -l) .deb files"
+          ls -lh | head -20
 
           echo "Creating cache tarball..."
           cd ~/apt-install-cache
