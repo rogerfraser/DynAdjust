@@ -80,6 +80,12 @@ jobs:
           TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
           echo "Total files to cache: $TOTAL_FILES"
 
+          echo "Sample of files being cached (first 50):"
+          head -50 /tmp/pkg_files.txt
+
+          echo "Boost-related files:"
+          grep -i boost /tmp/pkg_files.txt | head -20 || echo "No boost files found"
+
           if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
             exit 0
