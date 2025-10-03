@@ -46,6 +46,13 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
           echo "Restoring packages from cache..."
+          echo "Cache file size:"
+          ls -lh ~/apt-install-cache/packages.tar
+          echo "Sample of files in cache (first 30):"
+          tar -tf ~/apt-install-cache/packages.tar | head -30
+          echo "Checking for openblas libraries in cache:"
+          tar -tf ~/apt-install-cache/packages.tar | grep -i openblas | head -10 || echo "No openblas files found in cache"
+
           sudo tar -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
           echo "Cache restoration complete"
