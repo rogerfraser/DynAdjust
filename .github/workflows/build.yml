@@ -140,6 +140,13 @@ jobs:
           ls /usr/lib/x86_64-linux-gnu/libboost* 2>/dev/null || echo "No Boost libraries found"
           ls /usr/lib/x86_64-linux-gnu/cmake/Boost* 2>/dev/null || echo "No Boost CMake files found"
 
+          echo ""
+          echo "Checking for BLAS/LAPACK..."
+          dpkg -l | grep -E '(blas|lapack)' || echo "BLAS/LAPACK not found via dpkg"
+          ls -la /usr/lib/x86_64-linux-gnu/libopenblas* 2>/dev/null || echo "No OpenBLAS libraries found"
+          ls -la /usr/lib/x86_64-linux-gnu/libblas* 2>/dev/null || echo "No BLAS libraries found"
+          ls -la /usr/lib/x86_64-linux-gnu/liblapack* 2>/dev/null || echo "No LAPACK libraries found"
+
       - name: Build with CMake
         run: |
           cmake dynadjust -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON
