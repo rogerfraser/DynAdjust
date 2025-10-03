@@ -23,6 +23,7 @@
 #include <include/exception/dnaexception.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/measurement_types/dnagpspoint.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::exception;
 using namespace dynadjust::epsg;
@@ -155,7 +156,7 @@ bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 		fabs(m_dX - rhs.m_dX) < PRECISION_1E4 &&
 		fabs(m_dY - rhs.m_dY) < PRECISION_1E4 &&
 		fabs(m_dZ - rhs.m_dZ) < PRECISION_1E4 &&
-		boost::iequals(m_referenceFrame, rhs.m_referenceFrame)
+		iequals(m_referenceFrame, rhs.m_referenceFrame)
 		);
 }
 	
@@ -543,8 +544,8 @@ void CDnaGpsPoint::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex
 	measRecord.scale3 = m_dHscale;
 	measRecord.scale4 = m_dVscale;
 
-	sprintf(measRecord.epsgCode, "%s", m_epsgCode.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	snprintf(measRecord.epsgCode, sizeof(measRecord.epsgCode), "%s", m_epsgCode.substr(0, STN_EPSG_WIDTH).c_str());
+	snprintf(measRecord.epoch, sizeof(measRecord.epoch), "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	// X
 	measRecord.measAdj = m_measAdj;
@@ -654,8 +655,7 @@ void CDnaGpsPoint::SetY(const std::string& str)
 	
 void CDnaGpsPoint::SetZ(const std::string& str)
 {
-	// if (m_ctType == LLH_type_i)
-	// then height should be ellipsoid height (but input files show height to be orthometric!)
+	// Height will either be ellipsoid or orthometric depending on <Type/>
 	DoubleFromString(m_dZ, trimstr(str));
 }
 	

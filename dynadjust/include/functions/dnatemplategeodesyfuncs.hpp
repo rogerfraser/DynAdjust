@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnatemplategeodesyfuncs.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,6 +28,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -36,13 +36,12 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
+#include <memory>
+/// \endcond
 
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
 using namespace dynadjust::datum_parameters;
 

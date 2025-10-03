@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnastation.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,20 +28,20 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
-#include <string.h>
-
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <algorithm>
-#include <functional>
 #include <vector>
 #include <string>
 #include <cctype>
 #include <fstream>
+#include <memory>
+
+// #include <boost/shared_ptr.hpp> // Replaced with std::shared_ptr
+/// \endcond
+
 #include <include/config/dnaexports.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-structs.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaoptions.hpp>
@@ -52,8 +51,6 @@
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>
 #include <include/io/dnaiodnatypes.hpp>
-
-#include <boost/shared_ptr.hpp>
 
 using namespace dynadjust::datum_parameters;
 
@@ -67,7 +64,7 @@ class CAStationList;
 class CDnaStation;
 
 // station types
-typedef boost::shared_ptr<CDnaStation> dnaStnPtr;
+typedef std::shared_ptr<CDnaStation> dnaStnPtr;
 typedef std::vector<dnaStnPtr> vdnaStnPtr, * pvdnaStnPtr;		// vector of dnaStnPtr
 typedef vdnaStnPtr::iterator _it_vdnastnptr;
 typedef vdnaStnPtr::const_iterator _it_vdnastnptr_const;
@@ -75,15 +72,11 @@ typedef std::pair<_it_vdnastnptr, _it_vdnastnptr> it_pair_dnastnptr;
 
 typedef std::vector<CAStationList> vASL, *pvASL;
 typedef vASL::iterator _it_vasl;
-typedef boost::shared_ptr<CAStationList> ASLPtr;
+typedef std::shared_ptr<CAStationList> ASLPtr;
 typedef std::vector<ASLPtr> vASLPtr, *pvASLPtr;
 
 
-#ifdef _MSC_VER
-class DNATYPE_API CAStationList
-#else
 class CAStationList
-#endif
 {
 public:
 	CAStationList();
@@ -145,11 +138,7 @@ protected:
 };
 	
 
-#ifdef _MSC_VER
-class DNATYPE_API CDnaStation
-#else
-class CDnaStation
-#endif	
+class CDnaStation	
 {
 public:
 	CDnaStation(const std::string& referenceframe, const std::string& epoch);
@@ -163,7 +152,7 @@ public:
 	//inline CDnaStation& operator[](int iIndex) { return this[iIndex]; }
 
 	friend bool operator<(const CDnaStation& left, const CDnaStation& right);
-	friend bool operator<(const boost::shared_ptr<CDnaStation>& left, const boost::shared_ptr<CDnaStation>& right);
+	friend bool operator<(const std::shared_ptr<CDnaStation>& left, const std::shared_ptr<CDnaStation>& right);
 	
 	inline int CompareStationName(const std::string& s) { return m_strName.compare(s); }
 	inline std::string GetName() const { return m_strName; }

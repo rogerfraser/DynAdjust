@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnareftran.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,30 +28,29 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
+#include <memory>
+#include <filesystem>
+/// \endcond
 
-#include <include/measurement_types/dnageometries.hpp>
+#include <include/ide/trace.hpp>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/chrono/time_point.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/filesystem.hpp>
-
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
 #include <include/io/dnaiotpb.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiodna.hpp>
 
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
+#include <include/config/dnaexports.hpp>
+#include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/exception/dnaexception.hpp>
 
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
@@ -71,6 +69,7 @@
 
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
+#include <include/measurement_types/dnageometries.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;

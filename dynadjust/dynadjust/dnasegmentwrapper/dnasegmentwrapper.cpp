@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnasegmentwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -22,410 +21,510 @@
 
 #include <dynadjust/dnasegmentwrapper/dnasegmentwrapper.hpp>
 
+/// \cond
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <thread>
+/// \endcond
+
+#include <dynadjust/dnasegment/dnasegment.hpp>
+#include <include/config/dnaconsts-interface.hpp>
+#include <include/config/dnaconsts-iostream.hpp>
+#include <include/config/dnaconsts.hpp>
+#include <include/config/dnaprojectfile.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnastringfuncs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatedatetimefuncs.hpp>
+#include <include/functions/dnatimer.hpp>
+
 using namespace dynadjust;
+using namespace dynadjust::networksegment;
+using namespace dynadjust::exception;
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
-int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p)
-{
-	// capture command line arguments
-	for (int cmd_arg(0); cmd_arg<argc; ++cmd_arg)
-	{
-		 p.s.command_line_arguments += argv[cmd_arg];
-		 p.s.command_line_arguments += " ";
-	}
+// Thread class implementations
+dna_segment_thread::dna_segment_thread(dynadjust::networksegment::dna_segment* dnaSeg, project_settings* p,
+                                       _SEGMENT_STATUS_* segmentStatus, boost::posix_time::milliseconds* s,
+                                       std::string* status_msg)
+    : _dnaSeg(dnaSeg), _p(p), _segmentStatus(segmentStatus), _s(s), _status_msg(status_msg) {}
 
-	if (vm.count(PROJECT_FILE))
-	{
-		if (boost::filesystem::exists(p.g.project_file))
-		{
-			try {
-				CDnaProjectFile projectFile(p.g.project_file, segmentSetting);
-				p = projectFile.GetSettings();
-			}
-			catch (const std::runtime_error& e) {
-				std::cout << std::endl << "- Error: " << e.what() << std::endl;
-				return EXIT_FAILURE;
-			}
-			
-			return EXIT_SUCCESS;
-		}
+void dna_segment_thread::operator()() {
+    running = true;
 
-		std::cout << std::endl << "- Error: project file " << p.g.project_file << " does not exist." << std::endl << std::endl;
-		return EXIT_FAILURE;
-	}
+    if (!_p->g.quiet) {
+        cout_mutex.lock();
+        std::cout << "+ Loading binary files...";
+        cout_mutex.unlock();
+    }
 
-	if (!vm.count(NETWORK_NAME))
-	{
-		std::cout << std::endl << "- Nothing to do - no network name specified. " << std::endl << std::endl;  
-		return EXIT_FAILURE;
-	}
-	
-	p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
+    try {
+        // prepare the segmentation
+        _dnaSeg->PrepareSegmentation(_p);
+    } catch (const NetSegmentException& e) {
+        cout_mutex.lock();
+        std::cout << std::endl << "- Error: " << e.what() << std::endl;
+        cout_mutex.unlock();
+        running = false;
+        return;
+    }
 
-	// input files
-	p.s.asl_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "asl");		// associated stations list
-	p.s.aml_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "aml");		// associated measurements list
-	p.s.map_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "map");		// station names map
-	
-	if (vm.count(NET_FILE))
-		p.s.net_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "net");		// Starting stations file
-	
-	// binary station file location (input)
-	if (vm.count(BIN_STN_FILE))
-		p.s.bst_file = formPath<std::string>(p.g.input_folder, p.s.bst_file);
-	else
-		p.s.bst_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bst");
+    if (!_p->g.quiet) {
+        cout_mutex.lock();
+        std::cout << " done." << std::endl;
 
-	// binary station file location (input)
-	if (vm.count(BIN_MSR_FILE))
-		p.s.bms_file = formPath<std::string>(p.g.input_folder, p.s.bms_file);
-	else
-		p.s.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
+        if (_dnaSeg->StartingStations().empty()) {
+            std::string startStn(_dnaSeg->DefaultStartingStation());
+            if (startStn == "") startStn = "the first station";
+            std::cout << "+ Adopting " << _dnaSeg->DefaultStartingStation()
+                      << " as the initial station in the first block." << std::endl;
+        }
+        std::cout << "+ Creating block " << std::setw(PROGRESS_PAD_39) << " ";
+        cout_mutex.unlock();
+    }
+    cpu_timer time;
+    try {
+        *_segmentStatus = SEGMENT_EXCEPTION_RAISED;
+        *_segmentStatus = _dnaSeg->SegmentNetwork(_p);
+    } catch (const NetSegmentException& e) {
+        running = false;
+        cout_mutex.lock();
+        std::cout << std::endl << "- Error: " << e.what() << std::endl;
+        cout_mutex.unlock();
+        return;
+    } catch (const std::runtime_error& e) {
+        running = false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        cout_mutex.lock();
+        std::cout << std::endl << "- Error: " << e.what() << std::endl;
+        cout_mutex.unlock();
+        return;
+    }
 
-	if (!boost::filesystem::exists(p.s.bst_file) || !boost::filesystem::exists(p.s.bms_file))
-	{
-		std::cout << std::endl << "- Nothing to do: ";  
-			
-		if (p.g.network_name.empty())
-			std::cout << std::endl << "network name has not been specified specified, and " << std::endl << "               ";  
-		std::cout << p.s.bst_file << " and " << p.s.bms_file << " do not exist." << std::endl << std::endl;  
-		return EXIT_FAILURE;
-	}
+    *_s = boost::posix_time::milliseconds(
+        std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count());
+    running = false;
 
-	// output files
-	// User supplied segmentation file
-	if (vm.count(SEG_FILE))
-	{
-		// Does it exist?
-		if (!boost::filesystem::exists(p.s.seg_file))
-		{
-			// Look for it in the input folder
-			p.s.seg_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.s.seg_file));
-
-			if (!boost::filesystem::exists(p.s.seg_file))
-			{
-				std::cout << std::endl << "- Error: " <<
-					"Segmentation file " << leafStr<std::string>(p.s.seg_file) << " does not exist." << std::endl << std::endl;  
-				return EXIT_FAILURE;
-			}
-		}
-	}
-	else
-		p.s.seg_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "seg");
-
-	// Station appearance file
-	p.s.sap_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "sap");
-	
-	if (vm.count(TEST_INTEGRITY))
-		p.i.test_integrity = 1;
-
-	//if (vm.count(SEG_FORCE_CONTIGUOUS))
-	//	p.s.force_contiguous_blocks = 1;
-
-	return EXIT_SUCCESS;
+    if (!_p->g.quiet) {
+        cout_mutex.lock();
+        std::cout << PROGRESS_BACKSPACE_39 << "\b" << std::setw(PROGRESS_PAD_39 + 3) << std::left << "s... done.   "
+                  << std::endl;
+        cout_mutex.unlock();
+    }
 }
 
-int main(int argc, char* argv[])
-{	
-	// create banner message
-	std::string cmd_line_banner;
-	fileproc_help_header(&cmd_line_banner);
+dna_segment_progress_thread::dna_segment_progress_thread(dynadjust::networksegment::dna_segment* dnaSeg,
+                                                         project_settings* p)
+    : _dnaSeg(dnaSeg), _p(p) {}
 
-	std::string stnfilename, msrfilename;
-	
-	project_settings p;
+void dna_segment_progress_thread::operator()() {
+    UINT32 block, currentBlock(0);
+    std::ostringstream ss;
 
-	boost::program_options::variables_map vm;
-	boost::program_options::positional_options_description positional_options;
+    while (running) {
+        block = _dnaSeg->currentBlock();
+        if (!_p->g.quiet) {
+            if (block != currentBlock) {
+                ss.str("");
+                ss << "(" << std::fixed << std::setw(2) << std::right << std::setprecision(0) << _dnaSeg->GetProgress()
+                   << "% stations used)";
+                cout_mutex.lock();
+                std::cout << PROGRESS_BACKSPACE_39 << std::setw(PROGRESS_BLOCK) << std::left << block
+                          << std::setw(PROGRESS_PERCENT_29) << std::right << ss.str();
+                std::cout.flush();
+                cout_mutex.unlock();
+                currentBlock = block;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
+    }
+}
 
-	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	boost::program_options::options_description config_options("+ " + std::string(SEGMENT_MODULE_CONFIG), PROGRAM_OPTIONS_LINE_LENGTH);
-	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
-	
-	std::string cmd_line_usage("+ ");
-	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" ").append(NETWORK_NAME).append(" [options]");
-	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm,
+                            project_settings& p) {
+    // capture command line arguments
+    for (int cmd_arg(0); cmd_arg < argc; ++cmd_arg) {
+        p.s.command_line_arguments += argv[cmd_arg];
+        p.s.command_line_arguments += " ";
+    }
 
-	try {
-		// Declare a group of options that will be 
-		// allowed only on command line		
-		standard_options.add_options()
-			(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
-				"Project file name. Full path to project file. If none specified, a new file is created using input-folder and network-name.")
-			(NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name),
-				"Network name. User defined name for all input and output files. Default is \"network#\".")
-			(INPUT_FOLDER_I, boost::program_options::value<std::string>(&p.g.input_folder),
-				"Path containing all input files")
-			(OUTPUT_FOLDER_O, boost::program_options::value<std::string>(&p.g.output_folder),		// default is ./,
-				"Path for all output files")
-			(BIN_STN_FILE, boost::program_options::value<std::string>(&p.s.bst_file),
-				"Binary station file name. Overrides network name.")
-			(BIN_MSR_FILE, boost::program_options::value<std::string>(&p.s.bms_file),
-				"Binary measurement file name. Overrides network name.")
-			(SEG_FILE, boost::program_options::value<std::string>(&p.s.seg_file),
-				"Segmentation output file name. Overrides network name.")
-			;
+    if (vm.count(PROJECT_FILE)) {
+        if (std::filesystem::exists(p.g.project_file)) {
+            try {
+                CDnaProjectFile projectFile(p.g.project_file, segmentSetting);
+                p = projectFile.GetSettings();
+            } catch (const std::runtime_error& e) {
+                std::cout << std::endl << "- Error: " << e.what() << std::endl;
+                return EXIT_FAILURE;
+            }
 
-		// Declare a group of options that will be 
-		// allowed both on command line and in
-		// config options        
-		config_options.add_options()
-			(NET_FILE,
-				"Look for a .net file containing stations to be incorporated within the first block.")
-			(SEG_STARTING_STN, boost::program_options::value<std::string>(&p.s.seg_starting_stns),
-				"Additional stations to be incorporated within the first block. arg is a comma delimited string \"stn1, stn 2,stn3 , stn 4\".")
-			(SEG_MIN_INNER_STNS, boost::program_options::value<UINT32>(&p.s.min_inner_stations),
-				(std::string("Minimum number of inner stations within each block. Default is ")+
-					StringFromT(p.s.min_inner_stations)+std::string(".")).c_str())
-			(SEG_THRESHOLD_STNS, boost::program_options::value<UINT32>(&p.s.max_total_stations),
-				(std::string("Threshold limit for maximum number of stations per block. Default is ")+
-					StringFromT(p.s.max_total_stations)+std::string(".")).c_str())
-			(SEG_FORCE_CONTIGUOUS, boost::program_options::value<UINT16>(&p.s.force_contiguous_blocks),
-				(std::string("Treatment of isolated networks:\n")+
-				std::string("  0: Isolated networks as individual blocks ")+
-				(p.s.force_contiguous_blocks==0 ? "(default)\n" : "\n")+
-				std::string("  1: Force production of contiguous blocks ")+
-				(p.s.force_contiguous_blocks==1 ? "(default)" : "")
-				).c_str())
-			(SEG_SEARCH_LEVEL, boost::program_options::value<UINT16>(&p.s.seg_search_level),
-				"Level to which searches should be conducted to find stations with the lowest measurement count. Default is 0.")
-			(TEST_INTEGRITY,
-				"Test the integrity of all output files.")
-			;
+            return EXIT_SUCCESS;
+        }
 
-		generic_options.add_options()
-			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
-				std::string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
-				(QUIET,
-					std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
-					(VERSION_V, "Display the current program version")
-			(HELP_H, "Show this help message")
-			(HELP_MODULE_H, boost::program_options::value<std::string>(),
-				"Provide help for a specific help category.")
-			;
+        std::cout << std::endl
+                  << "- Error: project file " << p.g.project_file << " does not exist." << std::endl
+                  << std::endl;
+        return EXIT_FAILURE;
+    }
 
-		allowable_options.add(standard_options).add(config_options).add(generic_options);
+    if (!vm.count(NETWORK_NAME)) {
+        std::cout << std::endl << "- Nothing to do - no network name specified. " << std::endl << std::endl;
+        return EXIT_FAILURE;
+    }
 
-		// add "positional options" to handle command line tokens which have no option name
-		positional_options.add(NETWORK_NAME, -1);
-		
-		boost::program_options::command_line_parser parser(argc, argv);
-		store(parser.options(allowable_options).positional(positional_options).run(), vm);
-		notify(vm);
-	} 
-	catch (const std::exception& e) {
-		std::cout << "- Error: " << e.what() << std::endl <<
-			cmd_line_banner << allowable_options << std::endl;
-		return EXIT_FAILURE;
-	}
+    p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
-	if (argc < 2)
-	{
-		std::cout << std::endl << "- Nothing to do - no options provided. " << std::endl << std::endl <<
-			cmd_line_banner << allowable_options << std::endl;
-		return EXIT_FAILURE;
-	}
+    // input files
+    p.s.asl_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "asl");  // associated stations list
+    p.s.aml_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "aml");  // associated measurements list
+    p.s.map_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "map");  // station names map
 
-	if (vm.count(VERSION))
-	{
-		std::cout << cmd_line_banner << std::endl;
-		return EXIT_SUCCESS;
-	}
+    if (vm.count(NET_FILE))
+        p.s.net_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "net");  // Starting stations file
 
-	if (vm.count(HELP))
-	{
-		std::cout << cmd_line_banner << allowable_options << std::endl;
-		return EXIT_SUCCESS;
-	}
+    // binary station file location (input)
+    if (vm.count(BIN_STN_FILE))
+        p.s.bst_file = formPath<std::string>(p.g.input_folder, p.s.bst_file);
+    else
+        p.s.bst_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bst");
 
-	if (vm.count(HELP_MODULE))
-	{
-		std::cout << cmd_line_banner;
-		std::string original_text = vm[HELP_MODULE].as<std::string>();
-		std::string help_text = str_upper<std::string>(original_text);
+    // binary station file location (input)
+    if (vm.count(BIN_MSR_FILE))
+        p.s.bms_file = formPath<std::string>(p.g.input_folder, p.s.bms_file);
+    else
+        p.s.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
-			std::cout << standard_options << std::endl;
-		}
-		else if (str_upper<std::string, char>(SEGMENT_MODULE_CONFIG).find(help_text) != std::string::npos) {
-			std::cout << config_options << std::endl;
-		}
-		else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
-			std::cout << generic_options << std::endl;
-		}
-		else {
-			std::cout << std::endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << std::endl;
-			return EXIT_FAILURE;
-		}
+    if (!std::filesystem::exists(p.s.bst_file) || !std::filesystem::exists(p.s.bms_file)) {
+        std::cout << std::endl << "- Nothing to do: ";
 
-		return EXIT_SUCCESS;
-	}
+        if (p.g.network_name.empty())
+            std::cout << std::endl
+                      << "network name has not been specified specified, and " << std::endl
+                      << "               ";
+        std::cout << p.s.bst_file << " and " << p.s.bms_file << " do not exist." << std::endl << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	bool userSuppliedSegFile(false);
-	if (!p.s.seg_file.empty())
-		userSuppliedSegFile = true;
-	bool userSuppliedBstFile(false);
-	if (!p.s.bst_file.empty())
-		userSuppliedBstFile = true;
-	bool userSuppliedBmsFile(false);
-	if (!p.s.bms_file.empty())
-		userSuppliedBmsFile = true;
+    // output files
+    // User supplied segmentation file
+    if (vm.count(SEG_FILE)) {
+        // Does it exist?
+        if (!std::filesystem::exists(p.s.seg_file)) {
+            // Look for it in the input folder
+            p.s.seg_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.s.seg_file));
 
-	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
-		return EXIT_FAILURE;
+            if (!std::filesystem::exists(p.s.seg_file)) {
+                std::cout << std::endl
+                          << "- Error: " << "Segmentation file " << leafStr<std::string>(p.s.seg_file)
+                          << " does not exist." << std::endl
+                          << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+    } else
+        p.s.seg_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "seg");
 
-	if (vm.count(QUIET))
-		p.g.quiet = 1;
-	
-	if (!p.g.quiet)
-	{
-		std::cout << std::endl << cmd_line_banner;
-		
-		std::cout << "+ Options:" << std::endl; 
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Network name: " <<  p.g.network_name << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input folder: " << p.g.input_folder << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Output folder: " << p.g.output_folder << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated station file: " << p.s.asl_file << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated measurement file: " << p.s.aml_file << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary station file: " << p.s.bst_file << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary measurement file: " << p.s.bms_file << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Segmentation output file: " << p.s.seg_file << std::endl;
-		if (!p.s.net_file.empty())
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Block 1 stations file: " << p.s.net_file << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Minimum inner stations: " <<  p.s.min_inner_stations << std::endl;
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Block size threshold: " <<  p.s.max_total_stations << std::endl;
-		if (!p.s.seg_starting_stns.empty())
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Additional Block 1 stations: " << p.s.seg_starting_stns << std::endl;
-		else if (p.s.net_file.empty())
-			std::cout << "  No initial station specified. The first station will be used." << std::endl;
-		
-		std::cout << std::endl;
-	}
+    // Station appearance file
+    p.s.sap_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "sap");
 
-	// Should segment look for a net file?
-	if (!p.s.net_file.empty())
-	{
-		if (!boost::filesystem::exists(p.s.net_file))
-		{
-			cout_mutex.lock();
-			std::cout << std::endl <<
-				"- Error: " << p.s.net_file << " does not exist." << std::endl <<
-				"  A file named " << p.g.network_name << ".net must exist in the input folder\n  in order to use this option." << std::endl << std::endl;
-			cout_mutex.unlock();
-			return EXIT_FAILURE;
-		}
-	}
+    if (vm.count(TEST_INTEGRITY)) p.i.test_integrity = 1;
 
-	dna_segment netSegment;
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
-	_SEGMENT_STATUS_ segmentStatus;
-	std::string status_msg;
+    // if (vm.count(SEG_FORCE_CONTIGUOUS))
+    //	p.s.force_contiguous_blocks = 1;
 
-	try {
-		netSegment.InitialiseSegmentation();
-		running = true;
+    return EXIT_SUCCESS;
+}
 
-		// segment blocks using group thread
-		boost::thread_group ui_segment_threads;
-		if (!p.g.quiet)
-			ui_segment_threads.create_thread(dna_segment_progress_thread(&netSegment, &p));
-		ui_segment_threads.create_thread(dna_segment_thread(&netSegment, &p, &segmentStatus, &elapsed_time, &status_msg));
-		ui_segment_threads.join_all();
-		
-		switch (netSegment.GetStatus())
-		{
-		case SEGMENT_EXCEPTION_RAISED:
-			running = false;
-			return EXIT_FAILURE;
-		default:
-			break;
-		}
+int main(int argc, char* argv[]) {
+    // create banner message
+    std::string cmd_line_banner;
+    fileproc_help_header(&cmd_line_banner);
 
-		//// print station appearance file
-		//if (!p.g.quiet)
-		//	std::cout << "+ Printing station appearance list... ";
-		//netSegment.WriteStationAppearanceList(p.s.sap_file);
-		//if (!p.g.quiet)
-		//	std::cout << "done." << std::endl;
+    std::string stnfilename, msrfilename;
 
-		if (p.g.verbose > 1 && !p.g.quiet)
-			netSegment.coutSummary(); 
+    project_settings p;
 
-		if (segmentStatus != SEGMENT_SUCCESS)
-			std::cout << status_msg << std::endl;
+    boost::program_options::variables_map vm;
+    boost::program_options::positional_options_description positional_options;
 
-		if (!p.g.quiet)
-		{
-			std::cout << "+ Segmentation statistics:" << std::endl;
-			std::cout << std::endl << std::left << "  " <<
-				std::setw(STATION) << "No. blocks" << 
-				std::setw(STAT) << "Max size" << 
-				std::setw(STAT) << "Min size" << 
-				std::setw(STAT) << "Average" <<
-				std::setw(STATION) << "Total size" << std::endl;
-			std::cout << "  ";
-			for (UINT32 i(0), j(STATION + STAT*3 + STATION); i<j; ++i)
-				std::cout << "-";
-			std::cout << std::endl << "  " << std::left <<
-				std::setw(STATION) << netSegment.blockCount() << 
-				std::setw(STAT) << std::setprecision(0) << netSegment.maxBlockSize() << 
-				std::setw(STAT) << std::setprecision(0) << netSegment.minBlockSize() << 
-				std::setw(STAT) << std::setprecision(2) << std::fixed << netSegment.averageblockSize() <<
-				std::setw(STATION) << std::setprecision(0) << netSegment.stationSolutionCount() << std::endl;
+    boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT),
+                                                                 PROGRAM_OPTIONS_LINE_LENGTH);
+    boost::program_options::options_description config_options("+ " + std::string(SEGMENT_MODULE_CONFIG),
+                                                               PROGRAM_OPTIONS_LINE_LENGTH);
+    boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC),
+                                                                PROGRAM_OPTIONS_LINE_LENGTH);
 
-			std::cout << std::endl;
-		
-		}
+    std::string cmd_line_usage("+ ");
+    cmd_line_usage.append(__BINARY_NAME__)
+        .append(" usage:  ")
+        .append(__BINARY_NAME__)
+        .append(" ")
+        .append(NETWORK_NAME)
+        .append(" [options]");
+    boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 
-		if (!p.g.quiet)
-			std::cout << "+ Verifying station connections... ";
-		netSegment.VerifyStationConnections();
-		if (!p.g.quiet)
-			std::cout << "done." << std::endl;
+    try {
+        // Declare a group of options that will be
+        // allowed only on command line
+        standard_options.add_options()(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
+                                       "Project file name. Full path to project file. If none specified, a new file is "
+                                       "created using input-folder and network-name.")(
+            NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name),
+            "Network name. User defined name for all input and output files. Default is \"network#\".")(
+            INPUT_FOLDER_I, boost::program_options::value<std::string>(&p.g.input_folder),
+            "Path containing all input files")(
+            OUTPUT_FOLDER_O, boost::program_options::value<std::string>(&p.g.output_folder),  // default is ./,
+            "Path for all output files")(BIN_STN_FILE, boost::program_options::value<std::string>(&p.s.bst_file),
+                                         "Binary station file name. Overrides network name.")(
+            BIN_MSR_FILE, boost::program_options::value<std::string>(&p.s.bms_file),
+            "Binary measurement file name. Overrides network name.")(
+            SEG_FILE, boost::program_options::value<std::string>(&p.s.seg_file),
+            "Segmentation output file name. Overrides network name.");
 
-		// print network segmentation block file
-		if (!p.g.quiet)
-			std::cout << "+ Printing blocks to " << leafStr<std::string>(p.s.seg_file) << "... ";
-		netSegment.WriteSegmentedNetwork(p.s.seg_file);
-		if (!p.g.quiet)
-			std::cout << "done." << std::endl;
+        // Declare a group of options that will be
+        // allowed both on command line and in
+        // config options
+        config_options.add_options()(
+            NET_FILE, "Look for a .net file containing stations to be incorporated within the first block.")(
+            SEG_STARTING_STN, boost::program_options::value<std::string>(&p.s.seg_starting_stns),
+            "Additional stations to be incorporated within the first block. arg is a comma delimited string \"stn1, "
+            "stn 2,stn3 , stn 4\".")(SEG_MIN_INNER_STNS, boost::program_options::value<UINT32>(&p.s.min_inner_stations),
+                                     (std::string("Minimum number of inner stations within each block. Default is ") +
+                                      StringFromT(p.s.min_inner_stations) + std::string("."))
+                                         .c_str())(
+            SEG_THRESHOLD_STNS, boost::program_options::value<UINT32>(&p.s.max_total_stations),
+            (std::string("Threshold limit for maximum number of stations per block. Default is ") +
+             StringFromT(p.s.max_total_stations) + std::string("."))
+                .c_str())(SEG_FORCE_CONTIGUOUS, boost::program_options::value<UINT16>(&p.s.force_contiguous_blocks),
+                          (std::string("Treatment of isolated networks:\n") +
+                           std::string("  0: Isolated networks as individual blocks ") +
+                           (p.s.force_contiguous_blocks == 0 ? "(default)\n" : "\n") +
+                           std::string("  1: Force production of contiguous blocks ") +
+                           (p.s.force_contiguous_blocks == 1 ? "(default)" : ""))
+                              .c_str())(SEG_SEARCH_LEVEL, boost::program_options::value<UINT16>(&p.s.seg_search_level),
+                                        "Level to which searches should be conducted to find stations with the lowest "
+                                        "measurement count. Default is 0.")(TEST_INTEGRITY,
+                                                                            "Test the integrity of all output files.");
 
-		
-	} 
-	catch (const NetSegmentException& e) {
-		std::cout << std::endl << "- Error: " << e.what() << std::endl;
-		return EXIT_FAILURE;
-	} 
-	catch (const std::runtime_error& e) {
-		std::cout << "+ Exception of unknown type: " << e.what();
-		return EXIT_FAILURE;
-	}
+        generic_options.add_options()(
+            VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+            std::string("Give detailed information about what ")
+                .append(__BINARY_NAME__)
+                .append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended "
+                        "information\n  3: Debug level information")
+                .c_str())(QUIET, std::string("Suppresses all explanation of what ")
+                                     .append(__BINARY_NAME__)
+                                     .append(" is doing unless an error occurs")
+                                     .c_str())(VERSION_V, "Display the current program version")(
+            HELP_H, "Show this help message")(HELP_MODULE_H, boost::program_options::value<std::string>(),
+                                              "Provide help for a specific help category.");
 
-	if (!userSuppliedSegFile)
-		p.s.seg_file = "";
-	if (!userSuppliedBstFile)
-		p.s.bst_file = "";
-	if (!userSuppliedBmsFile)
-		p.s.bms_file = "";
+        allowable_options.add(standard_options).add(config_options).add(generic_options);
 
-	// Look for a project file.  If it exists, open and load it.
-	// Update the import settings.
-	// Print the project file. If it doesn't exist, it will be created.
-	CDnaProjectFile projectFile;
-	if (boost::filesystem::exists(p.g.project_file))
-		projectFile.LoadProjectFile(p.g.project_file);
-	
-	projectFile.UpdateSettingsSegment(p);
-	projectFile.PrintProjectFile();
+        // add "positional options" to handle command line tokens which have no option name
+        positional_options.add(NETWORK_NAME, -1);
 
-	if (p.g.quiet)
-		return EXIT_SUCCESS;
+        boost::program_options::command_line_parser parser(argc, argv);
+        store(parser.options(allowable_options).positional(positional_options).run(), vm);
+        notify(vm);
+    } catch (const std::exception& e) {
+        std::cout << "- Error: " << e.what() << std::endl << cmd_line_banner << allowable_options << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	std::cout << std::endl << formatedElapsedTime<std::string>(&elapsed_time, "+ Network segmentation took ") << std::endl;
-	std::cout << "+ " << p.g.network_name << " is now ready for sequential phased adjustment." << std::endl << std::endl;
-	
-	return EXIT_SUCCESS;
+    if (argc < 2) {
+        std::cout << std::endl
+                  << "- Nothing to do - no options provided. " << std::endl
+                  << std::endl
+                  << cmd_line_banner << allowable_options << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    if (vm.count(VERSION)) {
+        std::cout << cmd_line_banner << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if (vm.count(HELP)) {
+        std::cout << cmd_line_banner << allowable_options << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if (vm.count(HELP_MODULE)) {
+        std::cout << cmd_line_banner;
+        std::string original_text = vm[HELP_MODULE].as<std::string>();
+        std::string help_text = str_upper<std::string>(original_text);
+
+        if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+            std::cout << standard_options << std::endl;
+        } else if (str_upper<std::string, char>(SEGMENT_MODULE_CONFIG).find(help_text) != std::string::npos) {
+            std::cout << config_options << std::endl;
+        } else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+            std::cout << generic_options << std::endl;
+        } else {
+            std::cout << std::endl
+                      << "- Error: Help module '" << original_text << "' is not in the list of options." << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        return EXIT_SUCCESS;
+    }
+
+    bool userSuppliedSegFile(false);
+    if (!p.s.seg_file.empty()) userSuppliedSegFile = true;
+    bool userSuppliedBstFile(false);
+    if (!p.s.bst_file.empty()) userSuppliedBstFile = true;
+    bool userSuppliedBmsFile(false);
+    if (!p.s.bms_file.empty()) userSuppliedBmsFile = true;
+
+    if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS) return EXIT_FAILURE;
+
+    // Has the user supplied a maximum block size that is less
+    // than the minimum block size?
+    if (p.s.min_inner_stations > p.s.max_total_stations) p.s.min_inner_stations = p.s.max_total_stations;
+
+    if (vm.count(QUIET)) p.g.quiet = 1;
+
+    if (!p.g.quiet) {
+        std::cout << std::endl << cmd_line_banner;
+
+        std::cout << "+ Options:" << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Network name: " << p.g.network_name << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input folder: " << p.g.input_folder << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Output folder: " << p.g.output_folder << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated station file: " << p.s.asl_file
+                  << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated measurement file: " << p.s.aml_file
+                  << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary station file: " << p.s.bst_file << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary measurement file: " << p.s.bms_file
+                  << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Segmentation output file: " << p.s.seg_file
+                  << std::endl;
+        if (!p.s.net_file.empty())
+            std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Block 1 stations file: " << p.s.net_file
+                      << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Minimum inner stations: " << p.s.min_inner_stations
+                  << std::endl;
+        std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Block size threshold: " << p.s.max_total_stations
+                  << std::endl;
+        if (!p.s.seg_starting_stns.empty())
+            std::cout << std::setw(PRINT_VAR_PAD) << std::left
+                      << "  Additional Block 1 stations: " << p.s.seg_starting_stns << std::endl;
+        else if (p.s.net_file.empty())
+            std::cout << "  No initial station specified. The first station will be used." << std::endl;
+
+        std::cout << std::endl;
+    }
+
+    // Should segment look for a net file?
+    if (!p.s.net_file.empty()) {
+        if (!std::filesystem::exists(p.s.net_file)) {
+            cout_mutex.lock();
+            std::cout << std::endl
+                      << "- Error: " << p.s.net_file << " does not exist." << std::endl
+                      << "  A file named " << p.g.network_name
+                      << ".net must exist in the input folder\n  in order to use this option." << std::endl
+                      << std::endl;
+            cout_mutex.unlock();
+            return EXIT_FAILURE;
+        }
+    }
+
+    dna_segment netSegment;
+    boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
+    _SEGMENT_STATUS_ segmentStatus;
+    std::string status_msg;
+
+    try {
+        netSegment.InitialiseSegmentation();
+        running = true;
+
+        // segment blocks using threads
+        std::vector<std::thread> ui_segment_threads;
+        if (!p.g.quiet) ui_segment_threads.emplace_back(dna_segment_progress_thread(&netSegment, &p));
+        ui_segment_threads.emplace_back(
+            dna_segment_thread(&netSegment, &p, &segmentStatus, &elapsed_time, &status_msg));
+        for (auto& t : ui_segment_threads) { t.join(); }
+
+        switch (netSegment.GetStatus()) {
+        case SEGMENT_EXCEPTION_RAISED: running = false; return EXIT_FAILURE;
+        default: break;
+        }
+
+        //// print station appearance file
+        // if (!p.g.quiet)
+        //	std::cout << "+ Printing station appearance list... ";
+        // netSegment.WriteStationAppearanceList(p.s.sap_file);
+        // if (!p.g.quiet)
+        //	std::cout << "done." << std::endl;
+
+        if (p.g.verbose > 1 && !p.g.quiet) netSegment.coutSummary();
+
+        if (segmentStatus != SEGMENT_SUCCESS) std::cout << status_msg << std::endl;
+
+        if (!p.g.quiet) {
+            std::cout << "+ Segmentation statistics:" << std::endl;
+            std::cout << std::endl
+                      << std::left << "  " << std::setw(STATION) << "No. blocks" << std::setw(STAT) << "Max size"
+                      << std::setw(STAT) << "Min size" << std::setw(STAT) << "Average" << std::setw(STATION)
+                      << "Total size" << std::endl;
+            std::cout << "  ";
+            for (UINT32 i(0), j(STATION + STAT * 3 + STATION); i < j; ++i) std::cout << "-";
+            std::cout << std::endl
+                      << "  " << std::left << std::setw(STATION) << netSegment.blockCount() << std::setw(STAT)
+                      << std::setprecision(0) << netSegment.maxBlockSize() << std::setw(STAT) << std::setprecision(0)
+                      << netSegment.minBlockSize() << std::setw(STAT) << std::setprecision(2) << std::fixed
+                      << netSegment.averageblockSize() << std::setw(STATION) << std::setprecision(0)
+                      << netSegment.stationSolutionCount() << std::endl;
+
+            std::cout << std::endl;
+        }
+
+        if (!p.g.quiet) std::cout << "+ Verifying station connections... ";
+        netSegment.VerifyStationConnections();
+        if (!p.g.quiet) std::cout << "done." << std::endl;
+
+        // print network segmentation block file
+        if (!p.g.quiet) std::cout << "+ Printing blocks to " << leafStr<std::string>(p.s.seg_file) << "... ";
+        netSegment.WriteSegmentedNetwork(p.s.seg_file);
+        if (!p.g.quiet) std::cout << "done." << std::endl;
+
+    } catch (const NetSegmentException& e) {
+        std::cout << std::endl << "- Error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    } catch (const std::runtime_error& e) {
+        std::cout << "+ Exception of unknown type: " << e.what();
+        return EXIT_FAILURE;
+    }
+
+    if (!userSuppliedSegFile) p.s.seg_file = "";
+    if (!userSuppliedBstFile) p.s.bst_file = "";
+    if (!userSuppliedBmsFile) p.s.bms_file = "";
+
+    // Look for a project file.  If it exists, open and load it.
+    // Update the import settings.
+    // Print the project file. If it doesn't exist, it will be created.
+    CDnaProjectFile projectFile;
+    if (std::filesystem::exists(p.g.project_file)) projectFile.LoadProjectFile(p.g.project_file);
+
+    projectFile.UpdateSettingsSegment(p);
+    projectFile.PrintProjectFile();
+
+    if (p.g.quiet) return EXIT_SUCCESS;
+
+    std::cout << std::endl
+              << formatedElapsedTime<std::string>(&elapsed_time, "+ Network segmentation took ") << std::endl;
+    std::cout << "+ " << p.g.network_name << " is now ready for sequential phased adjustment." << std::endl
+              << std::endl;
+
+    return EXIT_SUCCESS;
 }

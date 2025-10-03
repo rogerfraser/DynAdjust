@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaoptions-interface.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust interface options include file
 //============================================================================
 
+#pragma once
 #ifndef DNAOPTIONS_INTERFACE_HPP
 #define DNAOPTIONS_INTERFACE_HPP
 
@@ -178,6 +178,20 @@ const char* const TECTONIC_PLATE_POLE_FILE = "plate-pole-file";
 const char* const TECTONIC_PLATE_POLE_FILE_M = "plate-pole-file,m";
 const char* const TECTONIC_PLATE_MODEL_OPTION = "plate-model-option";
 
+// Undefine any system macros that might conflict
+#ifdef LSCALE
+#undef LSCALE
+#endif
+#ifdef PSCALE
+#undef PSCALE
+#endif
+#ifdef HSCALE
+#undef HSCALE
+#endif
+#ifdef VSCALE
+#undef VSCALE
+#endif
+
 const char* const VSCALE = "v-scale";
 const char* const PSCALE = "p-scale";
 const char* const LSCALE = "l-scale";
@@ -294,7 +308,7 @@ const char* const NTV2_SUB_NAME = "sub-grid-name";
 const char* const NTV2_CREATED = "creation-date";
 const char* const NTV2_UPDATED = "update-date";
 
-const char* const MAP_FILE = "map-file";
+const char* const DNA_MAP_FILE = "map-file";
 const char* const ASL_FILE = "asl-file";
 const char* const AML_FILE = "aml-file";
 const char* const DST_FILE = "dst-file";

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaplot.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,6 +28,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
 #include <iostream>
@@ -38,22 +38,20 @@
 #include <map>
 #include <cstdarg>
 #include <math.h>
+#include <memory>
+#include <filesystem>
+#include <thread>
+/// \endcond
 
-#include <boost/shared_ptr.hpp>
-#include <boost/chrono/time_point.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-
-
-#include <include/config/dnaexports.hpp>
+#include <include/config/dnaconsts.hpp>
 #include <include/config/dnaversion.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnaexports.hpp>
 #include <include/config/dnatypes-gui.hpp>
 
 #include <include/exception/dnaexception.hpp>
 
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
@@ -65,9 +63,6 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnaprocessfuncs.hpp>
 
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
-
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnadatum.hpp>
 #include <include/parameters/dnaprojection.hpp>
@@ -77,10 +72,10 @@
 
 #include <include/math/dnamatrix_contiguous.hpp>
 
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiomap.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/seg_file.hpp>
 #include <include/io/dnaiotpb.hpp>
 
 using namespace dynadjust::measurements;

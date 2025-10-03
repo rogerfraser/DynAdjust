@@ -55,7 +55,7 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 	// geoid -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --export-ntv2-asc
 	//
 
-	boost::filesystem::path asciiGridFile(dat_gridfilePath);
+	std::filesystem::path asciiGridFile(dat_gridfilePath);
 	std::string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
@@ -83,7 +83,7 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 	
 bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* gridshiftType, const char* exportfileType)
 {
-	boost::filesystem::path asciiGridFile(dat_gridfilePath);
+	std::filesystem::path asciiGridFile(dat_gridfilePath);
 	std::string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
@@ -121,10 +121,10 @@ void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	// Print formatted header
@@ -136,8 +136,8 @@ void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 	badpoints_log << p.n.command_line_arguments << std::endl << std::endl;
 
 	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Network name:" <<  p.g.network_name << std::endl;
-	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p.n.bst_file).string() << std::endl;
-	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(p.n.ntv2_geoid_file).string() << std::endl << std::endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << safe_absolute_path(p.n.bst_file) << std::endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << safe_absolute_path(p.n.ntv2_geoid_file) << std::endl << std::endl;
 	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Stations not interpolated:" << g->PointsNotInterpolated() << std::endl;
 	badpoints_log << OUTPUTLINE << std::endl << std::endl;
 	
@@ -205,7 +205,7 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 
 	bool isRadians(false);
 	std::string shiftType(grid_properties.chGs_type);
-	if (boost::iequals(trimstr(shiftType), "radians"))
+	if (iequals(trimstr(shiftType), "radians"))
 		isRadians = true;
 
 	std::string formattedLimit;
@@ -308,7 +308,7 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 	const int& method, const int EllipsoidtoOrtho, const int& coordinate_format, 
 	bool exportDnaGeoidFile, const char* dnageofilePath, std::string& outputfilePath)
 {
-	boost::filesystem::path inputFile(inputfilePath);
+	std::filesystem::path inputFile(inputfilePath);
 	if (inputFile.has_extension())
 		outputfilePath = inputFile.stem().string() + "_out" + inputFile.extension().string();
 	else
@@ -355,7 +355,7 @@ bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const std::str
 
 std::string GetFileType(const std::string inputfilePath)
 {
-	boost::filesystem::path inputFile(inputfilePath);
+	std::filesystem::path inputFile(inputfilePath);
 	if (inputFile.has_extension())
 		return inputFile.extension().string();
 	else
@@ -374,7 +374,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	// Has the user supplied a project file?
 	if (vm.count(PROJECT_FILE))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, geoidSetting);
@@ -455,12 +455,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		// define bst file name
 		p.n.bst_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "bst");
 		p.n.file_mode = 1;
-		if (!boost::filesystem::exists(p.n.bst_file))
+		if (!std::filesystem::exists(p.n.bst_file))
 		{
 			// Look for it in the input folder
 			p.n.bst_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.bst_file));
 
-			if (!boost::filesystem::exists(p.n.bst_file))
+			if (!std::filesystem::exists(p.n.bst_file))
 			{
 				std::cout << std::endl << "- Error: ";  
 				std::cout << "Binary station file " << p.n.bst_file << " does not exist." << std::endl << std::endl;  
@@ -472,12 +472,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	// Geoid DAT grid file file location (input)
 	if (vm.count(DAT_FILEPATH))
 	{
-		if (!boost::filesystem::exists(p.n.rdat_geoid_file))
+		if (!std::filesystem::exists(p.n.rdat_geoid_file))
 		{
 			// Look for it in the input folder
 			p.n.rdat_geoid_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.rdat_geoid_file));
 
-			if (!boost::filesystem::exists(p.n.rdat_geoid_file))
+			if (!std::filesystem::exists(p.n.rdat_geoid_file))
 			{
 				std::cout << std::endl << "- Error: ";  
 				std::cout << "WINTER DAT grid file " << p.n.rdat_geoid_file << " does not exist." << std::endl << std::endl;  
@@ -492,12 +492,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		p.n.file_mode = 1;
 
 		// Geoid DAT grid file file location (input)
-		if (!boost::filesystem::exists(p.n.input_file))
+		if (!std::filesystem::exists(p.n.input_file))
 		{
 			// Look for it in the input folder
 			p.n.input_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.input_file));
 
-			if (!boost::filesystem::exists(p.n.input_file))
+			if (!std::filesystem::exists(p.n.input_file))
 			{
 				std::cout << std::endl << "- Error: ";  
 				std::cout << "Input coordinates text file " << leafStr<std::string>(p.n.input_file) << " does not exist." << std::endl << std::endl;  
@@ -740,7 +740,7 @@ int main(int argc, char* argv[])
 	// grid file path not supplied.  Generate name from dat file
 	if (p.n.ntv2_geoid_file.empty())
 	{
-		boost::filesystem::path gsbFile(p.n.rdat_geoid_file);
+		std::filesystem::path gsbFile(p.n.rdat_geoid_file);
 		p.n.ntv2_geoid_file = gsbFile.stem().string() + gsbFile.extension().string() + ".gsb";
 		strcpy(ntv2.filename, p.n.ntv2_geoid_file.c_str());
 		strcpy(ntv2.filetype, GSB);
@@ -754,8 +754,8 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (!boost::iequals(extension.substr(1), GSB) &&
-			!boost::iequals(extension.substr(1), ASC))
+		if (!iequals(extension.substr(1), GSB) &&
+			!iequals(extension.substr(1), ASC))
 		{
 			std::cout << std::endl << "- Error: NTv2 grid file type cannot be determined from file extension \"" << extension << "\"." << std::endl << 
 				"         Supported types are ." << GSB << " and ." << ASC << " only." << std::endl << std::endl;
@@ -763,14 +763,14 @@ int main(int argc, char* argv[])
 		}
 
 		if (vm.count(EXPORT_NTV2_ASCII_FILE) &&
-			boost::iequals(extension.substr(1), ASC))
+			iequals(extension.substr(1), ASC))
 		{
 			std::cout << std::endl << "- Error: Export to ASCII NTv2 grid file option only supported for " << GSB " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		if (vm.count(EXPORT_NTV2_BINARY_FILE) &&
-			boost::iequals(extension.substr(1), GSB))
+			iequals(extension.substr(1), GSB))
 		{
 			std::cout << std::endl << "- Error: Export to Binary NTv2 grid file option only supported for " << ASC " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
@@ -787,7 +787,7 @@ int main(int argc, char* argv[])
 	{
 		gs_type = trimstr(gs_type);
 		// Unknown type?
-		if (!boost::iequals(gs_type, "seconds") && !boost::iequals(gs_type, "radians"))
+		if (!iequals(gs_type, "seconds") && !iequals(gs_type, "radians"))
 			gs_type = "seconds";
 		str_toupper<int>(gs_type);
 	}
@@ -1061,7 +1061,7 @@ int main(int argc, char* argv[])
 		std::cout << "... ";
 	}
 	
-	boost::timer::cpu_timer time;
+	cpu_timer time;
 
 	char dnageoFile[601], *geoFileptr;
 	geoFileptr = NULL;
@@ -1070,7 +1070,7 @@ int main(int argc, char* argv[])
 		
 	if (!p.n.geo_file.empty())
 	{
-		sprintf(dnageoFile, "%s", p.n.geo_file.c_str());
+		snprintf(dnageoFile, sizeof(dnageoFile), "%s", p.n.geo_file.c_str());
 		geoFileptr = dnageoFile;
 	}
 		
@@ -1151,7 +1151,7 @@ int main(int argc, char* argv[])
 	if (userSuppliedProjectFile)
 	{
 		CDnaProjectFile projectFile;
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 			projectFile.LoadProjectFile(p.g.project_file);
 
 		// Print the project file. If it doesn't exist, it will be created.
@@ -1164,7 +1164,8 @@ int main(int argc, char* argv[])
 
 	// wall time is in nanoseconds
 	// cout << time.elapsed().wall << std::endl << std::endl;
-	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
+	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time.elapsed().wall).count();
+	boost::posix_time::milliseconds elapsed_time(elapsed_ms);
 	std::cout << std::endl << formatedElapsedTime<std::string>(&elapsed_time, "+ Geoid file interpolation took ") << std::endl << std::endl;
 	
 	return EXIT_SUCCESS;

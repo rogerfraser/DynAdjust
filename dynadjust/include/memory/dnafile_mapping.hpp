@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnafile_mapping.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust Memory Mapped File Library
 //============================================================================
 
+#pragma once
 #ifndef DNAFILEMAPPING_H_
 #define DNAFILEMAPPING_H_
 
@@ -29,18 +29,21 @@
 #endif
 #endif
 
-#include <include/config/dnatypes.hpp>
+/// \cond
+#include <memory>
+#include <filesystem>
 
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/filesystem.hpp>
+/// \endcond
+
+#include <include/config/dnatypes-fwd.hpp>
 
 namespace dynadjust { 
 namespace memory {
 
-typedef boost::shared_ptr<boost::interprocess::mapped_region> MapRegPtr;
-typedef boost::shared_ptr<boost::interprocess::file_mapping> FileMapPtr;
+typedef std::shared_ptr<boost::interprocess::mapped_region> MapRegPtr;
+typedef std::shared_ptr<boost::interprocess::file_mapping> FileMapPtr;
 
 class block_map_t
 {
@@ -87,7 +90,7 @@ public:
 	void addblockMapRegion(const block_map_t& map);
 
 	void setnewFilePath(const std::string& filePath, bool remove_mapped_file);
-	void CreateFileMapping();
+	void CreateFileMap();
 	void MapRegion(const UINT32 block);
 
 	inline FileMapPtr getFileMapPtr() const { return file_map_ptr_; }

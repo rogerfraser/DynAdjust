@@ -4,13 +4,16 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 
+CMakeUserPresets.json
+
 # Compiled Dynamic libraries
 *.so
 
-# ignore compiled dynadjust wrappers & binaries
-dynadjust/build/
-dynadjust/build_gcc/
-dynadjust/bin/
+# ignore compiled dynadjust wrappers & binaries & documentation
+build_gcc/
+build/
+bin/
+doc/
 
 *.suo
 *.VC.db
@@ -23,9 +26,14 @@ dynadjust/bin/
 *.user
 /.idea/
 .vscode/*
+.cache
+.DS_Store
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 
 # readme and other files not requiring external contribution
 README.md
+
+# Testing directory created by CTest
+testing/

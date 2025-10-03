@@ -29,8 +29,7 @@
 	#endif
 #endif
 
-#include <iomanip>
-
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -40,16 +39,12 @@
 #include <time.h>
 #include <string.h>
 #include <set>
-
-#include <boost/chrono/time_point.hpp>
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <filesystem>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
+/// \endcond
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
@@ -59,6 +54,7 @@
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaversion-stream.hpp>
 
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
@@ -66,10 +62,14 @@
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnatimer.hpp>
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
 using namespace dynadjust::geoidinterpolation;
+
+// Use cpu_timer from dnatimer.hpp
+using dynadjust::cpu_timer;
 
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid);
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet);

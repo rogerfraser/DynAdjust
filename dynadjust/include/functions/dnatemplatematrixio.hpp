@@ -19,8 +19,7 @@
 #include <math.h>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
+#include <memory>
 
 #include <include/math/dnamatrix_contiguous.hpp>
 

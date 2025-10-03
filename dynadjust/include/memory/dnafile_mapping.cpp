@@ -99,7 +99,7 @@ vmat_file_map::vmat_file_map(const std::string& filePath, bool remove_mapped_fil
 vmat_file_map::~vmat_file_map() 
 {
 	if (remove_mapped_file_)
-		if (boost::filesystem::exists(filePath_))
+		if (std::filesystem::exists(filePath_))
 			boost::interprocess::file_mapping::remove(filePath_.c_str());
 }
 	
@@ -123,7 +123,7 @@ void vmat_file_map::setnewFilePath(const std::string& filePath, bool remove_mapp
 }
 	
 
-void vmat_file_map::CreateFileMapping() 
+void vmat_file_map::CreateFileMap() 
 {
 	file_map_ptr_.reset(new boost::interprocess::file_mapping(filePath_.c_str(), boost::interprocess::read_write));
 }

@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -36,20 +37,19 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <memory>
+#include <filesystem>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
+/// \endcond
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
 #include <include/config/dnaoptions-interface.hpp>
+
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>

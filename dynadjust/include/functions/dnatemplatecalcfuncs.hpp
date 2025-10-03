@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnatemplatecalcfuncs.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -18,7 +17,6 @@
 //                limitations under the License.
 //
 // Description  : Advanced and common calculation functions using standard
-//				  data types
 //============================================================================
 
 #ifndef DNATEMPLATECALCFUNCS_H_
@@ -30,26 +28,19 @@
 	#endif
 #endif
 
-#include <algorithm>
+/// \cond
 #include <numeric>
-#include <functional>
-#include <sstream>
-#include <string>
-#include <vector>
 #include <math.h>
-#include <iostream>
+#include <memory>
+/// \endcond
 
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/config/dnaconsts.hpp>
 
 template <class U>
-U sumOfConsecutiveIntegers(const U& max, const U& min = 1)
+std::size_t sumOfConsecutiveIntegers(const U& max, const U& min = 1)
 {
-	//U q(static_cast<U>(average<double, U>(max, min) * max));
-	U sum(0);
+    std::size_t sum(0);
 	for (U u=min; u<=max; u++)
 		sum += u;
 	return sum;	
@@ -80,7 +71,7 @@ template <typename T, typename U, typename iterator>
 T average(const iterator begin, const iterator end, U& sum)
 {
 	U n(static_cast<UINT32>(std::distance(begin, end)));
-	sum = accumulate(begin, end, 0);
+	sum = std::accumulate(begin, end, 0);
 	return static_cast<T>(sum) / n;
 }
 

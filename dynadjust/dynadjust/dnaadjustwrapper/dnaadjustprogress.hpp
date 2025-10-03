@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjustprogress.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,32 +28,32 @@
 	#endif
 #endif
 
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
+/// \cond
+#include <iosfwd>  // Forward declarations for stream types
 #include <string>
-#include <time.h>
-
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
+/// \endcond
 
 #include <include/config/dnaconsts-interface.hpp>
 
-#include <dynadjust/dnaadjust/dnaadjust.hpp>
+// Forward declaration instead of including the full header
+namespace dynadjust {
+namespace networkadjust {
+    class dna_adjust;
+}
+}
 
-using namespace dynadjust::networkadjust;
-using namespace dynadjust::exception;
+#include <include/exception/dnaexception.hpp>
+
+// Forward declarations
+struct project_settings;
 
 class dna_adjust_thread
 {
 public:
-	dna_adjust_thread(dna_adjust* dnaAdj, project_settings* p,
+	dna_adjust_thread(dynadjust::networkadjust::dna_adjust* dnaAdj, project_settings* p,
 		_ADJUST_STATUS_* adjustStatus);
 	void operator()();
-	
+
 private:
 	bool prepareAdjustment();
 	bool processAdjustment();
@@ -65,7 +64,7 @@ private:
 	void coutMessage(std::stringstream& message);
 	void coutMessage(const std::string& message);
 
-	dna_adjust*		_dnaAdj;
+	dynadjust::networkadjust::dna_adjust*		_dnaAdj;
 	project_settings*	_p;
 	_ADJUST_STATUS_*	_adjustStatus;
 };
@@ -73,7 +72,7 @@ private:
 class dna_adjust_progress_thread
 {
 public:
-	dna_adjust_progress_thread(dna_adjust* dnaAdj, project_settings* p);
+	dna_adjust_progress_thread(dynadjust::networkadjust::dna_adjust* dnaAdj, project_settings* p);
 	void operator()();
 
 private:
@@ -82,7 +81,7 @@ private:
 
 	void coutMessage(const std::string& message);
 
-	dna_adjust*		_dnaAdj;
+	dynadjust::networkadjust::dna_adjust*		_dnaAdj;
 	project_settings*	_p;
 };
 

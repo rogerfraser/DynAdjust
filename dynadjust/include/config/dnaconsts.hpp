@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaconsts.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust constants include file
 //============================================================================
 
+#pragma once
 #ifndef DNACONSTS_HPP
 #define DNACONSTS_HPP
 
@@ -29,9 +29,12 @@
 	#endif
 #endif
 
-#include <include/config/dnatypes.hpp>
-#include <include/parameters/dnaconsts-datums.hpp>
+/// \cond
 #include <boost/operators.hpp>
+/// \endcond
+
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/parameters/dnaconsts-datums.hpp>
 
 const UINT16 BUF_WIDTH(512);
 

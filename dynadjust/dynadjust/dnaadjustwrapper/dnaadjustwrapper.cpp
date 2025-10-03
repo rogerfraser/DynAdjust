@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjustwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -21,13 +20,55 @@
 //============================================================================
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
+
+/// \cond
+#include <time.h>
+#include <algorithm>
+#include <filesystem>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+/// \endcond
+
+#include <include/config/dnaoptions-interface.hpp>
+#include <include/config/dnaprojectfile.hpp>
+#include <include/config/dnatypes-gui.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
+#include <include/parameters/dnaepsg.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/asl_file.hpp>
+#include <dynadjust/dnaadjust/dnaadjust.hpp>
+#include <dynadjust/dnaadjust/dnaadjust_printer.hpp>
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <dynadjust/dnaadjustwrapper/threading_init.hpp>
+
+using namespace dynadjust::networkadjust;
+using namespace dynadjust::exception;
+using namespace dynadjust::iostreams;
 
 extern bool running;
-extern boost::mutex cout_mutex;
+extern std::mutex cout_mutex;
 
 using namespace dynadjust;
 using namespace dynadjust::epsg;
+
+// Helper function to convert std::filesystem::file_time_type to time_t
+time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
 
 void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, boost::posix_time::milliseconds *elapsed_time)
 {
@@ -241,7 +282,7 @@ void PrintAdjustedMeasurements(dna_adjust* netAdjust, const project_settings* p)
 			std::cout.flush();
 		}
 
-		netAdjust->PrintAdjustedNetworkMeasurements();
+		netAdjust->GetPrinter()->PrintAdjustedNetworkMeasurements();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -257,7 +298,7 @@ void PrintMeasurementstoStations(dna_adjust* netAdjust, const project_settings* 
 			std::cout << "+ Printing summary of measurements connected to each station...";
 			std::cout.flush();
 		}
-		netAdjust->PrintMeasurementsToStation();
+		netAdjust->GetPrinter()->PrintMeasurementsToStation();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -271,7 +312,7 @@ void PrintAdjustedNetworkStations(dna_adjust* netAdjust, const project_settings*
 		std::cout << "+ Printing adjusted station coordinates...";
 		std::cout.flush();
 	}
-	netAdjust->PrintAdjustedNetworkStations();
+	netAdjust->GetPrinter()->PrintAdjustedNetworkStations();
 	if (!p->g.quiet)
 		std::cout << " done." << std::endl;
 }
@@ -287,7 +328,7 @@ void PrintPositionalUncertainty(dna_adjust* netAdjust, const project_settings* p
 			std::cout.flush();
 		}
 		// Print correlations as required
-		netAdjust->PrintPositionalUncertainty();
+		netAdjust->GetPrinter()->PrintPositionalUncertainty();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -303,7 +344,7 @@ void PrintStationCorrections(dna_adjust* netAdjust, const project_settings* p)
 			std::cout << "+ Printing corrections to initial station coordinates...";
 			std::cout.flush();
 		}
-		netAdjust->PrintNetworkStationCorrections();
+		netAdjust->GetPrinter()->PrintNetworkStationCorrections();
 		if (!p->g.quiet)
 			std::cout << " done." << std::endl;
 	}
@@ -334,7 +375,7 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(p->o._xml_file) << "... ";
 				
 		// Export Stations file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
@@ -352,7 +393,7 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 				
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
 
 		if (!p->g.quiet)
 			std::cout << "Done." << std::endl;
@@ -370,7 +411,7 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(stnfilename) << "... ";
 					
 		// Export Station file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
@@ -387,7 +428,7 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 					
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
+		netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
 
 		if (!p->g.quiet)
 			std::cout << "Done." << std::endl;
@@ -403,7 +444,7 @@ void ExportSinex(dna_adjust* netAdjust, const project_settings* p)
 		// Export to SINEX
 		if (!p->g.quiet)
 			std::cout << "+ Printing station estimates and uncertainties to SINEX...";
-		bool success(netAdjust->PrintEstimatedStationCoordinatestoSNX(sinex_file));
+		bool success(netAdjust->GetPrinter()->PrintEstimatedStationCoordinatestoSNX(sinex_file));
 
 		// SomeFunc()
 		if (!p->g.quiet)
@@ -434,7 +475,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (boost::filesystem::exists(p.g.project_file))
+		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, adjustSetting);
@@ -460,7 +501,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 
 	p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
-	if (boost::filesystem::exists(p.g.project_file))
+	if (std::filesystem::exists(p.g.project_file))
 	{
 		// update import settings from dnaproj file
 		try {
@@ -504,7 +545,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	else
 		p.a.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-	if (!boost::filesystem::exists(p.a.bst_file) || !boost::filesystem::exists(p.a.bms_file))
+	if (!std::filesystem::exists(p.a.bst_file) || !std::filesystem::exists(p.a.bms_file))
 	{
 		cout_mutex.lock();
 		std::cout << std::endl << "- Nothing to do: ";  
@@ -542,13 +583,11 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		p.a.adjust_mode = SimultaneousMode;		// default
 	else if (vm.count(MODE_PHASED_BLOCK1))
 		p.a.adjust_mode = Phased_Block_1Mode;
-#ifdef MULTI_THREAD_ADJUST
 	else if (vm.count(MODE_PHASED_MT))
 	{
 		p.a.multi_thread = 1;
 		p.a.adjust_mode = PhasedMode;
 	}
-#endif
 	else if (vm.count(MODE_PHASED))
 		p.a.adjust_mode = PhasedMode;
 	else if (vm.count(MODE_SIMULATION))
@@ -656,7 +695,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 				p.o._cor_file += "-stage";
 
 		}
-#ifdef MULTI_THREAD_ADJUST
 		else if (p.a.multi_thread)
 		{
 			p.o._adj_file += "-mt";
@@ -668,7 +706,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 			if (vm.count(OUTPUT_STN_COR_FILE))
 				p.o._cor_file += "-mt";
 		}
-#endif
 		break;
 	case SimultaneousMode:
 		p.o._adj_file += ".simult";
@@ -723,15 +760,16 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	const project_settings& p, bool& bst_meta_import, bool& bms_meta_import)
 {
-	dna_io_bst bst;
-	dna_io_bms bms;
-	bst.load_bst_file_meta(p.a.bst_file, bst_meta);
-	bms.load_bms_file_meta(p.a.bms_file, bms_meta);
+	BstFile bst;
+	BmsFile bms;
 
-	bst_meta_import = (boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-		boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-	bms_meta_import = (boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-		boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+	bst.LoadFileMeta(p.a.bst_file, bst_meta);
+	bms.LoadFileMeta(p.a.bms_file, bms_meta);
+
+	bst_meta_import = (iequals(bst_meta.modifiedBy, __import_app_name__) ||
+		iequals(bst_meta.modifiedBy, __import_dll_name__));
+	bms_meta_import = (iequals(bms_meta.modifiedBy, __import_app_name__) ||
+		iequals(bms_meta.modifiedBy, __import_dll_name__));
 }
 
 int main(int argc, char* argv[])
@@ -792,10 +830,8 @@ int main(int argc, char* argv[])
 		phased_adj_options.add_options()
 			(STAGED_ADJUSTMENT,
 				"Store adjustment matrices in memory mapped files instead of retaining data in memory.  This option decreases efficiency but may be required if there is insufficient RAM to hold an adjustment in memory.")
-#ifdef MULTI_THREAD_ADJUST
 			(MODE_PHASED_MT,
 				"Process forward, reverse and combination adjustments concurrently using all available CPU cores.")
-#endif
 			(MODE_PHASED_BLOCK1,
 				"Sequential phased adjustment mode resulting in rigorous estimates for block 1 only.")
 			;
@@ -1123,7 +1159,7 @@ int main(int argc, char* argv[])
 		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Reference frame: " << datum.GetName() << std::endl;
 		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Epoch: " << datum.GetEpoch_s() << std::endl;
 		
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Geoid model: " << boost::filesystem::system_complete(p.n.ntv2_geoid_file).string() << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Geoid model: " << safe_absolute_path(p.n.ntv2_geoid_file) << std::endl;
 
 		if (p.a.scale_normals_to_unity)
 			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Scale normals to unity: " << "yes" << std::endl;
@@ -1139,7 +1175,7 @@ int main(int argc, char* argv[])
 		case Phased_Block_1Mode:
 		case PhasedMode:
 
-			if (!boost::filesystem::exists(p.a.seg_file))
+			if (!std::filesystem::exists(p.a.seg_file))
 			{
 				std::cout << std::endl << std::endl << 
 					"- Error: The required segmentation file does not exist:" << std::endl;  
@@ -1170,26 +1206,27 @@ int main(int argc, char* argv[])
 			// If the user has not provided a seg file, check the meta of the default file
 			if (!userSuppliedSegFile)
 			{
-				if (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bst_file) ||
-					boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bms_file))
+				if (std::filesystem::last_write_time(p.a.seg_file) < std::filesystem::last_write_time(p.a.bst_file) ||
+					std::filesystem::last_write_time(p.a.seg_file) < std::filesystem::last_write_time(p.a.bms_file))
 				{
 					// Has import been run after the segmentation file was created?
-					if ((bst_meta_import && (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bst_file))) || 
-						(bms_meta_import && (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bms_file))))
+					if ((bst_meta_import && (std::filesystem::last_write_time(p.a.seg_file) < std::filesystem::last_write_time(p.a.bst_file))) || 
+						(bms_meta_import && (std::filesystem::last_write_time(p.a.seg_file) < std::filesystem::last_write_time(p.a.bms_file))))
 					{
 						std::cout << std::endl << std::endl << 
 							"- Error: The raw stations and measurements have been imported after" << std::endl <<
 							"  the segmentation file was created:" << std::endl;
 
-						time_t t_bst(boost::filesystem::last_write_time(p.a.bst_file)), t_bms(boost::filesystem::last_write_time(p.a.bms_file));
-						time_t t_seg(boost::filesystem::last_write_time(p.a.seg_file));
+						time_t t_bst = file_time_to_time_t(std::filesystem::last_write_time(p.a.bst_file));
+						time_t t_bms = file_time_to_time_t(std::filesystem::last_write_time(p.a.bms_file));
+						time_t t_seg = file_time_to_time_t(std::filesystem::last_write_time(p.a.seg_file));
 
 						std::cout << "   " << leafStr<std::string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
 						std::cout << "   " << leafStr<std::string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;
 						std::cout << "   " << leafStr<std::string>(p.a.seg_file) << "  created on  " << ctime(&t_seg) << std::endl;
 						std::cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << std::endl << 
 							"  adjust using the --" << SEG_FILE << " option if the file " << 
-							boost::filesystem::path(p.a.seg_file).stem() << " must\n  be used." << std::endl << std::endl;
+							std::filesystem::path(p.a.seg_file).stem() << " must\n  be used." << std::endl << std::endl;
 						cout_mutex.unlock();
 						return EXIT_FAILURE;
 					}
@@ -1207,7 +1244,7 @@ int main(int argc, char* argv[])
 				std::string est_mmapfile_wildcard =
 					p.g.output_folder + FOLDER_SLASH + 
 					p.g.network_name + "-*.mtx";
-				if (boost::filesystem::exists(est_mmapfile_name))
+				if (std::filesystem::exists(est_mmapfile_name))
 				{
 					// Has import been run after the segmentation file was created?
 					
@@ -1222,15 +1259,16 @@ int main(int argc, char* argv[])
 					//     then adjust will attempt to load memory map files using the same parameters from the first import
 					//     and segment.
 					//  Hence, force the user to run adjust with the --create-stage-files option.
-					if ((bst_meta_import && (boost::filesystem::last_write_time(est_mmapfile_name) < boost::filesystem::last_write_time(p.a.bst_file))) ||
-						(bms_meta_import && (boost::filesystem::last_write_time(est_mmapfile_name) < boost::filesystem::last_write_time(p.a.bms_file))))
+					if ((bst_meta_import && (std::filesystem::last_write_time(est_mmapfile_name) < std::filesystem::last_write_time(p.a.bst_file))) ||
+						(bms_meta_import && (std::filesystem::last_write_time(est_mmapfile_name) < std::filesystem::last_write_time(p.a.bms_file))))
 					{
 						std::cout << std::endl << std::endl << 
 							"- Error: The raw stations and measurements have been imported after" << std::endl <<
 							"  a staged adjustment created the memory map files:" << std::endl;
 						
-						time_t t_bst(boost::filesystem::last_write_time(p.a.bst_file)), t_bms(boost::filesystem::last_write_time(p.a.bms_file));
-						time_t t_mtx(boost::filesystem::last_write_time(est_mmapfile_name));
+						time_t t_bst = file_time_to_time_t(std::filesystem::last_write_time(p.a.bst_file));
+						time_t t_bms = file_time_to_time_t(std::filesystem::last_write_time(p.a.bms_file));
+						time_t t_mtx = file_time_to_time_t(std::filesystem::last_write_time(est_mmapfile_name));
 
 						std::cout << "   " << leafStr<std::string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
 						std::cout << "   " << leafStr<std::string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;
@@ -1242,13 +1280,11 @@ int main(int argc, char* argv[])
 				}
 			}
 			
-#ifdef MULTI_THREAD_ADJUST
 			if (p.a.multi_thread)
 			{
 				std::cout << std::endl << "+ Optimised for concurrent processing via multi-threading." << std::endl << std::endl;
-				std::cout << "+ The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads.";
+				std::cout << "+ The active CPU supports the execution of " << std::thread::hardware_concurrency() << " concurrent threads.";
 			}
-#endif
 			std::cout << std::endl;
 			break;
 		case Phased_Block_1Mode:
@@ -1288,14 +1324,15 @@ int main(int argc, char* argv[])
 	
 	try {
 		running = true;
-		
-		// adjust blocks using group thread
-		boost::thread_group ui_adjust_threads;
-		if (!p.g.quiet)
-			ui_adjust_threads.create_thread(dna_adjust_progress_thread(&netAdjust, &p));
-		ui_adjust_threads.create_thread(dna_adjust_thread(&netAdjust, &p, &adjustStatus));
-		ui_adjust_threads.join_all();
 
+        int nthreads_la = init_linear_algebra_threads();
+        std::thread progress(dna_adjust_progress_thread(&netAdjust, &p));
+
+        // Do adjustment using linear algebra threads
+        dna_adjust_thread(&netAdjust, &p, &adjustStatus)(); 
+
+        progress.join();
+	
 		switch (adjustStatus)
 		{
 		case ADJUST_EXCEPTION_RAISED:
@@ -1309,7 +1346,7 @@ int main(int argc, char* argv[])
 			// Load variance matrices into memory
 			DeserialiseVarianceMatrices(&netAdjust, &p);
 
-		elapsed_time = netAdjust.adjustTime();
+		elapsed_time = boost::posix_time::milliseconds(netAdjust.adjustTime().count());
 
 		// Print summary message
 		PrintSummaryMessage(&netAdjust, &p, &elapsed_time);
@@ -1376,7 +1413,7 @@ int main(int argc, char* argv[])
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (boost::filesystem::exists(p.g.project_file))
+	if (std::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsAdjust(p);

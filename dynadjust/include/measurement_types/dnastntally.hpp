@@ -29,11 +29,12 @@
 	#endif
 #endif
 
+#include <include/config/dnaexports.hpp>
 #include <include/measurement_types/dnastation.hpp>
 
 namespace dynadjust { namespace measurements {
 
-class StnTally {
+class DNATYPE_API StnTally {
 
 public:
 	StnTally();

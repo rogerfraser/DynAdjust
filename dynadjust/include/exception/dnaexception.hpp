@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaexception.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,11 +28,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
+/// \endcond
 
-#include <include/config/dnatypes.hpp>
-#include <boost/exception_ptr.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
 typedef enum _PARSE_STATUS_ {
 	PARSE_SUCCESS = 0,

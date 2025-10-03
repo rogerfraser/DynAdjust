@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaplotwrapper.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -21,6 +20,13 @@
 //============================================================================
 
 #include <dynadjust/dnaplotwrapper/dnaplotwrapper.hpp>
+
+// Helper function to convert std::filesystem::file_time_type to time_t
+time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
 
 void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mode)
 {
@@ -642,9 +648,9 @@ int main(int argc, char* argv[])
 		p.g.output_folder.pop_back();
 	if ((lastindex = p.g.output_folder.find_last_of("\\")) != std::string::npos)
 		p.g.output_folder.pop_back();
-	if (boost::equals(p.g.output_folder.substr(0, 2), "./"))
+	if (equals(p.g.output_folder.substr(0, 2), "./"))
 		p.g.output_folder = p.g.output_folder.substr(2);
-	if (boost::equals(p.g.output_folder.substr(0, 2), ".\\"))
+	if (equals(p.g.output_folder.substr(0, 2), ".\\"))
 		p.g.output_folder = p.g.output_folder.substr(2);
 
 	// binary station file
@@ -709,7 +715,7 @@ int main(int argc, char* argv[])
 	}
 	
 
-	if (!boost::filesystem::exists(p.i.bst_file) || !boost::filesystem::exists(p.i.bms_file))
+	if (!std::filesystem::exists(p.i.bst_file) || !std::filesystem::exists(p.i.bms_file))
 	{
 		std::cout << std::endl << std::endl << "- Nothing to do: network";
 		if (!vm.count(NETWORK_NAME))
@@ -723,7 +729,7 @@ int main(int argc, char* argv[])
 	{
 		if (!p.p._compute_corrections)
 		{
-			if (!boost::filesystem::exists(p.o._cor_file))
+			if (!std::filesystem::exists(p.o._cor_file))
 			{
 				std::cout << std::endl << std::endl << 
 					"- Error: The required corrections file does not exist:" << std::endl;  
@@ -741,7 +747,7 @@ int main(int argc, char* argv[])
 
 	if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
 	{
-		if (!boost::filesystem::exists(p.o._apu_file))
+		if (!std::filesystem::exists(p.o._apu_file))
 		{
 			std::cout << std::endl << std::endl << 
 				"- Error: The required positional uncertainty file does not exist:" << std::endl;  
@@ -762,7 +768,7 @@ int main(int argc, char* argv[])
 	//
 	if (p.p._plot_phased_blocks || graph_mode)
 	{
-		if (!boost::filesystem::exists(p.s.seg_file))
+		if (!std::filesystem::exists(p.s.seg_file))
 		{
 			std::cout << std::endl << std::endl << 
 				"- Error: The required segmentation file does not exist:" << std::endl;  
@@ -771,32 +777,33 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bst_file) ||
-			boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))
+		if (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bst_file) ||
+			std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bms_file))
 		{
 			if (!vm.count(SEG_FILE))
 			{
 				// Has import been run after the segmentation file was created?
 				binary_file_meta_t bst_meta, bms_meta;
-				dna_io_bst bst;
-				dna_io_bms bms;
-				bst.load_bst_file_meta(p.i.bst_file, bst_meta);
-				bms.load_bms_file_meta(p.i.bms_file, bms_meta);
+				BstFile bst;
+				BmsFile bms;
+				bst.LoadFileMeta(p.i.bst_file, bst_meta);
+				bms.LoadFileMeta(p.i.bms_file, bms_meta);
 
-				bool bst_meta_import(boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
-					boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
-				bool bms_meta_import(boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
-					boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
+				bool bst_meta_import(iequals(bst_meta.modifiedBy, __import_app_name__) ||
+					iequals(bst_meta.modifiedBy, __import_dll_name__));
+				bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
+					iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-				if ((bst_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bst_file))) || 
-					(bms_meta_import && (boost::filesystem::last_write_time(p.s.seg_file) < boost::filesystem::last_write_time(p.i.bms_file))))
+				if ((bst_meta_import && (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bst_file))) || 
+					(bms_meta_import && (std::filesystem::last_write_time(p.s.seg_file) < std::filesystem::last_write_time(p.i.bms_file))))
 				{
 					std::cout << std::endl << std::endl << 
 						"- Error: The binary station and measurement files have been modified since" << std::endl <<
 						"  the segmentation file was created:" << std::endl;
 
-					time_t t_bst(boost::filesystem::last_write_time(p.i.bst_file)), t_bms(boost::filesystem::last_write_time(p.i.bms_file));
-					time_t t_seg(boost::filesystem::last_write_time(p.s.seg_file));
+					time_t t_bst = file_time_to_time_t(std::filesystem::last_write_time(p.i.bst_file));
+					time_t t_bms = file_time_to_time_t(std::filesystem::last_write_time(p.i.bms_file));
+					time_t t_seg = file_time_to_time_t(std::filesystem::last_write_time(p.s.seg_file));
 
 					std::cout << "   " << leafStr<std::string>(p.i.bst_file) << "  last modified on  " << ctime(&t_bst);
 					std::cout << "   " << leafStr<std::string>(p.i.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;

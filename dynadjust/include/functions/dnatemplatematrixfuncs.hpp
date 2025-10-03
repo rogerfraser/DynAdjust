@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnatemplatematrixfuncs.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,6 +28,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -36,12 +36,11 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
+#include <memory>
+/// \endcond
 
 #include <include/parameters/dnaellipsoid.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
@@ -309,9 +308,9 @@ void Prpagate_Variances_Geo_Cart(const matrix_2d& mvariances, matrix_2d mrotatio
 	
 	matrix_2d mV(mrotations);
 	//mV.multiply(mvariances);		// original variance matrix
-	mV.multiply_mkl("N", mvariances, "N");		// original variance matrix
+	mV.multiply("N", mvariances, "N");		// original variance matrix
 	//mvariances_mod->multiply_square_t(mV, mrotations);
-	mvariances_mod->multiply_mkl(mV, "N", mrotations, "T");
+	mvariances_mod->multiply(mV, "N", mrotations, "T");
 }
 
 
@@ -371,9 +370,9 @@ template <class T>
 void ScaleMatrix(const matrix_2d mvariances, matrix_2d* mvariances_mod, const matrix_2d& scalars)
 {
 	//matrix_2d mV(mvariances_mod->multiply(scalars, mvariances));
-	matrix_2d mV(mvariances_mod->multiply_mkl(scalars, "N", mvariances, "N"));
+	matrix_2d mV(mvariances_mod->multiply(scalars, "N", mvariances, "N"));
 	//mvariances_mod->multiply_square_t(mV, scalars);
-	mvariances_mod->multiply_mkl(mV, "N", scalars, "T");
+	mvariances_mod->multiply(mV, "N", scalars, "T");
 }
 
 
@@ -538,7 +537,7 @@ void PropagateVariances_CartLocal_Diagonal(const matrix_2d& mvariances, matrix_2
 	
 	// RtV
 	//rtv.multiply(mrotations_T, mvariances);
-	rtv.multiply_mkl(mrotations, "T", mvariances, "N");
+	rtv.multiply(mrotations, "T", mvariances, "N");
 	
 	UINT32 row, col, i;
 	
@@ -573,7 +572,7 @@ void PropagateVariances_LocalPolar_Diagonal(const matrix_2d& mvariances, matrix_
 	
 	// RtV
 	//rtv.multiply(mrotations, mvariances);
-	rtv.multiply_mkl(mrotations, "N", mvariances, "N");
+	rtv.multiply(mrotations, "N", mvariances, "N");
 
 	UINT32 row, col, i;
 	
@@ -608,18 +607,18 @@ void PropagateVariances_LocalCart(const matrix_2d& mvariances, matrix_2d& mvaria
 	{
 		// Vc = R * Vl * RT
 		//matrix_2d mV(mvariances_mod.multiply(mrotations, mvariances));
-		matrix_2d mV(mvariances_mod.multiply_mkl(mrotations, "N", mvariances, "N"));
+		matrix_2d mV(mvariances_mod.multiply(mrotations, "N", mvariances, "N"));
 		//mvariances_mod.multiply_square(mV, mrotations_T);
-		mvariances_mod.multiply_mkl(mV, "N", mrotations, "T");
+		mvariances_mod.multiply(mV, "N", mrotations, "T");
 	}
 	else
 	{
 		// Vc = R-1 * Vc * [R-1]T
 		//    = RT * Vc * R (since R is orthogonal)
 		//matrix_2d mV(mvariances_mod.multiply(mrotations_T, mvariances));
-		matrix_2d mV(mvariances_mod.multiply_mkl(mrotations, "T", mvariances, "N"));
+		matrix_2d mV(mvariances_mod.multiply(mrotations, "T", mvariances, "N"));
 		//mvariances_mod.multiply_square(mV, mrotations);
-		mvariances_mod.multiply_mkl(mV, "N", mrotations, "N");
+		mvariances_mod.multiply(mV, "N", mrotations, "N");
 	}
 }
 
@@ -643,7 +642,7 @@ void Rotate_LocalCart(const matrix_2d mvector, matrix_2d* mvector_mod,
 
 	mvector_mod->redim(3, 1);
 	//mvector_mod->multiply(mrotations, mvector);
-	mvector_mod->multiply_mkl(mrotations, "N", mvector, "N");
+	mvector_mod->multiply(mrotations, "N", mvector, "N");
 }
 
 template <class T>

@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaframesubstitutions.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,7 +28,7 @@
 	#endif
 #endif
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/parameters/dnaconsts-datums.hpp>
 #include <include/parameters/dnaepsg.hpp>
@@ -77,7 +76,7 @@ protected:
 
 typedef frame_substitutions_t<std::string, UINT32, double> frame_substitutions;
 
-typedef boost::shared_ptr< frame_substitutions_t<std::string, UINT32, double> > frameSubsPtr;
+typedef std::shared_ptr< frame_substitutions_t<std::string, UINT32, double> > frameSubsPtr;
 typedef std::vector<frameSubsPtr> vframeSubsPtr, *pvframeSubsPtr;
 typedef vframeSubsPtr::iterator _it_vframesubptr;
 
@@ -403,15 +402,15 @@ template<typename T, typename S>
 struct CompareSubstituteOnFrameName
 {
 	//public:
-	bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) const {
+	bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) const {
 		if (lhs->getFrameName() == rhs->getFrameName())
 			return lhs->getFromEpoch() < rhs->getFromEpoch();
 		return pair_firstless(lhs->getFrameName(), rhs->getFrameName());
 	}
-	bool operator()(const boost::shared_ptr<T>& lhs, const S& rhs) const {
+	bool operator()(const std::shared_ptr<T>& lhs, const S& rhs) const {
 		return pair_firstless(lhs->getFrameName(), rhs);
 	}
-	bool operator()(const S& lhs, const boost::shared_ptr<T>& rhs) const {
+	bool operator()(const S& lhs, const std::shared_ptr<T>& rhs) const {
 		return pair_firstless(lhs, rhs->getFrameName());
 	}
 	//private:

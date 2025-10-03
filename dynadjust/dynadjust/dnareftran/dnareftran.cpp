@@ -1,8 +1,8 @@
 //============================================================================
 // Name         : dnareftran.cpp
 // Author       : Roger Fraser
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ void dna_reftran::IdentifyStationPlate()
 		stnPlate.second = p++;
 		vplateMap_.push_back(stnPlate);		
 
-		//if (boost::iequals(_it_plates->first, "AU"))
+		//if (iequals(_it_plates->first, "AU"))
 		//	std::cout << std::endl << _it_plates->first << std::endl << 
 		//		boost::geometry::wkt(platePolygon) << std::endl;
 
@@ -156,7 +156,7 @@ void dna_reftran::IdentifyStationPlate()
 
 			if (boost::geometry::within(point, platePolygon))
 			{
-				sprintf(stn_it->plate, "%s", _it_plates->first.c_str());
+				snprintf(stn_it->plate, sizeof(stn_it->plate), "%s", _it_plates->first.c_str());
 				//cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << std::endl;
 			}	
 		}
@@ -187,14 +187,14 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	std::string message;
 	if (!tpb.validate_plate_files(global_plates_, plate_motion_eulers_, message))
 	{
 		ss << "         " << message << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	try {
@@ -202,7 +202,7 @@ void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, co
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	
@@ -554,8 +554,8 @@ void dna_reftran::LoadBinaryStationFile(const std::string& bstfileName)
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -569,15 +569,15 @@ void dna_reftran::WriteBinaryStationFile(const std::string& bstfileName)
 	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
-	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
-	sprintf(bst_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bst_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	snprintf(bst_meta_.modifiedBy, sizeof(bst_meta_.modifiedBy), "%s", __BINARY_NAME__);
+	snprintf(bst_meta_.epsgCode, sizeof(bst_meta_.epsgCode), "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+	snprintf(bst_meta_.epoch, sizeof(bst_meta_.epoch), "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bst_meta_.reftran = true;
 
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.write_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
+		BstFile bst;
+		bst.WriteFile(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -588,8 +588,8 @@ void dna_reftran::LoadBinaryMeasurementFile(const std::string& bmsfileName)
 {
 	try {
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -603,15 +603,15 @@ void dna_reftran::WriteBinaryMeasurementFile(const std::string& bmsfileName)
 	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
-	sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
-	sprintf(bms_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
+	snprintf(bms_meta_.epsgCode, sizeof(bms_meta_.epsgCode), "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+	snprintf(bms_meta_.epoch, sizeof(bms_meta_.epoch), "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bms_meta_.reftran = true;
 
 	try {
 		// write binary measurement data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.write_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
+		BmsFile bms;
+		bms.WriteFile(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
@@ -1479,8 +1479,8 @@ void dna_reftran::TransformStationRecords(const std::string& newFrame, const std
 			TransformStation(stn_it, datumFrom, transformationParameters);
 
 			// d. Update meta
-			sprintf(stn_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-			sprintf(stn_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+			snprintf(stn_it->epsgCode, sizeof(stn_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+			snprintf(stn_it->epoch, sizeof(stn_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 			transformationPerformed_ = true;
 			m_stnsTransformed++;
 		}
@@ -1741,21 +1741,21 @@ void dna_reftran::TransformMeasurement_GX(it_vmsr_t& msr_it, const CDnaDatum& da
 		msr_it->term1 = coordinates2_mod.get(0, 0) - coordinates1_mod.get(0, 0);
 		//TRACE("\nTransformed baseline\n");
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		
 		// Y
 		msr_it->term1 = coordinates2_mod.get(1, 0) - coordinates1_mod.get(1, 0);
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Z
 		msr_it->term1 = coordinates2_mod.get(2, 0) - coordinates1_mod.get(2, 0);
 		//TRACE("%.4f\n", msr_it->term1);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 
 		// skip covariances until next baseline
 		if (covariance_count > 0)
@@ -1832,18 +1832,18 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 		
 		// Assign 'transformed' elements
 		msr_it->term1 = coordinates_mod.get(0, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Y
 		msr_it->term1 = coordinates_mod.get(1, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Z
 		msr_it->term1 = coordinates_mod.get(2, 0);
-		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
+		snprintf(msr_it->epsgCode, sizeof(msr_it->epsgCode), "%s", datumTo_.GetEpsgCode_s().c_str());
+		snprintf(msr_it->epoch, sizeof(msr_it->epoch), "%s", datumTo_.GetEpoch_s().c_str());
 
 		// skip covariances until next point		
 		if (covariance_count > 0)
@@ -1877,7 +1877,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -1913,7 +1913,7 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 	

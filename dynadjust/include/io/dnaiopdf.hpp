@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaiopdf.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -52,21 +51,23 @@
 	#include <unistd.h>
 #endif
 
+/// \cond
 #include <exception>
 #include <stdexcept>
 #include <iostream>
 #include <string>
 #include <vector>
+/// \endcond
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaiobase.hpp>
+#include <include/io/dynadjust_file.hpp>
 
 namespace dynadjust {
 namespace iostreams {
 
-class dna_io_pdf : public dna_io_base
+class dna_io_pdf : public DynadjustFile
 {
 public:
 	dna_io_pdf(void) {};

@@ -23,6 +23,7 @@
 #include <include/io/dnaiotpb.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 namespace dynadjust {
 namespace iostreams {
@@ -71,10 +72,10 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -99,7 +100,7 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			
 			// Ignore lines with comments
 			if ((plate_name.compare(0, 1, "*") == 0) &&
-				!boost::iequals(plate_name.substr(0, 7), "*** end"))
+				!iequals(plate_name.substr(0, 7), "*** end"))
 				continue;
 
 			str_toupper<int>(plate_name);
@@ -107,7 +108,7 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			// get the next set of plate coordinates
 			getline(tpb_file, node_coordinates);
 
-			while (!boost::iequals(node_coordinates.substr(0, 7), "*** end"))
+			while (!iequals(node_coordinates.substr(0, 7), "*** end"))
 			{
 				// Extract coordinates from comma delimited string
 				SplitDelimitedString<std::string>(
@@ -138,11 +139,11 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
 		if (tpb_file.eof())
@@ -150,7 +151,7 @@ void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubl
 			tpb_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}	
 
 	return;
@@ -174,10 +175,10 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	ss.str("");
@@ -228,11 +229,11 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...) {
 		if (tpp_file.eof())
@@ -240,7 +241,7 @@ void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_e
 			tpp_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return;
@@ -265,7 +266,7 @@ bool dna_io_tpb::validate_plate_files(v_string_v_doubledouble_pair& global_plate
 		i != plate_pole_parameters.end() && j != global_plates.end();
 		++i, ++j)
 	{
-		if (!boost::equals(i->plate_name, j->first))
+		if (!equals(i->plate_name, j->first))
 		{
 			message = "There is a mismatch between the plates in the plate boundaries file and the pole parameters file.";
 			return false;

@@ -5,33 +5,21 @@
 
 #pragma once
 
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
+// Use the common precompiled header foundation
+#include <include/pch-common.h>
 
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaconsts.hpp>
+// Boost headers that might be needed by this module
+#include <boost/program_options.hpp>
+
+// Additional stable headers for this module
 #include <include/config/dnaoptions.hpp>
-#include <include/config/dnatypes-gui.hpp>
-
-#include <include/exception/dnaexception.hpp>
-
-#include <include/functions/dnatemplatefuncs.hpp>
-#include <include/functions/dnatemplatedatetimefuncs.hpp>
-#include <include/functions/dnaiostreamfuncs.hpp>
-#include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
-#include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>
 #include <include/parameters/dnadatum.hpp>
 #include <include/parameters/dnatransformationparameters.hpp>
-#include <include/measurement_types/dnameasurement.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
-
-
-#include <dynadjust/dnareftran/dnareftran.hpp>
-
-#include <dynadjust/dnareftranwrapper/dnareftranwrapper.hpp>
+// NOTE: Module-specific headers (dnareftran.hpp, dnareftranwrapper.hpp)
+// should NOT be in precompiled headers as they change frequently

@@ -29,48 +29,75 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
-
 #include <algorithm>
 #include <functional>
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <vector>
+#include <iomanip>
 #include <math.h>
 #include <iostream>
-#include <boost/tokenizer.hpp>
+#include <charconv>
+#include <stdexcept>
 
-#include <include/functions/dnatemplatecalcfuncs.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/operator.hpp>
+/// \endcond
+
+#include <include/functions/dnastrutils.hpp>
+#include <include/functions/dnatemplatecalcfuncs.hpp>
 
 using boost::spirit::qi::double_;
 using boost::spirit::qi::float_;
 using boost::spirit::qi::parse;
 
+// Helper template to convert between types (replacement for boost::lexical_cast)
+template <typename T, typename U>
+T lexical_cast(const U& value)
+{
+	std::stringstream ss;
+	ss << value;
+	T result;
+	if (!(ss >> result) || !ss.eof()) {
+		throw std::runtime_error("lexical_cast failed");
+	}
+	return result;
+}
+
+// Specialization for string to string (no-op)
+template <>
+inline std::string lexical_cast<std::string, std::string>(const std::string& value)
+{
+	return value;
+}
+
 template <class T, class U>
 T val_uint(const U& value)
 {
-	return boost::lexical_cast<T, U>(value);
+	return lexical_cast<T, U>(value);
 }
 
 template <class T, class U>
 T valorno_uint(const U& value, T& var)
 {
-	if (boost::iequals(value, "no"))
+	if (iequals(value, "no"))
 		return var = 0;
 
 	var = 1;
-	return boost::lexical_cast<T, U>(value);
+	return lexical_cast<T, U>(value);
 }
 
 template <class T>
 T valorno_string(const T& value)
 {
-	if (boost::iequals(value, "no"))
+	if (iequals(value, "no"))
 		return "";
 	return value;
 }
@@ -78,9 +105,9 @@ T valorno_string(const T& value)
 template <class T, class U>
 T yesno_uint(const U& value)
 {
-	if (boost::iequals(value, "yes"))
+	if (iequals(value, "yes"))
 		return 1;
-	//if (boost::iequals(value, "no"))
+	//if (iequals(value, "no"))
 		return 0;
 
 }
@@ -319,7 +346,7 @@ typename std::enable_if<std::is_signed<T>::value, T>::type LongFromString(const 
 	{
 		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return t;
@@ -336,7 +363,7 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 	{
 		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	return t;
@@ -349,24 +376,24 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 //	T t;
 //	std::string s(typeid(t).name());
 //
-//	if (boost::iequals(s, "unsigned int") || boost::iequals(s, "unsigned long") ||	// msvc
-//	    boost::iequals(s, "j") || boost::iequals(s, "m"))								// gcc
+//	if (iequals(s, "unsigned int") || iequals(s, "unsigned long") ||	// msvc
+//	    iequals(s, "j") || iequals(s, "m"))								// gcc
 //		t = strtoul(str.c_str(), &end,  10);
-//	else if (boost::iequals(s, "int") || boost::iequals(s, "long") ||					// msvc
-//	    boost::iequals(s, "i") || boost::iequals(s, "l"))								// gcc
+//	else if (iequals(s, "int") || iequals(s, "long") ||					// msvc
+//	    iequals(s, "i") || iequals(s, "l"))								// gcc
 //		t = strtol(str.c_str(), &end,  10);
 //	else
 //	{
 //		std::stringstream ss;
 //		ss << "String to long conversion error: " << s << " is not an integer." << end;
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //
 //	if (*end)
 //	{
 //		std::stringstream ss;
 //		ss << "String to long conversion error: non-convertible part: " << end;
-//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+//		throw std::runtime_error(ss.str());
 //	}
 //
 //	return t;

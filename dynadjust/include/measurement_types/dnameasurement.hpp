@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnameasurement.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -17,8 +16,7 @@
 //                See the License for the specific language governing permissions and
 //                limitations under the License.
 //
-// Description  : Interface for the msr_t struct and CDnaMeasurement, 
-//                CDnaCovariance and MsrTally classes
+// Description  : Interface for the msr_t struct and CDnaMeasurement,
 //============================================================================
 
 #ifndef DNAMEASUREMENT_H
@@ -30,22 +28,26 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdio.h>
 #include <string.h>
-
 #include <vector>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <memory>
+
+#include <boost/shared_ptr.hpp>
+/// \endcond
+
 #include <include/functions/dnastrmanipfuncs.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/measurement_types/dnastation.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/parameters/dnadatum.hpp>
 
-#include <boost/shared_ptr.hpp>
 
 //#include <boost/random.hpp>
 
@@ -119,13 +121,13 @@ class CDnaMeasurement;
 class CDnaCovariance;
 
 // measurement types
-typedef boost::shared_ptr<CDnaMeasurement> dnaMsrPtr;
+typedef std::shared_ptr<CDnaMeasurement> dnaMsrPtr;
 typedef std::vector<dnaMsrPtr> vdnaMsrPtr, *pvdnaMsrPtr;						// vector of dnaMsrPtr
 typedef vdnaMsrPtr::iterator _it_vdnamsrptr;
 typedef vdnaMsrPtr::const_iterator _it_vdnamsrptr_const;
 
-typedef boost::shared_ptr<CDnaCovariance> dnaCovariancePtr;
-typedef boost::shared_ptr< std::vector<CDnaCovariance> > vecCovariancePtr;
+typedef std::shared_ptr<CDnaCovariance> dnaCovariancePtr;
+typedef std::shared_ptr< std::vector<CDnaCovariance> > vecCovariancePtr;
 
 // data struct for storing measurement information to binary measurement file
 typedef struct msr_t {
@@ -140,7 +142,7 @@ typedef struct msr_t {
 			memset(coordType, '\0', sizeof(coordType));
 			// GDA94, lat, long, height
 			memset(epsgCode, '\0', sizeof(epsgCode));
-			sprintf(epsgCode, DEFAULT_EPSG_S);
+			snprintf(epsgCode, sizeof(epsgCode), DEFAULT_EPSG_S);
 			memset(epoch, '\0', sizeof(epoch));
 	}
 
@@ -188,25 +190,6 @@ typedef struct msr_t {
 typedef std::vector<measurement_t> vmsr_t, *pvmsr_t;
 typedef vmsr_t::iterator it_vmsr_t, *pit_vmsr_t;
 typedef vmsr_t::const_iterator it_vmsr_t_const;
-
-typedef struct scl_t {
-	scl_t()
-		: station1(""), station2("")
-		, v_scale(1.), p_scale(1.), l_scale(1.), h_scale(1.) 
-	{}
-
-	std::string	station1;		
-	std::string	station2;		
-	double	v_scale;	// phi, n or X scalar
-	double	p_scale;	// lambda, e or Y scalar
-	double	l_scale;	// height, up or Z scalar
-	double	h_scale;	// matrix scalar
-} scalar_t;
-
-typedef std::vector<scalar_t> vscl_t, *pvscl_t;
-typedef vscl_t::iterator it_vscl_t, *pit_vscl_t;
-typedef vscl_t::const_iterator it_vscl_t_const;
-
 
 class CDnaCovariance
 {
@@ -501,7 +484,7 @@ protected:
 
 // In the event a new measurement type is added, ensure SUPPORTED_MSR_COUNT is
 // updated accordingly
-class MsrTally
+class DNATYPE_API MsrTally
 {
 public:
 	MsrTally();

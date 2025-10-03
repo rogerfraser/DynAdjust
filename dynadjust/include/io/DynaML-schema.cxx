@@ -1,8 +1,10 @@
 // Automatically generated. Do not edit.
 //
 
+/// \cond
 #include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/util/XercesVersion.hpp>
+/// \endcond
 
 #if XERCES_GRAMMAR_SERIALIZATION_LEVEL != 7
 #  error incompatible Xerces-C++ version detected

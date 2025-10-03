@@ -36,9 +36,11 @@
 	#endif
 #endif
 
+/// \cond
 #include <functional>
 #include <math.h>
 #include <typeinfo>
+/// \endcond
 
 const int wt[16][16] =	{
 	1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

@@ -29,12 +29,14 @@
 	#endif
 #endif
 
+/// \cond
 #include <stdarg.h>
 #include <sstream>
 #include <iomanip>
+/// \endcond
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
 
 // Returns the number of fields with valid data
 int GetFields(char *line, char delim, bool multiple_delim_as_one, const char *fmt, ...);

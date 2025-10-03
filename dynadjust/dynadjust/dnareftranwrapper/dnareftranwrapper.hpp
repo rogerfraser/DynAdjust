@@ -29,6 +29,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -36,31 +37,28 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <memory>
+#include <filesystem>
 
-#include <dynadjust/dnareftran/dnareftran.hpp>
-
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
+/// \endcond
 
 #include <include/io/dnaiodna.hpp>
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaprojectfile.hpp>
 #include <include/exception/dnaexception.hpp>
 
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+
+#include <dynadjust/dnareftran/dnareftran.hpp>
 
 using namespace dynadjust::referenceframe;
 using namespace dynadjust::exception;

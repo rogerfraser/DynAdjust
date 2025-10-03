@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaprojectfile.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust Project class
 //============================================================================
 
+#pragma once
 #ifndef DNAPROJECTFILE_H_
 #define DNAPROJECTFILE_H_
 
@@ -29,12 +29,13 @@
 	#endif
 #endif
 
+/// \cond
 #include <string>
 #include <sstream>
 #include <iomanip>
+/// \endcond
 
-#include <boost/timer/timer.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>

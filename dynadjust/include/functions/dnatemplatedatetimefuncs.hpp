@@ -30,10 +30,13 @@
 	#endif
 #endif
 
-#include <boost/timer/timer.hpp>
+/// \cond
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+/// \endcond
+
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 const UINT32 TIME_IMMEMORIAL = 1900;
 
@@ -371,14 +374,14 @@ boost::gregorian::date dateFromString_safe(const std::string& dateString)
 		std::stringstream ss;
 		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"" << std::endl <<
 			"  Details: " << e.what() << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 	catch (...)
 	{
 		std::stringstream ss;
 		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"." << std::endl <<
 			"  Check that the epoch is formatted as dd.mm.yyyy" << std::endl;
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -519,7 +522,7 @@ T dateFromString(const std::string& dateString)
 	//	The flags marked with a hash sign (#) are implemented by system locale and are known to be missing on some platforms
 
 	// Is today's date required?
-	if (boost::iequals(dateString, "today"))
+	if (iequals(dateString, "today"))
 		return dateFromString_safe<T>(stringFromDate<T>(T(boost::gregorian::day_clock::local_day())));
 
 	// Parse manually.	

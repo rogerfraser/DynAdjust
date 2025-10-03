@@ -1,5 +1,25 @@
-// dynadjust.cpp : Defines the entry point for the console application.
+//============================================================================
+// Name         : dynadjust.cpp
+// Author       : Roger Fraser
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
+//                http ://www.apache.org/licenses/LICENSE-2.0
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
+//
+// Description  : DynAdjust implementation
+//============================================================================
+
+/// \cond
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -7,34 +27,32 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <mutex>
+#include <thread>
+#include <chrono>
+#include <memory>
+#include <filesystem>
 
-#include <boost/timer/timer.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/config/dnaoptions-interface.hpp>
+#include <include/config/dnaprojectfile.hpp>
 
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
-
-#include <include/config/dnaprojectfile.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust;
 
@@ -81,6 +99,11 @@ int main(int argc, char* argv[])
 
 	std::string cmd_line_banner;
 	fileproc_help_header(&cmd_line_banner);
+
+	// Get the directory containing the current executable
+	// std::filesystem handles platform differences (e.g., / vs \, .exe extensions)
+	std::filesystem::path exe_path = std::filesystem::weakly_canonical(argv[0]);
+	std::filesystem::path exe_dir = exe_path.parent_path();
 
 	project_settings p;
 	boost::program_options::variables_map vm;
@@ -202,7 +225,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(PROJECT_FILE) && vm.count(NETWORK_NAME))
 	{
-		if (boost::equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
+		if (equals(std::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
 		{
 			std::cout << std::endl << "- Error: project file name doesn't match network name.  Provide" << std::endl;  
 			std::cout << std::endl << "         either a project file path or the network name. " << std::endl << std::endl;  
@@ -214,7 +237,7 @@ int main(int argc, char* argv[])
 	if (vm.count(NETWORK_NAME))
 		p.g.project_file = formPath<std::string>(".", p.g.network_name, "dnaproj");
 	
-	if (!boost::filesystem::exists(p.g.project_file))
+	if (!std::filesystem::exists(p.g.project_file))
 	{
 		std::cout << std::endl << 
 			"- Error: Project file  " << p.g.project_file <<
@@ -265,7 +288,13 @@ int main(int argc, char* argv[])
 	if (vm.count(RUN_IMPORT))
 	{
 		std::stringstream cmd;
-		cmd << __import_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path import_exe = exe_dir / __import_app_name__;
+		if (!std::filesystem::exists(import_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			import_exe = __import_app_name__;
+		}
+		cmd << import_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -273,7 +302,7 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __import_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 		{
 			p.i.imp_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "imp");
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE, p.i.imp_file);
@@ -282,14 +311,20 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run reftran (optional)
 	if (vm.count(RUN_REFTRAN))
 	{
 		std::stringstream cmd;
-		cmd << __reftran_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path reftran_exe = exe_dir / __reftran_app_name__;
+		if (!std::filesystem::exists(reftran_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			reftran_exe = __reftran_app_name__;
+		}
+		cmd << reftran_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -297,20 +332,26 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __reftran_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 		
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run geoid (optional)
 	if (vm.count(RUN_GEOID))
 	{
 		std::stringstream cmd;
-		cmd << __geoid_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path geoid_exe = exe_dir / __geoid_app_name__;
+		if (!std::filesystem::exists(geoid_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			geoid_exe = __geoid_app_name__;
+		}
+		cmd << geoid_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -318,20 +359,26 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __geoid_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 		
 	// Run segment (optional)
 	if (vm.count(RUN_SEGMENT))
 	{
 		std::stringstream cmd;
-		cmd << __segment_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path segment_exe = exe_dir / __segment_app_name__;
+		if (!std::filesystem::exists(segment_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			segment_exe = __segment_app_name__;
+		}
+		cmd << segment_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -339,20 +386,26 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __segment_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 	
 	// Run adjust (optional)
 	if (vm.count(RUN_ADJUST))
-	{		
+	{
 		std::stringstream cmd;
-		cmd << __adjust_app_name__ << " -p " << p.g.project_file;
+		// Try to find the executable in the same directory as this program
+		std::filesystem::path adjust_exe = exe_dir / __adjust_app_name__;
+		if (!std::filesystem::exists(adjust_exe)) {
+			// Fallback to just the executable name (rely on PATH)
+			adjust_exe = __adjust_app_name__;
+		}
+		cmd << adjust_exe.string() << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
 			cmd << " --quiet";
@@ -360,13 +413,13 @@ int main(int argc, char* argv[])
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __adjust_app_name__);
 		
-		if (!run_command(cmd.str().c_str()), p.g.quiet)
+		if (!run_command(cmd.str().c_str()) && !p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));
 	}
 
 	return CloseLogandReturn(dynadjust_log, EXIT_SUCCESS);

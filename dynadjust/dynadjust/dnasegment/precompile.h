@@ -5,20 +5,27 @@
 
 #pragma once
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnaversion.hpp>
+
+// Platform-specific type inclusion
+#ifdef _WIN32
+    #include <include/config/dnatypes.hpp>  // Full types on Windows for better PCH
+#else
+    #include <include/config/dnatypes-fwd.hpp>  // Forward declarations on Unix
+#endif
+
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaexports.hpp>
 
 #include <include/exception/dnaexception.hpp>
 
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaioaml.hpp>
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiomap.hpp>
-#include <include/io/dnaioseg.hpp>
+#include <include/io/asl_file.hpp>
+#include <include/io/aml_file.hpp>
+#include <include/io/bst_file.hpp>
+#include <include/io/bms_file.hpp>
+#include <include/io/map_file.hpp>
+#include <include/io/seg_file.hpp>
 
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>

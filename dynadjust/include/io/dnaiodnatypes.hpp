@@ -29,10 +29,12 @@
 	#endif
 #endif
 
+/// \cond
 #include <sstream>
-#include <boost/algorithm/string/predicate.hpp>
+/// \endcond
 
 #include <include/exception/dnaexception.hpp>
+#include <include/functions/dnastrutils.hpp>
 
 using namespace dynadjust::exception;
 
@@ -467,7 +469,7 @@ template <typename U>
 void determineDNASTNFieldParameters(const std::string& version, 
 	dna_stn_fields& dflocs, dna_stn_fields& dfwidths)
 {
-	if (boost::iequals(version, "3.01"))
+	if (iequals(version, "3.01"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_301::_locations_,
 			dna_stn_fields_301::_widths_,
@@ -475,7 +477,7 @@ void determineDNASTNFieldParameters(const std::string& version,
 		return;
 	}
 
-	if (boost::iequals(version, "3.00"))
+	if (iequals(version, "3.00"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_300::_locations_,
 			dna_stn_fields_300::_widths_,
@@ -483,7 +485,7 @@ void determineDNASTNFieldParameters(const std::string& version,
 		return;
 	}
 
-	if (boost::iequals(version, "1.00"))
+	if (iequals(version, "1.00"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_100::_locations_,
 			dna_stn_fields_100::_widths_,
@@ -554,7 +556,7 @@ template <typename U>
 void determineDNAMSRFieldParameters(const std::string& version, 
 	dna_msr_fields& dflocs, dna_msr_fields& dfwidths, const U u=0)
 {
-	if (boost::iequals(version, "3.01"))
+	if (iequals(version, "3.01"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_301::_locations_,
 			dna_msr_fields_301::_widths_,
@@ -562,7 +564,7 @@ void determineDNAMSRFieldParameters(const std::string& version,
 		return;
 	}
 
-	if (boost::iequals(version, "3.00"))
+	if (iequals(version, "3.00"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_300::_locations_,
 			dna_msr_fields_300::_widths_,
@@ -570,7 +572,7 @@ void determineDNAMSRFieldParameters(const std::string& version,
 		return;
 	}
 
-	if (boost::iequals(version, "1.00"))
+	if (iequals(version, "1.00"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_100::_locations_,
 			dna_msr_fields_100::_widths_,

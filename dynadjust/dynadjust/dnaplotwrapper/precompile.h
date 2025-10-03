@@ -7,16 +7,17 @@
 
 // See https://github.com/boostorg/process/issues/161
 #define _WIN32_WINNT 0x0501
-#include <boost/process.hpp>
 
-#if defined(_WIN32) || defined(__WIN32__)
-#define BOOST_USE_WINDOWS_H
+#include <include/config/dnaconsts.hpp>
+#include <include/config/dnaversion.hpp>
+
+// Platform-specific type inclusion
+#ifdef _WIN32
+    #include <include/config/dnatypes.hpp>  // Full types on Windows for better PCH
+#else
+    #include <include/config/dnatypes-fwd.hpp>  // Forward declarations on Unix
 #endif
 
-
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaoptions-interface.hpp>
@@ -30,4 +31,5 @@
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
 
-#include <dynadjust/dnaplotwrapper/dnaplotwrapper.hpp>
+
+// NOTE: Module-specific headers should NOT be in PCH

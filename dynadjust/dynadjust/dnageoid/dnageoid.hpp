@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnageoid.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,6 +28,7 @@
 	#endif
 #endif
 
+/// \cond
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -37,13 +37,15 @@
 #include <new>
 #include <math.h>
 
-#include <include/io/dnaiobst.hpp>
+/// \endcond
 
+#include <include/config/dnaversion.hpp>
+#include <include/io/bst_file_loader.hpp>
+#include <include/io/bst_file.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaoptions.hpp>
-#include <include/config/dnatypes.hpp>
-#include <include/config/dnaversion.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/config/dnaversion-stream.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
@@ -51,6 +53,8 @@
 #include <include/measurement_types/dnastation.hpp>
 
 #include <include/exception/dnaexception.hpp>
+
+#include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
@@ -76,8 +80,7 @@
 #include <dynadjust/dnageoid/bicubic_interpolation.hpp>
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;

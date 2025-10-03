@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnatemplatefuncs.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,23 +28,22 @@
 	#endif
 #endif
 
-#include <algorithm>
+/// \cond
+#include <algorithm>     // Required for std::sort, std::unique, etc.
 #include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <math.h>
-#include <iostream>
+#include <cmath>         // Use cmath instead of math.h
+#include <iosfwd>        // Forward declarations instead of iostream
+#include <memory>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/bind/bind.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <include/config/dnatypes.hpp>
-#include <include/measurement_types/dnameasurement.hpp>
-
-using namespace dynadjust::datum_parameters;
-using namespace dynadjust::measurements;
+/// \endcond
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-basic.hpp>
+#include <include/config/dnatypes-containers.hpp>
+#include <include/config/dnatypes-structs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
 
 template <typename T>
 bool isOdd(T integer)
@@ -428,10 +426,10 @@ public:
 	CompareClusterID(const std::vector<M>* m, const U& id=0)
 		: _m(m), _id(id) {}
 	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
+	bool operator()(const std::shared_ptr<U> lhs, const U& rhs) {
 		return (*(lhs.get()) < _m->at(rhs).clusterID);
 	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
+	bool operator()(const U& lhs, const std::shared_ptr<U> rhs) {
 		return (_m->at(lhs).clusterID < *(rhs.get()));
 	}
 	// Sort by clusterID then by file order.
@@ -464,7 +462,7 @@ private:
 // A = CAStationList, U = UINT32
 // Example use:
 // CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_, vAssocStnList_.at(_it_stnmap->second).GetAssocMsrCount());
-// boost::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
+// std::shared_ptr<UINT32> stnID(new UINT32(_it_stnmap->second));
 
 template<typename A, typename U>
 class CompareMeasCount
@@ -473,10 +471,10 @@ public:
 	CompareMeasCount(const std::vector<A>* a) : _a(a) {}
 
 	// used for lower_bound, upper_bound, etc...
-	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
+	bool operator()(const std::shared_ptr<U> lhs, const U& rhs) {
 		return (*(lhs.get()) < _a->at(rhs).GetAssocMsrCount());
 	}
-	bool operator()(const U& lhs, const boost::shared_ptr<U> rhs) {
+	bool operator()(const U& lhs, const std::shared_ptr<U> rhs) {
 		return (_a->at(lhs).GetAssocMsrCount() < *(rhs.get()));
 	}
 	bool operator()(const U& lhs, const U& rhs)
@@ -579,7 +577,6 @@ private:
 	std::vector<M>*	_m;
 };
 
-
 // U = u32u32_uint32_pair
 template<typename U=u32u32_uint32_pair>
 class CompareBlockStationMapUnique_byBlock
@@ -610,819 +607,6 @@ public:
 };
 
 
-// S = station_t, U = u32u32_double_pair
-template <typename S, typename U = u32u32_double_pair>
-class CompareBlockStationMapUnique_byFileOrder {
-public:
-	CompareBlockStationMapUnique_byFileOrder(std::vector<S>* s)
-		:  _s(s) {}
-	bool operator()(const U& left, const U& right) {
-		return _s->at(left.first.first).fileOrder < _s->at(right.first.first).fileOrder;
-	}
-private:
-	std::vector<S>*	_s;
-};
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasType_PairFirst
-{
-public:
-	CompareMeasType_PairFirst(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
-		{
-			if (_m->at(lhs.first).station1 == _m->at(rhs.first).station1)
-			{
-				if (_m->at(lhs.first).station2 == _m->at(rhs.first).station2)
-					return _m->at(lhs.first).term1 < _m->at(rhs.first).term1;
-				else
-					return _m->at(lhs.first).station2 < _m->at(rhs.first).station2;	
-			}
-			return _m->at(lhs.first).station1 < _m->at(rhs.first).station1;
-		}
-		return _m->at(lhs.first).measType < _m->at(rhs.first).measType;
-	}
-private:
-	std::vector<M>*	_m;
-};
-
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasFromStn_PairFirst
-{
-public:
-	CompareMeasFromStn_PairFirst(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (_m->at(lhs.first).station1 == _m->at(rhs.first).station1)
-		{
-			if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
-			{
-				if (_m->at(lhs.first).station2 == _m->at(rhs.first).station2)
-					return _m->at(lhs.first).term1 < _m->at(rhs.first).term1;
-				else
-					return _m->at(lhs.first).station2 < _m->at(rhs.first).station2;
-			}
-			return _m->at(lhs.first).measType < _m->at(rhs.first).measType;
-		}
-		return _m->at(lhs.first).station1 < _m->at(rhs.first).station1;
-	}
-private:
-	std::vector<M>*	_m;
-};
-
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasToStn_PairFirst
-{
-public:
-	CompareMeasToStn_PairFirst(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (_m->at(lhs.first).station2 == _m->at(rhs.first).station2)
-		{
-			if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
-			{
-				if (_m->at(lhs.first).station1 == _m->at(rhs.first).station1)
-					return _m->at(lhs.first).term1 < _m->at(rhs.first).term1;
-				else
-					return _m->at(lhs.first).station1 < _m->at(rhs.first).station1;
-			}
-			return _m->at(lhs.first).measType < _m->at(rhs.first).measType;
-		}
-		return _m->at(lhs.first).station2 < _m->at(rhs.first).station2;
-	}
-private:
-	std::vector<M>*	_m;
-};
-
-
-// m = measurement_t
-template<typename m>
-bool isCompoundMeas(const m& msrType)
-{
-	switch (msrType)
-	{
-	case 'G':
-	case 'X':
-	case 'Y':
-		return true;
-	}
-	return false;
-}
-
-template<typename m>
-bool notCompoundMeas(const m& msrType)
-{
-	switch (msrType)
-	{
-	case 'G':
-	case 'X':
-	case 'Y':
-		return false;
-	}
-	return true;
-}
-
-// m = measurement_t
-template<typename m>
-bool isCompoundMeasAll(const m& msrType)
-{
-	switch (msrType)
-	{
-	case 'D':
-	case 'G':
-	case 'X':
-	case 'Y':
-		return true;
-	}
-	return false;
-}
-
-template<typename m>
-bool notCompoundMeasAll(const m& msrType)
-{
-	switch (msrType)
-	{
-	case 'D':
-	case 'G':
-	case 'X':
-	case 'Y':
-		return false;
-	}
-	return true;
-}
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasValue_PairFirst
-{
-public:
-	CompareMeasValue_PairFirst(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).term1) > lhsValue)				// X
-						lhsValue = fabs(_m->at(lhs.first + increment).term1);
-					if (fabs(_m->at(lhs.first + increment + 1).term1) > lhsValue)			// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).term1);
-					if (fabs(_m->at(lhs.first + increment + 2).term1) > lhsValue)			// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).term1);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).term1);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).term1) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).term1);
-				}
-				break;
-			}
-			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).term1));
-			return fabs(lhsValue) > fabs(_m->at(rhs.first).term1);
-		}
-		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double rhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).term1) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).term1);
-					if (fabs(_m->at(rhs.first + increment + 1).term1) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).term1);
-					if (fabs(_m->at(rhs.first + increment + 2).term1) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).term1);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).term1);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).term1) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).term1);
-				}
-				break;
-			}
-
-			return fabs(_m->at(lhs.first).term1) > fabs(rhsValue);
-		}
-		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).term1) > lhsValue)		// X
-						lhsValue = fabs(_m->at(lhs.first + increment).term1);
-					if (fabs(_m->at(lhs.first + increment + 1).term1) > lhsValue)	// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).term1);
-					if (fabs(_m->at(lhs.first + increment + 2).term1) > lhsValue)	// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).term1);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).term1);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).term1) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).term1);
-				}
-				break;
-			}
-
-			double rhsValue = 0.0;
-			increment = 0;
-			vector_count = _m->at(rhs.first).vectorCount1;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).term1) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).term1);
-					if (fabs(_m->at(rhs.first + increment + 1).term1) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).term1);
-					if (fabs(_m->at(rhs.first + increment + 2).term1) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).term1);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).term1);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).term1) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).term1);
-				}
-			}
-
-			return fabs(lhsValue) > fabs(rhsValue);
-		}
-		else
-			return fabs(_m->at(lhs.first).term1) > fabs(_m->at(rhs.first).term1);
-	}
-private:
-	std::vector<M>*	_m;
-};
-
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasResidual_PairFirst
-{
-public:
-	CompareMeasResidual_PairFirst(std::vector<M>* m)
-		: _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).measCorr) > lhsValue)				// X
-						lhsValue = fabs(_m->at(lhs.first + increment).measCorr);
-					if (fabs(_m->at(lhs.first + increment + 1).measCorr) > lhsValue)			// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).measCorr);
-					if (fabs(_m->at(lhs.first + increment + 2).measCorr) > lhsValue)			// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).measCorr);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).measCorr);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).measCorr) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).measCorr);
-				}
-				break;
-			}
-			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).measCorr));
-			return fabs(lhsValue) > fabs(_m->at(rhs.first).measCorr);
-		}
-		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double rhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).measCorr) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).measCorr);
-					if (fabs(_m->at(rhs.first + increment + 1).measCorr) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).measCorr);
-					if (fabs(_m->at(rhs.first + increment + 2).measCorr) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).measCorr);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).measCorr);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).measCorr) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).measCorr);
-				}
-				break;
-			}
-
-			return fabs(_m->at(lhs.first).measCorr) > fabs(rhsValue);
-		}
-		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).measCorr) > lhsValue)		// X
-						lhsValue = fabs(_m->at(lhs.first + increment).measCorr);
-					if (fabs(_m->at(lhs.first + increment + 1).measCorr) > lhsValue)	// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).measCorr);
-					if (fabs(_m->at(lhs.first + increment + 2).measCorr) > lhsValue)	// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).measCorr);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).measCorr);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).measCorr) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).measCorr);
-				}
-				break;
-			}
-
-			double rhsValue = 0.0;
-			increment = 0;
-			vector_count = _m->at(rhs.first).vectorCount1;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).measCorr) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).measCorr);
-					if (fabs(_m->at(rhs.first + increment + 1).measCorr) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).measCorr);
-					if (fabs(_m->at(rhs.first + increment + 2).measCorr) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).measCorr);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).measCorr);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).measCorr) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).measCorr);
-				}
-			}
-
-			return fabs(lhsValue) > fabs(rhsValue);
-		}
-		else
-			return fabs(_m->at(lhs.first).measCorr) > fabs(_m->at(rhs.first).measCorr);
-	}
-private:
-	std::vector<M>* _m;
-};
-
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasAdjSD_PairFirst
-{
-public:
-	CompareMeasAdjSD_PairFirst(std::vector<M>* m)
-		: _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).measAdjPrec) > lhsValue)				// X
-						lhsValue = fabs(_m->at(lhs.first + increment).measAdjPrec);
-					if (fabs(_m->at(lhs.first + increment + 1).measAdjPrec) > lhsValue)			// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).measAdjPrec);
-					if (fabs(_m->at(lhs.first + increment + 2).measAdjPrec) > lhsValue)			// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).measAdjPrec);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).measAdjPrec);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).measAdjPrec) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).measAdjPrec);
-				}
-				break;
-			}
-			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).measAdjPrec));
-			return fabs(lhsValue) > fabs(_m->at(rhs.first).measAdjPrec);
-		}
-		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double rhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).measAdjPrec) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).measAdjPrec);
-					if (fabs(_m->at(rhs.first + increment + 1).measAdjPrec) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).measAdjPrec);
-					if (fabs(_m->at(rhs.first + increment + 2).measAdjPrec) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).measAdjPrec);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).measAdjPrec);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).measAdjPrec) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).measAdjPrec);
-				}
-				break;
-			}
-
-			return fabs(_m->at(lhs.first).measAdjPrec) > fabs(rhsValue);
-		}
-		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).measAdjPrec) > lhsValue)		// X
-						lhsValue = fabs(_m->at(lhs.first + increment).measAdjPrec);
-					if (fabs(_m->at(lhs.first + increment + 1).measAdjPrec) > lhsValue)	// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).measAdjPrec);
-					if (fabs(_m->at(lhs.first + increment + 2).measAdjPrec) > lhsValue)	// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).measAdjPrec);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).measAdjPrec);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).measAdjPrec) > lhsValue)
-						lhsValue = fabs(_m->at(lhs.first + d).measAdjPrec);
-				}
-				break;
-			}
-
-			double rhsValue = 0.0;
-			increment = 0;
-			vector_count = _m->at(rhs.first).vectorCount1;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).measAdjPrec) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).measAdjPrec);
-					if (fabs(_m->at(rhs.first + increment + 1).measAdjPrec) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).measAdjPrec);
-					if (fabs(_m->at(rhs.first + increment + 2).measAdjPrec) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).measAdjPrec);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).measAdjPrec);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).measAdjPrec) > rhsValue)
-						rhsValue = fabs(_m->at(rhs.first + d).measAdjPrec);
-				}
-			}
-
-			return fabs(lhsValue) > fabs(rhsValue);
-		}
-		else
-			return fabs(_m->at(lhs.first).measAdjPrec) > fabs(_m->at(rhs.first).measAdjPrec);
-	}
-private:
-	std::vector<M>* _m;
-};
-
-
-// M = measurement_t, U = UINT32
-template<typename M, typename U>
-class CompareMeasNstat_PairFirst
-{
-public:
-	CompareMeasNstat_PairFirst(std::vector<M>* m)
-		:  _m(m) {}
-	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
-		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);			
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':				
-				for (UINT32 g(0); g < vector_count; ++g)
-				{					
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)				// X
-						lhsValue = fabs(_m->at(lhs.first + increment).NStat);				
-					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)			// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
-					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)			// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first + d).NStat) > lhsValue)
-						lhsValue = fabs( _m->at(lhs.first + d).NStat);
-				}
-				break;
-			}
-			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).NStat));
-			return fabs(lhsValue) > fabs(_m->at(rhs.first).NStat);
-		}
-		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{			
-			double rhsValue = 0.0;			
-			U increment(0);			
-			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':				
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).NStat);				
-					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
-					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first + d).NStat) > rhsValue)
-						rhsValue =  fabs(_m->at(rhs.first + d).NStat);
-				}
-				break;
-			}
-
-			return fabs(_m->at(lhs.first).NStat) > fabs(rhsValue);
-		}
-		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
-		{
-			double lhsValue = 0.0;
-			U increment(0);
-			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
-
-			// Get the largest LHS value from the cluster
-			switch (_m->at(lhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)		// X
-						lhsValue = fabs(_m->at(lhs.first + increment).NStat);			
-					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
-						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
-					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
-						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
-				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first+d).NStat) > lhsValue)
-						lhsValue =  fabs(_m->at(lhs.first+d).NStat);
-				}
-				break;
-			}
-
-			double rhsValue = 0.0;
-			increment = 0;
-			vector_count = _m->at(rhs.first).vectorCount1;
-
-			// Get the largest RHS value from the cluster
-			switch (_m->at(rhs.first).measType)
-			{
-			case 'G':
-			case 'X':
-			case 'Y':				
-				for (UINT32 g(0); g < vector_count; ++g)
-				{
-					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
-						rhsValue = fabs(_m->at(rhs.first + increment).NStat);
-					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
-						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
-					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
-						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
-					increment += 3;							// move to covariances
-					increment += (covariance_count * 3);	// skip over covariances
-				}
-				break;
-			case 'D':
-				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
-				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d < vector_count; ++d)
-				{
-					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first+d).NStat) > rhsValue)
-						rhsValue =  fabs(_m->at(rhs.first+d).NStat);
-				}
-			}
-
-			return fabs(lhsValue) > fabs(rhsValue);
-		}
-		else
-			return fabs(_m->at(lhs.first).NStat) > fabs(_m->at(rhs.first).NStat);
-	}
-private:
-	std::vector<M>*	_m;
-};
 
 
 // S = station_t, U = UINT32
@@ -1445,17 +629,17 @@ template<typename S, typename T>
 class CompareStnName_CDnaStn
 {
 public:
-	bool operator()(const boost::shared_ptr<S> lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const std::shared_ptr<S> rhs) {
 		if (lhs.get()->GetName() == rhs.get()->GetName())
 			return (lhs.get()->GetfileOrder() < rhs.get()->GetfileOrder());
 		return keyLess(lhs.get()->GetName(), rhs.get()->GetName());
 	}
 
-	bool operator()(const T lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const T lhs, const std::shared_ptr<S> rhs) {
 		return keyLess(lhs, rhs.get()->GetName());
 	}
 
-	bool operator()(const boost::shared_ptr<S> lhs, const T rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const T rhs) {
 		return keyLess(lhs.get()->GetName(), rhs);
 	}
 
@@ -1471,7 +655,7 @@ template<typename S>
 class CompareStnFileOrder_CDnaStn
 {
 public:
-	bool operator()(const boost::shared_ptr<S> lhs, const boost::shared_ptr<S> rhs) {
+	bool operator()(const std::shared_ptr<S> lhs, const std::shared_ptr<S> rhs) {
 		if (lhs.get()->GetfileOrder() == rhs.get()->GetfileOrder())
 			return (lhs.get()->GetName() < rhs.get()->GetName());
 		return (lhs.get()->GetfileOrder() < rhs.get()->GetfileOrder());
@@ -1554,37 +738,7 @@ private:
 };
 
 
-// M = measurement_t
-template<typename M, typename C = char>
-class CompareMeasTypeT
-{
-public:
-	CompareMeasTypeT(const C& t) :  _type(t) {}
-	inline void SetComparand(const char& t) { _type = t; }
-	bool operator()(const M& msr) {
-		return msr.measType == _type;
-	}
 
-private:
-	C _type;
-};
-	
-
-// M = measurement_t
-template<typename M>
-class CompareValidMeasTypeT
-{
-public:
-	CompareValidMeasTypeT(const char& t) :  _type(t) {}
-	inline void SetComparand(const char& t) { _type = t; }
-	bool operator()(const M& msr) {
-		return msr.ignore == false &&
-			msr.measType == _type;
-	}
-
-private:
-	char _type;
-};
 
 
 template<typename T = scalar_t>
@@ -1679,10 +833,10 @@ class CompareIgnoredMsr
 {
 public:
 	CompareIgnoredMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		return msr->GetIgnore();
 	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetIgnore() == rhs->GetIgnore())
 			return lhs->GetFirst() < rhs->GetFirst();
 		return lhs->GetIgnore() < rhs->GetIgnore();
@@ -1710,10 +864,10 @@ class CompareInsufficientMsr
 {
 public:
 	CompareInsufficientMsr() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		return msr->GetInsufficient();
 	}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetInsufficient() == rhs->GetInsufficient())
 			return lhs->GetFirst() < rhs->GetFirst();
 		return lhs->GetInsufficient() < rhs->GetInsufficient();
@@ -1726,7 +880,7 @@ class CompareEmptyClusterMeas
 {
 public:
 	CompareEmptyClusterMeas() {}
-	bool operator()(const boost::shared_ptr<M> msr) {
+	bool operator()(const std::shared_ptr<M> msr) {
 		switch (msr->GetTypeC())
 		{
 		case 'X':
@@ -1738,7 +892,7 @@ public:
 		}
 		//return msr->GetTotal() == 0;
 	}
-	//bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	//bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 	//	return lhs->GetTotal() < rhs->GetTotal();
 	//}
 };
@@ -1749,7 +903,7 @@ class CompareClusterMsrFunc
 {
 public:
 	CompareClusterMsrFunc() {}
-	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+	bool operator()(const std::shared_ptr<M> lhs, const std::shared_ptr<M> rhs) {
 		if (lhs->GetTypeC() != rhs->GetTypeC())
 			return lhs->GetTypeC() < rhs->GetTypeC();
 		else
@@ -1766,7 +920,7 @@ public:
 	CompareMeasType(const std::string& s) :  _s(s) {}
 	inline void SetComparand(const char& s) { _s = s; }
 
-	bool operator()(boost::shared_ptr<M> m) {
+	bool operator()(std::shared_ptr<M> m) {
 		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)  {
 			if (m->GetTypeC() == *_it_s)
 				return true;
@@ -1787,7 +941,7 @@ public:
 	CompareNonMeasType(const std::string& s) :  _s(s), _bFd(false) {}
 	inline void SetComparand(const std::string& s) { _s = s; }
 
-	bool operator()(boost::shared_ptr<M> m) {
+	bool operator()(std::shared_ptr<M> m) {
 		_bFd = true;
 		for (_it_s=_s.begin(); _it_s!=_s.end(); ++_it_s)
 			_bFd = _bFd && m->GetTypeC() != *_it_s;
@@ -1926,64 +1080,6 @@ Iter binary_search_index_pair(Iter begin, Iter end, T value)
 		return end;
 }
 
-// M = measurement_t, U = UINT32
-// Compare functor - searches for all stations that appear in the list
-template<typename U, typename M, typename C>
-class CompareFreeClusterAllStns
-{
-public:
-	CompareFreeClusterAllStns(std::vector<U>* u, std::vector<M>* m, const C& c) :  _u(u), _m(m), _c(c) {}
-	bool operator()(const U& amlindex) {
-		// one-station measurement types
-		// is this station on the list?
-		// Is station 1 on inner or junction lists?
-		switch (_c)
-		{
-		case 'H':	// Orthometric height
-		case 'R':	// Ellipsoidal height
-		case 'I':	// Astronomic latitude
-		case 'J':	// Astronomic longitude
-		case 'P':	// Geodetic latitude
-		case 'Q':	// Geodetic longitude
-		case 'Y':	// GPS point cluster
-			if (binary_search(_u->begin(), _u->end(), _m->at(amlindex).station1))
-				return true;
-			return false;
-		}
-		// two-station measurement types
-		// is this station on the list?
-		switch (_c)
-		{
-		case 'D':	// Direction set
-		case 'B':	// Geodetic azimuth
-		case 'K':	// Astronomic azimuth
-		case 'C':	// Chord dist
-		case 'E':	// Ellipsoid arc
-		case 'M':	// MSL arc
-		case 'S':	// Slope distance
-		case 'L':	// Level difference
-		case 'V':	// Zenith distance
-		case 'Z':	// Vertical angle
-		case 'G':	// GPS Baseline (treat as single-baseline cluster)
-		case 'X':	// GPS Baseline cluster
-			if (binary_search(_u->begin(), _u->end(), _m->at(amlindex).station1) &&
-				binary_search(_u->begin(), _u->end(), _m->at(amlindex).station2))
-				return true;
-			return false;
-		}
-		// three-station measurement types
-		// is this station on the list?
-		if (binary_search(_u->begin(), _u->end(), _m->at(amlindex).station1) &&
-			binary_search(_u->begin(), _u->end(), _m->at(amlindex).station2) &&
-			binary_search(_u->begin(), _u->end(), _m->at(amlindex).station3))
-			return true;
-		return false;
-	}
-private:
-	std::vector<U>*	_u;
-	std::vector<M>*	_m;
-	char		_c;
-};
 
 
 

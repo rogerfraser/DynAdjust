@@ -5,10 +5,6 @@
 // programs without any restrictions.
 //
 
-#include <iostream>
-#include <sstream>
-#include <string>
-
 #include <include/exception/dnaexception.hpp>
 #include <include/parameters/dnaepsg.hpp>
 #include <dynadjust/dnaimport/dnaparser_pimpl.hxx>

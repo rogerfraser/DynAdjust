@@ -5,81 +5,115 @@
 // Version      : 1.00
 // Copyright    : Copyright 2017 Geoscience Australia
 //
-//                Licensed under the Apache License, Version 2.0 (the "License");
-//                you may not use this file except in compliance with the License.
-//                You may obtain a copy of the License at
-//               
+//                Licensed under the Apache License, Version 2.0 (the
+//                "License"); you may not use this file except in compliance
+//                with the License. You may obtain a copy of the License at
+//
 //                http ://www.apache.org/licenses/LICENSE-2.0
-//               
-//                Unless required by applicable law or agreed to in writing, software
-//                distributed under the License is distributed on an "AS IS" BASIS,
-//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//                See the License for the specific language governing permissions and
-//                limitations under the License.
+//
+//                Unless required by applicable law or agreed to in writing,
+//                software distributed under the License is distributed on an
+//                "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+//                either express or implied. See the License for the specific
+//                language governing permissions and limitations under the
+//                License.
 //
 // Description  : Common process and fork functions
 //============================================================================
 
-#include <include/functions/dnaprocessfuncs.hpp>
+/// \cond
 #include <iostream>
-#include <boost/process.hpp>
+#include <string>
+#include <cstdlib>
+/// \endcond
 
-bool run_command(const std::string& executable_path, const UINT16& quiet)
-{	
-	// use boost's platform independent code to invoke a process
-	// see https://www.boost.org/doc/libs/develop/doc/html/process.html
-	//
-	// An exit code of zero means the process was successful, 
-	// while one different than zero indicates an error.
+#include <include/functions/dnaprocessfuncs.hpp>
 
-	
-	// For windows batch files, add cmd to execute the batch file.
-#if defined(_WIN32) || defined(__WIN32__)
-
-	STARTUPINFO startup;
-	PROCESS_INFORMATION process;
-
-	memset(&startup, 0, sizeof(STARTUPINFO));
-	memset(&process, 0, sizeof(PROCESS_INFORMATION));
-
-	startup.cb = sizeof(STARTUPINFO);
-
-	DWORD return_code(EXIT_SUCCESS);
-	if (CreateProcess(0, (LPSTR)executable_path.c_str(), 0, 0, FALSE,
-		0, 0, 0, &startup, &process))
-	{
-		WaitForSingleObject(process.hProcess, INFINITE);
-		// Capture the return code
-		GetExitCodeProcess(process.hProcess, &return_code);
-		CloseHandle(process.hThread);
-		CloseHandle(process.hProcess);
-
-		return (return_code == EXIT_SUCCESS);
-	}
-	return EXIT_SUCCESS;
-
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)		
-
-	int return_value(0);
-
-	try {	
-		if (quiet)
-			return_value = boost::process::system(executable_path, boost::process::std_out > boost::process::null);
-		else
-			return_value = boost::process::system(executable_path, boost::process::std_out > stdout);
-		}
-	catch (const boost::process::process_error& e)
-	{
-		std::cout << std::endl << "- Error: Cannot find " << executable_path << "\n" <<
-			"  " << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	return (return_value == EXIT_SUCCESS);
-
+// Platform detection
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    #include <windows.h>
+#elif defined(__linux__) || defined(__APPLE__) || defined(__unix__)
+    #include <sys/wait.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+#else
+    #error "Unsupported platform"
 #endif
 
-	return EXIT_SUCCESS;
+bool run_command(const std::string& executable_path, bool quiet) {
+    
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    STARTUPINFO startup{};
+    PROCESS_INFORMATION process{};
+    startup.cb = sizeof(STARTUPINFO);
+    
+    HANDLE devnull = INVALID_HANDLE_VALUE;
+    if (quiet) {
+        devnull = CreateFile("NUL", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                           nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (devnull != INVALID_HANDLE_VALUE) {
+            startup.hStdOutput = devnull;
+            startup.hStdError = devnull;
+            startup.dwFlags |= STARTF_USESTDHANDLES;
+        }
+    }
+    
+    auto cmd_copy = executable_path;
+    BOOL success = CreateProcess(nullptr, cmd_copy.data(), nullptr, nullptr, 
+                               TRUE, 0, nullptr, nullptr, &startup, &process);
+    
+    DWORD return_code = EXIT_FAILURE;
+    if (success) {
+        WaitForSingleObject(process.hProcess, INFINITE);
+        GetExitCodeProcess(process.hProcess, &return_code);
+        CloseHandle(process.hThread);
+        CloseHandle(process.hProcess);
+    } else {
+        std::cout << "\n- Error: Cannot execute " << executable_path 
+                  << "\n  Error code: " << GetLastError() << '\n';
+    }
+    
+    if (devnull != INVALID_HANDLE_VALUE) {
+        CloseHandle(devnull);
+    }
+    
+    return (return_code == EXIT_SUCCESS);
+
+#else
+    pid_t pid = fork();
+    
+    if (pid == -1) {
+        std::cout << "\n- Error: Failed to fork process for " << executable_path << '\n';
+        return false;
+    }
+    
+    if (pid == 0) {
+        // Child process
+        if (quiet) {
+            int devnull = open("/dev/null", O_WRONLY);
+            if (devnull != -1) {
+                dup2(devnull, STDOUT_FILENO);
+                dup2(devnull, STDERR_FILENO);
+                close(devnull);
+            }
+        }
+        
+        execl("/bin/sh", "sh", "-c", executable_path.c_str(), nullptr);
+        
+        // If we get here, execl failed
+        std::cout << "\n- Error: Cannot execute " << executable_path << '\n';
+        _exit(EXIT_FAILURE);
+    }
+    
+    // Parent process - wait for child
+    int status;
+    waitpid(pid, &status, 0);
+    
+    if (WIFEXITED(status)) {
+        return (WEXITSTATUS(status) == EXIT_SUCCESS);
+    }
+    
+    std::cout << "\n- Error: Process " << executable_path << " terminated abnormally\n";
+    return false;
+#endif
 }
-
-

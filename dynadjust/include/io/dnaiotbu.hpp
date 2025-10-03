@@ -1,9 +1,8 @@
 //============================================================================
-// Name         : dnatypeb.hpp
+// Name         : dnaiotbu.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : Type B uncertainty file io and helps
 //============================================================================
 
+#pragma once
 #ifndef DNAIOTYPEB_H_
 #define DNAIOTYPEB_H_
 
@@ -29,13 +29,14 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/io/dynadjust_file.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
+#include <include/functions/dnastrutils.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
 using namespace dynadjust::math;
@@ -137,11 +138,11 @@ typedef v_type_b_method::iterator it_type_b_method;
 
 /////////////////////////////////////////////////////////////
 
-class dna_io_tbu : public dna_io_base
+class dna_io_tbu : public DynadjustFile
 {
 public:
 	dna_io_tbu(void) {};
-	dna_io_tbu(const dna_io_tbu& tbu) : dna_io_base(tbu) {};
+	dna_io_tbu(const dna_io_tbu& tbu) : DynadjustFile(tbu) {};
 	virtual ~dna_io_tbu(void) {};
 
 	dna_io_tbu& operator=(const dna_io_tbu& rhs);

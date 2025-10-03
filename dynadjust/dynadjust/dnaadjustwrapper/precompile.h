@@ -7,46 +7,40 @@
 
 // See https://github.com/boostorg/process/issues/161
 #define _WIN32_WINNT 0x0501
-#include <boost/process.hpp>
 
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaversion-stream.hpp>
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
-#include <include/config/dnatypes-gui.hpp>
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaoptions-interface.hpp>
+// Use the common precompiled header foundation
+#include <include/pch-common.h>
+
+// Boost headers needed by this module
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options.hpp>
+
+// Additional stable headers for this module
 #include <include/config/dnaconsts-interface.hpp>
 #include <include/config/dnaprojectfile.hpp>
 
-#include <include/exception/dnaexception.hpp>
+// Platform-specific includes
+#ifdef _WIN32
+    // On Windows, PCH is more effective, include more headers
+    #include <include/config/dnatypes.hpp>  // Full types on Windows
 
-#include <include/io/dnaiobst.hpp>
-#include <include/io/dnaiobms.hpp>
-#include <include/io/dnaiomap.hpp>
-#include <include/io/dnaioaml.hpp>
-#include <include/io/dnaioasl.hpp>
-#include <include/io/dnaioseg.hpp>
-#include <include/io/dnaioadj.hpp>
-#include <include/io/dnaiosnx.hpp>
+    // IO headers - consider moving to io-fwd.hpp later
+    #include <include/io/bst_file.hpp>
+    #include <include/io/bms_file.hpp>
+    #include <include/io/map_file.hpp>
+    #include <include/io/aml_file.hpp>
+    #include <include/io/asl_file.hpp>
+    #include <include/io/seg_file.hpp>
+    #include <include/io/adj_file.hpp>
 
-#include <include/functions/dnatemplatematrixfuncs.hpp>
-#include <include/functions/dnatemplatestnmsrfuncs.hpp>
-#include <include/functions/dnaiostreamfuncs.hpp>
-#include <include/functions/dnastringfuncs.hpp>
-#include <include/functions/dnaintegermanipfuncs.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
+    // Parameters - stable headers
+    #include <include/parameters/dnaepsg.hpp>
+    #include <include/parameters/dnadatum.hpp>
+#else
+    // On macOS/Linux, use forward declarations for better incremental builds
+    #include <include/measurement_types/dnameasurement-fwd.hpp>
+    #include <include/measurement_types/dnastation-fwd.hpp>
+#endif
 
-#include <include/thread/dnathreading.hpp>
-
-#include <include/parameters/dnaepsg.hpp>
-#include <include/parameters/dnadatum.hpp>
-
-#include <include/math/dnamatrix_contiguous.hpp>
-
-#include <include/memory/dnafile_mapping.hpp>
-
-#include <dynadjust/dnaadjust/dnaadjust.hpp>
-
-#include <dynadjust/dnaadjustwrapper/dnaadjustwrapper.hpp>
-#include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+// NOTE: Module-specific headers (dnaadjust.hpp, dnaadjustwrapper.hpp, etc.)
+// should NEVER be in PCH as they change frequently

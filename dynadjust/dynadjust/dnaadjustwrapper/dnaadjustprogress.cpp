@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaadjustprogress.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -21,9 +20,24 @@
 //============================================================================
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <dynadjust/dnaadjust/dnaadjust.hpp>
+
+/// \cond
+#include <time.h>
+#include <algorithm>
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <thread>
+#include <vector>
+/// \endcond
+
+using namespace dynadjust::networkadjust;
+using namespace dynadjust::exception;
 
 bool running;
-boost::mutex cout_mutex;
+std::mutex cout_mutex;
 
 dna_adjust_thread::dna_adjust_thread(dna_adjust* dnaAdj, project_settings* p,
 		_ADJUST_STATUS_* adjustStatus)
@@ -61,16 +75,33 @@ bool dna_adjust_thread::prepareAdjustment()
 	}
 	catch (const NetAdjustException& e) {
 		handlePrepareAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (const NetMemoryException& e) {
 		handlePrepareAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (const std::runtime_error& e) {
 		handlePrepareAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
+	}
+	catch (const std::bad_alloc& e) {
+		handlePrepareAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
+	}
+	catch (const std::out_of_range& e) {
+		handlePrepareAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
+	}
+	catch (const std::exception& e) {
+		std::string err = std::string("Standard exception: ") + e.what();
+		handlePrepareAdjustError(err);
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (...) {
 		std::string err("Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
 		handlePrepareAdjustError(err);
+		_dnaAdj->SetExceptionRaised();
 	}
 	*_adjustStatus = ADJUST_EXCEPTION_RAISED;
 	return false;
@@ -85,16 +116,20 @@ bool dna_adjust_thread::processAdjustment()
 	} 
 	catch (const NetAdjustException& e) {
 		handleProcessAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (const NetMemoryException& e) {
 		handleProcessAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (const std::runtime_error& e) {
 		handleProcessAdjustError(e.what());
+		_dnaAdj->SetExceptionRaised();
 	}
 	catch (...) {
 		std::string err("- Error: Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
 		handleProcessAdjustError(err);
+		_dnaAdj->SetExceptionRaised();
 	}
 	*_adjustStatus = ADJUST_EXCEPTION_RAISED;
 	return false;
@@ -112,7 +147,7 @@ void dna_adjust_thread::handlePrepareAdjustError(const std::string& error_msg)
 void dna_adjust_thread::handleProcessAdjustError(const std::string& error_msg)
 {
 	running = false;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	printErrorMsg(error_msg);
 }
 
@@ -207,7 +242,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	case SimultaneousMode:
 		while (running && _dnaAdj->IsPreparing())
 		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
 		
 		if (_dnaAdj->ExceptionRaised())
@@ -238,9 +273,10 @@ void dna_adjust_progress_thread::prepareAdjustment()
 				coutMessage(sst.str());
 				currentBlock = block;
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
-
+		
+		// Check if an exception occurred before printing "done"
 		if (_dnaAdj->ExceptionRaised())
 			return;
 		
@@ -272,6 +308,10 @@ void dna_adjust_progress_thread::processAdjustment()
 	switch (_p->a.adjust_mode)
 	{
 	case SimultaneousMode:
+		
+		// Check if an exception was raised during preparation
+		if (_dnaAdj->ExceptionRaised())
+			return;
 			
 		while (_dnaAdj->IsAdjusting())
 		{
@@ -287,12 +327,16 @@ void dna_adjust_progress_thread::processAdjustment()
 					
 				coutMessage(ss.str());
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(80));
+			std::this_thread::sleep_for(std::chrono::milliseconds(80));
 		}
 		
 		break;
 	case Phased_Block_1Mode:
 	case PhasedMode:
+		
+		// Check if an exception was raised during preparation
+		if (_dnaAdj->ExceptionRaised())
+			return;
 		
 		while (_dnaAdj->IsAdjusting())
 		{
@@ -316,7 +360,7 @@ void dna_adjust_progress_thread::processAdjustment()
 				first_time = true;
 			}
 
-			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 					
 			// print new block to screen when adjusting only
 			if (block != currentBlock && _dnaAdj->IsAdjusting())
@@ -324,12 +368,10 @@ void dna_adjust_progress_thread::processAdjustment()
 				ss.str("");
 				ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentIteration();
 
-	#ifdef MULTI_THREAD_ADJUST
 				if (_p->a.multi_thread && !_dnaAdj->processingCombine())
 					ss << std::left << std::setw(13) << ", adjusting...";
 				else
-	#endif
-				ss << ", block " << std::left << std::setw(6) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
+					ss << ", block " << std::left << std::setw(6) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
 						
 				sst.str("");
 				if (first_time)
@@ -361,7 +403,7 @@ void dna_adjust_progress_thread::operator()()
 	prepareAdjustment();
 	
 	if (_dnaAdj->ExceptionRaised())
-		return;	
+		return;
 	
 	processAdjustment();	
 }

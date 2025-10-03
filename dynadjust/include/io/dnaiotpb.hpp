@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaiotpb.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -29,8 +28,9 @@
 	#endif
 #endif
 
-#include <include/io/dnaiobase.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/io/dynadjust_file.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-containers.hpp>  // For v_string_v_doubledouble_pair, v_plate_motion_eulers
 
 namespace dynadjust {
 namespace iostreams {
@@ -130,11 +130,11 @@ typedef v_plate_motion_cartesians::iterator it_plate_motion_cartesian;
 /////////////////////////////////////////////////////////////
 
 
-class dna_io_tpb : public dna_io_base
+class dna_io_tpb : public DynadjustFile
 {
 public:
 	dna_io_tpb(void) {};
-	dna_io_tpb(const dna_io_tpb& tpb) : dna_io_base(tpb) {};
+	dna_io_tpb(const dna_io_tpb& tpb) : DynadjustFile(tpb) {};
 	virtual ~dna_io_tpb(void) {};
 
 	dna_io_tpb& operator=(const dna_io_tpb& rhs);

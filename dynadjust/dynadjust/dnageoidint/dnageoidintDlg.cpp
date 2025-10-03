@@ -10,6 +10,8 @@
 #include "afxdialogex.h"
 #include "RegProc.h"
 
+#include <include/functions/dnastrutils.hpp>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -394,15 +396,15 @@ void CdnageoidintDlg::CreateGridIndex()
 int CdnageoidintDlg::DetermineFileType(const char *cType)
 {
 	// case insensitive
-	if (boost::iequals(cType, ASC))		// asc "ASCII" file
+	if (iequals(cType, ASC))		// asc "ASCII" file
 		return TYPE_ASC;			
-	else if (boost::iequals(cType, GSB))	// gsb "Binary" file
+	else if (iequals(cType, GSB))	// gsb "Binary" file
 		return TYPE_GSB;			
-	else if (boost::iequals(cType, TXT) ||	// dat/txt/prn file
-			 boost::iequals(cType, DAT) ||	// ..
-			 boost::iequals(cType, PRN))	// ..
+	else if (iequals(cType, TXT) ||	// dat/txt/prn file
+			 iequals(cType, DAT) ||	// ..
+			 iequals(cType, PRN))	// ..
 		return TYPE_DAT;
-	else if (boost::iequals(cType, CSV))	// csv file
+	else if (iequals(cType, CSV))	// csv file
 		return TYPE_CSV;
 	else
 		return -1;					// Unsupported filetype

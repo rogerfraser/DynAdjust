@@ -41,12 +41,15 @@
 #endif
 #endif
 
+/// \cond
+#include <iostream>
 
 // Begin prologue.
 //
 //
 // End prologue.
 
+#define XSD_AUTO_PTR std::unique_ptr
 #include <xsd/cxx/config.hxx>
 
 //#if (XSD_INT_VERSION != 3030000L)
@@ -56,6 +59,27 @@
 #endif
 
 #include <xsd/cxx/pre.hxx>
+
+#ifndef XSD_USE_CHAR
+#define XSD_USE_CHAR
+#endif
+
+#ifndef XSD_CXX_PARSER_USE_CHAR
+#define XSD_CXX_PARSER_USE_CHAR
+#endif
+
+#include <xsd/cxx/xml/char-utf8.hxx>
+#include <xsd/cxx/xml/error-handler.hxx>
+#include <xsd/cxx/parser/exceptions.hxx>
+#include <xsd/cxx/parser/elements.hxx>
+#include <xsd/cxx/parser/xml-schema.hxx>
+#include <xsd/cxx/parser/non-validating/parser.hxx>
+#include <xsd/cxx/parser/non-validating/xml-schema-pskel.hxx>
+#include <xsd/cxx/parser/non-validating/xml-schema-pimpl.hxx>
+#include <xsd/cxx/parser/xerces/elements.hxx>
+
+#include <boost/shared_ptr.hpp>
+/// \endcond
 
 // Forward declarations
 //
@@ -76,28 +100,9 @@ class epoch_pskel;
 class source_pskel;
 class system_pskel;
 
-#ifndef XSD_USE_CHAR
-#define XSD_USE_CHAR
-#endif
-
-#ifndef XSD_CXX_PARSER_USE_CHAR
-#define XSD_CXX_PARSER_USE_CHAR
-#endif
-
-#include <xsd/cxx/xml/char-utf8.hxx>
-#include <xsd/cxx/xml/error-handler.hxx>
-#include <xsd/cxx/parser/exceptions.hxx>
-#include <xsd/cxx/parser/elements.hxx>
-#include <xsd/cxx/parser/xml-schema.hxx>
-#include <xsd/cxx/parser/non-validating/parser.hxx>
-#include <xsd/cxx/parser/non-validating/xml-schema-pskel.hxx>
-#include <xsd/cxx/parser/non-validating/xml-schema-pimpl.hxx>
-#include <xsd/cxx/parser/xerces/elements.hxx>
-
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/measurement_types/dnastation.hpp>
 
-#include <boost/shared_ptr.hpp>
 
 using namespace dynadjust::measurements;
 
@@ -1281,7 +1286,9 @@ public:
 	virtual void post_system ();
 };
 
+/// \cond
 #include <xsd/cxx/post.hxx>
+/// \endcond
 
 // Begin epilogue.
 //

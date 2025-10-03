@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnainterop.cpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,12 +19,9 @@
 // Description  : DynAdjust Interoperability library
 //============================================================================
 
-//#include <include/functions/dnaparallelfuncs.hpp>
 #include <dynadjust/dnaimport/dnainterop.hpp>
-#include <include/parameters/dnaepsg.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
 
-#include <include/io/DynaML-schema.hxx>
+//#include <include/io/DynaML-schema.hxx>
 
 using namespace dynadjust::epsg;
 
@@ -48,7 +44,7 @@ UINT32		g_fileOrder;
 namespace dynadjust {
 namespace dynamlinterop {
 
-boost::mutex import_file_mutex;
+std::mutex import_file_mutex;
 
 dna_import::dna_import()
 	: percentComplete_(-99.)
@@ -212,10 +208,10 @@ void dna_import::InitialiseDatum(const std::string& reference_frame, const std::
 	//  * After all files have been loaded, InitialiseDatum is called again to set the metadata.
 	//  * import does not attempt to reconcile multiple default datums and epochs found across the input
 	//    files. It will however produce a warning when something different to the default is discovered.
-	sprintf(bst_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bms_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-	sprintf(bst_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());	
+    snprintf(bst_meta_.epsgCode, sizeof(bst_meta_.epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+    snprintf(bms_meta_.epsgCode, sizeof(bms_meta_.epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+    snprintf(bst_meta_.epoch, sizeof(bst_meta_.epoch), "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+    snprintf(bms_meta_.epoch, sizeof(bms_meta_.epoch), "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 }
 	
 
@@ -309,8 +305,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 			fileEpsg = m_strProjectDefaultEpsg;
 		
 		// record the file's default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
-		sprintf(input_file_meta->epoch, "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	}
 	// SNX
 	else if (strncmp(first_chars, "%=SNX", 5) == 0)
@@ -325,8 +321,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 
 		// Since SINEX files do not permit recording of reference frame within the file, set
 		// the frame to the default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
-		sprintf(input_file_meta->epoch, "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
 
 		if (firstFile)
 		{
@@ -341,8 +337,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	else if (
 		// use boost::algorithm::ifind_first, which is a case insensitive implementation of the find first algorithm. 
 		strncmp(first_chars, "!#=DNA", 6) == 0 ||	// dna file?
-		boost::ifind_first(fileName, ".stn") ||			// dna station file
-		boost::ifind_first(fileName, ".msr"))				// dna measurement file
+		icontains(fileName, ".stn") ||			// dna station file
+		icontains(fileName, ".msr"))				// dna measurement file
 	{
 		// Set the file type
 		input_file_meta->filetype = dna;
@@ -355,8 +351,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 			fileEpsg = m_strProjectDefaultEpsg;
 
 		// record the file's default reference frame
-		sprintf(input_file_meta->epsgCode, "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
-		sprintf(input_file_meta->epoch, "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+        snprintf(input_file_meta->epsgCode, sizeof(input_file_meta->epsgCode), "%s", fileEpsg.substr(0, STN_EPSG_WIDTH).c_str());
+        snprintf(input_file_meta->epoch, sizeof(input_file_meta->epoch), "%s", fileEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 		
 		SignalComplete();
 	}
@@ -382,7 +378,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	}
 	
 	// Populate metadata
-	sprintf(input_file_meta->filename, "%s", fileName.c_str());
+    snprintf(input_file_meta->filename, sizeof(input_file_meta->filename), "%s", fileName.c_str());
 	if (*stnCount > 0 && *msrCount > 0)
 		input_file_meta->datatype = stn_msr_data;
 	else if (*stnCount > 0)
@@ -393,24 +389,31 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	return parseStatus_;
 }
 	
-void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
+void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount,
+							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile, std::string* success_msg)
 {
+    // Lock before parsing the file
+    import_file_mutex.lock();
 
 	parseStatus_ = PARSE_SUCCESS;
 	_filespecifiedreferenceframe = false;
 	_filespecifiedepoch = false;
-	
+
+	// Check if DynaML.xsd exists in the current directory
+	// This prevents the XML parser from hanging when the schema file is missing
+	if (!std::filesystem::exists("DynaML.xsd"))
+	{
+		import_file_mutex.unlock();
+		std::stringstream ss;
+		ss << "ParseXML(): DynaML.xsd schema file not found in the current directory." << std::endl;
+		ss << "  The XML parser requires this file to validate XML input files." << std::endl;
+		ss << "  Please ensure DynaML.xsd is present in the working directory.";
+		SignalExceptionParse(ss.str(), 0);
+	}
+
 	try
 	{
-		// Change current directory to the import folder
-		// A hack to circumvent the problem caused by importing DynaML files in 
-		// different directories to where import is run from, causing errors 
-		// because DynaML.xsd cannot be found.
-		boost::filesystem::path currentPath(boost::filesystem::current_path());
-		boost::filesystem::current_path(boost::filesystem::path(projectSettings_.g.input_folder));
-
 		// Instantiate individual parsers.
 		DnaXmlFormat_pimpl DnaXmlFormat_p(ifsInputFILE_,		// pass file stream to enable progress to be calculated
 			clusterID,											// pass cluster ID so that a unique number can be retained across multiple files
@@ -472,6 +475,10 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 		DnaXmlFormat_p.pre();
 		doc_p.parse (*ifsInputFILE_);
 		DnaXmlFormat_p.post_DnaXmlFormat (vStations, vMeasurements);
+
+        // unlock after parsing
+        import_file_mutex.unlock();
+
 		SignalComplete();
 		*clusterID = DnaXmlFormat_p.CurrentClusterID();
 		*stnCount = DnaXmlFormat_p.NumStationsRead();
@@ -556,7 +563,6 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 		else if (!vMeasurements->empty())
 			m_idt = msr_data;
 
-		current_path(currentPath);
 	}
 	catch (const std::ios_base::failure& f)
 	{
@@ -642,9 +648,11 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
+        std::lock_guard<std::mutex> lock(import_file_mutex);
+
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
-		dna_io_snx snx;
-		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
+		DnaIoSnx snx;
+		snx.ParseSinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
 			g_parsestn_tally, g_parsemsr_tally, g_fileOrder, 
 			datum_, projectSettings_.i.apply_discontinuities==1, &stn_discontinuities_, m_discontsSortedbyName,
 			m_lineNo, m_columnNo, parseStatus_);
@@ -670,9 +678,9 @@ void dna_import::ParseDiscontinuities(const std::string& fileName)
 
 	try {
 		// Load discontinuity file.  Throws runtime_error on failure.
-		dna_io_snx snx;
+		DnaIoSnx snx;
 		projectSettings_.i.apply_discontinuities = true;
-		snx.parse_discontinuity_file(&discont_file, fileName, 
+		snx.ParseDiscontinuityFile(&discont_file, fileName, 
 			&stn_discontinuities_, m_discontsSortedbyName, 
 			m_lineNo, m_columnNo, parseStatus_);
 	}
@@ -1557,7 +1565,7 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
 
-		ignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		ignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		switch (cType)
 		{
@@ -1850,13 +1858,13 @@ void dna_import::ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 	
 	// Number of baselines
 	UINT32 bslCount(1);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		msr_ptr->SetTotal(ParseMsrCountValue(sBuf, bslCount, "ParseDNAMSRGPSBaselines"));
 	msr_ptr->SetRecordedTotal(bslCount);
 	bslTmp.SetRecordedTotal(bslCount);
 
 	msr_ptr->GetBaselines_ptr()->reserve(bslCount);
-	if (boost::iequals(msr_ptr->GetType(), "X"))
+	if (iequals(msr_ptr->GetType(), "X"))
 		g_parsemsr_tally.X += bslCount * 3;
 	else
 		g_parsemsr_tally.G += bslCount * 3;
@@ -2864,7 +2872,7 @@ UINT32 dna_import::ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 		import_file_mutex.unlock();
 
 		// get ignore flag for sub direction and remove accordingly
-		subignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		subignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		if (subignoreMsr)
 		{
@@ -3677,12 +3685,12 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(projectSettings_.i.bst_file, binaryStn, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(projectSettings_.i.bst_file, binaryStn, bst_meta_);
 
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -3695,8 +3703,8 @@ void dna_import::LoadSegmentationFile(pvmsr_t binaryMsr)
 
 	try {
 		// Load segmentation file.  Throws runtime_error on failure.
-		dna_io_seg seg;
-		seg.load_seg_file(projectSettings_.i.seg_file, 
+		SegFile seg;
+		seg.LoadSegFile(projectSettings_.i.seg_file, 
 			blockCount, blockThreshold, minInnerStns,
 			v_ISL_, v_JSL_, v_CML_,
 			true, binaryMsr,
@@ -3728,7 +3736,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 
 	UINT32 r, recordCount;
@@ -3764,7 +3772,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(std::runtime_error(ss.str()));
+		throw std::runtime_error(ss.str());
 	}
 }
 
@@ -4809,15 +4817,15 @@ void dna_import::SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeas
 	// of database IDs
 	m_dbidRecordCount = m_binaryRecordCount;
 
-	dna_io_bms bms;
+	BmsFile bms;
 
 	try {
-		sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
+        snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
 		bms_meta_.binCount = m_binaryRecordCount;
-		bms_meta_.inputFileCount = bms.create_msr_input_file_meta(vinput_file_meta, &(bms_meta_.inputFileMeta));
+		bms_meta_.inputFileCount = bms.CreateMsrInputFileMeta(vinput_file_meta, &(bms_meta_.inputFileMeta));
 		bms_meta_.reftran = false;
 		bms_meta_.geoid = false;
-		bms.write_bms_file(bms_filename, vMeasurements, bms_meta_);
+		bms.WriteFile(bms_filename, vMeasurements, bms_meta_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -4829,16 +4837,16 @@ void dna_import::SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStat
 	pvstring vUnusedStns, vifm_t& vinput_file_meta,
 	bool flagUnused)
 {	
-	dna_io_bst bst;
+	BstFile bst;
 	
 	try {
-		sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
-		bst_meta_.binCount = static_cast<UINT32>(vStations->size());
-		bst_meta_.inputFileCount = bst.create_stn_input_file_meta(vinput_file_meta, &(bst_meta_.inputFileMeta));
+        snprintf(bms_meta_.modifiedBy, sizeof(bms_meta_.modifiedBy), "%s", __BINARY_NAME__);
+		bst_meta_.binCount = static_cast<std::uint64_t>(vStations->size());
+		bst_meta_.inputFileCount = bst.CreateStnInputFileMeta(vinput_file_meta, &(bst_meta_.inputFileMeta));
 		bst_meta_.reduced = true;
 		bst_meta_.reftran = false;
 		bst_meta_.geoid = false;
-		bst.write_bst_file(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
+		bst.WriteFile(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -4884,7 +4892,7 @@ void dna_import::SerialiseDatabaseId(const std::string& dbid_filename, pvdnaMsrP
 void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,
 	std::string& bst_file, std::string& bms_file, std::string& aml_file, pvASLPtr vAssocStnList)
 {
-	dna_io_aml aml;
+	AmlFile aml;
 	vmsrtally v_stnmsrTally;
 	v_aml_pair vAssocMsrList;
 
@@ -4893,12 +4901,12 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 	
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
-		dna_io_bst bst;
-		bst.load_bst_file(bst_file, &bstBinaryRecords, bst_meta_);
+		BstFile bst;
+		bst.LoadFile(bst_file, &bstBinaryRecords, bst_meta_);
 
 		// Load binary measurements data.  Throws runtime_error on failure.
-		dna_io_bms bms;
-		bms.load_bms_file(bms_file, &bmsBinaryRecords, bms_meta_);
+		BmsFile bms;
+		bms.LoadFile(bms_file, &bmsBinaryRecords, bms_meta_);
 
 		// Load aml file.  Throws runtime_error on failure.
 		aml.load_aml_file(aml_file, &vAssocMsrList, &bmsBinaryRecords);
@@ -4943,11 +4951,11 @@ void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* pa
 		// Print formatted header
 		print_file_header(m2s_stream, "DYNADJUST MEASUREMENT TO STATION OUTPUT FILE");
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(m2s_file).string() << std::endl << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << safe_absolute_path(m2s_file) << std::endl << std::endl;
 
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << boost::filesystem::system_complete(aml_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(bst_file).string() << std::endl;
-		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(bms_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << safe_absolute_path(aml_file) << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << safe_absolute_path(bst_file) << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << safe_absolute_path(bms_file) << std::endl;
 
 		// Print station count
 		m2s_stream << std::endl;
@@ -4971,7 +4979,7 @@ void dna_import::SerialiseAml(const std::string& aml_filename, pvUINT32 vAML)
 {
 	try {
 		// write the aml file.
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.write_aml_file(aml_filename, vAML);
 	}
 	catch (const std::runtime_error& e) {
@@ -4984,7 +4992,7 @@ void dna_import::SerialiseAmlTextFile(const std::string& bms_filename, const std
 {
 	try {
 		// write the aml file as raw text.
-		dna_io_aml aml;
+		AmlFile aml;
 		aml.write_aml_file_txt(bms_filename, aml_filename + ".txt", vAML, vAssocStnList, vStations);
 	}
 	catch (const std::runtime_error& e) {
@@ -4999,8 +5007,8 @@ void dna_import::SerialiseAsl(const std::string& filename, pvASLPtr vAssocStnLis
 {
 	try {
 		// write the asl file.
-		dna_io_asl asl;
-		asl.write_asl_file(filename, vAssocStnList);
+		AslFile asl(filename);
+		asl.Write(*vAssocStnList);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5014,8 +5022,8 @@ void dna_import::SerialiseAslTextFile(const std::string& filename, pvASLPtr vAss
 {
 	try {
 		// write the ASCII version of the asl file.
-		dna_io_asl asl;
-		asl.write_asl_file_txt(filename + ".txt", vAssocStnList, vStations);
+		AslFile asl(filename + ".txt");
+		asl.WriteText(*vAssocStnList, *vStations);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5401,7 +5409,7 @@ void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& pro
 
 void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
 {
-	if (!boost::filesystem::exists(p->i.stn_renamingfile))
+	if (!std::filesystem::exists(p->i.stn_renamingfile))
 	{
 		std::string s("The station renaming file cannot be found:\n");
 		s.append("    ").append(p->i.stn_renamingfile);
@@ -5535,7 +5543,7 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 
 	if (!p->i.scalar_file.empty())
 	{
-		if (!boost::filesystem::exists(p->i.scalar_file))
+		if (!std::filesystem::exists(p->i.scalar_file))
 		{
 			std::string s("The GNSS scalar file cannot be found:\n");
 			s.append("    ").append(p->i.scalar_file);
@@ -5641,8 +5649,8 @@ void dna_import::SerialiseMap(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file.
-		dna_io_map map;
-		map.write_map_file(stnmap_file, &vStnsMap_sortName_);
+		dynadjust::iostreams::MapFile map;
+		map.WriteFile(stnmap_file, &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5654,8 +5662,8 @@ void dna_import::SerialiseMapTextFile(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file as raw text.
-		dna_io_map map;
-		map.write_map_file_txt(stnmap_file + ".txt", &vStnsMap_sortName_);
+		dynadjust::iostreams::MapFile map;
+		map.WriteTextFile(stnmap_file + ".txt", &vStnsMap_sortName_);
 	}
 	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
@@ -5668,7 +5676,7 @@ void dna_import::SerialiseDiscontTextFile(const std::string& discont_file)
 	std::ofstream discont_outfile;
 	
 	try {
-		boost::filesystem::path discontFile(discont_file);
+		std::filesystem::path discontFile(discont_file);
 		std::string outfileName = discontFile.filename().string();
 		outfileName.append(".discont");
 		// Open discontinuity output file.  Throws runtime_error on failure.

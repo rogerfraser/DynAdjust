@@ -1,22 +1,24 @@
 # <dnaimport/...> build rules
 project (dnaimport)
 
-add_definitions(-DBUILD_DNAIMPORT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
+add_definitions(-DBUILD_DNAIMPORT_DLL -DBUILD_EXPORTDNATYPES)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
 add_library (${PROJECT_NAME} SHARED
-             ${CMAKE_SOURCE_DIR}/include/io/dnaioaml.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaioasl.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaiobase.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaiobms.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaiobst.cpp
+             ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/aml_file.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/dynadjust_file.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiodna.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaiomap.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/map_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaioscalar.cpp
-             ${CMAKE_SOURCE_DIR}/include/io/dnaioseg.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/seg_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiosnxread.cpp
              ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+             ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
              ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnadatum.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
@@ -39,6 +41,19 @@ add_library (${PROJECT_NAME} SHARED
              dnainterop.cpp
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
-target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
+# Exclude large generated parser files from unity builds for faster compilation
+set_source_files_properties(
+    dnaparser_pskel.cxx
+    dnaparser_pimpl.cxx
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
 
-install (TARGETS ${PROJECT_NAME} DESTINATION lib)
+# Also exclude the interop file which uses the parsers heavily
+set_source_files_properties(
+    dnainterop.cpp
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
+
+target_precompile_headers (${PROJECT_NAME} PUBLIC precompile.h)
+
+target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})

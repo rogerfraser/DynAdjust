@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnaversion-stream.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -20,6 +19,7 @@
 // Description  : DynAdjust version helper include file
 //============================================================================
 
+#pragma once
 #ifndef DNAVERSION_STREAM_HPP
 #define DNAVERSION_STREAM_HPP
 
@@ -29,7 +29,10 @@
 	#endif
 #endif
 
+/// \cond
 #include <iomanip>
+#include <cstring>  // For strlen
+/// \endcond
 
 using std::setw;
 
@@ -78,7 +81,10 @@ void output_version(T& stream, bool PAD=false)
 		stream << std::setw(PRINT_VAR_PAD) << std::left << "Version: ";
 	else
 		stream << "Version:      ";
-	stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__;
+    stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__ << " with " << __LINEAR_ALGEBRA_LIB__;
+#if defined(_OPENMP)
+	stream << " (with OpenMP)";
+#endif
 }
 	
 
@@ -103,7 +109,7 @@ void output_build(T& stream, bool PAD=false)
 		// asctime function. This macro is always defined.
 		__TIME__;		
 	if (strlen(__COMPILER__) > 2)
-		stream <<  " (" << __COMPILER__ << " " << __COMPILER_VERSION__ << ")";
+		stream <<  " - " << __COMPILER__ << " " << __COMPILER_VERSION__ << "";
 }
 
 #endif  // DNAVERSION_HPP
