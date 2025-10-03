@@ -71,6 +71,9 @@ jobs:
           echo "Getting file list from dpkg..."
           dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
 
+          echo "Paths:"
+          grep -v '/$' /tmp/pkg_files_all.txt
+
           # Filter using grep to remove directories (they end with / or are listed as directories)
           echo "Filtering file list..."
           grep -v '/$' /tmp/pkg_files_all.txt | while read path; do
@@ -80,11 +83,7 @@ jobs:
           TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
           echo "Total files to cache: $TOTAL_FILES"
 
-          echo "Sample of files being cached (first 50):"
-          head -50 /tmp/pkg_files.txt
-
-          echo "Boost-related files:"
-          grep -i boost /tmp/pkg_files.txt | head -20 || echo "No boost files found"
+          cat /tmp/pkg_files.txt
 
           if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
