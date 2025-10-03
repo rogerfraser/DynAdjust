@@ -4,6 +4,8 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 
+CMakeUserPresets.json
+
 # Compiled Dynamic libraries
 *.so
 
