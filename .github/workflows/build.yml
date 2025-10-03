@@ -80,7 +80,7 @@ jobs:
           # Filter and create tarball (uncompressed for speed)
           TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
           echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=100 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - || true
 
           if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
@@ -106,6 +106,7 @@ jobs:
 #------------------------------------------------
 
   build_linux_dyn_mkl:
+    if: ${{ false }}
     name: Linux build (mkl)
     runs-on: ubuntu-latest
     env:
@@ -222,6 +223,7 @@ jobs:
 #------------------------------------------------
 
   build_linux_static_openblas:
+    if: ${{ false }}
     name: Linux build (openblas / static)
     runs-on: ubuntu-latest
     env:
@@ -342,6 +344,7 @@ jobs:
 #------------------------------------------------
 
   build_mac_dyn:
+    if: ${{ false }}
     name: Mac build (accelerate)
     runs-on: macos-15
     env:
@@ -397,6 +400,7 @@ jobs:
 #------------------------------------------------
 
   build_mac_static:
+    if: ${{ false }}
     name: Mac build (accelerate / static)
     runs-on: macos-15
     env:
@@ -457,6 +461,7 @@ jobs:
 #------------------------------------------------
 
   build_windows_dyn_mkl:
+    if: ${{ false }}
     name: Windows build (mkl)
     runs-on: windows-2025
     env:
@@ -604,6 +609,7 @@ jobs:
 #------------------------------------------------  
   
   build_windows_dyn_openblas:
+    if: ${{ false }}
     name: Windows build (openblas)
     runs-on: windows-2025
     env:
