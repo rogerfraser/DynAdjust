@@ -71,7 +71,7 @@ jobs:
           echo "Checking files from each package:"
           for pkg in $PKGS_LIST; do
             echo "--- Package: $pkg ---"
-            dpkg -L "$pkg" 2>&1 | head -10 || echo "Failed to list files for $pkg"
+            dpkg -L "$pkg" 2>&1 || echo "Failed to list files for $pkg"
           done
 
           # Get list of files from all packages
