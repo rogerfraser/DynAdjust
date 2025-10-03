@@ -83,6 +83,11 @@ jobs:
             exit 0
           fi
 
+          # Add dpkg database files to the list
+          echo "Adding dpkg database files..."
+          echo "/var/lib/dpkg/status" >> /tmp/pkg_files.txt
+          find /var/lib/dpkg/info -type f >> /tmp/pkg_files.txt
+
           # Create tarball with --no-recursion to prevent directory expansion
           echo "Creating tarball..."
           sudo tar --ignore-failed-read --no-recursion --checkpoint=500 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T /tmp/pkg_files.txt 2>/dev/null || true
