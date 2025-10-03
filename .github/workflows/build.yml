@@ -82,10 +82,12 @@ jobs:
           echo "Getting file list from dpkg..."
           dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
 
-          # Filter to include only regular files (not directories)
+          # Filter to include files and symlinks (not directories)
           echo "Filtering file list..."
           while read path; do
-            [ -f "$path" ] && echo "$path"
+            if [ -f "$path" ] || [ -L "$path" ]; then
+              echo "$path"
+            fi
           done < /tmp/pkg_files_all.txt > /tmp/pkg_files.txt 2>/dev/null || true
 
           TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
@@ -97,6 +99,10 @@ jobs:
           echo ""
           echo "Checking for Boost files:"
           grep -i boost /tmp/pkg_files.txt | head -10 || echo "No Boost files found"
+
+          echo ""
+          echo "Checking for BLAS/LAPACK libraries:"
+          grep -E 'lib(openblas|blas|lapack)' /tmp/pkg_files.txt | head -10 || echo "No BLAS/LAPACK libraries found"
 
           if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
