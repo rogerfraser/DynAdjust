@@ -51,7 +51,7 @@ For dynamic builds, additional shared libraries (`.dll`, `.so`, `.dylib`) are in
 2. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
 3. Open the command prompt, and run the following command to verify the installation has been successful:
 ```bash
-dnaadjust.exe --help
+adjust.exe --help
 ```
 
 #### Windows (with Intel MKL) Package
@@ -61,7 +61,7 @@ dnaadjust.exe --help
 3. Add `C:\Tools\DynAdjust` to the system PATH environment variable.
 4. Open the command prompt, and run the following command to verify the installation has been successful:
 ```bash
-dnaadjust.exe --help
+adjust.exe --help
 ```
 
 ### macOS Packages
