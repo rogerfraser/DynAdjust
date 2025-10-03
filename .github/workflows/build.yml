@@ -69,7 +69,10 @@ jobs:
 
           # Download packages and all dependencies
           echo "Getting dependency list..."
-          apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | sort -u > /tmp/pkg_list.txt
+          apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | grep -v "^|" | grep -v "^<" | sort -u > /tmp/pkg_list.txt
+
+          echo "Package list (first 20):"
+          head -20 /tmp/pkg_list.txt
 
           echo "Downloading .deb files..."
           xargs -a /tmp/pkg_list.txt apt-get download
