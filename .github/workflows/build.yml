@@ -411,11 +411,11 @@ jobs:
       shell: powershell
       run: |
         vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs -ErrorAction SilentlyContinue
 
     - name: List installed packages
       shell: powershell
@@ -547,11 +547,11 @@ jobs:
       shell: powershell
       run: |
         vcpkg.exe --triplet=x64-windows install ${{ env.VCPKG_PACKAGES }}
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github
-        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.git -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/.github -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ${{ env.VCPKG_INSTALLATION_ROOT }}/docs -ErrorAction SilentlyContinue
 
     - name: List installed packages
       shell: powershell
