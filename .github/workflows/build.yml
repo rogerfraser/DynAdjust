@@ -46,15 +46,14 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
           echo "Restoring packages from cache..."
-          echo "Cache file size:"
           ls -lh ~/apt-install-cache/packages.tar
-          echo "Sample of files in cache (first 30):"
-          tar -tf ~/apt-install-cache/packages.tar | head -30
-          echo "Checking for openblas libraries in cache:"
-          tar -tf ~/apt-install-cache/packages.tar | grep -i openblas | head -10 || echo "No openblas files found in cache"
 
-          sudo tar -xf ~/apt-install-cache/packages.tar -C /
-          sudo ldconfig
+          echo "Extracting .deb files..."
+          tar -xf ~/apt-install-cache/packages.tar -C ~/apt-install-cache/
+
+          echo "Installing .deb files..."
+          sudo dpkg -i ~/apt-install-cache/debs/*.deb
+
           echo "Cache restoration complete"
 
       - name: Install dependencies
@@ -64,73 +63,24 @@ jobs:
           echo "Running apt-get update..."
           sudo apt-get update
 
-          # Capture list of packages before installation
-          dpkg --get-selections | awk '{print $1}' | sort > /tmp/before_install.txt
+          echo "Downloading packages: ${{ env.PKGS }}"
+          mkdir -p ~/apt-install-cache/debs
+          cd ~/apt-install-cache/debs
 
-          echo "Installing packages: ${{ env.PKGS }}"
-          sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
+          # Download packages and all dependencies
+          apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | sort -u)
 
-          echo "Installation complete, creating cache..."
-          mkdir -p ~/apt-install-cache
+          echo "Downloaded $(ls -1 | wc -l) .deb files"
+          ls -lh
 
-          # Get list of all newly installed packages (including dependencies)
-          dpkg --get-selections | awk '{print $1}' | sort > /tmp/after_install.txt
-          PKGS_LIST=$(comm -13 /tmp/before_install.txt /tmp/after_install.txt | tr '\n' ' ')
-          echo "Newly installed packages (including dependencies):"
-          echo "$PKGS_LIST"
+          echo "Installing packages..."
+          sudo dpkg -i *.deb
 
-          # Debug: Show files from each package individually
-          echo "Checking files from first 5 packages:"
-          echo "$PKGS_LIST" | tr ' ' '\n' | head -5 | while read pkg; do
-            [ -n "$pkg" ] && echo "--- Package: $pkg ---" && dpkg -L "$pkg" 2>&1 | head -10
-          done
-
-          # Get list of files from all packages
-          echo "Getting file list from dpkg..."
-          dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
-
-          # Filter to include files and symlinks (not directories)
-          echo "Filtering file list..."
-          while read path; do
-            if [ -f "$path" ] || [ -L "$path" ]; then
-              echo "$path"
-            fi
-          done < /tmp/pkg_files_all.txt > /tmp/pkg_files.txt 2>/dev/null || true
-
-          TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
-          echo "Total files to cache: $TOTAL_FILES"
-
-          echo "Sample of files to cache (first 20):"
-          head -20 /tmp/pkg_files.txt
-
-          echo ""
-          echo "Checking for Boost files:"
-          grep -i boost /tmp/pkg_files.txt | head -10 || echo "No Boost files found"
-
-          echo ""
-          echo "Checking for BLAS/LAPACK libraries:"
-          grep -E 'lib(openblas|blas|lapack)' /tmp/pkg_files.txt | head -10 || echo "No BLAS/LAPACK libraries found"
-
-          if [ "$TOTAL_FILES" -eq 0 ]; then
-            echo "WARNING: No files found from dpkg, skipping cache creation"
-            exit 0
-          fi
-
-          # Add dpkg database files to the list
-          echo "Adding dpkg database files..."
-          echo "/var/lib/dpkg/status" >> /tmp/pkg_files.txt
-          find /var/lib/dpkg/info -type f >> /tmp/pkg_files.txt
-
-          # Create tarball with --no-recursion to prevent directory expansion
-          echo "Creating tarball..."
-          sudo tar --ignore-failed-read --no-recursion --checkpoint=500 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T /tmp/pkg_files.txt 2>/dev/null || true
-
-          if [ -f ~/apt-install-cache/packages.tar ]; then
-            echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar
-          else
-            echo "WARNING: Cache file was not created, but continuing"
-          fi
+          echo "Creating cache tarball..."
+          cd ~/apt-install-cache
+          tar -cf packages.tar debs/
+          ls -lh packages.tar
+          echo "Cache created successfully"
 
       - name: Check branch name
         shell: bash
