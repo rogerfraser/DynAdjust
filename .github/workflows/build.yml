@@ -48,11 +48,12 @@ jobs:
           echo "Restoring packages from cache..."
           ls -lh ~/apt-install-cache/packages.tar
 
-          echo "Extracting .deb files..."
-          tar -xf ~/apt-install-cache/packages.tar -C ~/apt-install-cache/
+          echo "Extracting .deb files to apt cache..."
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ --strip-components=1
 
-          echo "Installing .deb files..."
-          sudo dpkg -i ~/apt-install-cache/debs/*.deb
+          echo "Installing .deb files with dpkg..."
+          sudo dpkg -i /var/cache/apt/archives/*.deb
+          sudo ldconfig
 
           echo "Cache restoration complete"
 
@@ -66,18 +67,14 @@ jobs:
           echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          echo "Creating cache from downloaded .deb files..."
-          mkdir -p ~/apt-install-cache/debs
-          sudo cp /var/cache/apt/archives/*.deb ~/apt-install-cache/debs/ 2>/dev/null || true
-          sudo chown -R $USER ~/apt-install-cache/debs
-
-          echo "Cached $(ls -1 ~/apt-install-cache/debs/*.deb 2>/dev/null | wc -l) .deb files"
-          ls -lh ~/apt-install-cache/debs | head -20
+          echo "Cached $(ls -1 /var/cache/apt/archives/*.deb 2>/dev/null | wc -l) .deb files"
+          ls -lh /var/cache/apt/archives/*.deb | head -20
 
           echo "Creating cache tarball..."
-          cd ~/apt-install-cache
-          tar -cf packages.tar debs/
-          ls -lh packages.tar
+          mkdir -p ~/apt-install-cache
+          sudo tar -cf ~/apt-install-cache/packages.tar -C /var/cache/apt/archives/ .
+          sudo chown $USER ~/apt-install-cache/packages.tar
+          ls -lh ~/apt-install-cache/packages.tar
           echo "Cache created successfully"
 
       - name: Check branch name
