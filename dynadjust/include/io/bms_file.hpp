@@ -33,7 +33,8 @@
 #include <string>
 #include <vector>
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-structs.hpp>  // For vifm_t, input_file_meta_t, binary_file_meta_t
 #include <include/io/dynadjust_file.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 

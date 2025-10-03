@@ -5,24 +5,18 @@
 
 #pragma once
 
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaversion-stream.hpp>
-#include <include/config/dnatypes.hpp>
-#include <include/config/dnatypes-gui.hpp>
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaoptions-interface.hpp>
+// Use the common precompiled header foundation
+#include <include/pch-common.h>
+
+// Boost headers needed by this module
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/program_options.hpp>
+
+// Additional module-specific stable headers (minimal)
 #include <include/config/dnaoptions-helper.hpp>
 #include <include/config/dnaconsts-interface.hpp>
 #include <include/config/dnaprojectfile.hpp>
 
-#include <include/exception/dnaexception.hpp>
-
-#include <include/functions/dnaiostreamfuncs.hpp>
-#include <include/functions/dnafilepathfuncs.hpp>
-
-#include <dynadjust/dnaimport/dnainterop.hpp>
-
-#include <dynadjust/dnaimport/dnainterop.hpp>
-
-#include <dynadjust/dnaimportwrapper/dnaimportwrapper.hpp>
+// NOTE: Module-specific headers like dnainterop.hpp and dnaimportwrapper.hpp
+// should NOT be in precompiled headers as they change frequently and create
+// unnecessary dependencies. Include them directly in source files that need them.

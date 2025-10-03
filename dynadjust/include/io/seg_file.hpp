@@ -29,7 +29,7 @@
 #endif
 
 #include <include/io/dynadjust_file.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/measurement_types/dnameasurement.hpp>

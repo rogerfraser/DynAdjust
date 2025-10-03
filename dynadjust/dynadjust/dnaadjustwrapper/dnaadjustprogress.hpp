@@ -29,31 +29,31 @@
 #endif
 
 /// \cond
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
+#include <iosfwd>  // Forward declarations for stream types
 #include <string>
-#include <time.h>
-#include <thread>
-#include <chrono>
 /// \endcond
 
 #include <include/config/dnaconsts-interface.hpp>
 
-#include <dynadjust/dnaadjust/dnaadjust.hpp>
+// Forward declaration instead of including the full header
+namespace dynadjust {
+namespace networkadjust {
+    class dna_adjust;
+}
+}
 
-using namespace dynadjust::networkadjust;
-using namespace dynadjust::exception;
+#include <include/exception/dnaexception.hpp>
+
+// Forward declarations
+struct project_settings;
 
 class dna_adjust_thread
 {
 public:
-	dna_adjust_thread(dna_adjust* dnaAdj, project_settings* p,
+	dna_adjust_thread(dynadjust::networkadjust::dna_adjust* dnaAdj, project_settings* p,
 		_ADJUST_STATUS_* adjustStatus);
 	void operator()();
-	
+
 private:
 	bool prepareAdjustment();
 	bool processAdjustment();
@@ -64,7 +64,7 @@ private:
 	void coutMessage(std::stringstream& message);
 	void coutMessage(const std::string& message);
 
-	dna_adjust*		_dnaAdj;
+	dynadjust::networkadjust::dna_adjust*		_dnaAdj;
 	project_settings*	_p;
 	_ADJUST_STATUS_*	_adjustStatus;
 };
@@ -72,7 +72,7 @@ private:
 class dna_adjust_progress_thread
 {
 public:
-	dna_adjust_progress_thread(dna_adjust* dnaAdj, project_settings* p);
+	dna_adjust_progress_thread(dynadjust::networkadjust::dna_adjust* dnaAdj, project_settings* p);
 	void operator()();
 
 private:
@@ -81,7 +81,7 @@ private:
 
 	void coutMessage(const std::string& message);
 
-	dna_adjust*		_dnaAdj;
+	dynadjust::networkadjust::dna_adjust*		_dnaAdj;
 	project_settings*	_p;
 };
 

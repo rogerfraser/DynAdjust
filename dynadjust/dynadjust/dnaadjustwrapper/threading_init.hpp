@@ -20,12 +20,15 @@
 //============================================================================
 
 #pragma once
+/// \cond
 #include <algorithm>
 #include <cstdlib>
+/// \endcond
 
 #define STRINGIFY_HELPER(x) #x
 #define STRINGIFY(x) STRINGIFY_HELPER(x)
 
+/// \cond
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
@@ -47,6 +50,7 @@ extern "C" { void openblas_set_num_threads(int); }
 #elif defined(__APPLE__)
 #include <Accelerate/Accelerate.h>
 #endif
+/// \endcond
 
 inline int init_linear_algebra_threads(int requested_threads = 0) {
     int n = requested_threads;

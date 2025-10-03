@@ -1,9 +1,8 @@
 //============================================================================
 // Name         : dnameasurement.hpp
 // Author       : Roger Fraser
-// Contributors :
-// Version      : 1.00
-// Copyright    : Copyright 2017 Geoscience Australia
+// Contributors : Dale Roberts <dale.o.roberts@gmail.com>
+// Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
 //                you may not use this file except in compliance with the License.
@@ -17,8 +16,7 @@
 //                See the License for the specific language governing permissions and
 //                limitations under the License.
 //
-// Description  : Interface for the msr_t struct and CDnaMeasurement, 
-//                CDnaCovariance and MsrTally classes
+// Description  : Interface for the msr_t struct and CDnaMeasurement,
 //============================================================================
 
 #ifndef DNAMEASUREMENT_H
@@ -45,7 +43,7 @@
 /// \endcond
 
 #include <include/functions/dnastrmanipfuncs.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/measurement_types/dnastation.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/parameters/dnadatum.hpp>

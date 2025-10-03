@@ -29,7 +29,8 @@
 #endif
 
 #include <include/io/dynadjust_file.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
+#include <include/config/dnatypes-containers.hpp>  // For v_string_v_doubledouble_pair, v_plate_motion_eulers
 
 namespace dynadjust {
 namespace iostreams {

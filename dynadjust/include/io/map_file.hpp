@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/io/dynadjust_file.hpp>
 
 namespace dynadjust {

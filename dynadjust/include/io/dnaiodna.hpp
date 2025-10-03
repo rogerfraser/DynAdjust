@@ -28,7 +28,7 @@
 	#endif
 #endif
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/io/dynadjust_file.hpp>
 #include <include/io/dnaiodnatypes.hpp>

@@ -22,9 +22,11 @@
 #ifndef MEASUREMENT_PROCESSOR_HPP_
 #define MEASUREMENT_PROCESSOR_HPP_
 
+/// \cond
 #include <optional>
+/// \endcond
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
 namespace dynadjust {

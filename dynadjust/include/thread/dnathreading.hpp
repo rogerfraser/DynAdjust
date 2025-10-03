@@ -38,7 +38,7 @@
 #include <fstream>
 /// \endcond
 
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 
 template<typename T>
 class concurrent_block_adjustment

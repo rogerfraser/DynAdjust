@@ -22,6 +22,10 @@
 #include "network_data_loader.hpp"
 
 #include <sstream>
+#include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatestnmsrfuncs.hpp>
+#include <include/measurement_types/dnastation.hpp>
 
 namespace dynadjust {
 namespace networkadjust {

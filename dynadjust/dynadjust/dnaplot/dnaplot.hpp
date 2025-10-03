@@ -45,7 +45,7 @@
 
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaversion.hpp>
-#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-fwd.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnatypes-gui.hpp>
 

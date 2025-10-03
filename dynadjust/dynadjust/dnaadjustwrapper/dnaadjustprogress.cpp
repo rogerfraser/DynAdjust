@@ -20,6 +20,21 @@
 //============================================================================
 
 #include <dynadjust/dnaadjustwrapper/dnaadjustprogress.hpp>
+#include <dynadjust/dnaadjust/dnaadjust.hpp>
+
+/// \cond
+#include <time.h>
+#include <algorithm>
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <thread>
+#include <vector>
+/// \endcond
+
+using namespace dynadjust::networkadjust;
+using namespace dynadjust::exception;
 
 bool running;
 std::mutex cout_mutex;

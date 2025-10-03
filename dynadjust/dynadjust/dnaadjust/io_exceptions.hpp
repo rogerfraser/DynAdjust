@@ -22,10 +22,12 @@
 #ifndef DYNADJUST_NETWORK_IO_EXCEPTIONS_HPP
 #define DYNADJUST_NETWORK_IO_EXCEPTIONS_HPP
 
+/// \cond
 #include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <system_error>
+/// \endcond
 
 namespace dynadjust {
 namespace networkadjust {

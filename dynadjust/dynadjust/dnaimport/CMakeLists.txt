@@ -6,6 +6,7 @@ add_definitions(-DBUILD_DNAIMPORT_DLL -DBUILD_EXPORTDNATYPES)
 include_directories (${PROJECT_SOURCE_DIR})
 
 add_library (${PROJECT_NAME} SHARED
+             ${CMAKE_SOURCE_DIR}/include/functions/template_instantiations.cpp
              ${CMAKE_SOURCE_DIR}/include/io/aml_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dynadjust_file.cpp
@@ -39,6 +40,19 @@ add_library (${PROJECT_NAME} SHARED
              dnaparser_pimpl.cxx
              dnainterop.cpp
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
+
+# Exclude large generated parser files from unity builds for faster compilation
+set_source_files_properties(
+    dnaparser_pskel.cxx
+    dnaparser_pimpl.cxx
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
+
+# Also exclude the interop file which uses the parsers heavily
+set_source_files_properties(
+    dnainterop.cpp
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON
+)
 
 target_precompile_headers (${PROJECT_NAME} PUBLIC precompile.h)
 
