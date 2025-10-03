@@ -52,12 +52,26 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          set -x
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
           # Cache the installed files
+          echo "Creating package cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
+            TAR_EXIT=$?
+            echo "tar exited with code: $TAR_EXIT"
+            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+              echo "Cache file was created successfully despite tar exit code"
+              ls -lh ~/apt-install-cache/packages.tar.gz
+              exit 0
+            else
+              echo "Cache file was NOT created"
+              exit 1
+            fi
+          }
+          echo "Cache created successfully"
 
       - name: Check branch name
         shell: bash
@@ -111,12 +125,26 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          set -x
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
           # Cache the installed files
+          echo "Creating package cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
+            TAR_EXIT=$?
+            echo "tar exited with code: $TAR_EXIT"
+            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+              echo "Cache file was created successfully despite tar exit code"
+              ls -lh ~/apt-install-cache/packages.tar.gz
+              exit 0
+            else
+              echo "Cache file was NOT created"
+              exit 1
+            fi
+          }
+          echo "Cache created successfully"
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -197,12 +225,26 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          set -x
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
           # Cache the installed files
+          echo "Creating package cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || true
+          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
+            TAR_EXIT=$?
+            echo "tar exited with code: $TAR_EXIT"
+            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+              echo "Cache file was created successfully despite tar exit code"
+              ls -lh ~/apt-install-cache/packages.tar.gz
+              exit 0
+            else
+              echo "Cache file was NOT created"
+              exit 1
+            fi
+          }
+          echo "Cache created successfully"
 
       - name: Check branch name
         shell: bash
