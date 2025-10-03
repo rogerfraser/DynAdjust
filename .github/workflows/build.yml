@@ -150,13 +150,20 @@ jobs:
           echo ""
           echo "Checking for BLAS/LAPACK..."
           dpkg -l | grep -E '(blas|lapack)' || echo "BLAS/LAPACK not found via dpkg"
+
+          echo ""
+          echo "Standard library locations:"
           ls -la /usr/lib/x86_64-linux-gnu/libopenblas* 2>/dev/null || echo "No OpenBLAS libraries found"
           ls -la /usr/lib/x86_64-linux-gnu/libblas* 2>/dev/null || echo "No BLAS libraries found"
           ls -la /usr/lib/x86_64-linux-gnu/liblapack* 2>/dev/null || echo "No LAPACK libraries found"
 
+          echo ""
+          echo "Alternative library locations:"
+          ls -la /usr/lib/x86_64-linux-gnu/openblas-pthread/ 2>/dev/null || echo "No openblas-pthread directory"
+
       - name: Build with CMake
         run: |
-          cmake dynadjust -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON
+          cmake dynadjust -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON -DBLA_VENDOR=OpenBLAS
           make -j2
           ls -la bin/
           
