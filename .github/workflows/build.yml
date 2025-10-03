@@ -45,7 +45,7 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
 
       - name: Install dependencies
@@ -77,14 +77,14 @@ jobs:
             exit 0
           fi
 
-          # Filter and create tarball
+          # Filter and create tarball (uncompressed for speed)
           TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
           echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
 
-          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+          if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar.gz
+            ls -lh ~/apt-install-cache/packages.tar
           else
             echo "WARNING: Cache file was not created, but continuing"
           fi
@@ -134,7 +134,7 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
 
       - name: Install dependencies
@@ -166,14 +166,14 @@ jobs:
             exit 0
           fi
 
-          # Filter and create tarball
+          # Filter and create tarball (uncompressed for speed)
           TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
           echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
 
-          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+          if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar.gz
+            ls -lh ~/apt-install-cache/packages.tar
           else
             echo "WARNING: Cache file was not created, but continuing"
           fi
@@ -250,7 +250,7 @@ jobs:
       - name: Restore packages from cache
         if: steps.cache-apt.outputs.cache-hit == 'true'
         run: |
-          sudo tar -xzf ~/apt-install-cache/packages.tar.gz -C /
+          sudo tar -xf ~/apt-install-cache/packages.tar -C /
           sudo ldconfig
 
       - name: Install dependencies
@@ -282,14 +282,14 @@ jobs:
             exit 0
           fi
 
-          # Filter and create tarball
+          # Filter and create tarball (uncompressed for speed)
           TOTAL_FILES=$(grep -v "^/\.$" /tmp/pkg_files.txt | wc -l)
           echo "Creating tarball from $TOTAL_FILES files..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -czf ~/apt-install-cache/packages.tar.gz -T - 2>/dev/null || true
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read --checkpoint=500 --checkpoint-action=echo='%T: %u files' -cf ~/apt-install-cache/packages.tar -T - 2>/dev/null || true
 
-          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+          if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
-            ls -lh ~/apt-install-cache/packages.tar.gz
+            ls -lh ~/apt-install-cache/packages.tar
           else
             echo "WARNING: Cache file was not created, but continuing"
           fi
