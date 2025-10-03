@@ -52,26 +52,37 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -x
+          set -eo pipefail
+
+          echo "Running apt-get update..."
           sudo apt-get update
+
+          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          # Cache the installed files
-          echo "Creating package cache..."
+          echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
-            TAR_EXIT=$?
-            echo "tar exited with code: $TAR_EXIT"
-            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
-              echo "Cache file was created successfully despite tar exit code"
-              ls -lh ~/apt-install-cache/packages.tar.gz
-              exit 0
-            else
-              echo "Cache file was NOT created"
-              exit 1
-            fi
-          }
-          echo "Cache created successfully"
+
+          # Get list of files from all packages
+          echo "Getting file list from dpkg..."
+          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
+          DPKG_EXIT=$?
+          echo "dpkg -L exit code: $DPKG_EXIT"
+          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+
+          # Filter and create tarball
+          echo "Creating tarball..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
+          TAR_EXIT=${PIPESTATUS[1]}
+          echo "tar exit code: $TAR_EXIT"
+
+          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+            echo "Cache file created successfully"
+            ls -lh ~/apt-install-cache/packages.tar.gz
+          else
+            echo "ERROR: Cache file was not created"
+            exit 1
+          fi
 
       - name: Check branch name
         shell: bash
@@ -125,26 +136,37 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -x
+          set -eo pipefail
+
+          echo "Running apt-get update..."
           sudo apt-get update
+
+          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          # Cache the installed files
-          echo "Creating package cache..."
+          echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
-            TAR_EXIT=$?
-            echo "tar exited with code: $TAR_EXIT"
-            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
-              echo "Cache file was created successfully despite tar exit code"
-              ls -lh ~/apt-install-cache/packages.tar.gz
-              exit 0
-            else
-              echo "Cache file was NOT created"
-              exit 1
-            fi
-          }
-          echo "Cache created successfully"
+
+          # Get list of files from all packages
+          echo "Getting file list from dpkg..."
+          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
+          DPKG_EXIT=$?
+          echo "dpkg -L exit code: $DPKG_EXIT"
+          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+
+          # Filter and create tarball
+          echo "Creating tarball..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
+          TAR_EXIT=${PIPESTATUS[1]}
+          echo "tar exit code: $TAR_EXIT"
+
+          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+            echo "Cache file created successfully"
+            ls -lh ~/apt-install-cache/packages.tar.gz
+          else
+            echo "ERROR: Cache file was not created"
+            exit 1
+          fi
 
       - name: Cache Intel OneAPI
         id: cache-oneapi
@@ -225,26 +247,37 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -x
+          set -eo pipefail
+
+          echo "Running apt-get update..."
           sudo apt-get update
+
+          echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          # Cache the installed files
-          echo "Creating package cache..."
+          echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
-          dpkg -L ${{ env.PKGS }} | grep -v "^/\.$" | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - || {
-            TAR_EXIT=$?
-            echo "tar exited with code: $TAR_EXIT"
-            if [ -f ~/apt-install-cache/packages.tar.gz ]; then
-              echo "Cache file was created successfully despite tar exit code"
-              ls -lh ~/apt-install-cache/packages.tar.gz
-              exit 0
-            else
-              echo "Cache file was NOT created"
-              exit 1
-            fi
-          }
-          echo "Cache created successfully"
+
+          # Get list of files from all packages
+          echo "Getting file list from dpkg..."
+          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
+          DPKG_EXIT=$?
+          echo "dpkg -L exit code: $DPKG_EXIT"
+          echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+
+          # Filter and create tarball
+          echo "Creating tarball..."
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
+          TAR_EXIT=${PIPESTATUS[1]}
+          echo "tar exit code: $TAR_EXIT"
+
+          if [ -f ~/apt-install-cache/packages.tar.gz ]; then
+            echo "Cache file created successfully"
+            ls -lh ~/apt-install-cache/packages.tar.gz
+          else
+            echo "ERROR: Cache file was not created"
+            exit 1
+          fi
 
       - name: Check branch name
         shell: bash
