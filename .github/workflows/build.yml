@@ -69,14 +69,14 @@ jobs:
           echo "Getting file list from dpkg..."
           dpkg -L $PKGS_LIST 2>&1 | sort -u > /tmp/pkg_files_all.txt || true
 
-          # Filter to only actual files (not directories)
-          echo "Filtering to actual files only..."
-          while read path; do
-            [ -f "$path" ] && echo "$path"
-          done < /tmp/pkg_files_all.txt > /tmp/pkg_files.txt
+          # Filter using grep to remove directories (they end with / or are listed as directories)
+          echo "Filtering file list..."
+          grep -v '/$' /tmp/pkg_files_all.txt | while read path; do
+            [ -e "$path" ] && echo "$path"
+          done > /tmp/pkg_files.txt 2>/dev/null || true
 
           TOTAL_FILES=$(wc -l < /tmp/pkg_files.txt)
-          echo "Total actual files: $TOTAL_FILES"
+          echo "Total files to cache: $TOTAL_FILES"
 
           if [ "$TOTAL_FILES" -eq 0 ]; then
             echo "WARNING: No files found from dpkg, skipping cache creation"
@@ -85,7 +85,7 @@ jobs:
 
           # Create tarball with --no-recursion to prevent directory expansion
           echo "Creating tarball..."
-          sudo tar --ignore-failed-read --no-recursion --checkpoint=500 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T /tmp/pkg_files.txt || true
+          sudo tar --ignore-failed-read --no-recursion --checkpoint=500 --checkpoint-action=echo='Archived %u files' -cf ~/apt-install-cache/packages.tar -T /tmp/pkg_files.txt 2>/dev/null || true
 
           if [ -f ~/apt-install-cache/packages.tar ]; then
             echo "Cache file created successfully"
@@ -101,6 +101,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
+
+      - name: Verify dependencies
+        run: |
+          echo "Checking for Boost..."
+          dpkg -l | grep boost || echo "Boost not found via dpkg"
+          ls /usr/lib/x86_64-linux-gnu/libboost* 2>/dev/null || echo "No Boost libraries found"
+          ls /usr/lib/x86_64-linux-gnu/cmake/Boost* 2>/dev/null || echo "No Boost CMake files found"
 
       - name: Build with CMake
         run: |
