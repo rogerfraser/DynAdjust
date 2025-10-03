@@ -57,21 +57,25 @@ jobs:
           echo "Running apt-get update..."
           sudo apt-get update
 
+          # Capture list of packages before installation
+          dpkg --get-selections | awk '{print $1}' | sort > /tmp/before_install.txt
+
           echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
           echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
 
-          # Get list of installed packages (convert multiline PKGS to single line)
-          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
-          echo "Package list: $PKGS_LIST"
+          # Get list of all newly installed packages (including dependencies)
+          dpkg --get-selections | awk '{print $1}' | sort > /tmp/after_install.txt
+          PKGS_LIST=$(comm -13 /tmp/before_install.txt /tmp/after_install.txt | tr '\n' ' ')
+          echo "Newly installed packages (including dependencies):"
+          echo "$PKGS_LIST"
 
           # Debug: Show files from each package individually
-          echo "Checking files from each package:"
-          for pkg in $PKGS_LIST; do
-            echo "--- Package: $pkg ---"
-            dpkg -L "$pkg" 2>&1 || echo "Failed to list files for $pkg"
+          echo "Checking files from first 5 packages:"
+          echo "$PKGS_LIST" | tr ' ' '\n' | head -5 | while read pkg; do
+            [ -n "$pkg" ] && echo "--- Package: $pkg ---" && dpkg -L "$pkg" 2>&1 | head -10
           done
 
           # Get list of files from all packages
