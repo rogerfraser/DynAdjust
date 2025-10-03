@@ -52,8 +52,6 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -eo pipefail
-
           echo "Running apt-get update..."
           sudo apt-get update
 
@@ -63,25 +61,31 @@ jobs:
           echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
 
+          # Get list of installed packages (convert multiline PKGS to single line)
+          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
+          echo "Package list: $PKGS_LIST"
+
           # Get list of files from all packages
           echo "Getting file list from dpkg..."
-          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
-          DPKG_EXIT=$?
-          echo "dpkg -L exit code: $DPKG_EXIT"
+          dpkg -L $PKGS_LIST > /tmp/pkg_files.txt 2>&1 || true
           echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+          echo "First 10 files:"
+          head -10 /tmp/pkg_files.txt
+
+          if [ ! -s /tmp/pkg_files.txt ]; then
+            echo "WARNING: No files found from dpkg, skipping cache creation"
+            exit 0
+          fi
 
           # Filter and create tarball
           echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
-          TAR_EXIT=${PIPESTATUS[1]}
-          echo "tar exit code: $TAR_EXIT"
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
             ls -lh ~/apt-install-cache/packages.tar.gz
           else
-            echo "ERROR: Cache file was not created"
-            exit 1
+            echo "WARNING: Cache file was not created, but continuing"
           fi
 
       - name: Check branch name
@@ -136,8 +140,6 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -eo pipefail
-
           echo "Running apt-get update..."
           sudo apt-get update
 
@@ -147,25 +149,31 @@ jobs:
           echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
 
+          # Get list of installed packages (convert multiline PKGS to single line)
+          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
+          echo "Package list: $PKGS_LIST"
+
           # Get list of files from all packages
           echo "Getting file list from dpkg..."
-          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
-          DPKG_EXIT=$?
-          echo "dpkg -L exit code: $DPKG_EXIT"
+          dpkg -L $PKGS_LIST > /tmp/pkg_files.txt 2>&1 || true
           echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+          echo "First 10 files:"
+          head -10 /tmp/pkg_files.txt
+
+          if [ ! -s /tmp/pkg_files.txt ]; then
+            echo "WARNING: No files found from dpkg, skipping cache creation"
+            exit 0
+          fi
 
           # Filter and create tarball
           echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
-          TAR_EXIT=${PIPESTATUS[1]}
-          echo "tar exit code: $TAR_EXIT"
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
             ls -lh ~/apt-install-cache/packages.tar.gz
           else
-            echo "ERROR: Cache file was not created"
-            exit 1
+            echo "WARNING: Cache file was not created, but continuing"
           fi
 
       - name: Cache Intel OneAPI
@@ -247,8 +255,6 @@ jobs:
         if: steps.cache-apt.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -eo pipefail
-
           echo "Running apt-get update..."
           sudo apt-get update
 
@@ -258,25 +264,31 @@ jobs:
           echo "Installation complete, creating cache..."
           mkdir -p ~/apt-install-cache
 
+          # Get list of installed packages (convert multiline PKGS to single line)
+          PKGS_LIST=$(echo "${{ env.PKGS }}" | tr '\n' ' ')
+          echo "Package list: $PKGS_LIST"
+
           # Get list of files from all packages
           echo "Getting file list from dpkg..."
-          dpkg -L ${{ env.PKGS }} > /tmp/pkg_files.txt
-          DPKG_EXIT=$?
-          echo "dpkg -L exit code: $DPKG_EXIT"
+          dpkg -L $PKGS_LIST > /tmp/pkg_files.txt 2>&1 || true
           echo "Total files listed: $(wc -l < /tmp/pkg_files.txt)"
+          echo "First 10 files:"
+          head -10 /tmp/pkg_files.txt
+
+          if [ ! -s /tmp/pkg_files.txt ]; then
+            echo "WARNING: No files found from dpkg, skipping cache creation"
+            exit 0
+          fi
 
           # Filter and create tarball
           echo "Creating tarball..."
-          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 | head -20
-          TAR_EXIT=${PIPESTATUS[1]}
-          echo "tar exit code: $TAR_EXIT"
+          grep -v "^/\.$" /tmp/pkg_files.txt | sudo tar --ignore-failed-read -czf ~/apt-install-cache/packages.tar.gz -T - 2>&1 || true
 
           if [ -f ~/apt-install-cache/packages.tar.gz ]; then
             echo "Cache file created successfully"
             ls -lh ~/apt-install-cache/packages.tar.gz
           else
-            echo "ERROR: Cache file was not created"
-            exit 1
+            echo "WARNING: Cache file was not created, but continuing"
           fi
 
       - name: Check branch name
