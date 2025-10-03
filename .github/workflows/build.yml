@@ -66,19 +66,13 @@ jobs:
           echo "Installing packages: ${{ env.PKGS }}"
           sudo apt-get install -y --no-install-recommends ${{ env.PKGS }}
 
-          echo "Getting list of installed packages..."
-          dpkg --get-selections | awk '{print $1}' | sort > /tmp/installed_pkgs.txt
-
-          echo "Downloading .deb files for installed packages..."
+          echo "Creating cache from downloaded .deb files..."
           mkdir -p ~/apt-install-cache/debs
-          cd ~/apt-install-cache/debs
+          sudo cp /var/cache/apt/archives/*.deb ~/apt-install-cache/debs/ 2>/dev/null || true
+          sudo chown -R $USER ~/apt-install-cache/debs
 
-          while read pkg; do
-            apt-get download "$pkg" 2>/dev/null || echo "Skipped: $pkg"
-          done < /tmp/installed_pkgs.txt
-
-          echo "Downloaded $(ls -1 *.deb 2>/dev/null | wc -l) .deb files"
-          ls -lh | head -20
+          echo "Cached $(ls -1 ~/apt-install-cache/debs/*.deb 2>/dev/null | wc -l) .deb files"
+          ls -lh ~/apt-install-cache/debs | head -20
 
           echo "Creating cache tarball..."
           cd ~/apt-install-cache
