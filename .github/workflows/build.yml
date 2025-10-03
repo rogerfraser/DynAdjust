@@ -68,13 +68,18 @@ jobs:
           cd ~/apt-install-cache/debs
 
           # Download packages and all dependencies
-          apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | sort -u)
+          echo "Getting dependency list..."
+          apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances ${{ env.PKGS }} | grep "^\w" | sort -u > /tmp/pkg_list.txt
+
+          echo "Downloading .deb files..."
+          xargs -a /tmp/pkg_list.txt apt-get download
 
           echo "Downloaded $(ls -1 | wc -l) .deb files"
           ls -lh
 
           echo "Installing packages..."
-          sudo dpkg -i *.deb
+          sudo dpkg -i *.deb || true
+          sudo apt-get install -f -y
 
           echo "Creating cache tarball..."
           cd ~/apt-install-cache
