@@ -284,6 +284,7 @@ const char* const NTV2_FILEPATH = "ntv2-file";
 const char* const NTV2_FILEPATH_G = "ntv2-file,g";
 const char* const DAT_FILEPATH = "dat-file";
 const char* const DAT_FILEPATH_D = "dat-file,d";
+const char* const DAT_FILEPATH_UNC = "uncertainty-file";
 const char* const LATITUDE = "latitude";
 const char* const LATITUDE_P = "latitude,p";
 const char* const LONGITUDE = "longitude";

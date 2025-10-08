@@ -43,6 +43,7 @@
 #include <include/io/bst_file_loader.hpp>
 #include <include/io/bst_file.hpp>
 #include <include/config/dnaconsts.hpp>
+#include <include/config/dnaconsts-interface.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/config/dnatypes-fwd.hpp>
@@ -165,6 +166,9 @@ public:
 	// Creates a NTv2 Grid file from conventional DAT file format
 	void CreateNTv2File(const char* datFile, const n_file_par* grid);
 
+	// Sets the WINTER DAT uncertainty file
+    void SetUncertaintyFile(const char* datFile);
+
 	// Exports an Binary grid file to a Ascii format
 	void ExportToAscii(const char* inputGrid, const char* gridType, const char* shiftType, const char* outputGrid, int* IO_Status);
 
@@ -209,9 +213,10 @@ private:
 	void PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* m_gfIndex);
 	void PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* m_gfIndex);
 	void ScanDatFileValues(char* szLine, float* n_value, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec, float* defl_meridian, float* defl_primev);
+	void ScanUncertaintyFileValues(char* szLine, float* n_uncertainty, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec);
 	void ScanNodeLocations(char* szLine, double* latitude, double* longitude);
 	void ComputeLatLong(double* dlat_initial, const char& c_northsouth, const int& lat_deg, const int& lat_min, const double& lat_sec, double* dlon_initial, const char& c_eastwest, const int& lon_deg, const int& lon_min, const double& lon_sec);
-	void WriteBinaryRecords(std::ofstream* f_out, float n_value, float defl_meridian, float defl_primev);
+    void WriteBinaryRecords(std::ofstream* f_out, float n_value, float defl_meridian, float defl_primev, float n_uncertainty);
 
 	// NTv2 interpolation
 	void ApplyAusGeoidGrid(geoid_point* agCoord, const int& method);
@@ -251,6 +256,9 @@ private:
 	
 	binary_file_meta_t	bst_meta_;
 	
+	std::string			m_datUncertaintyFile;
+	bool				m_loadUncertainties;
+
 	vstn_t				bstBinaryRecords_;
 	v_stn_string		bstBadPoints_;
 
@@ -261,7 +269,7 @@ private:
 
 	bool				m_fileMode;
 
-	std::string				m_inputCoordinates;
+	std::string			m_inputCoordinates;
 
 	bool				m_isRadians;
 	
