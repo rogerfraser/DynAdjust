@@ -1207,7 +1207,9 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	std::cout << PROGRESS_BACKSPACE_04 << "done." << std::endl;
 
 	std::cout << "+ WINTER DAT file structure appears OK." << std::endl;
-	std::cout <<	"+ Reading geoid values from WINTER DAT file... ";
+    std::cout << "+ Reading geoid" << (m_loadUncertainties ? " and uncertainties " : " ") << "from WINTER DAT file"
+              << (m_loadUncertainties ? "s... " : "... ");
+
 	geoid_values* ag_data = new geoid_values[lNodeRead];
 
 	// Update header record
@@ -1251,11 +1253,20 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	lNodeCount = 0;
 
 	try {
+        ss.str("");
+        ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+        std::cout << std::setw(PROGRESS_PERCENT_04) << ss.str();
+
 		while (!f_in.eof())
 		{
 			m_iBytesRead = (int)f_in.tellg();
 			m_dPercentComplete = (double)(m_iBytesRead) / (double)lFileLen * 100.0;
-		
+
+			ss.str("");
+            ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+            std::cout << PROGRESS_BACKSPACE_04 << std::setw(PROGRESS_PERCENT_04) << ss.str();
+            std::cout.flush();
+			
 			// extract data:
 			// n value (metres)
 			// deflection in prime meridian (seconds)
@@ -1310,9 +1321,9 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			throw NetGeoidException(ErrorString(ERR_GRIDFILE_READ) + "\n " + f.what(), ERR_GRIDFILE_READ);
 	}
 
-	std::cout << "done." << std::endl;
+	std::cout << PROGRESS_BACKSPACE_04 << "done." << std::endl;
 
-	std::cout << "+ Creating NTv2 gsb file... ";
+	std::cout << "+ Creating NTv2 GSB file... ";
 
 	m_dPercentComplete = 0;
 
@@ -1324,6 +1335,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	for (i=0; i<lNodeRead; ++i)
 	{
         --lNodeCount;
+		// NTv2 GSB values are stored in reverse order to WINTER DAT
         WriteBinaryRecords(&f_out, (float)ag_data[lNodeCount].dN_value, (float)ag_data[lNodeCount].dDefl_meridian, (float)ag_data[lNodeCount].dDefl_primev, (float)ag_data[lNodeCount].dN_uncertainty);
         m_dPercentComplete = (double)(lNodeRead - lNodeCount) / (double)lNodeRead * 100.0;
 
