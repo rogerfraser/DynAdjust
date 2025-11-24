@@ -3955,6 +3955,9 @@ void DynAdjustPrinter::PrintAdjStation(std::ostream& os,
 
     PropagateVariances_LocalCart(var_cart, var_local, 
         estLatitude, estLongitude, false);
+
+    // add geoid model height uncertainty
+    var_local.elementadd(2, 2, (stn_it->geoidSepUnc * stn_it->geoidSepUnc));
     
     // Use uncertainty formatting helper
     PrintStationUncertainties(os, var_local);

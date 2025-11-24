@@ -301,7 +301,7 @@ typedef struct stn_t {
 											// ORTHOMETRIC_type_i and currentHeight is set to (initialHeight + N).
 	UINT16	suppliedHeightRefFrame;			// Used to signify which reference frame supplied height refers to
 	float	geoidSep; 					 	// ellipsoid / geoid separation
-	float   geoidSepUnc;                    // ellipsoid / geoid separation uncertainty
+	float   geoidSepUnc;                    // ellipsoid / geoid separation uncertainty (std deviation in m)
 	double	meridianDef;					// deflection in meridian (N/S)
 	double	verticalDef;					// deflection in vertical (E/W)
 	short	zone;
