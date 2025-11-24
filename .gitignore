@@ -14,6 +14,14 @@ build_gcc/
 build/
 bin/
 doc/
+*/vcpkg/
+*/vcpkg_installed/
+*/Release/
+*/Debug/
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
 
 *.suo
 *.VC.db
@@ -21,13 +29,24 @@ doc/
 *.json
 *.sqlite
 *.ipch
+*.pch
 *.db-shm
 *.db-wal
 *.user
 /.idea/
 .vscode/*
-.cache
-.DS_Store
+*.cache
+*.DS_Store
+*.pdb
+*.ipdb
+*.iobj
+*.ilk
+*.obj
+*.log
+*.tlog
+*.recipe
+*.res
+*.FileListAbsolute.txt
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
