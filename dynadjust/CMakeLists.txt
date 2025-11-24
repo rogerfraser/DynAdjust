@@ -171,7 +171,11 @@ endif()
 # XercesC
 # ----------------------------------------------------------------------------
 
-find_package(XercesC REQUIRED)
+if (WIN32)
+    find_package(XercesC REQUIRED PATHS ./vcpkg_installed/x64-windows)
+else()
+    find_package(XercesC REQUIRED)
+endif()
 message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 
 # ----------------------------------------------------------------------------
