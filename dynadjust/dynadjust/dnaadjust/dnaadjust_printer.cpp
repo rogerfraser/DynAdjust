@@ -961,7 +961,18 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+    
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
 
     UINT32 cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -1022,7 +1033,17 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
 
         // Print height
         _it_y_msr++;
-        PrintComparativeMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i:
+            PrintComparativeMeasurements<LinearMeasurement>('h', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintComparativeMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        }
+        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -2112,6 +2133,7 @@ double DynAdjustPrinter::CalculateLinearPrecision(const it_vmsr_t& it_msr, char 
         case 'Z':  // XYZ
         case 'u':  // ENU
         case 'H':  // LLH (Lat and Lon cardinals are printed in PrintMeasurementsAngular)
+        case 'h':
             return sqrt(it_msr->term4);
         case 's':  // AED (Azimuth and vertical angle cardinals are printed in PrintMeasurementsAngular)
             switch (adjust_.projectSettings_.o._adj_gnss_units) {
@@ -2310,6 +2332,7 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
     case 'Y':
     case 'Z':
     case 'H':
+    case 'h':
     case 'n':
     case 'u':
     case 's':
@@ -2410,6 +2433,7 @@ void DynAdjustPrinter::PrintMeasurementCorrection(const char cardinal, const it_
             break;
         case 'P':
         case 'L':
+        case 'h':
             adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 0.0;
             break;
         default:	// X, Y, Z
@@ -2445,7 +2469,18 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
     
     UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -2574,8 +2609,17 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
         PrintAdjMeasurementsAngular('L', _it_y_msr);
 
         // Print height
-        _it_y_msr++;	
-        PrintAdjMeasurementsLinear('H', _it_y_msr);
+        _it_y_msr++;
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i: 
+            PrintAdjMeasurementsLinear('h', _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintAdjMeasurementsLinear('H', _it_y_msr);
+            break;
+        }        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
