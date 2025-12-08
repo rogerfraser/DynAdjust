@@ -117,14 +117,14 @@ public:
         adjust_.PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
     }
     
-    // New Stage 2 functions for comparative measurements
-    void print_comparative_angular_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
-        adjust_.adj_file << "Comparative angular measurement: " << computed << " ";
+    // New Stage 2 functions for computed measurements
+    void print_computed_angular_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
+        adjust_.adj_file << "Computed angular measurement: " << computed << " ";
         adjust_.adj_file << "Correction: " << correction << " ";
     }
     
-    void print_comparative_linear_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
-        adjust_.adj_file << "Comparative linear measurement: " << computed << " ";
+    void print_computed_linear_measurement(char cardinal, double computed, double correction, const it_vmsr_t& it_msr) {
+        adjust_.adj_file << "Computed linear measurement: " << computed << " ";
         adjust_.adj_file << "Correction: " << correction << " ";
         adjust_.adj_file << "Questionable: " << (fabs(correction) > 999.9999 ? "true" : "false") << " ";
     }
@@ -429,8 +429,8 @@ TEST_CASE("Printer demonstrates C++17 features", "[printer][modern]") {
     }
 }
 
-TEST_CASE("Stage 2: Comparative measurement printing works correctly", "[printer][comparative]") {
-    SECTION("Comparative angular measurement printing") {
+TEST_CASE("Stage 2: Computed measurement printing works correctly", "[printer][computed]") {
+    SECTION("Computed angular measurement printing") {
         MockDnaAdjust mock_adjust;
         TestPrinter printer(mock_adjust);
         
@@ -438,14 +438,14 @@ TEST_CASE("Stage 2: Comparative measurement printing works correctly", "[printer
         measurements.push_back(createTestMeasurement('A'));
         it_vmsr_t it_msr = measurements.begin();
         
-        printer.print_comparative_angular_measurement(' ', 45.123, 0.001, it_msr);
+        printer.print_computed_angular_measurement(' ', 45.123, 0.001, it_msr);
         
         std::string output = mock_adjust.adj_file.str();
-        REQUIRE(output.find("Comparative angular measurement: 45.123") != std::string::npos);
+        REQUIRE(output.find("Computed angular measurement: 45.123") != std::string::npos);
         REQUIRE(output.find("Correction: 0.001") != std::string::npos);
     }
     
-    SECTION("Comparative linear measurement with large correction") {
+    SECTION("Computed linear measurement with large correction") {
         MockDnaAdjust mock_adjust;
         TestPrinter printer(mock_adjust);
         
@@ -453,15 +453,15 @@ TEST_CASE("Stage 2: Comparative measurement printing works correctly", "[printer
         measurements.push_back(createTestMeasurement('C'));
         it_vmsr_t it_msr = measurements.begin();
         
-        printer.print_comparative_linear_measurement(' ', 1234.567, 1000.5, it_msr);
+        printer.print_computed_linear_measurement(' ', 1234.567, 1000.5, it_msr);
         
         std::string output = mock_adjust.adj_file.str();
-        REQUIRE(output.find("Comparative linear measurement: 1234.57") != std::string::npos);
+        REQUIRE(output.find("Computed linear measurement: 1234.57") != std::string::npos);
         REQUIRE(output.find("Correction: 1000.5") != std::string::npos);
         REQUIRE(output.find("Questionable: true") != std::string::npos);
     }
     
-    SECTION("Comparative linear measurement with small correction") {
+    SECTION("Computed linear measurement with small correction") {
         MockDnaAdjust fresh_mock_adjust;
         TestPrinter fresh_printer(fresh_mock_adjust);
         
@@ -469,10 +469,10 @@ TEST_CASE("Stage 2: Comparative measurement printing works correctly", "[printer
         measurements.push_back(createTestMeasurement('C'));
         it_vmsr_t it_msr = measurements.begin();
         
-        fresh_printer.print_comparative_linear_measurement(' ', 1234.567, 0.5, it_msr);
+        fresh_printer.print_computed_linear_measurement(' ', 1234.567, 0.5, it_msr);
         
         std::string output = fresh_mock_adjust.adj_file.str();
-        REQUIRE(output.find("Comparative linear measurement: 1234.57") != std::string::npos);
+        REQUIRE(output.find("Computed linear measurement: 1234.57") != std::string::npos);
         REQUIRE(output.find("Correction: 0.5") != std::string::npos);
         REQUIRE(output.find("Questionable: false") != std::string::npos);
     }
