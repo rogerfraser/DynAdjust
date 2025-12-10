@@ -181,6 +181,7 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 	if (_dnaDirection->NotIgnored())
 	{
 		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+        g_parsemsr_tally.D++;
 		return;
 	}
 
@@ -251,7 +252,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		_dnaCurrentMsr.reset(new CDnaDistance);
 		break;
 	case 'D': // Direction set
-		g_parsemsr_tally.D++;
+		//g_parsemsr_tally.D++;  See post_Directions()
 		_dnaCurrentMsr.reset(new CDnaDirectionSet(++(*(_pclusterID))));
 		break;
 	case 'E': // Ellipsoid arc
