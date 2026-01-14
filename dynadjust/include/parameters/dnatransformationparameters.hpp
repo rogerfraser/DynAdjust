@@ -3,6 +3,7 @@
 // Author       : Roger Fraser
 // Contributors : Dale Roberts <dale.o.roberts@gmail.com>
 //              : Joshua Batchelor
+//				: Mike Bremner
 // Copyright    : Copyright 2017-2025 Geoscience Australia
 //
 //                Licensed under the Apache License, Version 2.0 (the "License");
@@ -2741,6 +2742,593 @@ public:
 };
 
 
+// NAD 83 (CSRS) -> ITRF 2020
+template <class T, class U>
+struct _nad83_to_itrf2020_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf2020_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf2020_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf2020_<T, U>::transformationParameters[14] =
+{
+     -1003.90,	// x translation (millimetres)              
+      1909.61,	// y translation (millimetres)              
+       541.17,	// z translation (millimetres)              
+      0.05109,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -10.93206,	// z rotation (milli-arc-seconds)           
+
+        -0.79,	// x translation rate (millimetres p/yr)    
+         0.70,	// y translation rate (millimetres p/yr)    
+         1.24,	// z translation rate (millimetres p/yr)    
+      0.07201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.05133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF2020 : public _nad83_to_itrf2020_<T, U>
+{
+public:
+};
+	
+
+
+// NAD 83 (CSRS) -> ITRF 2014
+template <class T, class U>
+struct _nad83_to_itrf2014_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf2014_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf2014_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf2014_<T, U>::transformationParameters[14] =
+{
+     -1005.30,	// x translation (millimetres)              
+      1909.21,	// y translation (millimetres)              
+       541.57,	// z translation (millimetres)              
+     -0.36891,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -10.93206,	// z rotation (milli-arc-seconds)           
+
+        -0.79,	// x translation rate (millimetres p/yr)    
+         0.60,	// y translation rate (millimetres p/yr)    
+         1.44,	// z translation rate (millimetres p/yr)    
+      0.07201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.05133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF2014 : public _nad83_to_itrf2014_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 2008
+template <class T, class U>
+struct _nad83_to_itrf2008_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf2008_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf2008_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf2008_<T, U>::transformationParameters[14] =
+{
+     -1003.70,	// x translation (millimetres)              
+      1911.11,	// y translation (millimetres)              
+       543.97,	// z translation (millimetres)              
+     -0.38891,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -10.93206,	// z rotation (milli-arc-seconds)           
+
+        -0.79,	// x translation rate (millimetres p/yr)    
+         0.60,	// y translation rate (millimetres p/yr)    
+         1.34,	// z translation rate (millimetres p/yr)    
+      0.10201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.05133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF2008 : public _nad83_to_itrf2008_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 2005
+template <class T, class U>
+struct _nad83_to_itrf2005_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf2005_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf2005_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf2005_<T, U>::transformationParameters[14] =
+{
+     -1002.70,	// x translation (millimetres)              
+      1910.21,	// y translation (millimetres)              
+       539.27,	// z translation (millimetres)              
+      0.55109,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -10.93206,	// z rotation (milli-arc-seconds)           
+
+        -0.49,	// x translation rate (millimetres p/yr)    
+         0.60,	// y translation rate (millimetres p/yr)    
+         1.34,	// z translation rate (millimetres p/yr)    
+      0.10201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.05133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF2005 : public _nad83_to_itrf2005_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 2000
+template <class T, class U>
+struct _nad83_to_itrf2000_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf2000_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf2000_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf2000_<T, U>::transformationParameters[14] =
+{
+     -1004.60,	// x translation (millimetres)              
+      1910.41,	// y translation (millimetres)              
+       515.47,	// z translation (millimetres)              
+      1.75109,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -10.93206,	// z rotation (milli-arc-seconds)          
+
+        -0.69,	// x translation rate (millimetres p/yr)    
+         0.70,	// y translation rate (millimetres p/yr)    
+        -0.46,	// z translation rate (millimetres p/yr)    
+      0.18201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.05133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF2000 : public _nad83_to_itrf2000_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1997
+template <class T, class U>
+struct _nad83_to_itrf1997_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1997_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1997_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1997_<T, U>::transformationParameters[14] =
+{
+      -997.90,	// x translation (millimetres)              
+      1908.71,	// y translation (millimetres)              
+       478.77,	// z translation (millimetres)              
+      3.43109,	// scale (ppb)                              
+    -26.78138,	// x rotation (milli-arc-seconds)           
+      0.42027,	// y rotation (milli-arc-seconds)           
+    -11.19206,	// z rotation (milli-arc-seconds)           
+
+        -0.69,	// x translation rate (millimetres p/yr)    
+         0.10,	// y translation rate (millimetres p/yr)    
+        -1.86,	// z translation rate (millimetres p/yr)    
+      0.19201,	// scale rate (ppb p/yr)                    
+     -0.06667,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.75744,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03133 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1997 : public _nad83_to_itrf1997_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1996
+template <class T, class U>
+struct _nad83_to_itrf1996_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1996_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1996_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1996_<T, U>::transformationParameters[14] =
+{
+      -991.00,	// x translation (millimetres)              
+      1907.20,	// y translation (millimetres)              
+       512.90,	// z translation (millimetres)              
+      0.00000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1996 : public _nad83_to_itrf1996_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1994
+template <class T, class U>
+struct _nad83_to_itrf1994_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1994_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1994_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1994_<T, U>::transformationParameters[14] =
+{
+      -991.00,	// x translation (millimetres)              
+      1907.20,	// y translation (millimetres)              
+       512.90,	// z translation (millimetres)              
+      0.00000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1994 : public _nad83_to_itrf1994_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1993
+template <class T, class U>
+struct _nad83_to_itrf1993_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1993_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1993_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1993_<T, U>::transformationParameters[14] =
+{
+     -1048.80,	// x translation (millimetres)              
+      1911.00,	// y translation (millimetres)              
+       515.50,	// z translation (millimetres)              
+      0.40000,	// scale (ppb)                              
+    -23.67160,	// x rotation (milli-arc-seconds)           
+      3.37990,	// y rotation (milli-arc-seconds)           
+    -11.38920,	// z rotation (milli-arc-seconds)           
+
+        -2.90,	// x translation rate (millimetres p/yr)    
+         0.40,	// y translation rate (millimetres p/yr)    
+         0.80,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+      0.05680,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.93230,	// y rotation rate (milli-arc-seconds p/yr) 
+     -0.01840 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1993 : public _nad83_to_itrf1993_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1992
+template <class T, class U>
+struct _nad83_to_itrf1992_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1992_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1992_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1992_<T, U>::transformationParameters[14] =
+{
+      -983.00,	// x translation (millimetres)              
+      1909.20,	// y translation (millimetres)              
+       504.90,	// z translation (millimetres)              
+     -0.80000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1992 : public _nad83_to_itrf1992_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1991
+template <class T, class U>
+struct _nad83_to_itrf1991_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1991_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1991_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1991_<T, U>::transformationParameters[14] =
+{
+      -971.00,	// x translation (millimetres)              
+      1923.20,	// y translation (millimetres)              
+       498.90,	// z translation (millimetres)              
+      0.60000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1991 : public _nad83_to_itrf1991_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1990
+template <class T, class U>
+struct _nad83_to_itrf1990_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1990_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1990_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1990_<T, U>::transformationParameters[14] =
+{
+      -973.00,	// x translation (millimetres)              
+      1919.20,	// y translation (millimetres)              
+       482.90,	// z translation (millimetres)              
+      0.90000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1990 : public _nad83_to_itrf1990_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1989
+template <class T, class U>
+struct _nad83_to_itrf1989_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1989_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1989_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1989_<T, U>::transformationParameters[14] =
+{
+      -968.00,	// x translation (millimetres)              
+      1943.20,	// y translation (millimetres)              
+       444.90,	// z translation (millimetres)              
+      4.30000,	// scale (ppb)                              
+    -26.48160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160 	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1989 : public _nad83_to_itrf1989_<T, U>
+{
+public:
+};
+
+
+// NAD 83 (CSRS) -> ITRF 1988
+template <class T, class U>
+struct _nad83_to_itrf1988_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _nad83_to_itrf1988_<T, U>::reference_frame = NAD83_CSRS_i;
+
+template <class T, class U>
+const T _nad83_to_itrf1988_<T, U>::reference_epoch = 2010.0;
+
+template <class T, class U>
+const T _nad83_to_itrf1988_<T, U>::transformationParameters[14] =
+{
+      -973.00,	// x translation (millimetres)              
+      1907.20,	// y translation (millimetres)              
+       420.90,	// z translation (millimetres)              
+      7.40000,	// scale (ppb)                              
+    -26.58160,	// x rotation (milli-arc-seconds)           
+     -0.00010,	// y rotation (milli-arc-seconds)           
+    -11.24920,	// z rotation (milli-arc-seconds)           
+
+         0.00,	// x translation rate (millimetres p/yr)    
+         0.00,	// y translation rate (millimetres p/yr)    
+         0.00,	// z translation rate (millimetres p/yr)    
+      0.00000,	// scale rate (ppb p/yr)                    
+     -0.05320,	// x rotation rate (milli-arc-seconds p/yr) 
+      0.74230,	// y rotation rate (milli-arc-seconds p/yr) 
+      0.03160	// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class NAD83_ITRF1988 : public _nad83_to_itrf1988_<T, U>
+{
+public:
+};
 
 
 }	// namespace datum_parameters
