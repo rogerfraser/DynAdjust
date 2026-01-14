@@ -271,7 +271,7 @@ typedef struct stn_t {
 	stn_t(const short& u=0)
 		: suppliedStationType(LLH_type_i), initialLatitude(0.), currentLatitude(0.), initialLongitude(0.), currentLongitude(0.)
 		, initialHeight(0.), currentHeight(0.), suppliedHeightRefFrame(ELLIPSOIDAL_type_i)
-		, geoidSep(0.), meridianDef(0.), verticalDef(0.), zone(u)
+		, geoidSep(0.), geoidSepUnc(0.), meridianDef(0.), verticalDef(0.), zone(u)
 		, fileOrder(0), nameOrder(0), clusterID(0), unusedStation(FALSE)
 	{
 		memset(stationName, '\0', sizeof(stationName));
@@ -301,6 +301,7 @@ typedef struct stn_t {
 											// ORTHOMETRIC_type_i and currentHeight is set to (initialHeight + N).
 	UINT16	suppliedHeightRefFrame;			// Used to signify which reference frame supplied height refers to
 	float	geoidSep; 					 	// ellipsoid / geoid separation
+	float   geoidSepUnc;                    // ellipsoid / geoid separation uncertainty (std deviation in m)
 	double	meridianDef;					// deflection in meridian (N/S)
 	double	verticalDef;					// deflection in vertical (E/W)
 	short	zone;

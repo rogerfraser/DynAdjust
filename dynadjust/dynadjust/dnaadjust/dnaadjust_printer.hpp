@@ -104,9 +104,9 @@ class DNAADJUST_API DynAdjustPrinter {
     template <typename MeasurementType>
     void PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
 
-    // Template-based comparative measurement printing
+    // Template-based computed measurement printing
     template <typename MeasurementType>
-    void PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+    void PrintComputedMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
     
     // Compatibility methods - delegate to template implementations
     void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
@@ -305,7 +305,7 @@ void DynAdjustPrinter::PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_m
 }
 
 template <typename MeasurementType>
-void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
+void DynAdjustPrinter::PrintComputedMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Default implementation - will be replaced by explicit specializations
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
@@ -335,11 +335,11 @@ void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(char cardinal, co
                                                                     bool initialise_dbindex);
 
 template <>
-void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char cardinal, const double& computed, 
+void DynAdjustPrinter::PrintComputedMeasurements<AngularMeasurement>(char cardinal, const double& computed, 
                                                                         const double& correction, const it_vmsr_t& it_msr);
 
 template <>
-void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
+void DynAdjustPrinter::PrintComputedMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
 
 // Stage 4: Station coordinate formatting specializations

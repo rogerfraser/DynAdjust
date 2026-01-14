@@ -410,8 +410,10 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
   #define __COMPILER_VERSION__ "17.13, VS2022"
   #elif (_MSC_VER == 1944)
   #define __COMPILER_VERSION__ "17.14, VS2022"
+  #elif (_MSC_VER == 1950)
+  #define __COMPILER_VERSION__ "18.0, VS2026"
   
-  #elif (_MSC_VER > 1944)
+  #elif (_MSC_VER > 1950)
     #define __COMPILER_VERSION__ _MSC_VER
     #pragma message("Warning: A later than recognised VC++ compiler version is being used: " VAR_NAME_VALUE(_MSC_VER))
     #pragma message("         Time to update " VALUE(__FILE__))

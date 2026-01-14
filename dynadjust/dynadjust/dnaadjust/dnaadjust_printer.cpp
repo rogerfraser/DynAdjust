@@ -140,9 +140,9 @@ void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(
     PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
-// Template specializations for comparative measurements
+// Template specializations for computed measurements
 template<>
-void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
+void DynAdjustPrinter::PrintComputedMeasurements<AngularMeasurement>(
     char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Print computed angular measurements
     PrintMeasurementValue<AngularMeasurement>(cardinal, computed, correction, it_msr, false);
@@ -159,7 +159,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
 }
 
 template<>
-void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
+void DynAdjustPrinter::PrintComputedMeasurements<LinearMeasurement>(
     char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Check if adjustment is questionable for linear measurements
     if (!adjust_.isAdjustmentQuestionable_) {
@@ -183,12 +183,12 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
 // Compatibility methods for maintaining the original method names
 void DynAdjustPrinter::PrintCompMeasurementsLinear(const char cardinal, const double& computed, 
                                                    const double& correction, const it_vmsr_t& it_msr) {
-    PrintComparativeMeasurements<LinearMeasurement>(cardinal, computed, correction, it_msr);
+    PrintComputedMeasurements<LinearMeasurement>(cardinal, computed, correction, it_msr);
 }
 
 void DynAdjustPrinter::PrintCompMeasurementsAngular(const char cardinal, const double& computed, 
                                                     const double& correction, const it_vmsr_t& it_msr) {
-    PrintComparativeMeasurements<AngularMeasurement>(cardinal, computed, correction, it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(cardinal, computed, correction, it_msr);
 }
 
 void DynAdjustPrinter::PrintMeasurementsAngular(const char cardinal, const double& measurement, 
@@ -844,7 +844,7 @@ void DynAdjustPrinter::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& desig
         
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision
-        PrintComparativeMeasurements<AngularMeasurement>(' ', computed, _it_msr->measCorr, _it_msr);
+        PrintComputedMeasurements<AngularMeasurement>(' ', computed, _it_msr->measCorr, _it_msr);
         
         design_row++;
         _it_msr++;
@@ -961,7 +961,18 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+    
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
 
     UINT32 cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -1014,15 +1025,25 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
             std::left << std::setw(STATION) << " ";        // third station
 
         // Print latitude
-        PrintComparativeMeasurements<AngularMeasurement>('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComputedMeasurements<AngularMeasurement>('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
     
         // Print longitude
         _it_y_msr++;
-        PrintComparativeMeasurements<AngularMeasurement>('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComputedMeasurements<AngularMeasurement>('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
 
         // Print height
         _it_y_msr++;
-        PrintComparativeMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i:
+            PrintComputedMeasurements<LinearMeasurement>('h', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintComputedMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        }
+        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -1054,7 +1075,7 @@ void DynAdjustPrinter::PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
 
     design_row++;
 }
@@ -1081,7 +1102,7 @@ void DynAdjustPrinter::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
     
     design_row++;
 }
@@ -2112,6 +2133,7 @@ double DynAdjustPrinter::CalculateLinearPrecision(const it_vmsr_t& it_msr, char 
         case 'Z':  // XYZ
         case 'u':  // ENU
         case 'H':  // LLH (Lat and Lon cardinals are printed in PrintMeasurementsAngular)
+        case 'h':
             return sqrt(it_msr->term4);
         case 's':  // AED (Azimuth and vertical angle cardinals are printed in PrintMeasurementsAngular)
             switch (adjust_.projectSettings_.o._adj_gnss_units) {
@@ -2310,6 +2332,7 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
     case 'Y':
     case 'Z':
     case 'H':
+    case 'h':
     case 'n':
     case 'u':
     case 's':
@@ -2410,6 +2433,7 @@ void DynAdjustPrinter::PrintMeasurementCorrection(const char cardinal, const it_
             break;
         case 'P':
         case 'L':
+        case 'h':
             adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 0.0;
             break;
         default:	// X, Y, Z
@@ -2445,7 +2469,18 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
     
     UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -2574,8 +2609,17 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
         PrintAdjMeasurementsAngular('L', _it_y_msr);
 
         // Print height
-        _it_y_msr++;	
-        PrintAdjMeasurementsLinear('H', _it_y_msr);
+        _it_y_msr++;
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i: 
+            PrintAdjMeasurementsLinear('h', _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintAdjMeasurementsLinear('H', _it_y_msr);
+            break;
+        }        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -3578,7 +3622,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('X', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('X', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3597,7 +3641,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('Y', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('Y', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3616,7 +3660,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('Z', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('Z', computed, correction, _it_msr);
 
         design_row++;
 
@@ -3955,6 +3999,9 @@ void DynAdjustPrinter::PrintAdjStation(std::ostream& os,
 
     PropagateVariances_LocalCart(var_cart, var_local, 
         estLatitude, estLongitude, false);
+
+    // add geoid model height uncertainty
+    var_local.elementadd(2, 2, (stn_it->geoidSepUnc * stn_it->geoidSepUnc));
     
     // Use uncertainty formatting helper
     PrintStationUncertainties(os, var_local);
@@ -4768,7 +4815,7 @@ void DynAdjustPrinter::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& 
     }
 
     // Print linear measurement, taking care of user requirements for precision	
-    PrintComparativeMeasurements<LinearMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<LinearMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }
@@ -4797,7 +4844,7 @@ void DynAdjustPrinter::PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t
 
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision	
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }

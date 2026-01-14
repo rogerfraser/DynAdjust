@@ -6158,7 +6158,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		stn1 = GetBlkMatrixElemStn1(block, _it_msr);
 
 		// Convert to cartesian reference frame?
-        	if (coordType == LLH_type_i || coordType == LLh_type_i)
+        if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// This section (and others in this function where coordType == LLH_type_i) 
 			// will only be performed once because this measurement will be converted 
@@ -6183,11 +6183,13 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			tmp_msr->preAdjMeas = tmp_msr->term1;
 
 			// Reduce to ellipsoid height
-			if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
+            if (coordType == LLH_type_i) 
 			{
-				tmp_msr->preAdjCorr = stn1_it->geoidSep;
-				ellipsoidHeight += tmp_msr->preAdjCorr;				
-			}
+                if (fabs(stn1_it->geoidSep) > PRECISION_1E4) {
+                    tmp_msr->preAdjCorr = stn1_it->geoidSep;
+                    ellipsoidHeight += tmp_msr->preAdjCorr;
+                }
+            }
 
 			// convert
 			GeoToCart<double>(latitude, longitude, ellipsoidHeight, 
@@ -6199,7 +6201,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
-            		(*_it_msr)->station3 = coordType;
+            (*_it_msr)->station3 = coordType;
 		}
 
 		// If this method is called via PrepareAdjustment() and the adjustment 
@@ -6238,14 +6240,14 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 		(*_it_msr)++;
 
 		// measurements matrix Y
-        	if (coordType == LLH_type_i || coordType == LLh_type_i)
+        if (coordType == LLH_type_i || coordType == LLh_type_i)
 		{
 			// Update bms record
 			(*_it_msr)->term1 = y;
 			snprintf((*_it_msr)->coordType, sizeof((*_it_msr)->coordType), "%s", XYZ_type);
 
 			// retain original reference frame
-            		(*_it_msr)->station3 = coordType;
+            (*_it_msr)->station3 = coordType;
 		}
 
 		// If this method is called via PrepareAdjustment() and the adjustment 
@@ -9552,8 +9554,12 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 		}
 
 		// Reduce ellipsoidal height to orthometric height
-		if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
-			height -= stn1_it->geoidSep;		
+        _COORD_TYPE_ coordType(CDnaStation::GetCoordTypeC(_it_y_msr->coordType));
+        if (coordType == LLH_type_i)
+		{
+			if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
+			height -= stn1_it->geoidSep;
+		}
 
 		// Assign computed values		
 		_it_y_msr->measAdj = latitude;
