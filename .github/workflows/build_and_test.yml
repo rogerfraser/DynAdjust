@@ -1698,3 +1698,33 @@ jobs:
           del /q *.bms *.bst *.seg *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl 2>nul
 
           exit /b %TEST_RESULT%
+
+  update_loc_badge:
+    name: Update lines of code badge
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Generate LoC badge
+        uses: shadowmoose/GHA-LoC-Badge@1.0.0
+        id: badge
+        with:
+          debug: true
+          directory: ./dynadjust
+          badge: ./resources/img/loc-badge.svg
+          patterns: '*.cpp|*.hpp|*.h|*.c'
+
+      - name: Commit badge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ./resources/img/loc-badge.svg
+          git diff --staged --quiet && exit 0
+          git commit -m "Update lines of code badge"
+          git push

@@ -11,7 +11,7 @@
 [![github issues](https://img.shields.io/github/issues/geoscienceaustralia/DynAdjust.svg)](https://github.com/geoscienceaustralia/DynAdjust/issues)
 [![github downloads](https://img.shields.io/github/downloads/geoscienceaustralia/DynAdjust/total)](https://tooomm.github.io/github-release-stats/?username=geoscienceaustralia&repository=DynAdjust&target=_blank)
 [![Docker Pulls](https://img.shields.io/docker/pulls/agrsga/dynadjust)](https://hub.docker.com/r/agrsga/dynadjust)
-[![lines of code](https://tokei.rs/b1/github/geoscienceaustralia/dynadjust)](https://github.com/geoscienceaustralia/DynAdjust/tree/master/dynadjust)
+[![lines of code](https://github.com/geoscienceaustralia/DynAdjust/raw/master/resources/img/loc-badge.svg)](https://github.com/geoscienceaustralia/DynAdjust/tree/master/dynadjust)
 
 
 
