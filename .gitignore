@@ -16,10 +16,12 @@ bin/
 doc/
 vcpkg/
 vcpkg_installed/
+libxsd-4.2.0/
 Release/
 Debug/
 
 *.sln
+*.slnx
 *.vcxproj
 *.vcxproj.filters
 
