@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
-project(dynadjust VERSION 1.2.9)
+project(dynadjust VERSION 1.3.0)
 
 option(USE_MKL "Use Intel MKL (Linux and Windows)" OFF)
 option(BUILD_TESTING "Enable testing" OFF)
 option(BUILD_STATIC "Build static binaries in the 'static' directory" OFF)
 option(USE_OPENMP "Use OpenMP for parallel processing" OFF)
 option(ILP64 "Use ILP64 interface (64-bit matrix indexing) for BLAS and LAPACK" OFF)
+option(BUILD_COVERAGE "Build with code coverage instrumentation (forces Debug build)" OFF)
 
 # Build optimization options
 option(USE_PRECOMPILED_HEADERS "Use precompiled headers to speed up compilation" ON)
@@ -28,6 +29,16 @@ endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(BUILD_COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR "Code coverage requires GCC or Clang")
+    endif()
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type forced to Debug for coverage" FORCE)
+    message(STATUS "Code coverage enabled (BUILD_COVERAGE=ON), build type forced to Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
 endif()
 
 message("")
@@ -178,6 +189,20 @@ else()
 endif()
 message(STATUS "Found XercesC (${XercesC_INCLUDE_DIRS} ${XercesC_LIBRARIES})")
 
+# Static builds need ICU for Xerces transcoding (glibc iconv can't dlopen gconv modules in static binaries)
+if(BUILD_STATIC AND UNIX AND NOT APPLE)
+    find_package(ICU COMPONENTS uc data)
+    if(ICU_FOUND)
+        message(STATUS "Found ICU ${ICU_VERSION} for static Xerces transcoding")
+        set(XERCES_ICU_LIBRARIES ${ICU_LIBRARIES})
+    else()
+        message(WARNING "ICU not found - static binary may fail with 'Could not load a transcoding service'")
+        set(XERCES_ICU_LIBRARIES "")
+    endif()
+else()
+    set(XERCES_ICU_LIBRARIES "")
+endif()
+
 # ----------------------------------------------------------------------------
 # XSD
 # ----------------------------------------------------------------------------
@@ -263,8 +288,12 @@ include_directories(${XSD_INCLUDE_DIR} ${XSD_INCLUDE_DIR}/xsd)
 # Force CMake to use FindBoost module instead of BoostConfig
 set(Boost_NO_BOOST_CMAKE ON)
 set(Boost_NO_CMAKE ON)
+set(BOOST_COMPONENTS program_options)
+if(BUILD_TESTING)
+    list(APPEND BOOST_COMPONENTS filesystem timer date_time chrono)
+endif()
 find_package(Boost REQUIRED
-    COMPONENTS program_options)
+    COMPONENTS ${BOOST_COMPONENTS})
 message(STATUS "Found Boost version: ${Boost_VERSION}")
 
 # ----------------------------------------------------------------------------
@@ -274,6 +303,7 @@ message(STATUS "Found Boost version: ${Boost_VERSION}")
 set(DNA_LIBRARIES
     ${Boost_LIBRARIES}
     ${XercesC_LIBRARIES}
+    ${XERCES_ICU_LIBRARIES}
 )
 
 # ----------------------------------------------------------------------------
@@ -718,6 +748,193 @@ if (BUILD_TESTING)
     message("")
     message(STATUS "Setting up tests...")
 
+    # ........................................................................
+    # Unit tests
+    # ........................................................................
+
+    set(UNIT_TEST_DIR ${CMAKE_SOURCE_DIR}/../tests)
+
+    set(IO_COMMON
+        ${CMAKE_SOURCE_DIR}/include/io/dynadjust_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
+    )
+
+    # Test: test_matrix
+    add_executable(test_matrix
+        ${UNIT_TEST_DIR}/test_matrix.cpp
+        ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+        ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
+    )
+    target_include_directories(test_matrix PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_matrix PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_matrix PRIVATE __BINARY_NAME__="test_matrix" __BINARY_DESC__="Unit tests for matrix operations")
+
+    # Test: test_msr_to_stn_sort
+    add_executable(test_msr_to_stn_sort
+        ${UNIT_TEST_DIR}/test_msr_to_stn_sort.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_msr_to_stn_sort PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_msr_to_stn_sort PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_msr_to_stn_sort PRIVATE __BINARY_NAME__="test_msr_to_stn_sort" "__BINARY_DESC__=Unit tests for measurement-to-station sort options")
+
+    # Test: test_bst_file
+    add_executable(test_bst_file
+        ${UNIT_TEST_DIR}/test_bst_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_bst_file PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_bst_file PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_bst_file PRIVATE __BINARY_NAME__="test_bst_file" __BINARY_DESC__="Unit tests for BstFile class")
+
+    # Test: test_asl_file
+    add_executable(test_asl_file
+        ${UNIT_TEST_DIR}/test_asl_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_asl_file PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_asl_file PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_asl_file PRIVATE __BINARY_NAME__="test_asl_file" __BINARY_DESC__="Unit tests for AslFile class")
+
+    # Test: test_aml_file_loader
+    add_executable(test_aml_file_loader
+        ${UNIT_TEST_DIR}/test_aml_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/aml_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_aml_file_loader PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_aml_file_loader PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_aml_file_loader PRIVATE __BINARY_NAME__="test_aml_file_loader" __BINARY_DESC__="Unit tests for AML file loader")
+
+    # Test: test_bms_file
+    add_executable(test_bms_file
+        ${UNIT_TEST_DIR}/test_bms_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_bms_file PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_bms_file PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_bms_file PRIVATE __BINARY_NAME__="test_bms_file" __BINARY_DESC__="Unit tests for BmsFile class")
+
+    # Test: test_network_data_loader
+    add_executable(test_network_data_loader
+        ${UNIT_TEST_DIR}/test_network_data_loader.cpp
+        ${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust/network_data_loader.cpp
+        ${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust/measurement_processor.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/map_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+        ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_network_data_loader PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_network_data_loader PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_network_data_loader PRIVATE __BINARY_NAME__="test_network_data_loader" __BINARY_DESC__="Unit tests for NetworkDataLoader class")
+
+    # Test: test_measurement_processor
+    add_executable(test_measurement_processor
+        ${UNIT_TEST_DIR}/test_measurement_processor.cpp
+        ${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust/measurement_processor.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_measurement_processor PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_measurement_processor PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_measurement_processor PRIVATE __BINARY_NAME__="test_measurement_processor" __BINARY_DESC__="Unit tests for MeasurementProcessor class")
+
+    # Test: test_dnaadjust_printer
+    add_executable(test_dnaadjust_printer
+        ${UNIT_TEST_DIR}/test_dnaadjust_printer_simple.cpp
+        ${CMAKE_SOURCE_DIR}/include/measurement_types/dnameasurement.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_dnaadjust_printer PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_dnaadjust_printer PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_dnaadjust_printer PRIVATE __BINARY_NAME__="test_dnaadjust_printer" __BINARY_DESC__="Unit tests for DynAdjustPrinter class")
+
+    # Test: test_gnss_nstat_sort
+    add_executable(test_gnss_nstat_sort
+        ${UNIT_TEST_DIR}/test_gnss_nstat_sort.cpp
+        ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+        ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
+    )
+    target_include_directories(test_gnss_nstat_sort PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_gnss_nstat_sort PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_gnss_nstat_sort PRIVATE __BINARY_NAME__="test_gnss_nstat_sort" __BINARY_DESC__="Unit tests for GNSS n-stat sort in alternate units")
+
+    # Test: test_bst_file_loader (new)
+    add_executable(test_bst_file_loader
+        ${UNIT_TEST_DIR}/test_bst_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bst_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bst_file.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_bst_file_loader PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_bst_file_loader PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_bst_file_loader PRIVATE __BINARY_NAME__="test_bst_file_loader" __BINARY_DESC__="Unit tests for BstFileLoader class")
+
+    # Test: test_asl_file_loader (new)
+    add_executable(test_asl_file_loader
+        ${UNIT_TEST_DIR}/test_asl_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/asl_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/asl_file.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_asl_file_loader PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_asl_file_loader PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_asl_file_loader PRIVATE __BINARY_NAME__="test_asl_file_loader" __BINARY_DESC__="Unit tests for AslFileLoader class")
+
+    # Test: test_bms_file_loader (new)
+    add_executable(test_bms_file_loader
+        ${UNIT_TEST_DIR}/test_bms_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bms_file_loader.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/bms_file.cpp
+        ${CMAKE_SOURCE_DIR}/include/measurement_types/dnameasurement.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_bms_file_loader PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_bms_file_loader PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_bms_file_loader PRIVATE __BINARY_NAME__="test_bms_file_loader" __BINARY_DESC__="Unit tests for BmsFileLoader class")
+
+    # Test: test_snx_file_writer (new)
+    add_executable(test_snx_file_writer
+        ${UNIT_TEST_DIR}/test_snx_file_writer.cpp
+        ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+        ${CMAKE_SOURCE_DIR}/include/parameters/dnadatum.cpp
+        ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
+        ${CMAKE_SOURCE_DIR}/include/io/snx_file_writer.cpp
+        ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+        ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
+        ${IO_COMMON}
+    )
+    target_include_directories(test_snx_file_writer PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR}/include)
+    target_link_libraries(test_snx_file_writer PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_snx_file_writer PRIVATE __BINARY_NAME__="test_snx_file_writer" __BINARY_DESC__="Unit tests for SNX file writer")
+
+    # Register unit tests with CTest
+    add_test(NAME unit-MatrixTest COMMAND $<TARGET_FILE:test_matrix>)
+    add_test(NAME unit-MsrToStnSortTest COMMAND $<TARGET_FILE:test_msr_to_stn_sort>)
+    add_test(NAME unit-BstFileTest COMMAND $<TARGET_FILE:test_bst_file>)
+    add_test(NAME unit-AslFileTest COMMAND $<TARGET_FILE:test_asl_file>)
+    add_test(NAME unit-AmlFileLoaderTest COMMAND $<TARGET_FILE:test_aml_file_loader>)
+    add_test(NAME unit-BmsFileTest COMMAND $<TARGET_FILE:test_bms_file>)
+    add_test(NAME unit-NetworkDataLoaderTest COMMAND $<TARGET_FILE:test_network_data_loader>)
+    add_test(NAME unit-MeasurementProcessorTest COMMAND $<TARGET_FILE:test_measurement_processor>)
+    add_test(NAME unit-DynAdjustPrinterTest COMMAND $<TARGET_FILE:test_dnaadjust_printer>)
+    add_test(NAME unit-GNSSNstatSortTest COMMAND $<TARGET_FILE:test_gnss_nstat_sort>)
+    add_test(NAME unit-BstFileLoaderTest COMMAND $<TARGET_FILE:test_bst_file_loader>)
+    add_test(NAME unit-AslFileLoaderTest COMMAND $<TARGET_FILE:test_asl_file_loader>)
+    add_test(NAME unit-BmsFileLoaderTest COMMAND $<TARGET_FILE:test_bms_file_loader>)
+    add_test(NAME unit-SnxFileWriterTest COMMAND $<TARGET_FILE:test_snx_file_writer>)
+
+    # ........................................................................
+    # Functional tests
+    # ........................................................................
 
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous, phased-block 1, phased, staged)
@@ -827,7 +1044,11 @@ if (BUILD_TESTING)
 
     # 5. dynadjust project mode    
     add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:${DYNADJUST_TARGET}> -n sample --import --geoid --reftran --segment --adjust)
-    set_tests_properties(dynadjust-name-01 PROPERTIES ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}")
+    if(WIN32)
+        set_tests_properties(dynadjust-name-01 PROPERTIES ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/bin\;$ENV{PATH}")
+    else()
+        set_tests_properties(dynadjust-name-01 PROPERTIES ENVIRONMENT "PATH=${CMAKE_BINARY_DIR}/bin:$ENV{PATH}")
+    endif()
 
     # 6. urban data manipulation
     add_test (NAME imp-urb00-dna-data COMMAND $<TARGET_FILE:${DNAIMPORT_TARGET}> -n urban_dna urban-network.stn urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
@@ -874,8 +1095,8 @@ if (BUILD_TESTING)
     add_test (NAME geo-inside-03 COMMAND $<TARGET_FILE:${DNAGEOID_TARGET}> -g ./gnss-network-geoid.gsb.asc -t geoid-points-dat.txt --interpolation-method 0)
 
     # Check results with dnadiff
-    add_test (NAME test-urban-phased-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban.phased.adj urban.phased.adj.expected --skip-headers 62 -t 0.001)
-    add_test (NAME test-urban-thread-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban_mt.phased-mt.adj urban_mt.phased-mt.adj.expected -t 0.01 -v)
+    add_test (NAME test-urban-phased-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban.phased.adj urban.phased.adj.expected --skip-to-marker "M Station 1" -t 0.001)
+    add_test (NAME test-urban-thread-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban_mt.phased-mt.adj urban_mt.phased-mt.adj.expected --skip-to-marker "M Station 1" -t 0.01 -v)
 
     # 8. Source tag preservation in --export-xml (issue #317)
     # Import XML data with <Source> tags and verify they are preserved in export
@@ -1726,6 +1947,8 @@ if (BUILD_TESTING)
         PROPERTIES RUN_SERIAL TRUE)
 
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(test-urban-phased-network PROPERTIES DEPENDS adjust-urban-network)
+    set_tests_properties(test-urban-thread-network PROPERTIES DEPENDS adjust-urban-network-thread-01)
 
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
@@ -1756,6 +1979,18 @@ if (BUILD_TESTING)
     foreach(test ${all_tests})
         set_tests_properties(${test} PROPERTIES WORKING_DIRECTORY ${TESTING_DIR})
     endforeach()
+
+    # Unit tests are self-contained — override serial and working directory
+    set(UNIT_TESTS
+        unit-MatrixTest unit-MsrToStnSortTest unit-BstFileTest unit-AslFileTest
+        unit-AmlFileLoaderTest unit-BmsFileTest unit-NetworkDataLoaderTest
+        unit-MeasurementProcessorTest unit-DynAdjustPrinterTest unit-GNSSNstatSortTest
+        unit-BstFileLoaderTest unit-AslFileLoaderTest unit-BmsFileLoaderTest
+        unit-SnxFileWriterTest
+    )
+    set_tests_properties(${UNIT_TESTS} PROPERTIES
+        RUN_SERIAL FALSE
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
     message (STATUS "Finished setting up tests")
     message ("")
