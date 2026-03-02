@@ -1,0 +1,82 @@
+# Update repository badges
+
+name: Badges
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  update_badges:
+    name: Update badges
+    runs-on: ubuntu-latest
+    env:
+      PKGS: >
+        libxerces-c-dev xsdcxx libboost-program-options-dev libboost-filesystem-dev
+        libboost-timer-dev libboost-date-time-dev libboost-chrono-dev
+        libopenblas-dev liblapacke-dev lcov
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.PKGS }}
+
+      - name: Build with coverage
+        run: |
+          cmake dynadjust -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
+          make -j2
+
+      - name: Run tests
+        run: |
+          ctest --timeout 20 --output-on-failure || true
+
+      - name: Generate coverage percentage
+        id: coverage
+        run: |
+          lcov --directory . --capture --output-file lcov.info --ignore-errors mismatch,negative
+          lcov --remove lcov.info '/usr/*' '*/boost/*' '*/xerces*/*' '*/xsd/*' '*/testing/*' --output-file lcov.info --ignore-errors unused
+          TOTAL=$(lcov --summary lcov.info 2>&1 | grep 'lines' | sed 's/.*: //' | sed 's/%.*//')
+          echo "pct=${TOTAL}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate coverage badge
+        run: |
+          PCT=${{ steps.coverage.outputs.pct }}
+          # Pick colour based on coverage
+          if [ "$(echo "$PCT >= 80" | bc)" -eq 1 ]; then
+            COLOUR="brightgreen"
+          elif [ "$(echo "$PCT >= 60" | bc)" -eq 1 ]; then
+            COLOUR="yellow"
+          elif [ "$(echo "$PCT >= 40" | bc)" -eq 1 ]; then
+            COLOUR="orange"
+          else
+            COLOUR="red"
+          fi
+          curl -s "https://img.shields.io/badge/coverage-${PCT}%25-${COLOUR}" -o ./resources/img/coverage-badge.svg
+
+      - name: Generate LoC badge
+        uses: shadowmoose/GHA-LoC-Badge@1.0.0
+        id: loc
+        with:
+          debug: true
+          directory: ./dynadjust
+          badge: ./resources/img/loc-badge.svg
+          patterns: '*.cpp|*.hpp|*.h|*.c'
+
+      - name: Commit badges
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ./resources/img/loc-badge.svg ./resources/img/coverage-badge.svg
+          git diff --staged --quiet && exit 0
+          git commit -m "Update badges"
+          git push
