@@ -9544,6 +9544,9 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 	it_vstn_t stn1_it;
 	double latitude, longitude, height, x, y, z;
 
+	// determine coordinate type for the cluster
+	_COORD_TYPE_ coordType(CDnaStation::GetCoordTypeC(_it_y_msr->coordType));
+
 	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
 	{
 		covr = cluster_msr * 3;
@@ -9574,7 +9577,6 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpo
 		}
 
 		// Reduce ellipsoidal height to orthometric height
-        _COORD_TYPE_ coordType(CDnaStation::GetCoordTypeC(_it_y_msr->coordType));
         if (coordType == LLH_type_i)
 		{
 			if (fabs(stn1_it->geoidSep) > PRECISION_1E4)
