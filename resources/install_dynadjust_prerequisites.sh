@@ -34,6 +34,7 @@ _system=$(uname -sroi)
 _script="install_dynadjust_prerequisites.sh"
 _mode=0
 _distribution=
+_math_lib="mkl" # default math library (mkl or blas)
 _create_downloads_dir=0
 #################################################################################
 
@@ -64,6 +65,11 @@ function help {
     echo -e "                           - ${_distro_rhel}"
     echo -e "                           - ${_distro_ubuntu}"
     echo -e "                         If not provided, I will try to get the distro from /etc/os-release."
+    echo -e "  -l [ --math-lib ] arg  Math library to use for linear algebra:"
+    echo -e "                           mkl:  Intel MKL via oneAPI (default)"
+    echo -e "                           blas: BLAS/LAPACK (e.g. OpenBLAS)"
+    echo -e "                         Only used when --mode is 1 or 2 (non-interactive)."
+    echo -e "                         In interactive mode (0) you will be prompted."
     echo -e "  -m [ --mode ] arg      Mode of installing prerequisites:"
     echo -e "                           0: interactive (default)"
     echo -e "                           1: package manager"
@@ -81,13 +87,16 @@ do
    -d  | --distro ) shift
                     _distribution=$1
                 	;;
+   -l  | --math-lib ) shift
+                    _math_lib=$1
+                    ;;
    -m  | --mode )   shift
    					_mode=$1
 			        ;;
    -h   | --help )  help
                     exit
                     ;;
-   *)                     
+   *)
                     echo "$script: illegal option $1"
                     usage
 					example
@@ -105,6 +114,13 @@ function args_check {
 	    help
 	    exit 1 # error
 	fi
+
+    if [[ "$_math_lib" != "mkl" && "$_math_lib" != "blas" ]]; then
+        echo -e "\nerror: Unknown value for --math-lib: \"$_math_lib\""
+        echo -e "  Valid options are: mkl, blas"
+        help
+        exit 1 # error
+    fi
 
     firstletter=${_distribution^}
     firstletter=${firstletter:0:1}
@@ -252,7 +268,15 @@ echo " format:          $_format"
 echo " package manager: $_toolset"
 echo "Installing:"
 echo " boost            https://boost.org (via $_toolset repos)"
-echo " intel mkl        $_repo_intel"
+if [[ $_mode -eq 0 ]]; then
+    echo " math library     intel mkl or blas/lapack (will prompt)"
+elif [[ "$_math_lib" == "blas" ]]; then
+    echo " blas/lapack      (via $_toolset repos)"
+elif [[ "$_mode" -eq 3 ]]; then
+    echo " math library     (skipping)"
+else
+    echo " intel mkl        $_repo_intel"
+fi
 echo " xerces-c         http://archive.apache.org"
 echo " xsd              https://www.codesynthesis.com"
 
@@ -307,25 +331,64 @@ else
 fi
 
 echo -e "\n==========================================================================="
-echo "Installation of Intel Math kernel Library (MKL):"
+echo "Installation of math library (Intel MKL or BLAS/LAPACK):"
 
 #
-# determine if/how to install intel mkl
+# determine which math library to install
 case $_mode in
     0) # interactive
         echo " "
-        read -r -p "Download and install Intel MKL [Y/n]: " mklresponse;;
+        COLUMNS=1
+        PS3='Select math library to install: '
+        select opt in "Intel MKL (intel-oneapi-mkl-devel)" "BLAS/LAPACK (openblas + lapack)" "Skip installation"
+        do
+            case $opt in
+                "Intel MKL (intel-oneapi-mkl-devel)")
+                    _math_lib="mkl"
+                    break
+                    ;;
+                "BLAS/LAPACK (openblas + lapack)")
+                    _math_lib="blas"
+                    break
+                    ;;
+                "Skip installation")
+                    _math_lib="skip"
+                    break
+                    ;;
+                *) echo "invalid option $REPLY";;
+            esac
+        done
+        ;;
     3) # skip
-        echo " "
-        mklresponse="n";;
+        _math_lib="skip";;
 esac
 
 #
-# install intel mkl
-if [[ "$mklresponse" =~ ^([nN][oO]|[nN])$ ]]
-then    
-    echo -e "Skipping Intel MKL installation.\n"
+# install math library
+if [[ "$_math_lib" == "skip" ]]; then
+    echo -e "Skipping math library installation.\n"
+
+elif [[ "$_math_lib" == "blas" ]]; then
+    echo " "
+    echo "Installing BLAS/LAPACK via $_toolset..."
+
+    if [[ "$_format" == "rpm" ]]; then
+        sudo "$_toolset" "$_no_ask" install openblas-devel lapack-devel
+    elif [[ "$_format" == "deb" ]]; then
+        sudo "$_toolset" -y install libopenblas-dev liblapack-dev
+    else
+        echo " "
+        echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
+        echo " "
+        exit
+    fi
+    echo "Done."
+    echo " "
+    echo "Note: when building DynAdjust, use the --no-mkl flag:"
+    echo "  ./make_dynadjust_gcc.sh --no-mkl"
+
 else
+    # Install Intel MKL
     # Install MKL for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     # From:
     #  https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-using-package-managers/yum-dnf-zypper.html
@@ -345,9 +408,9 @@ EOF
         if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
             sudo "$_toolset" addrepo "$_repo_intel" oneAPI
             sudo "$_format" --import "$_gpg_intel"
-            sudo "$_toolset" "$_no_ask" install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+            sudo "$_toolset" "$_no_ask" install intel-oneapi-mkl-devel intel-oneapi-tbb-devel
         else
-            sudo "$_toolset" "$_no_ask" install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+            sudo "$_toolset" "$_no_ask" install intel-oneapi-mkl-devel intel-oneapi-tbb-devel
         fi
 
     # Install MKL for deb based distros (Ubuntu, Debian)
@@ -358,7 +421,9 @@ EOF
         wget -O- "$_gpg_intel" | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
         # add signed entry to apt sources and configure the APT client to use Intel repository:
         echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo "$_toolset" -y install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+        # Update package list to include the newly added Intel repo before installing
+        sudo "$_toolset" update
+        sudo "$_toolset" -y install intel-oneapi-mkl-devel intel-oneapi-tbb-devel
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
@@ -641,5 +706,11 @@ echo " "
 echo "Done."
 echo " "
 echo "If all prerequisites have been installed successfully, run ./make_dynadjust_gcc.sh to build dynadjust."
-echo "Note that if boost, mkl, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
+if [[ "$_math_lib" == "blas" ]]; then
+    echo "Note: you selected BLAS/LAPACK. Build with:"
+    echo "  ./make_dynadjust_gcc.sh --no-mkl"
+    echo "Note that if boost, blas/lapack, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
+else
+    echo "Note that if boost, mkl, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
+fi
 echo " "
