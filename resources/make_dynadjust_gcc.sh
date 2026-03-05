@@ -53,8 +53,8 @@ function help {
     echo -e "  -b [ --binary ] arg  Build a specific binary (e.g. \"dnaimport\" or \"dnaadjustwrapper\")."
     echo -e "                       By default, \"all\" binaries are built."
     echo -e "  -j [ --jobs ] arg    Number of parallel make jobs."
-    echo -e "                       Defaults to nproc, capped by available memory to avoid OOM"
-    echo -e "                       (MKL ~1.5 GB/job, BLAS ~512 MB/job)."
+    echo -e "                       Defaults to nproc, capped by available memory to avoid OOM."
+    echo -e "                       Unity builds (~1.5 GB/job) apply to both MKL and BLAS variants."
     echo -e "                       Use --jobs 1 if the build is killed during compilation."
     echo -e "  -k [ --no-mkl ]      Build without Intel MKL, using BLAS/LAPACK instead."
     echo -e "                       Use this if you installed blas/lapack via install_dynadjust_prerequisites.sh --math-lib blas."
@@ -113,19 +113,17 @@ do
 done
 
 # Resolve parallel job count from available memory when not set by --jobs.
-# MKL PCH compilation is memory-intensive (~1.5 GB per job); BLAS is lighter
-# (~512 MB per job). Capping at the memory-safe limit prevents OOM kills on
-# any resource-constrained environment: WSL2, containers, CI runners, VMs, etc.
+# Unity builds (USE_UNITY_BUILD=ON) combine up to 16 source files per translation
+# unit, making each job substantially heavier than a regular per-file compile.
+# Both MKL and BLAS builds use unity builds, so both use the same ~1.5 GB/job
+# estimate. Capping at the memory-safe limit prevents OOM kills on any
+# resource-constrained environment: WSL2, containers, CI runners, VMs, etc.
 _jobs_auto_limited=0
 if [[ $_jobs -eq 0 ]]; then
     _nproc=$(nproc)
     if [[ -r /proc/meminfo ]]; then
         _avail_mem_mb=$(awk '/^MemAvailable:/{printf "%d", $2/1024}' /proc/meminfo)
-        if [[ $_use_mkl -eq 1 ]]; then
-            _mem_per_job_mb=1500
-        else
-            _mem_per_job_mb=512
-        fi
+        _mem_per_job_mb=1500
         _mem_safe_jobs=$((_avail_mem_mb / _mem_per_job_mb))
         [[ $_mem_safe_jobs -lt 1 ]] && _mem_safe_jobs=1
         [[ $_mem_safe_jobs -gt $_nproc ]] && _mem_safe_jobs=$_nproc
@@ -355,17 +353,19 @@ echo " "
 # determine whether to prepare cmake files with testing or not
 if [[ $_use_mkl -eq 1 ]]; then
     _mkl_flag="ON"
+    _bla_vendor_flag=""
 else
     _mkl_flag="OFF"
+    _bla_vendor_flag="-DBLA_VENDOR=OpenBLAS"
 fi
 
 case ${_test} in
     0) # skip tests
-        echo -e "cmake -DBUILD_TESTING=OFF -DUSE_MKL=$_mkl_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="OFF" -DUSE_MKL="$_mkl_flag" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON -DUSE_MKL=$_mkl_flag $_bla_vendor_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="OFF" -DUSE_UNITY_BUILD=ON -DUSE_MKL="$_mkl_flag" $_bla_vendor_flag -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
     *) # run cmake tests with code coverage
-        echo -e "cmake -DBUILD_TESTING=ON -DUSE_MKL=$_mkl_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="ON" -DUSE_MKL="$_mkl_flag" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=ON -DUSE_UNITY_BUILD=ON -DUSE_MKL=$_mkl_flag $_bla_vendor_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="ON" -DUSE_UNITY_BUILD=ON -DUSE_MKL="$_mkl_flag" $_bla_vendor_flag -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
 esac
 
 echo -e "\n==========================================================================="

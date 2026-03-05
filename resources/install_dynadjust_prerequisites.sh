@@ -67,7 +67,7 @@ function help {
     echo -e "                         If not provided, I will try to get the distro from /etc/os-release."
     echo -e "  -l [ --math-lib ] arg  Math library to use for linear algebra:"
     echo -e "                           mkl:  Intel MKL via oneAPI (default)"
-    echo -e "                           blas: BLAS/LAPACK (e.g. OpenBLAS)"
+    echo -e "                           blas: OpenBLAS + LAPACK"
     echo -e "                         Only used when --mode is 1 or 2 (non-interactive)."
     echo -e "                         In interactive mode (0) you will be prompted."
     echo -e "  -m [ --mode ] arg      Mode of installing prerequisites:"
@@ -271,7 +271,7 @@ echo " boost            https://boost.org (via $_toolset repos)"
 if [[ $_mode -eq 0 ]]; then
     echo " math library     intel mkl or blas/lapack (will prompt)"
 elif [[ "$_math_lib" == "blas" ]]; then
-    echo " blas/lapack      (via $_toolset repos)"
+    echo " openblas+lapack  (via $_toolset repos)"
 elif [[ "$_mode" -eq 3 ]]; then
     echo " math library     (skipping)"
 else
@@ -340,14 +340,14 @@ case $_mode in
         echo " "
         COLUMNS=1
         PS3='Select math library to install: '
-        select opt in "Intel MKL (intel-oneapi-mkl-devel)" "BLAS/LAPACK (openblas + lapack)" "Skip installation"
+        select opt in "Intel MKL (intel-oneapi-mkl-devel)" "OpenBLAS + LAPACK" "Skip installation"
         do
             case $opt in
                 "Intel MKL (intel-oneapi-mkl-devel)")
                     _math_lib="mkl"
                     break
                     ;;
-                "BLAS/LAPACK (openblas + lapack)")
+                "OpenBLAS + LAPACK")
                     _math_lib="blas"
                     break
                     ;;
@@ -370,7 +370,7 @@ if [[ "$_math_lib" == "skip" ]]; then
 
 elif [[ "$_math_lib" == "blas" ]]; then
     echo " "
-    echo "Installing BLAS/LAPACK via $_toolset..."
+    echo "Installing OpenBLAS + LAPACK via $_toolset..."
 
     if [[ "$_format" == "rpm" ]]; then
         sudo "$_toolset" "$_no_ask" install openblas-devel lapack-devel
@@ -709,7 +709,7 @@ echo "If all prerequisites have been installed successfully, run ./make_dynadjus
 if [[ "$_math_lib" == "blas" ]]; then
     echo "Note: you selected BLAS/LAPACK. Build with:"
     echo "  ./make_dynadjust_gcc.sh --no-mkl"
-    echo "Note that if boost, blas/lapack, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
+    echo "Note that if boost, openblas, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
 else
     echo "Note that if boost, mkl, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
 fi
