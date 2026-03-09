@@ -29,7 +29,9 @@ dna_geoid_interpolation::dna_geoid_interpolation()
 	, m_isWriting(false)
 	, m_pGridfile(0)
 	, m_dPercentComplete(0.0)
-	, m_iBytesRead(0)
+	, m_iBytesRead(0),
+      m_datUncertaintyFile("")
+    , m_loadUncertainties(false)
 	, m_Grid_Success(ERR_TRANS_SUCCESS)
 	, m_pointsInterpolated(0)
 	, m_pointsNotInterpolated(0)
@@ -47,6 +49,12 @@ dna_geoid_interpolation::~dna_geoid_interpolation()
 	ClearGridFileMemory();
 }
 
+void dna_geoid_interpolation::SetUncertaintyFile(const char* datFile)
+{
+	m_datUncertaintyFile = datFile;
+    m_loadUncertainties = true;
+}
+	
 
 void dna_geoid_interpolation::ApplyAusGeoidGrid(geoid_point *agCoord, const int& method)
 {
@@ -154,10 +162,13 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 
 		++m_pointsInterpolated;
 
+		// N value (metres)
 		stn_it->geoidSep = static_cast<float>(agCoord.gVar.dN_value);
 		// deflection values in the grid file are in seconds, so convert to radians
 		stn_it->meridianDef = SecondstoRadians(static_cast<float>(agCoord.gVar.dDefl_meridian));
 		stn_it->verticalDef = SecondstoRadians(static_cast<float>(agCoord.gVar.dDefl_primev));
+		// N value uncertainty (metres)
+		stn_it->geoidSepUnc = static_cast<float>(agCoord.gVar.dN_uncertainty);
 
 		if (convertHeights)
 			if (stn_it->suppliedHeightRefFrame == ORTHOMETRIC_type_i)
@@ -349,12 +360,15 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 			*f_out << std::setw(9) << std::right << " " << ",";
 		}			
 
-		// As per Nick Brown's request, print the N value regardless of input height
+		// Print the N value
 		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_value << ",";
 
 		// Print the deflection values
 		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_meridian << "," <<
-			std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev << std::endl;
+			std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev << ",";
+		
+		// Print the N value uncertainty
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_uncertainty << std::endl;
 
 		// write to dna geo file
 		if (m_exportDNAGeoidFile)
@@ -544,14 +558,17 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 			*f_out << std::setw(9) << std::right << " ";
 			*f_out << std::setw(9) << std::right << " ";
 		}
-		
-		// As per Nick Brown's request, print the N value regardless of input height
+
+		// Print the N value
 		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_value;
 
 		// Print the deflection values
 		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_meridian <<
-			std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev << std::endl;
+		std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev;
 
+		// Print the N value uncertainty
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_uncertainty << std::endl;
+		
 		// write to dna geo file
 		if (m_exportDNAGeoidFile)
 			PrintDNA1GeoidRecord(*f_dnageo, 
@@ -924,7 +941,7 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 		}
 	}
 	// a new filename or filetype?
-	else if (!iequals(m_pGridfile->filename, fileName))
+	else if (!boost::iequals(m_pGridfile->filename, fileName))
 	{
 		ClearGridFileMemory();
 		if ((m_Grid_Success = OpenGridFile(fileName, fileType, 
@@ -1018,7 +1035,7 @@ void dna_geoid_interpolation::ReportGridProperties(const char* fileName, const c
 // use a temporary n_file_par object, therefore retain the existing grid file in memory
 void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_par* grid)
 {	
-	m_dPercentComplete = 1.0;
+	m_dPercentComplete = 0.0;
 	m_iBytesRead = 0;
 
 	// temporary grid file object
@@ -1028,7 +1045,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	if (!GridfileTmp.ptrIndex)
 		GridfileTmp.ptrIndex = new n_gridfileindex[1];
 
-	std::ifstream f_in;
+	std::ifstream f_in, f_unc;
 	try {
 		// open dat file.  Throws runtime_error on failure.
 		file_opener(f_in, datFile, std::ios::in, ascii, true);
@@ -1039,6 +1056,20 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 		ss << ErrorString(ERR_INFILE_READ) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_INFILE_READ);
+	}
+
+	// Load geoid uncertainties in WINTER DAT format?
+	if (m_loadUncertainties)
+	{
+        try {
+            // open dat uncertainty file.  Throws runtime_error on failure.
+            file_opener(f_unc, m_datUncertaintyFile, std::ios::in, ascii, true);
+        } catch (const std::runtime_error &e) {
+            ClearGridFileMemory();
+            std::stringstream ss;
+            ss << ErrorString(ERR_INFILE_READ) << "\n" << "  " << e.what();
+            throw NetGeoidException(ss.str(), ERR_INFILE_READ);
+        }
 	}
 
 	std::ofstream f_out;
@@ -1059,15 +1090,20 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	std::streamoff lFileLen = f_in.tellg();
 	f_in.seekg(0, std::ios::beg);		// reset file pointer to beginning
 	
-	char szLine[MAX_RECORD_LENGTH];
+	char szLine[DATA_RECORD];
+    char szUncertainty[DATA_RECORD];
 
 	int lat_deg, lat_min, lon_deg, lon_min;
 	float n_value, lat_sec, lon_sec, dDefl_meridian, dDefl_primev;
 	char c_northsouth, c_eastwest;
 	UINT32 lNodeCount = 0, lNodeRead = 0;
 
+	int lat_degU, lat_minU, lon_degU, lon_minU;
+    float n_uncertainty, lat_secU, lon_secU;
+    char c_northsouthU, c_eastwestU;
+	
 	// Read the first line and test for a comment line
-	f_in.getline(szLine, MAX_RECORD_LENGTH);
+	f_in.getline(szLine, DATA_RECORD);
 
 	if (strncmp(szLine, "GEO", 3) == 0)
 		f_in.seekg(0, std::ios::beg);		// put file pointer back to beginning
@@ -1078,7 +1114,11 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	double lat, lon, min_lat(90.), max_lat(-90.), min_lon(180.), max_lon(-180.);
 	double init_lat(0.), lat_inc(60.), lon_inc(60.);
 
-	std::cout << std::endl << "+ Reading contents of WINTER DAT file... ";
+	std::cout << std::endl << "+ Verifying contents of WINTER DAT file... ";
+
+	std::stringstream ss;
+    ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+    std::cout << std::setw(PROGRESS_PERCENT_04) << ss.str();
 
 	m_isReading = true;
 	m_isWriting = false;
@@ -1086,10 +1126,15 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	try {
 		while (!f_in.eof())
 		{
-			f_in.getline(szLine, MAX_RECORD_LENGTH);
+			f_in.getline(szLine, DATA_RECORD);
 			
 			m_iBytesRead = (int)f_in.tellg();
 			m_dPercentComplete = (double)(m_iBytesRead) / (double)lFileLen * 100.0;
+
+			ss.str("");
+            ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+            std::cout << PROGRESS_BACKSPACE_04 << std::setw(PROGRESS_PERCENT_04) << ss.str();
+            std::cout.flush();
 			
 			if (strlen(szLine) < 10)
 				continue;
@@ -1159,8 +1204,12 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 
 	m_iBytesRead = 0;
 
-	std::cout << "done." << std::endl << "+ WINTER DAT file structure appears OK." << std::endl;
-	std::cout <<	"+ Creating NTv2 gsb file... ";
+	std::cout << PROGRESS_BACKSPACE_04 << "done." << std::endl;
+
+	std::cout << "+ WINTER DAT file structure appears OK." << std::endl;
+    std::cout << "+ Reading geoid" << (m_loadUncertainties ? " and uncertainties " : " ") << "from WINTER DAT file"
+              << (m_loadUncertainties ? "s... " : "... ");
+
 	geoid_values* ag_data = new geoid_values[lNodeRead];
 
 	// Update header record
@@ -1174,7 +1223,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	// Change to Radians if required
 	geoidConversion conversionType(geoidConversion::Same);
 	std::string shiftType(grid->chGs_type);
-	if (iequals(trimstr(shiftType), "radians"))
+	if (boost::iequals(trimstr(shiftType), "radians"))
 		conversionType = SecondsToRadians;
 
 	// Print default header block and subgrid header block information.
@@ -1186,26 +1235,47 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	f_in.seekg(0, std::ios::beg);
 
 	// Read the first line and test for a comment line
-	f_in.getline(szLine, MAX_RECORD_LENGTH);
+	f_in.getline(szLine, DATA_RECORD);
 	if (strncmp(szLine, "GEO", 3) == 0)
 		f_in.seekg(0, std::ios::beg);		// put file pointer back to beginning
 
 	// read first line of dat file and scan in values
-	f_in.getline(szLine, MAX_RECORD_LENGTH);
+	f_in.getline(szLine, DATA_RECORD);
+
+	if (m_loadUncertainties) 
+	{
+        // Read the comment line
+        f_unc.getline(szUncertainty, DATA_RECORD);
+        // read first line 
+		f_unc.getline(szUncertainty, DATA_RECORD);
+    }
 
 	lNodeCount = 0;
 
 	try {
+        ss.str("");
+        ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+        std::cout << std::setw(PROGRESS_PERCENT_04) << ss.str();
+
 		while (!f_in.eof())
 		{
 			m_iBytesRead = (int)f_in.tellg();
 			m_dPercentComplete = (double)(m_iBytesRead) / (double)lFileLen * 100.0;
-		
+
+			ss.str("");
+            ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+            std::cout << PROGRESS_BACKSPACE_04 << std::setw(PROGRESS_PERCENT_04) << ss.str();
+            std::cout.flush();
+			
 			// extract data:
 			// n value (metres)
 			// deflection in prime meridian (seconds)
 			// deflection in prime vertical (seconds)
 			ScanDatFileValues(szLine, &n_value, &c_northsouth, &lat_deg, &lat_min, &lat_sec, &c_eastwest, &lon_deg, &lon_min, &lon_sec, &dDefl_meridian, &dDefl_primev);
+
+			// extract uncertainty, and check node values
+			if (m_loadUncertainties)
+				ScanUncertaintyFileValues(szUncertainty, &n_uncertainty, &c_northsouthU, &lat_degU, &lat_minU, &lat_secU, &c_eastwestU, &lon_degU, &lon_minU, &lon_secU);
 
 			switch (conversionType)
 			{
@@ -1224,10 +1294,26 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			// write to array
 			ag_data[lNodeCount].dN_value = n_value;
 			ag_data[lNodeCount].dDefl_meridian = dDefl_meridian;
-			ag_data[lNodeCount++].dDefl_primev = dDefl_primev;
-			
+			ag_data[lNodeCount].dDefl_primev = dDefl_primev;
+
+			if (m_loadUncertainties)
+			{
+				// crude check on location - is this the same point?
+                if (c_northsouth == c_northsouthU && c_eastwest == c_eastwestU && 
+					lat_deg == lat_degU && lat_min == lat_minU && fabs(lat_sec - lat_secU) < PRECISION_1E5 && 
+					lon_deg == lon_degU && lon_min == lon_minU && fabs(lon_sec - lon_secU) < PRECISION_1E5)
+                    ag_data[lNodeCount++].dN_uncertainty = n_uncertainty;
+                else
+					ag_data[lNodeCount++].dN_uncertainty = (float)0.0;
+            }
+			else
+                lNodeCount++;
+
 			// get next line in AusGeoid file
-			f_in.getline(szLine, MAX_RECORD_LENGTH);	
+			f_in.getline(szLine, DATA_RECORD);
+
+			if (m_loadUncertainties)
+                f_unc.getline(szUncertainty, DATA_RECORD);
 		}
 	}
 	catch (const std::ios_base::failure& f) {
@@ -1235,15 +1321,31 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			throw NetGeoidException(ErrorString(ERR_GRIDFILE_READ) + "\n " + f.what(), ERR_GRIDFILE_READ);
 	}
 
+	std::cout << PROGRESS_BACKSPACE_04 << "done." << std::endl;
+
+	std::cout << "+ Creating NTv2 GSB file... ";
+
 	m_dPercentComplete = 0;
+
+	ss.str("");
+    ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+	std::cout << std::setw(PROGRESS_PERCENT_04) << ss.str();
 
 	UINT32 i;
 	for (i=0; i<lNodeRead; ++i)
 	{
-		--lNodeCount;
-		WriteBinaryRecords(&f_out, (float)ag_data[lNodeCount].dN_value, (float)ag_data[lNodeCount].dDefl_meridian, (float)ag_data[lNodeCount].dDefl_primev);
-		m_dPercentComplete = (double)(lNodeRead - lNodeCount) / (double)lNodeRead * 100.0;
+        --lNodeCount;
+		// NTv2 GSB values are stored in reverse order to WINTER DAT
+        WriteBinaryRecords(&f_out, (float)ag_data[lNodeCount].dN_value, (float)ag_data[lNodeCount].dDefl_meridian, (float)ag_data[lNodeCount].dDefl_primev, (float)ag_data[lNodeCount].dN_uncertainty);
+        m_dPercentComplete = (double)(lNodeRead - lNodeCount) / (double)lNodeRead * 100.0;
+
+		ss.str("");
+        ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << m_dPercentComplete << "%";
+        std::cout << PROGRESS_BACKSPACE_04 << std::setw(PROGRESS_PERCENT_04) << ss.str();
+        std::cout.flush();
 	}
+
+	std::cout << PROGRESS_BACKSPACE_04 << "done." << std::endl;
 
 	delete [] ag_data;
 	
@@ -1254,8 +1356,8 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 		
 	f_out.close();
 	f_in.close();
-
-	std::cout << "done." << std::endl;
+    if (m_loadUncertainties)
+		f_unc.close();
 }
 
 
@@ -1277,7 +1379,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!iequals(m_pGridfile->filename, gridFile))
+	if (!boost::iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1315,11 +1417,11 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 
 	geoidConversion conversionType;
 
-	if (iequals(shiftTypeFrom, "seconds") &&
-		iequals(shiftTypeTo, "radians"))
+	if (boost::iequals(shiftTypeFrom, "seconds") &&
+		boost::iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (iequals(shiftTypeFrom, "radians") &&
-		iequals(shiftTypeTo, "seconds"))
+	else if (boost::iequals(shiftTypeFrom, "radians") &&
+		boost::iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1354,7 +1456,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 				// Deflection in Prime vertical
 				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue3), sizeof(float)))
 					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
-				// Blank (unused)
+				// N Value Uncertainty
 				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue4), sizeof(float)))
 					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 
@@ -1377,14 +1479,14 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 				case Same:
 				default:
 					// as-is, so cater for precision
-					if (iequals(shiftTypeTo, "radians"))
+					if (boost::iequals(shiftTypeTo, "radians"))
 						f_out << std::scientific << std::setprecision(3);
 					f_out << std::setw(10) << std::setprecision(6) << fValue2;
 					f_out << std::setw(10) << std::setprecision(6) << fValue3;
 					break;
 				}
 
-				// Write blank value (not used for NTv2 geoid grid files)
+				// Write N value uncertainty
 				f_out << std::setw(10) << std::fixed << std::setprecision(6) << fValue4 << std::endl;
 
 				m_dPercentComplete = (double)(m_pGfileptr.tellg()) / (double)m_pGridfile->iGfilelength * 100.0;	
@@ -1426,7 +1528,7 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!iequals(m_pGridfile->filename, gridFile))
+	if (!boost::iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1463,11 +1565,11 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 
 	geoidConversion conversionType;
 
-	if (iequals(shiftTypeFrom, "seconds") &&
-		iequals(shiftTypeTo, "radians"))
+	if (boost::iequals(shiftTypeFrom, "seconds") &&
+		boost::iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (iequals(shiftTypeFrom, "radians") &&
-		iequals(shiftTypeTo, "seconds"))
+	else if (boost::iequals(shiftTypeFrom, "radians") &&
+		boost::iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1736,15 +1838,15 @@ bool dna_geoid_interpolation::IsWithinLowerLongitudeGridInterval(n_gridfileindex
 int dna_geoid_interpolation::DetermineFileType(const char *cType)
 {
 	// case insensitive
-	if (iequals(cType, ASC))		// asc "ASCII" file
+	if (boost::iequals(cType, ASC))		// asc "ASCII" file
 		return TYPE_ASC;			
-	else if (iequals(cType, GSB))	// gsb "Binary" file
+	else if (boost::iequals(cType, GSB))	// gsb "Binary" file
 		return TYPE_GSB;			
-	else if (iequals(cType, TXT) ||	// dat/txt/prn file
-			 iequals(cType, DAT) ||	// ..
-			 iequals(cType, PRN))	// ..
+	else if (boost::iequals(cType, TXT) ||	// dat/txt/prn file
+			 boost::iequals(cType, DAT) ||	// ..
+			 boost::iequals(cType, PRN))	// ..
 		return TYPE_DAT;
-	else if (iequals(cType, CSV))	// csv file
+	else if (boost::iequals(cType, CSV))	// csv file
 		return TYPE_CSV;
 	else
 		return -1;					// Unsupported filetype
@@ -2313,8 +2415,38 @@ int dna_geoid_interpolation::InterpolateNvalue_BiCubic(geoid_point *dInterpPoint
 		throw NetGeoidException(e.what(), 0); 
 	}
 
+	///< ----------- interpolation of N uncertainty ------------------>
+    double u[4] = {pNShifts[1]->dN_uncertainty, pNShifts[0]->dN_uncertainty, pNShifts[2]->dN_uncertainty,
+                   pNShifts[3]->dN_uncertainty};
+    double u1[4] = {// [row][column]
+                    (pNShifts[0]->dN_uncertainty - pNShifts[9]->dN_uncertainty) / 2.,
+                    (pNShifts[8]->dN_uncertainty - pNShifts[1]->dN_uncertainty) / 2.,
+                    (pNShifts[10]->dN_uncertainty - pNShifts[3]->dN_uncertainty) / 2.,
+                    (pNShifts[2]->dN_uncertainty - pNShifts[11]->dN_uncertainty) / 2.};
+    double u2[4] = {(pNShifts[3]->dN_uncertainty - pNShifts[6]->dN_uncertainty) / 2.,
+                    (pNShifts[2]->dN_uncertainty - pNShifts[5]->dN_uncertainty) / 2.,
+                    (pNShifts[13]->dN_uncertainty - pNShifts[0]->dN_uncertainty) / 2.,
+                    (pNShifts[14]->dN_uncertainty - pNShifts[1]->dN_uncertainty) / 2.};
+    double u12[4] = {(pNShifts[2]->dN_uncertainty - pNShifts[5]->dN_uncertainty - pNShifts[11]->dN_uncertainty +
+                      pNShifts[7]->dN_uncertainty) /
+                         4.,
+                     (pNShifts[10]->dN_uncertainty - pNShifts[4]->dN_uncertainty - pNShifts[3]->dN_uncertainty +
+                      pNShifts[6]->dN_uncertainty) /
+                         4.,
+                     (pNShifts[12]->dN_uncertainty - pNShifts[8]->dN_uncertainty - pNShifts[14]->dN_uncertainty +
+                      pNShifts[1]->dN_uncertainty) /
+                         4.,
+                     (pNShifts[13]->dN_uncertainty - pNShifts[0]->dN_uncertainty - pNShifts[15]->dN_uncertainty +
+                      pNShifts[9]->dN_uncertainty) /
+                         4.};
 
-	//TRACE("Interpolation values: %.3f, %.3f, %.3f\n", dInterpPoint->gVar.dN_value, dInterpPoint->gVar.dDefl_meridian, dInterpPoint->gVar.dDefl_primev);	
+    // interpolation
+    try {
+        bcuint<double>(u, u1, u2, u12, D1, D2, &m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].dLonginc,
+                       &m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].dLatinc, &(dInterpPoint->gVar.dN_uncertainty));
+    } catch (const std::runtime_error &e) { throw NetGeoidException(e.what(), 0); }
+
+	//TRACE("Interpolation values: %.3f, %.3f, %.3f\n", dInterpPoint->gVar.dN_value, dInterpPoint->gVar.dDefl_meridian, dInterpPoint->gVar.dDefl_primev, dInterpPoint->gVar.dN_uncertainty);	
 
 	return ERR_TRANS_SUCCESS;
 }
@@ -2354,6 +2486,7 @@ bool dna_geoid_interpolation::ReadAsciiShifts(geoid_values *pNShifts[], int iNod
 	pNShifts[iNodeIndex]->dN_value = fNum1;				// metres
 	pNShifts[iNodeIndex]->dDefl_meridian = fNum2;		// seconds by default
 	pNShifts[iNodeIndex]->dDefl_primev = fNum3;			// seconds by default
+    pNShifts[iNodeIndex]->dN_uncertainty = fNum4;       // metres
 
 	if (m_isRadians)
 	{
@@ -2396,7 +2529,11 @@ bool dna_geoid_interpolation::ReadBinaryShifts(geoid_values *pNShifts[], int iNo
 
 		if (!m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float)))
 			throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
-		pNShifts[iNodeIndex]->dDefl_primev = fNum;	
+		pNShifts[iNodeIndex]->dDefl_primev = fNum;
+
+		if (!m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float)))
+            throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
+        pNShifts[iNodeIndex]->dN_uncertainty = fNum;
 	}
 	catch (...) {
 		return false;
@@ -2485,13 +2622,13 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 		if (gridType == TYPE_ASC)		// ascii
 		{
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iH_info = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iSubH_info = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iSubH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iNumsubgrids = lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iNumsubgrids = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
 			strcpy(ptheGrid->chGs_type, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
@@ -2506,16 +2643,16 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->chSystem_t, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->daf = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->daf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbf = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbt = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbt = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 		}
 		else					// binary
 		{
@@ -2584,7 +2721,7 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	ptheGrid->ptrIndex = new n_gridfileindex[ptheGrid->iNumsubgrids];
 
 	std::string shiftType(ptheGrid->chGs_type);
-	if (iequals(trimstr(shiftType), "radians"))
+	if (boost::iequals(trimstr(shiftType), "radians"))
 		m_isRadians = true;
 	else
 		m_isRadians = false;
@@ -2606,25 +2743,25 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->ptrIndex[i].chUpdated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dSlat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dSlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dNlat = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dNlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dElong = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dElong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dWlong = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dWlong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLatinc = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLatinc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLonginc = lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLonginc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].lGscount = lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].lGscount = boost::lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			// Save ASCII position in grid file for first record of lat & long shifts 
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
@@ -2810,7 +2947,7 @@ void dna_geoid_interpolation::PrintSubGridHeaderInfoBinary(std::ofstream* f_out,
 }
 	
 
-void dna_geoid_interpolation::WriteBinaryRecords(std::ofstream* f_out, float n_value, float dDefl_meridian, float dDefl_primev)
+void dna_geoid_interpolation::WriteBinaryRecords(std::ofstream* f_out, float n_value, float dDefl_meridian, float dDefl_primev, float n_uncertainty)
 {
 	//float fGSRecord[5];
 	//
@@ -2818,13 +2955,12 @@ void dna_geoid_interpolation::WriteBinaryRecords(std::ofstream* f_out, float n_v
 	//fGSRecord[0] = n_value;
 	//fGSRecord[1] = dDefl_meridian;
 	//fGSRecord[2] = dDefl_primev;
-	//fGSRecord[3] = 0.;
+	//fGSRecord[3] = n_uncertainty;
 
-	float dZero(0.);
 	f_out->write(reinterpret_cast<char *>(&n_value), sizeof(float));
 	f_out->write(reinterpret_cast<char *>(&dDefl_meridian), sizeof(float));
 	f_out->write(reinterpret_cast<char *>(&dDefl_primev), sizeof(float));
-	f_out->write(reinterpret_cast<char *>(&dZero), sizeof(float));
+    f_out->write(reinterpret_cast<char *>(&n_uncertainty), sizeof(float));
 }
 
 void dna_geoid_interpolation::ScanDatFileValues(char* szLine, float* n_value, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec, float* dDefl_meridian, float* dDefl_primev)  
@@ -2843,8 +2979,22 @@ void dna_geoid_interpolation::ScanDatFileValues(char* szLine, float* n_value, ch
 	sscanf(&(szLine[53]), "%f", dDefl_primev);
 }
 
-void dna_geoid_interpolation::ScanNodeLocations(char* szLine, double* latitude, double* longitude)
-{
+void dna_geoid_interpolation::ScanUncertaintyFileValues(char *szLine, float *n_uncertainty, char *c_northsouth, int *lat_deg,
+                                                int *lat_min, float *lat_sec, char *c_eastwest, int *lon_deg,
+                                                int *lon_min, float *lon_sec) {
+    // extract data (AusGeoid98 file)
+    sscanf(&(szLine[4]), "%f", n_uncertainty);
+    sscanf(&(szLine[13]), "%c", c_northsouth);
+    sscanf(&(szLine[14]), "%d", lat_deg);
+    sscanf(&(szLine[17]), "%d", lat_min);
+    sscanf(&(szLine[20]), "%f", lat_sec);
+    sscanf(&(szLine[27]), "%c", c_eastwest);
+    sscanf(&(szLine[28]), "%d", lon_deg);
+    sscanf(&(szLine[32]), "%d", lon_min);
+    sscanf(&(szLine[35]), "%f", lon_sec);
+}
+
+void dna_geoid_interpolation::ScanNodeLocations(char *szLine, double *latitude, double *longitude) {
 	// extract data (AusGeoid98 file)
 	double deg, min, sec;
 	sscanf(&(szLine[14]), "%lf", &deg);

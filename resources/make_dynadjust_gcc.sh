@@ -2,11 +2,14 @@
 
 ################################################################################
 #
-# This script clones the latest version, configures the environment, then
-# builds and installs DynAdjust using:
+# This script configures the environment, then builds and installs DynAdjust
+# from a local source tree using:
 #   gcc 10.1.1
 #   boost 1.69.0
 #   xerces-c 3.1.4
+#
+# By default the script builds from the local copy. Pass --clone to fetch a
+# fresh copy from GitHub instead.
 #
 ################################################################################
 
@@ -14,10 +17,12 @@
 _script="make_dynadjust_gcc.sh"
 _auto=0 # default option is to ask for user input
 _debug=0 # default option is to build release variant
-_clone=0 # default option is to clone afresh
+_clone=1 # default option is to build from local source
 _test=0 # default option is to skip cmake tests
 _install=0 # default option is to install binaries
 _binary="all" # default option is to build all binaries
+_use_mkl=1 # default option is to build with Intel MKL
+_jobs=0 # 0 = auto-detect (safe job count derived from available memory)
 # _binaries is an array of binary names used to select which binary to build based
 # on user input. The "...wrapper" binaries are ordered first, so that if the user
 # enters part of a name (e.g. "imp"), the script will select the first occurrence
@@ -30,7 +35,8 @@ _binaries=(dnaimportwrapper dnaimport dnageoidwrapper dnageoid dnareftranwrapper
 # display example message
 function example {
     echo -e "examples:"
-	echo -e "  $_script --auto --no-clone --test --no-install"
+	echo -e "  $_script --auto --test --no-install"
+	echo -e "  $_script --clone --auto --test --no-install"
 }
 
 # display usage message
@@ -46,14 +52,18 @@ function help {
     echo -e "  -a [ --auto ]        Run automatically with no user interaction."
     echo -e "  -b [ --binary ] arg  Build a specific binary (e.g. \"dnaimport\" or \"dnaadjustwrapper\")."
     echo -e "                       By default, \"all\" binaries are built."
-    echo -e "  -c [ --no-clone ]    By default, the latest version will be cloned from GitHub"
-	echo -e "                       into the current directory, using:"
+    echo -e "  -j [ --jobs ] arg    Number of parallel make jobs."
+    echo -e "                       Defaults to nproc, capped by available memory to avoid OOM."
+    echo -e "                       Unity builds (~1.5 GB/job) apply to both MKL and BLAS variants."
+    echo -e "                       Use --jobs 1 if the build is killed during compilation."
+    echo -e "  -k [ --no-mkl ]      Build without Intel MKL, using BLAS/LAPACK instead."
+    echo -e "                       Use this if you installed blas/lapack via install_dynadjust_prerequisites.sh --math-lib blas."
+    echo -e "  -c [ --clone ]       Clone a fresh copy from GitHub before building, using:"
 	echo -e "                         git clone https://github.com/geoscienceaustralia/DynAdjust.git"
-    echo -e "                       Provide this option if building source from a local copy, e.g.:"
-	echo -e "                         $ wget https://github.com/geoscienceaustralia/DynAdjust/archive/refs/tags/v1.1.0.tar.gz -O DynAdjust-1.1.0.tar.gz"
-    echo -e "                         $ tar xzvf DynAdjust-1.1.0.tar.gz"
-    echo -e "                         $ cd DynAdjust-1.1.0/"
-	echo -e "                         $ bash ./resources/make_dynadjust_gc.sh (this script)"
+    echo -e "                       By default the script builds from the local source tree."
+    echo -e "                       Run this script from the repo root, e.g.:"
+	echo -e "                         $ cd DynAdjust/"
+	echo -e "                         $ bash ./resources/make_dynadjust_gcc.sh"
     echo -e "  -d [ --debug ]       Compile debug version."
     echo -e "  -n [ --no-install ]  Do not install binaries."
     echo -e "  -t [ --test ]        Run cmake tests."
@@ -72,14 +82,20 @@ do
 			    	;;
    -b  | --binary ) shift&&_binary=$1 # get the name of the binary to be built
 			    	;;
+   -j  | --jobs )   shift
+   					_jobs=$1 # number of parallel make jobs
+			        ;;
    -d  | --debug )  
    					_debug=1 # compile debug variant
 			        ;;
-   -c  | --no-clone )
-   					_clone=1 # do not clone from GitHub
+   -c  | --clone )
+   					_clone=0 # clone a fresh copy from GitHub
 			        ;;
    -t  | --test )   
    					_test=1 # run tests
+			        ;;
+   -k  | --no-mkl )
+   					_use_mkl=0 # build with BLAS/LAPACK instead of Intel MKL
 			        ;;
    -n  | --no-install )
    					_install=1 # do not install binaries
@@ -96,13 +112,37 @@ do
 	shift
 done
 
+# Resolve parallel job count from available memory when not set by --jobs.
+# Unity builds (USE_UNITY_BUILD=ON) combine up to 16 source files per translation
+# unit, making each job substantially heavier than a regular per-file compile.
+# Both MKL and BLAS builds use unity builds, so both use the same ~1.5 GB/job
+# estimate. Capping at the memory-safe limit prevents OOM kills on any
+# resource-constrained environment: WSL2, containers, CI runners, VMs, etc.
+_jobs_auto_limited=0
+if [[ $_jobs -eq 0 ]]; then
+    _nproc=$(nproc)
+    if [[ -r /proc/meminfo ]]; then
+        _avail_mem_mb=$(awk '/^MemAvailable:/{printf "%d", $2/1024}' /proc/meminfo)
+        _mem_per_job_mb=1500
+        _mem_safe_jobs=$((_avail_mem_mb / _mem_per_job_mb))
+        [[ $_mem_safe_jobs -lt 1 ]] && _mem_safe_jobs=1
+        [[ $_mem_safe_jobs -gt $_nproc ]] && _mem_safe_jobs=$_nproc
+        _jobs=$_mem_safe_jobs
+    else
+        _jobs=$_nproc
+    fi
+    if [[ $_jobs -lt $_nproc ]]; then
+        _jobs_auto_limited=1
+    fi
+fi
+
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_9
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_3_0
 
 # version info
-_version="1.2.9"
+_version="1.3.0"
 
 echo -e "\n==========================================================================="
 echo -e "DynAdjust $_version build configuration options..."
@@ -111,6 +151,17 @@ if [[ $_debug -eq 1 || $_test -eq 1 ]]; then
 	echo -e " - debug variant."
 else
 	echo -e " - release variant."
+fi
+
+if [[ $_use_mkl -eq 1 ]]; then
+	echo -e " - using Intel MKL for linear algebra."
+else
+	echo -e " - using BLAS/LAPACK for linear algebra (no Intel MKL)."
+fi
+
+echo -e " - parallel make jobs: $_jobs."
+if [[ $_jobs_auto_limited -eq 1 ]]; then
+	echo -e "   (auto-limited from $_nproc: ${_avail_mem_mb} MB available, ${_mem_per_job_mb} MB/job; override with --jobs N)"
 fi
 
 if [[ $_binary = "all" ]]; then
@@ -146,15 +197,11 @@ fi
 _cwd="$PWD"
 
 if [[ $_clone -eq 1 ]]; then
-	echo -e " - do not clone, but build from local source."
-	# As per help, the user is expected to be in this directory once
-	# a local copy has been extracted.
+	echo -e " - build from local source."
 	_clone_dir="$_cwd"
-
 else
 	echo -e " - clone a fresh copy from GitHub."
-	# set directory to which git will clone the latest
-	# DynAdjust repo
+	# set directory to which git will clone the latest DynAdjust repo
 	_clone_dir="$_cwd/DynAdjust"
 fi
 
@@ -268,16 +315,18 @@ cp ../FindXSD.cmake ./
 
 # check if MKLROOT environment variable has been set, which means
 # intel MKL has been installed.
-if [ -z "$MKLROOT" ]
-then
-    # If not, find setvars.h and execute to set environment variables
-	if [ -e /opt/intel/oneapi/setvars.sh ]
-	then
-		echo "Setting environment variables for intel..."
-		source /opt/intel/oneapi/setvars.sh
-	fi
-else
-	echo "Intel root: $MKLROOT"
+if [[ $_use_mkl -eq 1 ]]; then
+    if [ -z "$MKLROOT" ]
+    then
+        # If not, find setvars.sh and execute to set environment variables
+        if [ -e /opt/intel/oneapi/setvars.sh ]
+        then
+            echo "Setting environment variables for intel..."
+            source /opt/intel/oneapi/setvars.sh
+        fi
+    else
+        echo "Intel root: $MKLROOT"
+    fi
 fi
 
 REL_BUILD_TYPE="Release"
@@ -302,13 +351,21 @@ echo " "
 
 #
 # determine whether to prepare cmake files with testing or not
+if [[ $_use_mkl -eq 1 ]]; then
+    _mkl_flag="ON"
+    _bla_vendor_flag=""
+else
+    _mkl_flag="OFF"
+    _bla_vendor_flag="-DBLA_VENDOR=OpenBLAS"
+fi
+
 case ${_test} in
     0) # skip tests
-        echo -e "cmake -DBUILD_TESTING=OFF -DUSE_MKL=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="OFF" -DUSE_MKL=ON -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON -DUSE_MKL=$_mkl_flag $_bla_vendor_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="OFF" -DUSE_UNITY_BUILD=ON -DUSE_MKL="$_mkl_flag" $_bla_vendor_flag -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
     *) # run cmake tests with code coverage
-        echo -e "cmake -DBUILD_TESTING=ON -DUSE_MKL=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
-		cmake -DBUILD_TESTING="ON" -DUSE_MKL=ON -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=ON -DUSE_UNITY_BUILD=ON -DUSE_MKL=$_mkl_flag $_bla_vendor_flag -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="ON" -DUSE_UNITY_BUILD=ON -DUSE_MKL="$_mkl_flag" $_bla_vendor_flag -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
 esac
 
 echo -e "\n==========================================================================="
@@ -317,13 +374,41 @@ echo -e "\n=====================================================================
 # Make!
 if [[ $_binary = "all" ]]; then
 	echo -e "Building DynAdjust $_version...\n"
-	make -j $(nproc) || exit 1
+	make -j $_jobs || exit 1
 else
 	echo -e "Building DynAdjust (${_binary}) $_version...\n"
-	make -j $(nproc) ${_binary} || exit 1
+	make -j $_jobs ${_binary} || exit 1
 fi
 
 echo " "
+
+# Register Intel oneAPI library paths with ldconfig so that MKL-linked
+# binaries can find libiomp5.so and libmkl_*.so at runtime without needing
+# to source setvars.sh in every new shell.
+if [[ $_use_mkl -eq 1 && -d "/opt/intel/oneapi" ]]; then
+    echo -e "==========================================================================="
+    echo "Registering Intel oneAPI library paths with ldconfig..."
+
+    # Find the latest installed versions of the compiler and MKL lib dirs.
+    # Using sort -V (version sort) so that e.g. 2025.3 > 2024.2.
+    _intel_compiler_lib=$(ls -d /opt/intel/oneapi/compiler/*/lib 2>/dev/null | sort -V | tail -1)
+    _intel_mkl_lib=$(ls -d /opt/intel/oneapi/mkl/*/lib 2>/dev/null | sort -V | tail -1)
+
+    if [[ -n "$_intel_compiler_lib" || -n "$_intel_mkl_lib" ]]; then
+        printf "%s\n%s\n" "$_intel_compiler_lib" "$_intel_mkl_lib" \
+            | grep -v '^$' \
+            | sudo tee /etc/ld.so.conf.d/intel-oneapi.conf > /dev/null
+        sudo ldconfig
+        echo "Done. Registered:"
+        [[ -n "$_intel_compiler_lib" ]] && echo "  $_intel_compiler_lib"
+        [[ -n "$_intel_mkl_lib" ]]      && echo "  $_intel_mkl_lib"
+    else
+        echo "Warning: could not locate Intel oneAPI lib directories under /opt/intel/oneapi."
+        echo "  If DynAdjust binaries fail with 'libiomp5.so not found', run:"
+        echo "    source /opt/intel/oneapi/setvars.sh"
+    fi
+    echo " "
+fi
 
 case ${_test} in
     1) # run cmake tests

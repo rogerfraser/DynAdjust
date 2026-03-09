@@ -104,9 +104,9 @@ class DNAADJUST_API DynAdjustPrinter {
     template <typename MeasurementType>
     void PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_msr, bool initialise_dbindex = true);
 
-    // Template-based comparative measurement printing
+    // Template-based computed measurement printing
     template <typename MeasurementType>
-    void PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
+    void PrintComputedMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
     
     // Compatibility methods - delegate to template implementations
     void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr);
@@ -158,6 +158,7 @@ class DNAADJUST_API DynAdjustPrinter {
     void PrintOutputFileHeaderInfo();
     void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
     void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
+    void UpdateGNSSNstatsForAlternateUnits(const v_uint32_u32u32_pair& msr_block);
     void PrintStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, 
                                  bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
     void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored);
@@ -305,7 +306,7 @@ void DynAdjustPrinter::PrintAdjMeasurements(char cardinal, const it_vmsr_t& it_m
 }
 
 template <typename MeasurementType>
-void DynAdjustPrinter::PrintComparativeMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
+void DynAdjustPrinter::PrintComputedMeasurements(char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Default implementation - will be replaced by explicit specializations
     static_assert(sizeof(MeasurementType) == 0, "Must use specialization");
 }
@@ -335,11 +336,11 @@ void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(char cardinal, co
                                                                     bool initialise_dbindex);
 
 template <>
-void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(char cardinal, const double& computed, 
+void DynAdjustPrinter::PrintComputedMeasurements<AngularMeasurement>(char cardinal, const double& computed, 
                                                                         const double& correction, const it_vmsr_t& it_msr);
 
 template <>
-void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
+void DynAdjustPrinter::PrintComputedMeasurements<LinearMeasurement>(char cardinal, const double& computed, 
                                                                        const double& correction, const it_vmsr_t& it_msr);
 
 // Stage 4: Station coordinate formatting specializations

@@ -140,9 +140,9 @@ void DynAdjustPrinter::PrintAdjMeasurements<LinearMeasurement>(
     PrintAdjMeasurementStatistics(cardinal, it_msr, initialise_dbindex);
 }
 
-// Template specializations for comparative measurements
+// Template specializations for computed measurements
 template<>
-void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
+void DynAdjustPrinter::PrintComputedMeasurements<AngularMeasurement>(
     char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Print computed angular measurements
     PrintMeasurementValue<AngularMeasurement>(cardinal, computed, correction, it_msr, false);
@@ -159,7 +159,7 @@ void DynAdjustPrinter::PrintComparativeMeasurements<AngularMeasurement>(
 }
 
 template<>
-void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
+void DynAdjustPrinter::PrintComputedMeasurements<LinearMeasurement>(
     char cardinal, const double& computed, const double& correction, const it_vmsr_t& it_msr) {
     // Check if adjustment is questionable for linear measurements
     if (!adjust_.isAdjustmentQuestionable_) {
@@ -183,12 +183,12 @@ void DynAdjustPrinter::PrintComparativeMeasurements<LinearMeasurement>(
 // Compatibility methods for maintaining the original method names
 void DynAdjustPrinter::PrintCompMeasurementsLinear(const char cardinal, const double& computed, 
                                                    const double& correction, const it_vmsr_t& it_msr) {
-    PrintComparativeMeasurements<LinearMeasurement>(cardinal, computed, correction, it_msr);
+    PrintComputedMeasurements<LinearMeasurement>(cardinal, computed, correction, it_msr);
 }
 
 void DynAdjustPrinter::PrintCompMeasurementsAngular(const char cardinal, const double& computed, 
                                                     const double& correction, const it_vmsr_t& it_msr) {
-    PrintComparativeMeasurements<AngularMeasurement>(cardinal, computed, correction, it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(cardinal, computed, correction, it_msr);
 }
 
 void DynAdjustPrinter::PrintMeasurementsAngular(const char cardinal, const double& measurement, 
@@ -743,19 +743,34 @@ void DynAdjustPrinter::PrintMeasurementsToStation() {
     // Print measurement to station summary, sort stations as required
     switch (adjust_.projectSettings_.o._sort_msr_to_stn)
     {
+    case name_stn_sort_ui:
+    {
+        CompareStnNameOrder<station_t, UINT32> stnnameCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(vStationList.begin(), vStationList.end(), stnnameCompareFunc);
+    }
+    break;
     case meas_stn_sort_ui:
     {
-        // sort summary according to measurement to station count
         CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&adjust_.vAssocStnList_);
         std::sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
     }
     break;
-    case orig_stn_sort_ui:
-    default:
+    case saem_stn_sort_ui:
     {
-        // sort summary according to original station file order
+        CompareMeasCountDesc<CAStationList, UINT32> msrcountCompareFunc(&adjust_.vAssocStnList_);
+        std::sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+    }
+    break;
+    case orig_stn_sort_ui:
+    {
         CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&adjust_.bstBinaryRecords_);
         std::sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+    }
+    break;
+    default:
+    {
+        CompareStnNameOrder<station_t, UINT32> stnnameCompareFunc(&adjust_.bstBinaryRecords_);
+        std::sort(vStationList.begin(), vStationList.end(), stnnameCompareFunc);
     }
     break;
     }
@@ -844,7 +859,7 @@ void DynAdjustPrinter::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& desig
         
         // Print angular measurement, taking care of user requirements for 
         // type, format and precision
-        PrintComparativeMeasurements<AngularMeasurement>(' ', computed, _it_msr->measCorr, _it_msr);
+        PrintComputedMeasurements<AngularMeasurement>(' ', computed, _it_msr->measCorr, _it_msr);
         
         design_row++;
         _it_msr++;
@@ -961,7 +976,18 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+    
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
 
     UINT32 cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -1014,15 +1040,25 @@ void DynAdjustPrinter::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& de
             std::left << std::setw(STATION) << " ";        // third station
 
         // Print latitude
-        PrintComparativeMeasurements<AngularMeasurement>('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComputedMeasurements<AngularMeasurement>('P', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
     
         // Print longitude
         _it_y_msr++;
-        PrintComparativeMeasurements<AngularMeasurement>('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        PrintComputedMeasurements<AngularMeasurement>('L', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
 
         // Print height
         _it_y_msr++;
-        PrintComparativeMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i:
+            PrintComputedMeasurements<LinearMeasurement>('h', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintComputedMeasurements<LinearMeasurement>('H', _it_y_msr->measAdj, _it_y_msr->measCorr, _it_y_msr);
+            break;
+        }
+        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -1054,7 +1090,7 @@ void DynAdjustPrinter::PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
 
     design_row++;
 }
@@ -1081,7 +1117,7 @@ void DynAdjustPrinter::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t
     
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision    
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
     
     design_row++;
 }
@@ -1662,7 +1698,13 @@ void DynAdjustPrinter::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool
     // Print header using printer module method
     PrintAdjMeasurementsHeader(printHeader, table_heading,
         adjustedMsrs, msr_block.at(0).second.first + 1, true);
-    
+
+    // When sorting by n-stat and displaying GNSS in non-cartesian units,
+    // update GNSS n-stat values to match the displayed frame before sorting
+    if (adjust_.projectSettings_.o._adj_gnss_units != XYZ_adj_gnss_ui &&
+        adjust_.projectSettings_.o._sort_adj_msr == n_st_adj_msr_sort_ui)
+        UpdateGNSSNstatsForAlternateUnits(msr_block);
+
     // Sort measurements according to project settings
     try {
         switch (adjust_.projectSettings_.o._sort_adj_msr) {
@@ -2112,6 +2154,7 @@ double DynAdjustPrinter::CalculateLinearPrecision(const it_vmsr_t& it_msr, char 
         case 'Z':  // XYZ
         case 'u':  // ENU
         case 'H':  // LLH (Lat and Lon cardinals are printed in PrintMeasurementsAngular)
+        case 'h':
             return sqrt(it_msr->term4);
         case 's':  // AED (Azimuth and vertical angle cardinals are printed in PrintMeasurementsAngular)
             switch (adjust_.projectSettings_.o._adj_gnss_units) {
@@ -2310,6 +2353,7 @@ void DynAdjustPrinter::PrintMeasurementValue<LinearMeasurement>(char cardinal, c
     case 'Y':
     case 'Z':
     case 'H':
+    case 'h':
     case 'n':
     case 'u':
     case 's':
@@ -2410,6 +2454,7 @@ void DynAdjustPrinter::PrintMeasurementCorrection(const char cardinal, const it_
             break;
         case 'P':
         case 'L':
+        case 'h':
             adjust_.adj_file << std::setw(PACORR) << std::setprecision(adjust_.PRECISION_SEC_MSR) << std::fixed << std::right << 0.0;
             break;
         default:	// X, Y, Z
@@ -2445,7 +2490,18 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
     CopyClusterMsr<vmsr_t>(adjust_.bmsBinaryRecords_, _it_msr, y_msr);
     
     it_vmsr_t _it_y_msr(y_msr.begin());
-    snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+
+    // determine coord type
+    switch (_it_msr->station3)
+    { 
+    case LLh_type_i:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLh_type);
+        break;
+    case LLH_type_i:
+    default:
+        snprintf(_it_y_msr->coordType, STN_TYPE_WIDTH, "%s", LLH_type);
+        break;
+    }
     
     UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
     matrix_2d mpositions(cluster_count * 3, 1);
@@ -2574,8 +2630,17 @@ void DynAdjustPrinter::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
         PrintAdjMeasurementsAngular('L', _it_y_msr);
 
         // Print height
-        _it_y_msr++;	
-        PrintAdjMeasurementsLinear('H', _it_y_msr);
+        _it_y_msr++;
+        switch (_it_msr->station3)
+        { 
+        case LLh_type_i: 
+            PrintAdjMeasurementsLinear('h', _it_y_msr);
+            break;
+        case LLH_type_i:
+        default:
+            PrintAdjMeasurementsLinear('H', _it_y_msr);
+            break;
+        }        
 
         // skip covariances until next point
         _it_y_msr += covariance_count * 3;
@@ -3578,7 +3643,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('X', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('X', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3597,7 +3662,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('Y', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('Y', computed, correction, _it_msr);
 
         design_row++;
         _it_msr++;
@@ -3616,7 +3681,7 @@ void DynAdjustPrinter::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t&
         }
 
         // Print linear measurement, taking care of user requirements for precision	
-        PrintComparativeMeasurements<LinearMeasurement>('Z', computed, correction, _it_msr);
+        PrintComputedMeasurements<LinearMeasurement>('Z', computed, correction, _it_msr);
 
         design_row++;
 
@@ -3955,6 +4020,9 @@ void DynAdjustPrinter::PrintAdjStation(std::ostream& os,
 
     PropagateVariances_LocalCart(var_cart, var_local, 
         estLatitude, estLongitude, false);
+
+    // add geoid model height uncertainty
+    var_local.elementadd(2, 2, (stn_it->geoidSepUnc * stn_it->geoidSepUnc));
     
     // Use uncertainty formatting helper
     PrintStationUncertainties(os, var_local);
@@ -4416,6 +4484,194 @@ void DynAdjustPrinter::PrintPosUncertainties(std::ostream& os, const UINT32& blo
         adjust_.SortStationsbyID(v_blockStations);
 }
 
+void DynAdjustPrinter::UpdateGNSSNstatsForAlternateUnits(const v_uint32_u32u32_pair& msr_block) {
+
+    matrix_2d gnss_cart(3, 1), gnss_local(3, 1);
+    matrix_2d gnss_adj_cart(3, 1), gnss_adj_local(3, 1);
+    matrix_2d var_cart(3, 3), var_local(3, 3), var_polar(3, 3);
+    matrix_2d var_adj_local(3, 3), var_adj_polar(3, 3);
+    matrix_2d rotations;
+
+    for (auto _it_block_msr = msr_block.begin(); _it_block_msr != msr_block.end(); ++_it_block_msr)
+    {
+        it_vmsr_t _it_msr = adjust_.bmsBinaryRecords_.begin() + _it_block_msr->first;
+
+        if (_it_msr->measStart != xMeas)
+            continue;
+
+        if (_it_msr->measType != 'G' && _it_msr->measType != 'X')
+            continue;
+
+        UINT32 cluster_count(_it_msr->vectorCount1);
+        UINT32 covariance_count;
+        const uint32_uint32_pair& b_pam = _it_block_msr->second;
+
+        for (UINT32 cluster_msr = 0; cluster_msr < cluster_count; ++cluster_msr)
+        {
+            covariance_count = _it_msr->vectorCount2;
+
+            // Load precision of adjusted measurements for staged adjustments
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.DeserialiseBlockFromMappedFile(b_pam.first, 1, sf_prec_adj_msrs);
+
+            double lower_mtx_buffer[6];
+            memcpy(lower_mtx_buffer,
+                adjust_.v_precAdjMsrsFull_.at(b_pam.first).getbuffer(b_pam.second, 0),
+                sizeof(lower_mtx_buffer));
+            matrix_2d var_adj_cart(3, 3, lower_mtx_buffer, 6, mtx_lower);
+            var_adj_cart.fillupper();
+
+            if (adjust_.projectSettings_.a.stage)
+                adjust_.UnloadBlock(b_pam.first, 1, sf_prec_adj_msrs);
+
+            // Get X component
+            gnss_cart.put(0, 0, _it_msr->term1);
+            gnss_adj_cart.put(0, 0, _it_msr->measAdj);
+            var_cart.put(0, 0, _it_msr->term2);
+
+            it_vmsr_t _it_x = _it_msr;
+
+            // Get Y component
+            _it_msr++;
+            gnss_cart.put(1, 0, _it_msr->term1);
+            gnss_adj_cart.put(1, 0, _it_msr->measAdj);
+            var_cart.put(0, 1, _it_msr->term2);
+            var_cart.put(1, 1, _it_msr->term3);
+
+            it_vmsr_t _it_y = _it_msr;
+
+            // Get Z component
+            _it_msr++;
+            gnss_cart.put(2, 0, _it_msr->term1);
+            gnss_adj_cart.put(2, 0, _it_msr->measAdj);
+            var_cart.put(0, 2, _it_msr->term2);
+            var_cart.put(1, 2, _it_msr->term3);
+            var_cart.put(2, 2, _it_msr->term4);
+
+            it_vmsr_t _it_z = _it_msr;
+
+            var_cart.filllower();
+
+            double mid_lat(average(
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLatitude,
+                adjust_.bstBinaryRecords_.at(_it_msr->station2).currentLatitude));
+            double mid_long(average(
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLongitude,
+                adjust_.bstBinaryRecords_.at(_it_msr->station2).currentLongitude));
+
+            Rotate_CartLocal<double>(gnss_cart, &gnss_local,
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLatitude,
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLongitude);
+            Rotate_CartLocal<double>(gnss_adj_cart, &gnss_adj_local,
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLatitude,
+                adjust_.bstBinaryRecords_.at(_it_msr->station1).currentLongitude);
+
+            switch (adjust_.projectSettings_.o._adj_gnss_units)
+            {
+            case ENU_adj_gnss_ui:
+            {
+                PropagateVariances_CartLocal_Diagonal<double>(var_cart, var_local,
+                    mid_lat, mid_long, rotations, true);
+                PropagateVariances_CartLocal_Diagonal<double>(var_adj_cart, var_adj_local,
+                    mid_lat, mid_long, rotations, false);
+
+                // E
+                _it_x->measCorr = gnss_adj_local.get(0, 0) - gnss_local.get(0, 0);
+                _it_x->residualPrec = var_local.get(0, 0) - var_adj_local.get(0, 0);
+                adjust_.UpdateMsrRecordStats(_it_x, var_local.get(0, 0));
+
+                // N
+                _it_y->measCorr = gnss_adj_local.get(1, 0) - gnss_local.get(1, 0);
+                _it_y->residualPrec = var_local.get(1, 1) - var_adj_local.get(1, 1);
+                adjust_.UpdateMsrRecordStats(_it_y, var_local.get(1, 1));
+
+                // U
+                _it_z->measCorr = gnss_adj_local.get(2, 0) - gnss_local.get(2, 0);
+                _it_z->residualPrec = var_local.get(2, 2) - var_adj_local.get(2, 2);
+                adjust_.UpdateMsrRecordStats(_it_z, var_local.get(2, 2));
+                break;
+            }
+            case AED_adj_gnss_ui:
+            {
+                double azimuth = Direction(gnss_local.get(0, 0), gnss_local.get(1, 0));
+                double elevation = VerticalAngle(gnss_local.get(0, 0), gnss_local.get(1, 0), gnss_local.get(2, 0));
+                double distance = magnitude(gnss_local.get(0, 0), gnss_local.get(1, 0), gnss_local.get(2, 0));
+
+                double azimuthAdj = Direction(gnss_adj_local.get(0, 0), gnss_adj_local.get(1, 0));
+                double elevationAdj = VerticalAngle(gnss_adj_local.get(0, 0), gnss_adj_local.get(1, 0), gnss_adj_local.get(2, 0));
+                double distanceAdj = magnitude(gnss_adj_local.get(0, 0), gnss_adj_local.get(1, 0), gnss_adj_local.get(2, 0));
+
+                PropagateVariances_LocalCart<double>(var_cart, var_local,
+                    mid_lat, mid_long, false, rotations, true);
+                PropagateVariances_LocalCart<double>(var_adj_cart, var_adj_local,
+                    mid_lat, mid_long, false, rotations, false);
+
+                PropagateVariances_LocalPolar_Diagonal<double>(var_local, var_polar,
+                    azimuth, elevation, distance, rotations, true);
+                PropagateVariances_LocalPolar_Diagonal<double>(var_adj_local, var_adj_polar,
+                    azimuth, elevation, distance, rotations, false);
+
+                // Azimuth
+                _it_x->measCorr = azimuthAdj - azimuth;
+                _it_x->residualPrec = var_polar.get(0, 0) - var_adj_polar.get(0, 0);
+                adjust_.UpdateMsrRecordStats(_it_x, var_polar.get(0, 0));
+
+                // Elevation
+                _it_y->measCorr = elevationAdj - elevation;
+                _it_y->residualPrec = var_polar.get(1, 1) - var_adj_polar.get(1, 1);
+                adjust_.UpdateMsrRecordStats(_it_y, var_polar.get(1, 1));
+
+                // Distance
+                _it_z->measCorr = distanceAdj - distance;
+                _it_z->residualPrec = var_polar.get(2, 2) - var_adj_polar.get(2, 2);
+                adjust_.UpdateMsrRecordStats(_it_z, var_polar.get(2, 2));
+                break;
+            }
+            case ADU_adj_gnss_ui:
+            {
+                double azimuth = Direction(gnss_local.get(0, 0), gnss_local.get(1, 0));
+                double elevation = VerticalAngle(gnss_local.get(0, 0), gnss_local.get(1, 0), gnss_local.get(2, 0));
+                double distance = magnitude(gnss_local.get(0, 0), gnss_local.get(1, 0), gnss_local.get(2, 0));
+
+                double azimuthAdj = Direction(gnss_adj_local.get(0, 0), gnss_adj_local.get(1, 0));
+                double distanceAdj = magnitude(gnss_adj_local.get(0, 0), gnss_adj_local.get(1, 0), gnss_adj_local.get(2, 0));
+
+                PropagateVariances_LocalCart<double>(var_cart, var_local,
+                    mid_lat, mid_long, false, rotations, true);
+                PropagateVariances_LocalCart<double>(var_adj_cart, var_adj_local,
+                    mid_lat, mid_long, false, rotations, false);
+
+                PropagateVariances_LocalPolar_Diagonal<double>(var_local, var_polar,
+                    azimuth, elevation, distance, rotations, true);
+                PropagateVariances_LocalPolar_Diagonal<double>(var_adj_local, var_adj_polar,
+                    azimuth, elevation, distance, rotations, false);
+
+                // Azimuth
+                _it_x->measCorr = azimuthAdj - azimuth;
+                _it_x->residualPrec = var_polar.get(0, 0) - var_adj_polar.get(0, 0);
+                adjust_.UpdateMsrRecordStats(_it_x, var_polar.get(0, 0));
+
+                // Slope distance
+                _it_y->measCorr = distanceAdj - distance;
+                _it_y->residualPrec = var_polar.get(2, 2) - var_adj_polar.get(2, 2);
+                adjust_.UpdateMsrRecordStats(_it_y, var_polar.get(2, 2));
+
+                // Up
+                _it_z->measCorr = gnss_adj_local.get(2, 0) - gnss_local.get(2, 0);
+                _it_z->residualPrec = var_local.get(2, 2) - var_adj_local.get(2, 2);
+                adjust_.UpdateMsrRecordStats(_it_z, var_local.get(2, 2));
+                break;
+            }
+            }
+
+            // Skip covariances until next baseline
+            _it_msr += covariance_count * 3;
+            if (covariance_count > 0)
+                _it_msr++;
+        }
+    }
+}
+
 void DynAdjustPrinter::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam) {
     // Create copy of _it_msr, transform, then send to PrintAdjMeasurementsLinear
     vmsr_t gnss_msr;
@@ -4768,7 +5024,7 @@ void DynAdjustPrinter::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& 
     }
 
     // Print linear measurement, taking care of user requirements for precision	
-    PrintComparativeMeasurements<LinearMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<LinearMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }
@@ -4797,7 +5053,7 @@ void DynAdjustPrinter::PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t
 
     // Print angular measurement, taking care of user requirements for 
     // type, format and precision	
-    PrintComparativeMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
+    PrintComputedMeasurements<AngularMeasurement>(' ', computed, correction, _it_msr);
         
     design_row++;
 }

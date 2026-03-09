@@ -95,6 +95,7 @@ typedef struct {
 	double dN_value;			// N value
 	double dDefl_meridian;		// Deflection in the prime meridian
 	double dDefl_primev;		// Deflection in the prime vertical
+    double dN_uncertainty;      // N value uncertainty
 } geoid_values;
 
 typedef struct {
@@ -112,7 +113,7 @@ public:
 		, dLatinc(60.), dLonginc(60.), lGscount(0), iGridPos(0)
 	{
 		strcpy(chSubname, "AUSGEOID");
-		strcpy(chParent, "NONE    ");
+		strcpy(chParent,  "NONE    ");
 		strcpy(chCreated, "01012010");
 		strcpy(chUpdated, "01012010");
 	}
@@ -144,7 +145,7 @@ public:
 		strcpy(filetype, "GSB");
 		strcpy(chGs_type, "SECONDS");
 		strcpy(chVersion, "1.0.0.0");
-		strcpy(chSystem_f, "GDA94   ");
+		strcpy(chSystem_f, "GDA2020 ");
 		strcpy(chSystem_t, "AHD_1971");
 	}
 

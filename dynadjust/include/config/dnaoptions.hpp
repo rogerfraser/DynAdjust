@@ -338,7 +338,7 @@ public:
 	geoid_settings()
 		: file_mode(0), interpolation_method(1), ellipsoid_to_ortho(0), coordinate_format(DMS)
 		, convert_heights(1), export_dna_geo_file(0)
-		, rdat_geoid_file(""), ntv2_geoid_file(""), input_file(""), bst_file(""), geo_file("")
+		, rdat_geoid_file(""), rdat_uncertainty_file(""), ntv2_geoid_file(""), input_file(""), bst_file(""), geo_file("")
 		, command_line_arguments("") {}
 
 private:
@@ -364,11 +364,12 @@ public:
 	UINT16		coordinate_format;				// ddeg or dms (default)
 	UINT16		convert_heights;				// convert ortho binary station heights to ellipsoidal
 	UINT16		export_dna_geo_file;			// Export geoid information in DNA geoid file
-	std::string		rdat_geoid_file;				// raw dat geoid file
-	std::string		ntv2_geoid_file;				// ntv2 geoid file
-	std::string		input_file;						// input file
-	std::string		bst_file;						// bst file
-	std::string		geo_file;						// dna geo file
+	std::string		rdat_geoid_file;			// raw dat geoid file
+	std::string		rdat_uncertainty_file;		// raw dat geoid uncertainty file
+	std::string		ntv2_geoid_file;			// ntv2 geoid file
+	std::string		input_file;					// input file
+	std::string		bst_file;					// bst file
+	std::string		geo_file;					// dna geo file
 	std::string		command_line_arguments;
 };
 

@@ -49,8 +49,32 @@ bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, co
 }
 
 	
-bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* gridshiftType, const char* exportfileType)
-{
+bool CreateNTv2GridwithUncertainties(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* dat_uncertaintyfilePath, const n_file_par* grid) {
+    // example:
+    // geoid -d ausgeoid2020.dat --uncertainty-file ausgeoid2020_error.dat -c 
+    // --grid-version 1.0.0.2 --creation 07.10.2025 --update 07.10.2025
+    //
+
+    std::cout << "+ Creating NTv2 geoid grid file with uncertainties from WINTER DAT file format..." << std::endl;
+
+    try {
+        g->SetUncertaintyFile(dat_uncertaintyfilePath);
+        g->CreateNTv2File(dat_gridfilePath, grid);
+    } catch (const NetGeoidException& e) {
+        std::cout << std::endl << "- Error: " << e.what() << std::endl;
+        return false;
+    }
+    std::cout << std::endl;
+
+    // Open the new grid file and print its properties
+    if (!reportGridProperties(g, grid->filename, grid->filetype)) return false;
+
+    return true;
+}
+	
+
+bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType,
+                           const char* gridshiftType, const char* exportfileType) {
 	// example:
 	// geoid -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --export-ntv2-asc
 	//
@@ -291,13 +315,17 @@ bool InterpolateGridPoint(dna_geoid_interpolation* g, geoid_point* apInterpolant
 	
 	std::cout << std::endl;
 
-	std::cout << "  N value          = " << std::setw(6) << 
+	std::cout << "  N value             = " << std::setw(6) << std::fixed << 
 		std::right << std::setprecision(3) << apInterpolant->gVar.dN_value << " metres" << std::endl;			// N value
+    std::cout << "  N value uncertainty = " << std::setw(6) << std::fixed << 
+		std::right << std::setprecision(3) << apInterpolant->gVar.dN_uncertainty << " metres" << std::endl;		// N value uncertainty
+	
 	std::cout << "  Deflections:" << std::endl;
-	std::cout << "  - Prime meridian = " << std::setw(6) << 
-		std::right << std::fixed << std::setprecision(2) << apInterpolant->gVar.dDefl_meridian << " seconds" << std::endl;			// N value
-	std::cout << "  - Prime vertical = " << std::setw(6) << 
-		std::right << apInterpolant->gVar.dDefl_primev << " seconds" << std::endl;			// N value
+    std::cout << "  - Prime meridian    = " << std::setw(6) << std::fixed << std::setprecision(2) << 
+		std::right << apInterpolant->gVar.dDefl_meridian << " seconds" << std::endl;					// Deflection of the vertical in the prime meridian
+	std::cout << "  - Prime vertical    = " << std::setw(6) << 
+		std::right << apInterpolant->gVar.dDefl_primev << " seconds" << std::endl;						// Deflection of the vertical in the prime vertical
+	
 	std::cout << std::endl;
 	return true;
 
@@ -486,6 +514,21 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		}
 	}
 
+	// Geoid DAT grid file file location (input)
+    if (vm.count(DAT_FILEPATH_UNC)) {
+        if (!std::filesystem::exists(p.n.rdat_uncertainty_file)) {
+            // Look for it in the input folder
+            p.n.rdat_uncertainty_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.rdat_uncertainty_file));
+
+            if (!std::filesystem::exists(p.n.rdat_uncertainty_file)) {
+                std::cout << std::endl << "- Error: ";
+                std::cout << "WINTER DAT uncertainty file " << p.n.rdat_uncertainty_file << " does not exist." << std::endl
+                          << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
 	// Is geoid to run in file mode?
 	if (vm.count(INPUT_FILE))
 	{
@@ -593,8 +636,10 @@ int main(int argc, char* argv[])
 		// config file        
 		ntv2_options.add_options()
 			(DAT_FILEPATH_D, boost::program_options::value<std::string>(&p.n.rdat_geoid_file), 
-				"File path of the WINTER DAT grid file.")
-			(NTV2_GS_TYPE, boost::program_options::value<std::string>(&gs_type),
+				"File path of the WINTER DAT grid file.")(
+            DAT_FILEPATH_UNC, boost::program_options::value<std::string>(&p.n.rdat_uncertainty_file),
+				"File path of the WINTER DAT grid file uncertainties.")(
+            NTV2_GS_TYPE, boost::program_options::value<std::string>(&gs_type),
 				"Units in which the grid parameters and deflections of the vertical will be stored. arg is either 'seconds' or 'radians'. Default is seconds.")
 			(NTV2_VERSION, boost::program_options::value<std::string>(&version),
 				"Grid file version. Default is 1.0.0.0.")
@@ -820,12 +865,15 @@ int main(int argc, char* argv[])
 				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  ASCII file: " << p.n.input_file << std::endl;
 		}
 		
-		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Geoid grid file: " <<  ntv2.filename << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  NTv2 GSB geoid grid file: " <<  ntv2.filename << std::endl;
 		
 		// Not applicable for project file use
 		if (vm.count(CREATE_NTV2))
 		{
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  WINTER DAT file: " << leafStr<std::string>(p.n.rdat_geoid_file) << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  WINTER DAT file (geoid data): " << leafStr<std::string>(p.n.rdat_geoid_file) << std::endl;
+
+			if (vm.count(DAT_FILEPATH_UNC))
+                std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  WINTER DAT file (uncertainties): " << leafStr<std::string>(p.n.rdat_uncertainty_file) << std::endl;
 
 			if (vm.count(NTV2_GS_TYPE))
 				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Grid shift type: " << gs_type.c_str() << std::endl;
@@ -950,8 +998,16 @@ int main(int argc, char* argv[])
 		strcpy(ntv2.ptrIndex[0].chCreated, created.c_str());
 		strcpy(ntv2.ptrIndex[0].chUpdated, updated.c_str());
 
+		bool gridSuccess;
+
+		if (vm.count(DAT_FILEPATH_UNC))
+            gridSuccess = CreateNTv2GridwithUncertainties(&g, p.n.rdat_geoid_file.c_str(),
+                                                          p.n.rdat_uncertainty_file.c_str(), & ntv2);
+        else
+            gridSuccess = CreateNTv2Grid(&g, p.n.rdat_geoid_file.c_str(), &ntv2);
+
 		// Create a new grid file from AusGeoid DAT file
-		if (!CreateNTv2Grid(&g, p.n.rdat_geoid_file.c_str(), &ntv2))
+        if (!gridSuccess)
 		{
 			if (ntv2.ptrIndex)
 				delete [] ntv2.ptrIndex;
