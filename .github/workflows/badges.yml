@@ -64,13 +64,16 @@ jobs:
           curl -s "https://img.shields.io/badge/coverage-${PCT}%25-${COLOUR}" -o ./resources/img/coverage-badge.svg
 
       - name: Generate LoC badge
-        uses: shadowmoose/GHA-LoC-Badge@1.0.0
-        id: loc
-        with:
-          debug: true
-          directory: ./dynadjust
-          badge: ./resources/img/loc-badge.svg
-          patterns: '*.cpp|*.hpp|*.h|*.c'
+        run: |
+          LOC=$(find ./dynadjust -type f \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) -exec cat {} + | wc -l | tr -d ' ')
+          if [ "$LOC" -ge 1000000 ]; then
+            LABEL=$(awk "BEGIN {printf \"%.1fM\", $LOC/1000000}")
+          elif [ "$LOC" -ge 1000 ]; then
+            LABEL=$(awk "BEGIN {printf \"%.1fk\", $LOC/1000}")
+          else
+            LABEL="$LOC"
+          fi
+          curl -s "https://img.shields.io/badge/Lines%20of%20Code-${LABEL}-blue" -o ./resources/img/loc-badge.svg
 
       - name: Commit badges
         run: |
