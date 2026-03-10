@@ -27,5 +27,5 @@ RUN apt install -y intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-
 RUN apt-get -y install cpio &&\
  cd ./DynAdjust &&\
  chmod +x ./resources/make_dynadjust_gcc.sh &&\
- ./resources/make_dynadjust_gcc.sh --auto --no-clone
+ ./resources/make_dynadjust_gcc.sh --auto
 RUN wget "https://s3-ap-southeast-2.amazonaws.com/geoid/AUSGeoid/AUSGeoid2020_20180201.gsb" -P "/opt/dynadjust/geoid_file"
