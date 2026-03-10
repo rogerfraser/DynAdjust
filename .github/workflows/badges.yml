@@ -61,7 +61,7 @@ jobs:
           else
             COLOUR="red"
           fi
-          curl -s "https://img.shields.io/badge/coverage-${PCT}%25-${COLOUR}" -o ./resources/img/coverage-badge.svg
+          curl -s "https://img.shields.io/badge/Coverage-${PCT}%25-${COLOUR}" -o ./resources/img/coverage-badge.svg
 
       - name: Generate LoC badge
         run: |
