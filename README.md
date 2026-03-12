@@ -71,7 +71,7 @@ To suggest an enhancement to the functionality of DynAdjust, or to report a defe
 
 ## User's guide
 
-A comprehensive User's Guide can be found in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.  The User's Guide provides information about the history of DynAdjust, its architecture and algorithms, its usage, supported file format specifications and basic command-line examples.
+A comprehensive User's Guide can be found in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.  The User's Guide provides information about the history of DynAdjust, its architecture and algorithms, its usage, supported file format specifications and basic command-line examples. A Spanish translation of the User's Guide is also available in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.
 
 ## Creating images
 
